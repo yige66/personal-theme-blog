@@ -62,6 +62,7 @@ const elements = {
   siteAccentColor: document.querySelector('#siteAccentColor'),
   siteAssistantName: document.querySelector('#siteAssistantName'),
   siteAssistantPrompt: document.querySelector('#siteAssistantPrompt'),
+  siteEffects: document.querySelector('#siteEffects'),
   siteCommentsEnabled: document.querySelector('#siteCommentsEnabled'),
   siteCommentRepo: document.querySelector('#siteCommentRepo'),
   siteCommentClientId: document.querySelector('#siteCommentClientId'),
@@ -406,6 +407,7 @@ function renderSiteForm() {
   elements.siteAccentColor.value = site.accentColor;
   elements.siteAssistantName.value = site.assistantName || '';
   elements.siteAssistantPrompt.value = site.assistantPrompt || '';
+  elements.siteEffects.value = JSON.stringify(site.effects || {}, null, 2);
   elements.siteCommentsEnabled.checked = Boolean(site.comments?.enabled);
   elements.siteCommentRepo.value = site.comments?.repo || '';
   elements.siteCommentClientId.value = site.comments?.clientId || '';
@@ -583,8 +585,9 @@ async function handleSaveMedia(event) {
 
 async function saveSitePayload(successMessage) {
   const { music, gallery } = syncMediaJsonFromEditors();
-  const site = readSitePayload(music, gallery);
   try {
+    const effects = JSON.parse(elements.siteEffects.value || '{}');
+    const site = readSitePayload(music, gallery, effects);
     const payload = await api('/api/admin/site', { method: 'PUT', body: site, csrf: true });
     state.data = payload.data;
     renderAll();
@@ -594,7 +597,7 @@ async function saveSitePayload(successMessage) {
   }
 }
 
-function readSitePayload(music, gallery) {
+function readSitePayload(music, gallery, effects) {
   return {
     title: elements.siteTitle.value,
     owner: elements.siteOwner.value,
@@ -615,6 +618,7 @@ function readSitePayload(music, gallery) {
     accentColor: elements.siteAccentColor.value,
     assistantName: elements.siteAssistantName.value,
     assistantPrompt: elements.siteAssistantPrompt.value,
+    effects,
     comments: {
       enabled: elements.siteCommentsEnabled.checked,
       provider: 'GitHub Issues / Gitalk',

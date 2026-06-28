@@ -46,4 +46,26 @@ describe('target-inspired homepage shell', () => {
     assert.match(css, /\.xh-insight-card/);
     assert.match(css, /\.xh-tech-strip/);
   });
+
+  it('implements target-inspired anime effects without hardcoding them into the page', async () => {
+    const [page, component, blog, css] = await Promise.all([
+      readFile('app/page.tsx', 'utf8'),
+      readFile('components/HomeEffects.tsx', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('app/globals.css', 'utf8')
+    ]);
+
+    assert.match(page, /<HomeEffects site=\{data\.site\} posts=\{posts\} notes=\{data\.notes\} activeTrack=\{activeTrack\}/);
+    assert.match(component, /xh-danmaku-layer/);
+    assert.match(component, /xh-firefly-layer/);
+    assert.match(component, /xh-petal-layer/);
+    assert.match(component, /xh-grass-layer/);
+    assert.match(component, /xh-floating-companion/);
+    assert.match(component, /prefers-reduced-motion/);
+    assert.match(blog, /VisualEffectsConfig/);
+    assert.match(blog, /danmaku: string\[\]/);
+    assert.match(css, /\.xh-danmaku-item/);
+    assert.match(css, /@keyframes xh-petal-fall/);
+    assert.match(css, /html\[data-xh-theme="night"\]/);
+  });
 });

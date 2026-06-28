@@ -79,6 +79,17 @@ export type CommentConfig = {
   clientId: string;
 };
 
+export type VisualEffectsConfig = {
+  enabled: boolean;
+  danmaku: string[];
+  fireflies: boolean;
+  petals: boolean;
+  grass: boolean;
+  cursorTrail: boolean;
+  floatingCompanion: boolean;
+  intensity: number;
+};
+
 export type BlogSite = {
   title: string;
   subtitle: string;
@@ -100,6 +111,7 @@ export type BlogSite = {
   assistantName: string;
   assistantPrompt: string;
   comments: CommentConfig;
+  effects: VisualEffectsConfig;
   music: MusicTrack[];
   gallery: GalleryItem[];
 };
@@ -156,6 +168,25 @@ const fallbackSite: BlogSite = {
   streak: 27,
   assistantName: '星屿助手',
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
+  effects: {
+    enabled: true,
+    danmaku: [
+      '前方高能反应',
+      '正在整理灵感碎片',
+      'Markdown 写作中',
+      '照片墙素材补给完成',
+      'GitHub / Vercel 发布流运行中',
+      '今天也在向目标站靠齐',
+      '把日常写成可回看的星图',
+      '评论与音乐入口待部署'
+    ],
+    fireflies: true,
+    petals: true,
+    grass: true,
+    cursorTrail: true,
+    floatingCompanion: true,
+    intensity: 72
+  },
   comments: {
     enabled: false,
     provider: 'GitHub Issues / Gitalk',
@@ -446,7 +477,8 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     experience: toInteger(siteInput.experience, fallbackSite.experience),
     streak: toInteger(siteInput.streak, fallbackSite.streak),
     assistantName: siteInput.assistantName || fallbackSite.assistantName,
-    assistantPrompt: siteInput.assistantPrompt || fallbackSite.assistantPrompt
+    assistantPrompt: siteInput.assistantPrompt || fallbackSite.assistantPrompt,
+    effects: normalizeEffects(siteInput.effects)
   };
 
   return {
@@ -460,6 +492,25 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
 
 function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
   return Array.isArray(value) && value.length > 0 ? (value as T[]) : fallback;
+}
+
+function normalizeEffects(value: unknown): VisualEffectsConfig {
+  const source = typeof value === 'object' && value !== null ? value as Partial<VisualEffectsConfig> : {};
+  const fallback = fallbackSite.effects;
+  const danmaku = Array.isArray(source.danmaku)
+    ? source.danmaku.map((item) => String(item).trim()).filter(Boolean).slice(0, 24)
+    : fallback.danmaku;
+
+  return {
+    enabled: source.enabled ?? fallback.enabled,
+    danmaku: danmaku.length > 0 ? danmaku : fallback.danmaku,
+    fireflies: source.fireflies ?? fallback.fireflies,
+    petals: source.petals ?? fallback.petals,
+    grass: source.grass ?? fallback.grass,
+    cursorTrail: source.cursorTrail ?? fallback.cursorTrail,
+    floatingCompanion: source.floatingCompanion ?? fallback.floatingCompanion,
+    intensity: Math.min(100, Math.max(0, toInteger(source.intensity, fallback.intensity)))
+  };
 }
 
 function comparePosts(a: BlogPost, b: BlogPost): number {

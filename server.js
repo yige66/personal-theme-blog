@@ -57,6 +57,25 @@ const defaultSite = {
   streak: 27,
   assistantName: '星屿助理',
   assistantPrompt: '我会根据站点文章、动态和作者资料，为访客推荐阅读路径，并提示评论、音乐与作品集入口。',
+  effects: {
+    enabled: true,
+    danmaku: [
+      '前方高能反应',
+      '正在整理灵感碎片',
+      'Markdown 写作中',
+      '照片墙素材补给完成',
+      'GitHub / Vercel 发布流运行中',
+      '今天也在向目标站靠齐',
+      '把日常写成可回看的星图',
+      '评论与音乐入口待部署'
+    ],
+    fireflies: true,
+    petals: true,
+    grass: true,
+    cursorTrail: true,
+    floatingCompanion: true,
+    intensity: 72
+  },
   comments: {
     enabled: false,
     provider: 'GitHub Issues / Gitalk',
@@ -753,9 +772,31 @@ function validateSite(input = {}) {
     streak: validateInteger(source.streak, '连续写作天数', 0, 999, 27),
     assistantName: optionalString(source.assistantName, 40) || defaultSite.assistantName,
     assistantPrompt: optionalString(source.assistantPrompt, 240) || defaultSite.assistantPrompt,
+    effects: validateEffects(source.effects),
     comments: validateComments(source.comments),
     music: validateMusic(source.music),
     gallery: validateGallery(source.gallery)
+  };
+}
+
+function validateEffects(input = {}) {
+  const source = {
+    ...defaultSite.effects,
+    ...(input || {})
+  };
+  const danmaku = Array.isArray(source.danmaku)
+    ? source.danmaku.map((item) => optionalString(item, 60)).filter(Boolean).slice(0, 24)
+    : defaultSite.effects.danmaku;
+
+  return {
+    enabled: Boolean(source.enabled),
+    danmaku: danmaku.length > 0 ? danmaku : defaultSite.effects.danmaku,
+    fireflies: Boolean(source.fireflies),
+    petals: Boolean(source.petals),
+    grass: Boolean(source.grass),
+    cursorTrail: Boolean(source.cursorTrail),
+    floatingCompanion: Boolean(source.floatingCompanion),
+    intensity: validateInteger(source.intensity, '特效强度', 0, 100, defaultSite.effects.intensity)
   };
 }
 

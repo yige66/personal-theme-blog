@@ -29,6 +29,7 @@ describe('admin structured CMS UI wiring', () => {
     assert.match(html, /id="projectsInput"[^>]*readonly/);
     assert.match(html, /id="siteMusic"[^>]*readonly/);
     assert.match(html, /id="siteGallery"[^>]*readonly/);
+    assert.match(html, /id="siteEffects"/);
     assert.equal((html.match(/id="siteMusic"/g) || []).length, 1);
     assert.equal((html.match(/id="siteGallery"/g) || []).length, 1);
 
@@ -36,6 +37,8 @@ describe('admin structured CMS UI wiring', () => {
     assert.ok(script.includes("projectsEditor: document.querySelector('#projectsEditor')"));
     assert.ok(script.includes("musicEditor: document.querySelector('#musicEditor')"));
     assert.ok(script.includes("galleryEditor: document.querySelector('#galleryEditor')"));
+    assert.ok(script.includes("siteEffects: document.querySelector('#siteEffects')"));
+    assert.match(script, /JSON\.parse\(elements\.siteEffects\.value/);
     assert.match(script, /handlePanelKeydown/);
     assert.match(script, /getNextPanelIndex/);
     assert.match(script, /aria-selected/);

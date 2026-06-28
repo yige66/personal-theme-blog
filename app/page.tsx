@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArticleExplorer } from '@/components/ArticleExplorer';
 import { AssistantCard } from '@/components/AssistantCard';
 import { ExperienceShowcase } from '@/components/ExperienceShowcase';
+import { HomeEffects } from '@/components/HomeEffects';
 import { PostCard } from '@/components/PostCard';
 import { GalleryTile, ProjectCard } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
@@ -34,6 +35,7 @@ export default async function HomePage() {
   return (
     <main className="xh-home">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(websiteJsonLd) }} />
+      <HomeEffects site={data.site} posts={posts} notes={data.notes} activeTrack={activeTrack} />
       <section className="hero-stage xh-hero" id="top" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
         <SiteNav title={data.site.title} />
 
