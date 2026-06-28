@@ -30,36 +30,173 @@
         "title": "晚风经过编译器",
         "artist": "Local Playlist",
         "mood": "写作 / Coding",
-        "url": ""
+        "url": "",
+        "cover": "/assets/img/desk-notes.svg",
+        "source": "local-draft",
+        "note": "适合整理草稿、拆分任务和做夜间复盘。"
       },
       {
         "title": "纸页与星轨",
         "artist": "星屿电台",
         "mood": "阅读 / Quiet",
-        "url": ""
+        "url": "",
+        "cover": "/assets/img/hero-mountain.svg",
+        "source": "local-draft",
+        "note": "留给长文阅读和归档整理的安静背景。"
       },
       {
         "title": "未完成的部署",
         "artist": "Blog Console",
         "mood": "Deploy / Vercel",
-        "url": ""
+        "url": "",
+        "cover": "/assets/img/admin-board.svg",
+        "source": "local-draft",
+        "note": "记录每次 push 前的检查节奏。"
+      },
+      {
+        "title": "清晨调色盘",
+        "artist": "星屿电台",
+        "mood": "Design / Gallery",
+        "url": "",
+        "cover": "/assets/img/hero-mountain.svg",
+        "source": "local-draft",
+        "note": "给照片墙选图、写描述时使用。"
+      },
+      {
+        "title": "雨后缓存",
+        "artist": "Local Playlist",
+        "mood": "Refactor / Deep Work",
+        "url": "",
+        "cover": "/assets/img/desk-notes.svg",
+        "source": "local-draft",
+        "note": "适合处理重构、测试和构建失败。"
       }
     ],
     "gallery": [
       {
-        "title": "山脉头图",
-        "description": "首页主题视觉与长期写作的起点。",
-        "image": "/assets/img/hero-mountain.svg"
+        "title": "站点视觉基调",
+        "description": "首页头图、头像轨道和夜间背景共同组成站点第一眼的视觉气质。",
+        "image": "/assets/img/hero-mountain.svg",
+        "alt": "山脉与夜色构成的博客首页头图",
+        "collection": "Hero set",
+        "location": "Homepage",
+        "date": "2026-06-28",
+        "featured": true,
+        "tags": [
+          "头图",
+          "首页",
+          "视觉"
+        ],
+        "items": [
+          {
+            "title": "山脉头图",
+            "image": "/assets/img/hero-mountain.svg",
+            "alt": "山脉与夜色构成的博客首页头图"
+          },
+          {
+            "title": "头像轨道",
+            "image": "/assets/img/avatar-orbit.svg",
+            "alt": "环形轨道头像插画"
+          }
+        ]
       },
       {
-        "title": "桌面笔记",
-        "description": "把学习碎片整理成专题文章。",
-        "image": "/assets/img/desk-notes.svg"
+        "title": "写作桌面",
+        "description": "学习笔记、文章草稿和项目拆解都从这组素材开始沉淀。",
+        "image": "/assets/img/desk-notes.svg",
+        "alt": "桌面笔记与写作工具插画",
+        "collection": "Writing set",
+        "location": "Archive",
+        "date": "2026-06-24",
+        "featured": true,
+        "tags": [
+          "写作",
+          "笔记",
+          "归档"
+        ],
+        "items": [
+          {
+            "title": "桌面笔记",
+            "image": "/assets/img/desk-notes.svg",
+            "alt": "桌面笔记与写作工具插画"
+          },
+          {
+            "title": "山脉头图",
+            "image": "/assets/img/hero-mountain.svg",
+            "alt": "山脉与夜色构成的博客首页头图"
+          }
+        ]
       },
       {
-        "title": "后台面板",
-        "description": "发布工作流承载内容版本、预览和备份。",
-        "image": "/assets/img/admin-board.svg"
+        "title": "发布工作台",
+        "description": "内容从草稿、检查、提交到 Vercel 预览，形成可回滚的发布链路。",
+        "image": "/assets/img/admin-board.svg",
+        "alt": "内容发布工作台插画",
+        "collection": "Deploy set",
+        "location": "Console",
+        "date": "2026-06-28",
+        "featured": true,
+        "tags": [
+          "发布",
+          "GitHub",
+          "Vercel"
+        ],
+        "items": [
+          {
+            "title": "后台面板",
+            "image": "/assets/img/admin-board.svg",
+            "alt": "内容发布工作台插画"
+          },
+          {
+            "title": "桌面笔记",
+            "image": "/assets/img/desk-notes.svg",
+            "alt": "桌面笔记与写作工具插画"
+          },
+          {
+            "title": "山脉头图",
+            "image": "/assets/img/hero-mountain.svg",
+            "alt": "山脉与夜色构成的博客首页头图"
+          }
+        ]
+      },
+      {
+        "title": "项目截图位",
+        "description": "后续项目上线后，这里用于替换真实截图和交互状态。",
+        "image": "/assets/img/admin-board.svg",
+        "alt": "项目截图占位插画",
+        "collection": "Project set",
+        "location": "Projects",
+        "date": "2026-06-20",
+        "tags": [
+          "项目",
+          "截图"
+        ]
+      },
+      {
+        "title": "阅读背景位",
+        "description": "给文章详情和长文阅读保留的轻视觉素材。",
+        "image": "/assets/img/desk-notes.svg",
+        "alt": "阅读与笔记背景插画",
+        "collection": "Article set",
+        "location": "Posts",
+        "date": "2026-06-18",
+        "tags": [
+          "文章",
+          "阅读"
+        ]
+      },
+      {
+        "title": "关于页头像位",
+        "description": "头像、联系方式和个人简介区域的视觉素材入口。",
+        "image": "/assets/img/avatar-orbit.svg",
+        "alt": "环形轨道头像插画",
+        "collection": "Profile set",
+        "location": "About",
+        "date": "2026-06-16",
+        "tags": [
+          "头像",
+          "关于"
+        ]
       }
     ]
   },
@@ -83,18 +220,69 @@
   "notes": [
     {
       "id": "note-1",
-      "content": "今天把博客前台升级为可部署的 Next.js 玻璃拟态首页。",
-      "date": "2026-06-28"
+      "title": "发布流完成第一轮闭环",
+      "content": "今天把博客前台升级为可部署的 Next.js 玻璃拟态首页，并把发布工作流整理进仓库。",
+      "date": "2026-06-28",
+      "mood": "Deploy",
+      "tags": [
+        "Next.js",
+        "Vercel"
+      ]
     },
     {
       "id": "note-2",
-      "content": "本地写作控制台保留为辅助工具，正式发布交给 GitHub 与 Vercel。",
-      "date": "2026-06-24"
+      "title": "本地写作与线上发布分工",
+      "content": "本地写作控制台保留为辅助工具，正式发布交给 GitHub 与 Vercel，让内容版本可以追踪。",
+      "date": "2026-06-24",
+      "mood": "Workflow",
+      "tags": [
+        "GitHub",
+        "内容流"
+      ]
     },
     {
       "id": "note-3",
-      "content": "下一步可以接入 GitHub Issues 评论、Vercel 正式域名和图床上传。",
-      "date": "2026-06-20"
+      "title": "下一批交互入口",
+      "content": "下一步可以接入 GitHub Issues 评论、Vercel 正式域名和图床上传，让站点从展示页继续走向运营态。",
+      "date": "2026-06-20",
+      "mood": "Plan",
+      "tags": [
+        "评论",
+        "图床"
+      ]
+    },
+    {
+      "id": "note-4",
+      "title": "照片墙开始按图集整理",
+      "content": "把单张图片改成图集视角后，首页视觉、发布工作台和项目截图都能独立维护。",
+      "date": "2026-06-18",
+      "mood": "Gallery",
+      "tags": [
+        "照片墙",
+        "素材"
+      ]
+    },
+    {
+      "id": "note-5",
+      "title": "音乐页先做氛围层",
+      "content": "目前歌单先记录场景、封面和说明，等真实音频资源确定后再补充可播放地址。",
+      "date": "2026-06-14",
+      "mood": "Music",
+      "tags": [
+        "音乐",
+        "阅读"
+      ]
+    },
+    {
+      "id": "note-6",
+      "title": "文章归档保持轻量",
+      "content": "归档、标签和项目页先确保能扫描信息，后续再加评论、搜索和更多内容样本。",
+      "date": "2026-06-10",
+      "mood": "Writing",
+      "tags": [
+        "归档",
+        "文章"
+      ]
     }
   ],
   "posts": [

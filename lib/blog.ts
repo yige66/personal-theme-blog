@@ -27,7 +27,9 @@ export type BlogNote = {
   id: string;
   content: string;
   date: string;
+  title?: string;
   mood?: string;
+  tags?: string[];
 };
 
 export type GalleryItem = {
@@ -36,6 +38,15 @@ export type GalleryItem = {
   image: string;
   alt?: string;
   tags?: string[];
+  collection?: string;
+  location?: string;
+  date?: string;
+  featured?: boolean;
+  items?: Array<{
+    title: string;
+    image: string;
+    alt?: string;
+  }>;
 };
 
 export type MusicTrack = {
@@ -45,6 +56,7 @@ export type MusicTrack = {
   url: string;
   cover?: string;
   source?: string;
+  note?: string;
 };
 
 export type BlogProject = {
@@ -155,13 +167,17 @@ const fallbackSite: BlogSite = {
       title: '晚风经过编译器',
       artist: 'Local Playlist',
       mood: '写作 / Coding',
-      url: ''
+      url: '',
+      cover: '/assets/img/desk-notes.svg',
+      note: '适合整理草稿和复盘项目时播放。'
     },
     {
       title: '纸页与星轨',
       artist: '星屿电台',
       mood: '阅读 / Quiet',
-      url: ''
+      url: '',
+      cover: '/assets/img/hero-mountain.svg',
+      note: '更安静的阅读背景。'
     }
   ],
   gallery: [
