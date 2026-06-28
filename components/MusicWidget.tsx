@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import type { MusicTrack } from '@/lib/blog';
@@ -17,7 +17,7 @@ export function MusicWidget({ tracks }: { tracks: MusicTrack[] }) {
       <div>
         <p className="eyebrow">Now Playing</p>
         <h3>{track.title}</h3>
-        <p>{track.artist} · {track.mood || '阅读背景'}</p>
+        <p>{track.artist} / {track.mood || '阅读背景'}</p>
       </div>
       <div className="music-controls" aria-label="切换歌曲">
         {tracks.map((item, index) => (
@@ -30,4 +30,3 @@ export function MusicWidget({ tracks }: { tracks: MusicTrack[] }) {
     </section>
   );
 }
-

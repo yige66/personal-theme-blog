@@ -68,6 +68,8 @@ const elements = {
   siteGallery: document.querySelector('#siteGallery'),
   linksForm: document.querySelector('#linksForm'),
   linksInput: document.querySelector('#linksInput'),
+  projectsForm: document.querySelector('#projectsForm'),
+  projectsInput: document.querySelector('#projectsInput'),
   exportButton: document.querySelector('#exportButton'),
   importInput: document.querySelector('#importInput'),
   importButton: document.querySelector('#importButton')
@@ -100,6 +102,7 @@ function bindEvents() {
   elements.deletePostButton.addEventListener('click', handleDeletePost);
   elements.siteForm.addEventListener('submit', handleSaveSite);
   elements.linksForm.addEventListener('submit', handleSaveLinks);
+  elements.projectsForm.addEventListener('submit', handleSaveProjects);
   elements.notesForm.addEventListener('submit', handleSaveNotes);
   elements.exportButton.addEventListener('click', handleExport);
   elements.importButton.addEventListener('click', handleImport);
@@ -123,12 +126,8 @@ async function loadAdminState() {
   try {
     const payload = await api('/api/admin/state');
     state.csrfToken = payload.data.csrfToken;
-    state.data = {
-      site: payload.data.site,
-      links: payload.data.links,
-      notes: payload.data.notes,
-      posts: payload.data.posts
-    };
+    state.data = { ...payload.data };
+    delete state.data.csrfToken;
     showDashboard();
     renderAll();
   } catch (error) {
@@ -411,8 +410,9 @@ async function handleSaveSite(event) {
 }
 
 function renderJsonEditors() {
-  elements.linksInput.value = JSON.stringify(state.data.links, null, 2);
-  elements.notesInput.value = JSON.stringify(state.data.notes, null, 2);
+  elements.linksInput.value = JSON.stringify(state.data.links || [], null, 2);
+  elements.projectsInput.value = JSON.stringify(state.data.projects || [], null, 2);
+  elements.notesInput.value = JSON.stringify(state.data.notes || [], null, 2);
 }
 
 async function handleSaveLinks(event) {
@@ -423,6 +423,19 @@ async function handleSaveLinks(event) {
     state.data = payload.data;
     renderAll();
     showToast('友链已保存');
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+async function handleSaveProjects(event) {
+  event.preventDefault();
+  try {
+    const projects = JSON.parse(elements.projectsInput.value);
+    const payload = await api('/api/admin/projects', { method: 'PUT', body: { projects }, csrf: true });
+    state.data = payload.data;
+    renderAll();
+    showToast('?????');
   } catch (error) {
     showToast(error.message, true);
   }

@@ -13,3 +13,4 @@ coverage/
 *.local
 Thumbs.db
 .DS_Store
+tsconfig.tsbuildinfo

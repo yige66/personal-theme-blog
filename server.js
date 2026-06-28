@@ -84,10 +84,26 @@ const defaultSite = {
   ]
 };
 
+const defaultProjects = [
+  {
+    id: 'project-console',
+    title: 'Local Blog Console',
+    description: 'A private content cockpit for posts, drafts, moments, gallery, music, links and JSON backups.',
+    url: '/console',
+    repo: 'https://github.com/yige66/personal-theme-blog',
+    cover: '/assets/img/admin-board.svg',
+    tags: ['Next.js', 'CMS', 'Content'],
+    status: 'active',
+    featured: true,
+    startedAt: '2026-06-28'
+  }
+];
+
 const defaultData = {
   site: defaultSite,
   links: [],
   notes: [],
+  projects: defaultProjects,
   posts: []
 };
 
@@ -254,6 +270,16 @@ async function handleAdminApi(request, response, context, url) {
     const notes = validateNotes(body.notes);
     const data = await readBlogData(context);
     const nextData = { ...data, notes };
+    await writeBlogData(context, nextData);
+    sendJson(response, 200, { success: true, data: nextData });
+    return;
+  }
+
+  if (request.method === 'PUT' && url.pathname === '/api/admin/projects') {
+    const body = await readJsonBody(request);
+    const projects = validateProjects(body.projects);
+    const data = await readBlogData(context);
+    const nextData = { ...data, projects };
     await writeBlogData(context, nextData);
     sendJson(response, 200, { success: true, data: nextData });
     return;
@@ -554,8 +580,14 @@ function toPublicBlogData(data) {
     stats: {
       posts: posts.length,
       tags: [...new Set(posts.flatMap((post) => post.tags))].length,
-      categories: [...new Set(posts.map((post) => post.category))].length
-    }
+      categories: [...new Set(posts.map((post) => post.category))].length,
+      projects: data.projects.length,
+      gallery: data.site.gallery.length,
+      tracks: data.site.music.length,
+      notes: data.notes.length,
+      links: data.links.length
+    },
+    projects: data.projects
   };
 }
 
@@ -570,6 +602,7 @@ function validateBlogData(input) {
   const site = validateSite(input.site || defaultData.site);
   const links = validateLinks(input.links || []);
   const notes = validateNotes(input.notes || []);
+  const projects = validateProjects(input.projects || []);
   const posts = Array.isArray(input.posts) ? input.posts.map(validatePost) : [];
   const slugs = new Set();
 
@@ -584,6 +617,7 @@ function validateBlogData(input) {
     site,
     links,
     notes,
+    projects,
     posts
   };
 }
@@ -679,6 +713,25 @@ function validateNotes(input) {
     id: optionalString(note.id, 80) || createId('note'),
     content: requiredString(note.content, '动态内容', 1, 160),
     date: validateDateString(note.date, '动态日期')
+  }));
+}
+
+function validateProjects(input) {
+  if (!Array.isArray(input)) {
+    throw new ApiError(400, '???????');
+  }
+
+  return input.slice(0, 12).map((project) => ({
+    id: optionalString(project.id, 80) || createId('project'),
+    title: requiredString(project.title, '????', 1, 80),
+    description: requiredString(project.description, '????', 1, 240),
+    url: optionalPathOrUrl(project.url, '#'),
+    repo: optionalPathOrUrl(project.repo, ''),
+    cover: optionalPathOrUrl(project.cover, '/assets/img/admin-board.svg'),
+    tags: validateTags(project.tags),
+    status: optionalString(project.status, 40) || 'active',
+    featured: Boolean(project.featured),
+    startedAt: validateDateString(project.startedAt || new Date().toISOString().slice(0, 10), '????')
   }));
 }
 

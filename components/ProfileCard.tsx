@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { BlogSite, BlogStats } from '@/lib/blog';
 
@@ -34,4 +34,3 @@ export function ProfileCard({ site, stats }: { site: BlogSite; stats: BlogStats 
     </aside>
   );
 }
-

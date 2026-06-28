@@ -150,5 +150,39 @@
       "createdAt": "2026-06-12T14:00:00.000Z",
       "updatedAt": "2026-06-18T14:00:00.000Z"
     }
+  ],
+  "projects": [
+    {
+      "id": "project-personal-blog",
+      "title": "????????",
+      "description": "? Next.js ????? CMS ????????????????????????????????",
+      "url": "/console",
+      "repo": "https://github.com/yige66/personal-theme-blog",
+      "cover": "/assets/img/admin-board.svg",
+      "tags": [
+        "Next.js",
+        "CMS",
+        "????"
+      ],
+      "status": "active",
+      "featured": true,
+      "startedAt": "2026-06-28"
+    },
+    {
+      "id": "project-study-map",
+      "title": "?????????",
+      "description": "??????????????????????????????????",
+      "url": "/archive",
+      "repo": "https://github.com/yige66/personal-theme-blog",
+      "cover": "/assets/img/desk-notes.svg",
+      "tags": [
+        "????",
+        "??",
+        "??"
+      ],
+      "status": "planning",
+      "featured": false,
+      "startedAt": "2026-06-20"
+    }
   ]
 }

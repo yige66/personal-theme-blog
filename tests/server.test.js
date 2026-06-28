@@ -43,6 +43,11 @@ describe('public blog API', () => {
     assert.equal(payload.data.posts[0].status, 'published');
     assert.equal(payload.data.stats.posts, 1);
     assert.equal(payload.data.stats.tags, 1);
+    assert.equal(payload.data.projects.length, 1);
+    assert.equal(payload.data.projects[0].title, 'Project Console');
+    assert.equal(payload.data.stats.projects, 1);
+    assert.equal(payload.data.stats.gallery, 1);
+    assert.equal(payload.data.stats.tracks, 1);
   });
 });
 
@@ -121,6 +126,44 @@ describe('admin authentication and article management', () => {
     assert.ok(passedLogin.data.csrfToken);
   });
 
+  it('updates project entries through the admin API', async () => {
+    const setup = await json('/api/setup', {
+      method: 'POST',
+      body: { password: TEST_ADMIN_PASSPHRASE }
+    });
+    const cookie = setup.headers.get('set-cookie').split(';')[0];
+    const csrfToken = setup.data.csrfToken;
+
+    const statePayload = await json('/api/admin/state', { cookie });
+    assert.equal(statePayload.status, 200);
+    assert.equal(statePayload.data.projects.length, 1);
+
+    const unauthorized = await json('/api/admin/projects', {
+      method: 'PUT',
+      cookie,
+      body: { projects: [] }
+    });
+    assert.equal(unauthorized.status, 403);
+
+    const updated = await json('/api/admin/projects', {
+      method: 'PUT',
+      cookie,
+      csrfToken,
+      body: {
+        projects: [
+          {
+            ...statePayload.data.projects[0],
+            title: 'Updated Project Console',
+            featured: false
+          }
+        ]
+      }
+    });
+    assert.equal(updated.status, 200);
+    assert.equal(updated.data.projects.length, 1);
+    assert.equal(updated.data.projects[0].title, 'Updated Project Console');
+  });
+
   it('validates post slugs and prevents duplicates', async () => {
     const setup = await json('/api/setup', {
       method: 'POST',
@@ -196,10 +239,51 @@ function createSeedData() {
       github: 'https://github.com/example',
       themeColor: '#2f7d68',
       accentColor: '#e7b85a',
-      heroImage: '/assets/img/hero-mountain.svg'
+      heroImage: '/assets/img/hero-mountain.svg',
+      music: [
+        {
+          title: 'Test Track',
+          artist: 'Tester',
+          mood: 'Verification',
+          url: ''
+        }
+      ],
+      gallery: [
+        {
+          title: 'Test Gallery',
+          description: 'A gallery entry used by stats.',
+          image: '/assets/img/desk-notes.svg'
+        }
+      ]
     },
-    links: [],
-    notes: [],
+    links: [
+      {
+        title: 'Friend Site',
+        url: 'https://example.com',
+        description: 'A trusted friend link.'
+      }
+    ],
+    notes: [
+      {
+        id: 'note-1',
+        content: 'A visible status update.',
+        date: '2026-06-03'
+      }
+    ],
+    projects: [
+      {
+        id: 'project-1',
+        title: 'Project Console',
+        description: 'A project card used by the public API test.',
+        url: 'https://example.com/project',
+        repo: 'https://github.com/example/project',
+        cover: '/assets/img/admin-board.svg',
+        tags: ['console'],
+        status: 'active',
+        featured: true,
+        startedAt: '2026-06-01'
+      }
+    ],
     posts: [
       {
         id: 'published-1',
@@ -232,7 +316,6 @@ function createSeedData() {
     ]
   };
 }
-
 function createPostInput() {
   return {
     title: 'API Created Post',
@@ -246,4 +329,5 @@ function createPostInput() {
     featured: false
   };
 }
+
 

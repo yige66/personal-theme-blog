@@ -1,5 +1,5 @@
+﻿import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 export type BlogPost = {
@@ -27,12 +27,15 @@ export type BlogNote = {
   id: string;
   content: string;
   date: string;
+  mood?: string;
 };
 
 export type GalleryItem = {
   title: string;
   description: string;
   image: string;
+  alt?: string;
+  tags?: string[];
 };
 
 export type MusicTrack = {
@@ -40,6 +43,21 @@ export type MusicTrack = {
   artist: string;
   mood: string;
   url: string;
+  cover?: string;
+  source?: string;
+};
+
+export type BlogProject = {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  repo: string;
+  cover: string;
+  tags: string[];
+  status: string;
+  featured: boolean;
+  startedAt: string;
 };
 
 export type CommentConfig = {
@@ -78,6 +96,7 @@ export type BlogData = {
   site: BlogSite;
   links: BlogLink[];
   notes: BlogNote[];
+  projects: BlogProject[];
   posts: BlogPost[];
 };
 
@@ -87,19 +106,35 @@ export type BlogStats = {
   tags: number;
   categories: number;
   words: number;
+  projects: number;
+  notes: number;
+  gallery: number;
+  tracks: number;
+  links: number;
+};
+
+export type TagSummary = {
+  name: string;
+  count: number;
+  latestAt: string;
+};
+
+export type ArchiveGroup = {
+  year: string;
+  posts: BlogPost[];
 };
 
 const fallbackSite: BlogSite = {
   title: '星屿手记',
   subtitle: '写代码，也写生活里发光的片刻。',
   owner: 'Lu Longfei',
-  role: '全栈练习生',
+  role: '全栈练习生 / 博客系统维护者',
   motto: '把日常、代码和灵感整理成可以再次抵达的星图。',
-  bio: '计算机学习者 / 后端与前端练习者 / 喜欢把复杂问题拆成可以落地的小系统。',
-  status: '正在维护轻量博客、文章后台与个人知识库。',
+  bio: '计算机学习者，喜欢把复杂问题拆成可以落地的小系统。',
+  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙、友链和本地 CMS。',
   location: 'Changsha, China',
   email: 'hello@example.com',
-  github: 'https://github.com/',
+  github: 'https://github.com/yige66/personal-theme-blog',
   themeColor: '#6fb7a8',
   accentColor: '#f0c36a',
   heroImage: '/assets/img/hero-mountain.svg',
@@ -107,11 +142,11 @@ const fallbackSite: BlogSite = {
   level: 12,
   experience: 68,
   streak: 27,
-  assistantName: '星屿助理',
-  assistantPrompt: '我会根据站点文章、动态和作者资料给访客提供阅读建议。',
+  assistantName: '星屿助手',
+  assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
   comments: {
     enabled: false,
-    provider: 'GitHub Issues',
+    provider: 'GitHub Issues / Gitalk',
     repo: 'your-name/blog-comments',
     clientId: ''
   },
@@ -131,27 +166,46 @@ const fallbackSite: BlogSite = {
   ],
   gallery: [
     {
-      title: '山脉头图',
+      title: '山脊头图',
       description: '首页主题视觉与长期写作的起点。',
-      image: '/assets/img/hero-mountain.svg'
+      image: '/assets/img/hero-mountain.svg',
+      alt: '山脊与星空风格的博客头图'
     },
     {
       title: '桌面笔记',
       description: '把学习碎片整理成专题文章。',
-      image: '/assets/img/desk-notes.svg'
+      image: '/assets/img/desk-notes.svg',
+      alt: '桌面笔记插画'
     },
     {
       title: '后台面板',
       description: '本地控制台承载文章、动态和备份。',
-      image: '/assets/img/admin-board.svg'
+      image: '/assets/img/admin-board.svg',
+      alt: '后台面板插画'
     }
   ]
 };
+
+const fallbackProjects: BlogProject[] = [
+  {
+    id: 'project-console',
+    title: 'Personal Blog Console',
+    description: '一个本地优先的个人博客内容控制台，用 JSON 串联文章、动态、音乐、相册、友链和部署流程。',
+    url: '/console',
+    repo: 'https://github.com/yige66/personal-theme-blog',
+    cover: '/assets/img/admin-board.svg',
+    tags: ['Next.js', 'CMS', 'JSON'],
+    status: 'active',
+    featured: true,
+    startedAt: '2026-06-28'
+  }
+];
 
 const fallbackData: BlogData = {
   site: fallbackSite,
   links: [],
   notes: [],
+  projects: fallbackProjects,
   posts: []
 };
 
@@ -177,6 +231,51 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   return posts.find((post) => post.slug === slug) ?? null;
 }
 
+export async function getFeaturedProjects(): Promise<BlogProject[]> {
+  const data = await getBlogData();
+  return [...data.projects].sort(compareProjects).slice(0, 4);
+}
+
+export async function getTagSummaries(): Promise<TagSummary[]> {
+  const posts = await getPublishedPosts();
+  const tags = new Map<string, TagSummary>();
+
+  for (const post of posts) {
+    for (const tag of post.tags) {
+      const current = tags.get(tag);
+      if (!current) {
+        tags.set(tag, { name: tag, count: 1, latestAt: post.updatedAt });
+        continue;
+      }
+      tags.set(tag, {
+        ...current,
+        count: current.count + 1,
+        latestAt: new Date(post.updatedAt) > new Date(current.latestAt) ? post.updatedAt : current.latestAt
+      });
+    }
+  }
+
+  return [...tags.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
+  const posts = await getPublishedPosts();
+  const normalizedTag = decodeURIComponent(tag).toLowerCase();
+  return posts.filter((post) => post.tags.some((item) => item.toLowerCase() === normalizedTag));
+}
+
+export async function getArchiveGroups(): Promise<ArchiveGroup[]> {
+  const posts = await getPublishedPosts();
+  const groups = posts.reduce<Map<string, BlogPost[]>>((archive, post) => {
+    const year = new Date(post.createdAt).getFullYear().toString();
+    const nextPosts = [...(archive.get(year) ?? []), post];
+    archive.set(year, nextPosts);
+    return archive;
+  }, new Map());
+
+  return [...groups.entries()].map(([year, groupPosts]) => ({ year, posts: groupPosts })).sort((a, b) => Number(b.year) - Number(a.year));
+}
+
 export async function getBlogStats(): Promise<BlogStats> {
   const data = await getBlogData();
   const posts = data.posts.filter((post) => post.status === 'published');
@@ -185,7 +284,12 @@ export async function getBlogStats(): Promise<BlogStats> {
     drafts: data.posts.filter((post) => post.status === 'draft').length,
     tags: new Set(posts.flatMap((post) => post.tags)).size,
     categories: new Set(posts.map((post) => post.category)).size,
-    words: posts.reduce((total, post) => total + estimateWords(post.content), 0)
+    words: posts.reduce((total, post) => total + estimateWords(post.content), 0),
+    projects: data.projects.length,
+    notes: data.notes.length,
+    gallery: data.site.gallery.length,
+    tracks: data.site.music.length,
+    links: data.links.length
   };
 }
 
@@ -274,8 +378,8 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
       ...fallbackSite.comments,
       ...(siteInput.comments ?? {})
     },
-    music: Array.isArray(siteInput.music) && siteInput.music.length > 0 ? siteInput.music : fallbackSite.music,
-    gallery: Array.isArray(siteInput.gallery) && siteInput.gallery.length > 0 ? siteInput.gallery : fallbackSite.gallery,
+    music: normalizeArray(siteInput.music, fallbackSite.music),
+    gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     avatar: siteInput.avatar || fallbackSite.avatar,
     role: siteInput.role || fallbackSite.role,
     motto: siteInput.motto || fallbackSite.motto,
@@ -291,8 +395,13 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     site,
     links: Array.isArray(input.links) ? input.links : [],
     notes: Array.isArray(input.notes) ? input.notes : [],
+    projects: normalizeArray(input.projects, fallbackProjects),
     posts: Array.isArray(input.posts) ? input.posts : []
   };
+}
+
+function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
+  return Array.isArray(value) && value.length > 0 ? (value as T[]) : fallback;
 }
 
 function comparePosts(a: BlogPost, b: BlogPost): number {
@@ -300,6 +409,13 @@ function comparePosts(a: BlogPost, b: BlogPost): number {
     return a.featured ? -1 : 1;
   }
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+}
+
+function compareProjects(a: BlogProject, b: BlogProject): number {
+  if (a.featured !== b.featured) {
+    return a.featured ? -1 : 1;
+  }
+  return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
 }
 
 function estimateWords(content: string): number {

@@ -1,43 +1,39 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { ArticleExplorer } from '@/components/ArticleExplorer';
 import { AssistantCard } from '@/components/AssistantCard';
 import { MusicWidget } from '@/components/MusicWidget';
 import { PostCard } from '@/components/PostCard';
 import { ProfileCard } from '@/components/ProfileCard';
-import { formatDate, getBlogData, getBlogStats, getPublishedPosts } from '@/lib/blog';
+import { GalleryTile, ProjectCard, StatPortal } from '@/components/SectionBlocks';
+import { SiteNav } from '@/components/SiteNav';
+import { formatDate, getBlogData, getBlogStats, getFeaturedProjects, getPublishedPosts } from '@/lib/blog';
 
 export default async function HomePage() {
-  const [data, posts, stats] = await Promise.all([getBlogData(), getPublishedPosts(), getBlogStats()]);
+  const [data, posts, stats, projects] = await Promise.all([getBlogData(), getPublishedPosts(), getBlogStats(), getFeaturedProjects()]);
   const featuredPost = posts.find((post) => post.featured) ?? posts[0];
   const regularPosts = posts.filter((post) => post.id !== featuredPost?.id).slice(0, 4);
+  const galleryPreview = data.site.gallery.slice(0, 3);
 
   return (
     <main>
       <section className="hero-stage" id="top" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-        <nav className="top-nav" aria-label="主导航">
-          <Link className="brand" href="#top">{data.site.title}</Link>
-          <div>
-            <Link href="#posts">文章</Link>
-            <Link href="#moments">动态</Link>
-            <Link href="#gallery">灵境</Link>
-            <Link href="/console">控制台</Link>
-          </div>
-        </nav>
+        <SiteNav title={data.site.title} />
 
         <div className="hero-grid">
           <div className="hero-copy">
-            <p className="eyebrow">XHBlogs Inspired</p>
+            <p className="eyebrow">XHBlogs Inspired Personal System</p>
             <h1>{data.site.title}</h1>
             <p>{data.site.subtitle}</p>
             <div className="hero-actions">
-              <Link className="button primary" href="#posts">开始阅读</Link>
-              <Link className="button ghost" href="/console">内容控制台</Link>
+              <Link className="button primary" href="/archive">开始阅读</Link>
+              <Link className="button ghost" href="/projects">查看项目</Link>
+              <Link className="button ghost" href="/about">关于我</Link>
             </div>
             <div className="hero-metrics" aria-label="博客数据">
               <span><strong>{stats.posts}</strong>已发布</span>
               <span><strong>{stats.words}</strong>字数估算</span>
-              <span><strong>{stats.categories}</strong>分类</span>
+              <span><strong>{stats.projects}</strong>项目</span>
             </div>
           </div>
 
@@ -48,6 +44,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <StatPortal stats={stats} />
+
       <section className="main-shell feature-grid">
         {featuredPost ? <PostCard post={featuredPost} featured /> : null}
         <AssistantCard site={data.site} posts={posts} notes={data.notes} />
@@ -55,6 +53,19 @@ export default async function HomePage() {
 
       <section className="main-shell post-teasers" aria-label="最新文章">
         {regularPosts.map((post) => <PostCard key={post.id} post={post} />)}
+      </section>
+
+      <section className="main-shell projects-section">
+        <div className="section-heading compact-heading">
+          <div>
+            <p className="eyebrow">Projects</p>
+            <h2>作品与实验场</h2>
+          </div>
+          <Link className="text-link" href="/projects">全部项目</Link>
+        </div>
+        <div className="project-grid">
+          {projects.map((project) => <ProjectCard project={project} key={project.id} />)}
+        </div>
       </section>
 
       <div className="main-shell">
@@ -65,12 +76,12 @@ export default async function HomePage() {
         <div className="section-heading compact-heading">
           <div>
             <p className="eyebrow">Moments</p>
-            <h2>个人关于动态</h2>
+            <h2>近期动态</h2>
           </div>
-          <p>{data.site.status}</p>
+          <Link className="text-link" href="/moments">查看动态流</Link>
         </div>
         <div className="moment-list">
-          {data.notes.map((note) => (
+          {data.notes.slice(0, 6).map((note) => (
             <article className="glass-card moment-card" key={note.id}>
               <time dateTime={note.date}>{note.date}</time>
               <p>{note.content}</p>
@@ -82,21 +93,13 @@ export default async function HomePage() {
       <section className="main-shell gallery-section" id="gallery">
         <div className="section-heading compact-heading">
           <div>
-            <p className="eyebrow">Workshop</p>
+            <p className="eyebrow">Gallery</p>
             <h2>灵境照片墙</h2>
           </div>
-          <p>用可配置图片块承载项目截图、生活照片与作品集入口。</p>
+          <Link className="text-link" href="/gallery">打开相册</Link>
         </div>
         <div className="gallery-grid">
-          {data.site.gallery.map((item) => (
-            <article className="gallery-item" key={item.title}>
-              <Image src={item.image} alt={item.title} width={540} height={360} />
-              <div>
-                <strong>{item.title}</strong>
-                <span>{item.description}</span>
-              </div>
-            </article>
-          ))}
+          {galleryPreview.map((item) => <GalleryTile item={item} key={item.title} />)}
         </div>
       </section>
 
@@ -104,9 +107,9 @@ export default async function HomePage() {
         <div className="section-heading compact-heading">
           <div>
             <p className="eyebrow">Links</p>
-            <h2>友链与入口</h2>
+            <h2>站内外入口</h2>
           </div>
-          <p>保留 XHBlogs 式个人站入口，也兼容当前本地 CMS 管理。</p>
+          <Link className="text-link" href="/links">全部链接</Link>
         </div>
         <div className="link-grid">
           {data.links.map((link) => (
@@ -125,4 +128,3 @@ export default async function HomePage() {
     </main>
   );
 }
-

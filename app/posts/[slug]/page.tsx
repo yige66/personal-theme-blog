@@ -1,6 +1,7 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { SiteNav } from '@/components/SiteNav';
 import { estimateReadingMinutes, formatDate, getBlogData, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
 
 type PostPageProps = {
@@ -43,10 +44,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <nav className="article-nav">
-        <Link href="/">返回首页</Link>
-        <Link href="/console">内容控制台</Link>
-      </nav>
+      <SiteNav title={data.site.title} />
       <article className="article-shell">
         <p className="eyebrow">{post.category}</p>
         <h1>{post.title}</h1>
@@ -54,7 +52,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <div className="article-meta">
           <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
           <span>{estimateReadingMinutes(post.content)} min read</span>
-          {post.tags.map((tag) => <span key={tag}>{tag}</span>)}
+          {post.tags.map((tag) => <Link href={`/tags/${encodeURIComponent(tag)}`} key={tag}>{tag}</Link>)}
         </div>
         <div className="markdown-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
       </article>
@@ -66,4 +64,3 @@ export default async function PostPage({ params }: PostPageProps) {
     </main>
   );
 }
-
