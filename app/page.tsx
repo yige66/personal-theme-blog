@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { ArticleExplorer } from '@/components/ArticleExplorer';
 import { AssistantCard } from '@/components/AssistantCard';
+import { ExperienceShowcase } from '@/components/ExperienceShowcase';
 import { MusicWidget } from '@/components/MusicWidget';
 import { PostCard } from '@/components/PostCard';
 import { ProfileCard } from '@/components/ProfileCard';
@@ -45,6 +46,8 @@ export default async function HomePage() {
       </section>
 
       <StatPortal stats={stats} />
+
+      <ExperienceShowcase data={data} stats={stats} projects={projects} />
 
       <section className="main-shell feature-grid">
         {featuredPost ? <PostCard post={featuredPost} featured /> : null}

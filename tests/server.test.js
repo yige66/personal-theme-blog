@@ -205,6 +205,12 @@ describe('admin authentication and article management', () => {
     const csrfToken = setup.data.csrfToken;
     const pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
 
+    const unauthenticatedUpload = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      body: { filename: 'avatar.png', contentType: 'image/png', dataBase64: pngBase64 }
+    });
+    assert.equal(unauthenticatedUpload.status, 401);
+
     const missingCsrf = await json('/api/admin/uploads/image', {
       method: 'POST',
       cookie,
@@ -227,6 +233,14 @@ describe('admin authentication and article management', () => {
       body: { filename: 'avatar.jpg', contentType: 'image/png', dataBase64: pngBase64 }
     });
     assert.equal(mismatchedExtension.status, 400);
+
+    const traversalFilename = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: { filename: '../avatar.png', contentType: 'image/png', dataBase64: pngBase64 }
+    });
+    assert.equal(traversalFilename.status, 400);
 
     const fakeImage = await json('/api/admin/uploads/image', {
       method: 'POST',

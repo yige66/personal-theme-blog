@@ -283,7 +283,7 @@
               <div class="structured-list" id="linksEditor" aria-label="&#21451;&#38142;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
               <details class="advanced-json">
                 <summary>JSON Preview</summary>
-                <textarea id="linksInput" rows="10" aria-label="&#21451;&#38142; JSON"></textarea>
+                <textarea id="linksInput" rows="10" aria-label="&#21451;&#38142; JSON" readonly></textarea>
               </details>
               <button class="button primary" type="submit">&#20445;&#23384;&#21451;&#38142;</button>
             </form>
@@ -300,7 +300,7 @@
               <div class="structured-list" id="projectsEditor" aria-label="&#39033;&#30446;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
               <details class="advanced-json">
                 <summary>JSON Preview</summary>
-                <textarea id="projectsInput" rows="12" aria-label="&#39033;&#30446; JSON"></textarea>
+                <textarea id="projectsInput" rows="12" aria-label="&#39033;&#30446; JSON" readonly></textarea>
               </details>
               <button class="button primary" type="submit">&#20445;&#23384;&#39033;&#30446;</button>
             </form>
@@ -319,13 +319,13 @@
                 <div class="structured-list" id="musicEditor" aria-label="&#38899;&#20048;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
                 <details class="advanced-json">
                   <summary>Music JSON Preview</summary>
-                  <textarea id="siteMusic" rows="8" aria-label="&#27468;&#21333; JSON"></textarea>
+                  <textarea id="siteMusic" rows="8" aria-label="&#27468;&#21333; JSON" readonly></textarea>
                 </details>
                 <h3>&#30456;&#20876;</h3>
                 <div class="structured-list" id="galleryEditor" aria-label="&#30456;&#20876;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
                 <details class="advanced-json">
                   <summary>Gallery JSON Preview</summary>
-                  <textarea id="siteGallery" rows="8" aria-label="&#29031;&#29255;&#22681; JSON"></textarea>
+                  <textarea id="siteGallery" rows="8" aria-label="&#29031;&#29255;&#22681; JSON" readonly></textarea>
                 </details>
                 <button class="button primary" type="submit">&#20445;&#23384;&#32032;&#26448;</button>
               </form>
@@ -349,7 +349,10 @@
                     <option value="projectCover">&#39033;&#30446;&#39318;&#22270;</option>
                   </select>
                 </label>
-                <button class="button primary" id="uploadButton" type="button">&#19978;&#20256;&#22270;&#29255;</button>
+                <div class="upload-actions">
+                  <button class="button primary" id="uploadButton" type="button">&#19978;&#20256;&#22270;&#29255;</button>
+                  <button class="button ghost" id="copyUploadPathButton" type="button">Copy path</button>
+                </div>
                 <label>
                   <span>&#29983;&#25104;&#36335;&#24452;</span>
                   <input id="uploadPath" readonly placeholder="/assets/uploads/image.png">

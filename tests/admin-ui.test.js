@@ -18,6 +18,11 @@ describe('admin structured CMS UI wiring', () => {
     assert.match(html, /id="uploadFile"/);
     assert.match(html, /id="uploadTarget"/);
     assert.match(html, /id="uploadPath"/);
+    assert.match(html, /id="copyUploadPathButton"/);
+    assert.match(html, /id="linksInput"[^>]*readonly/);
+    assert.match(html, /id="projectsInput"[^>]*readonly/);
+    assert.match(html, /id="siteMusic"[^>]*readonly/);
+    assert.match(html, /id="siteGallery"[^>]*readonly/);
     assert.equal((html.match(/id="siteMusic"/g) || []).length, 1);
     assert.equal((html.match(/id="siteGallery"/g) || []).length, 1);
 
@@ -26,6 +31,7 @@ describe('admin structured CMS UI wiring', () => {
     assert.ok(script.includes("musicEditor: document.querySelector('#musicEditor')"));
     assert.ok(script.includes("galleryEditor: document.querySelector('#galleryEditor')"));
     assert.match(script, /handleUploadImage/);
+    assert.match(script, /handleCopyUploadPath/);
     assert.ok(script.includes('/api/admin/uploads/image'));
     assert.match(script, /syncProjectsJsonFromEditor/);
     assert.match(script, /syncMediaJsonFromEditors/);

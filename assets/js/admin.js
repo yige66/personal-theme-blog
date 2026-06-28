@@ -75,6 +75,7 @@ const elements = {
   uploadFile: document.querySelector('#uploadFile'),
   uploadTarget: document.querySelector('#uploadTarget'),
   uploadButton: document.querySelector('#uploadButton'),
+  copyUploadPathButton: document.querySelector('#copyUploadPathButton'),
   uploadPath: document.querySelector('#uploadPath'),
   linksForm: document.querySelector('#linksForm'),
   linksInput: document.querySelector('#linksInput'),
@@ -123,6 +124,7 @@ function bindEvents() {
   elements.addMusicButton.addEventListener('click', () => addStructuredItem('music'));
   elements.addGalleryButton.addEventListener('click', () => addStructuredItem('gallery'));
   elements.uploadButton.addEventListener('click', handleUploadImage);
+  elements.copyUploadPathButton.addEventListener('click', handleCopyUploadPath);
   elements.notesForm.addEventListener('submit', handleSaveNotes);
   elements.exportButton.addEventListener('click', handleExport);
   elements.importButton.addEventListener('click', handleImport);
@@ -601,6 +603,19 @@ async function handleUploadImage() {
     showToast('Image uploaded');
   } catch (error) {
     showToast(error.message, true);
+  }
+}
+
+async function handleCopyUploadPath() {
+  const value = elements.uploadPath.value.trim();
+  if (!value) { showToast('No upload path yet', true); return; }
+  try {
+    await navigator.clipboard.writeText(value);
+    showToast('Upload path copied');
+  } catch (_error) {
+    elements.uploadPath.focus();
+    elements.uploadPath.select();
+    showToast('Upload path selected');
   }
 }
 

@@ -563,3 +563,15 @@ label {
     flex-direction: column;
   }
 }
+
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.upload-actions .button {
+  min-width: 130px;
+}
