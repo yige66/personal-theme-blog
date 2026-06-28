@@ -13,126 +13,118 @@ import { createWebsiteJsonLd, toJsonLd } from '@/lib/seo';
 export default async function HomePage() {
   const [data, posts, stats] = await Promise.all([getBlogData(), getPublishedPosts(), getBlogStats()]);
   const featuredPost = posts.find((post) => post.featured) ?? posts[0];
-  const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
-  const secondaryGallery = data.site.gallery.find((item) => item.title !== primaryGallery?.title) ?? data.site.gallery[1] ?? primaryGallery;
+  const latestPosts = posts.slice(0, 4);
   const activeTrack = data.site.music[0];
+  const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
   const latestNote = data.notes[0];
   const websiteJsonLd = createWebsiteJsonLd(data);
-  const featuredImage = featuredPost?.cover || primaryGallery?.image || data.site.heroImage;
-  const featuredTitle = featuredPost?.title || '暂无文章';
-  const featuredSummary = featuredPost?.summary || data.site.subtitle;
-  const featuredHref = featuredPost ? `/posts/${featuredPost.slug}` : '/archive';
-  const featuredMeta = featuredPost ? `${formatDate(featuredPost.updatedAt)} / ${estimateReadingMinutes(featuredPost.content)} min read` : '等待发布第一篇文章';
-  const recordTitle = latestNote?.title || 'Recent Record';
-  const recordText = latestNote?.content || data.site.status || data.site.motto;
-  const githubHref = data.site.github || '/about';
-  const githubIsExternal = githubHref.startsWith('http');
+  const githubIsExternal = data.site.github.startsWith('http');
 
   return (
-    <main className="xh-home xh-portal-home xh-scene-home">
+    <main className="xh-home" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(websiteJsonLd) }} />
+      <SiteNav title={data.site.title} />
 
-      <section className="xh-portal-stage xh-scene-stage" id="top" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-        <SiteNav title={data.site.title} />
-
-        <div className="main-shell xh-scene-shell">
-          <form className="xh-search-orbit" role="search" aria-label="站内搜索入口" data-motion="portal-card">
-            <span aria-hidden="true">⌕</span>
-            <input type="search" name="q" placeholder="搜寻标题、标签、照片或灵感碎片..." />
-          </form>
-
-          <div className="xh-intro-row">
-            <article className="xh-profile-panel" data-motion="portal-card" aria-labelledby="home-profile-name">
-              <div className="xh-profile-identity">
-                <div className="xh-avatar-shell">
-                  <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={132} height={132} priority />
-                </div>
-                <div>
-                  <h1 id="home-profile-name">{data.site.owner || data.site.title}</h1>
-                  <p>{data.site.bio || data.site.motto}</p>
-                </div>
-              </div>
-
-              <div className="xh-profile-foot">
-                <div className="xh-profile-stats" aria-label="站点内容数据">
-                  <span><strong>{stats.posts}</strong><small>文章</small></span>
-                  <span><strong>{data.notes.length}</strong><small>说说</small></span>
-                  <span><strong>{stats.gallery}</strong><small>照片</small></span>
-                </div>
-                <div className="xh-profile-actions">
-                  <Link href="/about">About</Link>
-                  <a href={githubHref} target={githubIsExternal ? '_blank' : undefined} rel={githubIsExternal ? 'noreferrer' : undefined}>GitHub</a>
-                  <span>{data.site.location || 'Location not set'}</span>
-                </div>
-              </div>
-            </article>
-
-            <Link className="xh-music-panel" data-motion="portal-card" href="/music" aria-label="打开音乐页">
-              <div className="xh-disc-cover">
-                <Image src={activeTrack?.cover || data.site.heroImage} alt={`${activeTrack?.title || '音乐'} 封面`} width={220} height={220} priority />
-              </div>
-              <div className="xh-cloud-copy">
-                <p className="eyebrow">Cloud Music</p>
-                <h2>{activeTrack?.title || '歌单待添加'}</h2>
-                <p>{activeTrack?.artist || 'Local Playlist'}</p>
-                <strong>{activeTrack?.note || '把写作、阅读和编码时的背景音乐收进这里。'}</strong>
-              </div>
-              <div className="xh-player-progress" aria-hidden="true">
-                <span>00:00</span>
-                <i><b /></i>
-                <span>02:40</span>
-              </div>
-            </Link>
+      <section className="main-shell xh-portal-grid" aria-label="首页入口">
+        <article className="xh-portal-profile" data-motion="portal-card">
+          <div className="xh-avatar-shell">
+            <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={132} height={132} priority />
           </div>
-
-          <div className="xh-lyric-strip xh-scene-lyric" data-motion="portal-card" aria-label="当前歌词">
-            <span>{activeTrack?.note || data.site.motto}</span>
+          <h1>{data.site.owner || data.site.title}</h1>
+          <p className="xh-role">{data.site.role}</p>
+          <p className="xh-motto">{data.site.bio || data.site.motto}</p>
+          <div className="xh-profile-stats" aria-label="站点数据">
+            <span><strong>{stats.posts}</strong><small>文章</small></span>
+            <span><strong>{stats.notes}</strong><small>动态</small></span>
+            <span><strong>{stats.gallery}</strong><small>相册</small></span>
           </div>
-
-          <div className="xh-feature-board">
-            <Link className="xh-feature-card xh-feature-main" data-motion="stack-card" href={featuredHref}>
-              <Image src={featuredImage} alt={`${featuredTitle} 封面`} width={900} height={640} data-motion="image-scale" priority />
-              <div>
-                <p className="eyebrow">Latest Insight</p>
-                <time>{featuredPost ? formatDate(featuredPost.updatedAt) : 'Soon'}</time>
-                <h2>{featuredTitle}</h2>
-                <span>{featuredSummary}</span>
-                <small>{featuredMeta}</small>
-              </div>
-            </Link>
-
-            <Link className="xh-feature-card xh-gallery-wide" data-motion="stack-card" href="/gallery">
-              <Image src={primaryGallery?.image || data.site.heroImage} alt={primaryGallery?.alt || primaryGallery?.title || '照片墙预览'} width={900} height={420} data-motion="image-scale" />
-              <div>
-                <h2>{primaryGallery?.title || '照片墙'}</h2>
-                <p>{primaryGallery?.description || '头像、头图、项目截图和日常视觉素材都在这里归档。'}</p>
-              </div>
-            </Link>
-
-            <Link className="xh-feature-card xh-record-wide" data-motion="stack-card" href="/moments">
-              <Image src={secondaryGallery?.image || data.site.heroImage} alt={secondaryGallery?.alt || secondaryGallery?.title || '动态背景'} width={680} height={360} data-motion="image-scale" />
-              <div>
-                <p className="eyebrow">Records</p>
-                <time>{latestNote?.date || '等待第一条动态'}</time>
-                <h2>{recordTitle}</h2>
-                <span>{recordText}</span>
-              </div>
-            </Link>
-
-            <Link className="xh-mode-tile" data-motion="stack-card" href="/console">
-              <span aria-hidden="true">✦</span>
-              <h2>夜间模式</h2>
-              <p>流萤飞舞的深空</p>
-            </Link>
+          <div className="xh-profile-actions">
+            <Link href="/about">关于我</Link>
+            <a href={data.site.github} target={githubIsExternal ? '_blank' : undefined} rel={githubIsExternal ? 'noreferrer' : undefined}>GitHub</a>
           </div>
+        </article>
 
-          <div className="xh-runtime-dock" data-motion="portal-card" aria-label="站点运行状态">
-            <span><strong>{data.site.streak} days</strong> 系统已稳定运行</span>
-            <span><strong>{stats.words}</strong> 字内容估算</span>
-            <span><strong>{stats.projects}</strong> 项目入口</span>
-            <span>Next.js 16 / React 19 / GitHub / Vercel</span>
+        <Link className="xh-cloud-player-card" href="/music" data-motion="portal-card" aria-label="打开音乐页">
+          <div className="xh-disc-cover">
+            <Image src={activeTrack?.cover || data.site.heroImage} alt={`${activeTrack?.title || '音乐'} 封面`} width={220} height={220} priority />
           </div>
+          <div className="xh-cloud-copy">
+            <p className="eyebrow">Cloud Music</p>
+            <h2>{activeTrack?.title || '歌单待补充'}</h2>
+            <p>{activeTrack?.artist || 'Local Playlist'}</p>
+            <strong>{activeTrack?.note || '把写作、阅读和编码时的背景音乐收进这里。'}</strong>
+          </div>
+          <div className="xh-player-progress" aria-hidden="true">
+            <span>00:00</span>
+            <i><b /></i>
+            <span>02:40</span>
+          </div>
+        </Link>
+
+        <div className="xh-lyric-strip" data-motion="portal-card" aria-label="当前歌词">
+          <span>{activeTrack?.note || data.site.motto}</span>
         </div>
+
+        <section className="xh-latest-card" data-motion="stack-card" aria-label="最新文章">
+          <Image
+            src={featuredPost?.cover || data.site.heroImage}
+            alt={`${featuredPost?.title || data.site.title} 封面`}
+            width={960}
+            height={720}
+            priority
+            data-motion="image-scale"
+          />
+          <div>
+            <p className="eyebrow">Latest Post</p>
+            <time>{featuredPost ? formatDate(featuredPost.updatedAt) : 'Soon'}</time>
+            <h2>{featuredPost?.title || '第一篇文章正在准备中'}</h2>
+            <span>{featuredPost?.summary || data.site.subtitle}</span>
+            <small>{featuredPost ? `${estimateReadingMinutes(featuredPost.content)} min read` : '等待后台发布'}</small>
+            <Link href={featuredPost ? `/posts/${featuredPost.slug}` : '/archive'}>继续阅读</Link>
+            <nav aria-label="近期文章">
+              {latestPosts.map((post) => (
+                <Link href={`/posts/${post.slug}`} key={post.id}>{post.title}</Link>
+              ))}
+            </nav>
+          </div>
+        </section>
+
+        <div className="xh-composite-grid">
+          <Link className="xh-photo-poster" href="/gallery" data-motion="stack-card">
+            <Image src={primaryGallery?.image || data.site.heroImage} alt={primaryGallery?.alt || primaryGallery?.title || '照片墙'} width={720} height={520} data-motion="image-scale" />
+            <div>
+              <p className="eyebrow">Photo Wall</p>
+              <h2>{primaryGallery?.title || '照片墙'}</h2>
+              <span>{primaryGallery?.description || '头像、头图、项目截图和日常素材都在这里归档。'}</span>
+            </div>
+          </Link>
+
+          <Link className="xh-record-card" href="/moments" data-motion="stack-card">
+            <p className="eyebrow">Moments</p>
+            <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
+            <h2>{latestNote?.title || '近期动态'}</h2>
+            <p>{latestNote?.content || data.site.status}</p>
+          </Link>
+
+          <Link className="xh-mode-card" href="/console" data-motion="stack-card">
+            <span aria-hidden="true" />
+            <p className="eyebrow">Console</p>
+            <h2>后台配置入口</h2>
+            <p>站点名称、头像、背景、音乐、弹幕和友链都应从这里维护。</p>
+          </Link>
+        </div>
+
+        <section className="xh-site-dashboard" data-motion="portal-card" aria-label="站点运行状态">
+          <div><strong>{data.site.streak} days</strong><span>持续维护</span></div>
+          <div><strong>{stats.words}</strong><span>内容字数</span></div>
+          <div><strong>{stats.projects}</strong><span>项目入口</span></div>
+          <div className="xh-stack-list">
+            <span>Next.js 16</span>
+            <span>React 19</span>
+            <span>GitHub</span>
+            <span>Vercel</span>
+          </div>
+        </section>
       </section>
     </main>
   );

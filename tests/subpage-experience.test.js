@@ -27,10 +27,14 @@ describe('subpage experience surfaces', () => {
     assert.match(tagPage, /全部标签/);
   });
 
-  it('defines responsive insight styles', async () => {
+  it('defines responsive target-site inspired subpage styles', async () => {
     const css = await readFile('app/globals.css', 'utf8');
     assert.match(css, /\.page-insight-bar/);
     assert.match(css, /\.page-insight-items/);
     assert.match(css, /\.rich-empty/);
+    assert.match(css, /\.gallery-masonry/);
+    assert.match(css, /\.moment-waterfall/);
+    assert.match(css, /\.radio-hero-card/);
+    assert.match(css, /\.article-sidebar/);
   });
 });

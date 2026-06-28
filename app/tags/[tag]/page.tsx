@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PageHero, PageInsightBar } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
-import { formatDate, getBlogData, getPostsByTag, getTagSummaries, estimateReadingMinutes } from '@/lib/blog';
+import { estimateReadingMinutes, formatDate, getBlogData, getPostsByTag, getTagSummaries } from '@/lib/blog';
 import { createTagMetadata } from '@/lib/seo';
 
 type TagPageProps = {
@@ -37,10 +37,17 @@ export default async function TagPage({ params }: TagPageProps) {
   }
 
   return (
-    <main className="subpage" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
+    <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
       <PageHero eyebrow="Tag" title={`#${decodedTag}`} description="同一标签下的文章集合。" />
-      <PageInsightBar items={[{ label: '文章', value: posts.length, caption: '当前标签下' }, { label: '标签', value: decodedTag, caption: '主题聚焦' }, { label: '阅读', value: 'List', caption: '按发布时间浏览' }]} action={{ href: '/tags', label: '全部标签' }} />
+      <PageInsightBar
+        items={[
+          { label: '文章', value: posts.length, caption: '当前标签内' },
+          { label: '标签', value: decodedTag, caption: '主题聚焦' },
+          { label: '阅读', value: 'List', caption: '按发布时间浏览' }
+        ]}
+        action={{ href: '/tags', label: '全部标签' }}
+      />
       <section className="main-shell article-list">
         {posts.map((post, index) => (
           <Link className="article-row" href={`/posts/${post.slug}`} key={post.id}>

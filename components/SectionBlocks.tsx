@@ -1,6 +1,6 @@
-﻿import Image from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
-import type { BlogNote, BlogProject, BlogStats, GalleryItem, MusicTrack } from '@/lib/blog';
+import type { BlogLink, BlogNote, BlogProject, BlogStats, GalleryItem, MusicTrack } from '@/lib/blog';
 import { formatDate } from '@/lib/blog';
 
 export function PageHero({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
@@ -26,7 +26,7 @@ export function StatPortal({ stats }: { stats: BlogStats }) {
   return (
     <section className="main-shell portal-grid" aria-label="站点入口">
       {items.map((item) => (
-        <Link className="glass-card portal-card" href={item.href} key={item.href}>
+        <Link className="portal-card" href={item.href} key={item.href}>
           <strong>{item.value}</strong>
           <span>{item.label}</span>
         </Link>
@@ -69,11 +69,11 @@ export function EmptyState({ title, description }: { title: string; description:
 
 export function ProjectCard({ project }: { project: BlogProject }) {
   return (
-    <article className="glass-card project-card">
+    <article className="project-card">
       <Link className="project-cover" href={project.url || '#'}>
-        <Image src={project.cover} alt={`${project.title} 封面`} width={640} height={400} />
+        <Image src={project.cover} alt={`${project.title} 封面`} width={720} height={460} />
       </Link>
-      <div>
+      <div className="project-copy">
         <p className="eyebrow">{project.status}</p>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
@@ -91,7 +91,7 @@ export function ProjectCard({ project }: { project: BlogProject }) {
 
 export function MusicTrackCard({ track, index }: { track: MusicTrack; index: number }) {
   return (
-    <article className="glass-card track-card">
+    <article className="track-card">
       <span>{String(index + 1).padStart(2, '0')}</span>
       <Image className="track-cover" src={track.cover || '/assets/img/desk-notes.svg'} alt={`${track.title} 封面`} width={160} height={160} />
       <div>
@@ -99,7 +99,7 @@ export function MusicTrackCard({ track, index }: { track: MusicTrack; index: num
         <p>{track.artist} / {track.mood || '阅读背景'}</p>
         {track.note ? <small>{track.note}</small> : null}
       </div>
-      {track.url ? <audio controls src={track.url}>浏览器不支持音频播放。</audio> : <small className="track-draft">等待内容数据补充音频地址</small>}
+      {track.url ? <audio controls src={track.url}>浏览器不支持音频播放。</audio> : <small className="track-draft">等待后台补充音频地址</small>}
     </article>
   );
 }
@@ -111,13 +111,16 @@ export function RadioHeroCard({ track, total }: { track?: MusicTrack; total: num
 
   return (
     <section className="main-shell radio-hero-card" aria-label="当前推荐音乐">
-      <Image src={track.cover || '/assets/img/hero-mountain.svg'} alt={`${track.title} 封面`} width={520} height={360} priority={false} />
+      <div className="radio-disc">
+        <Image src={track.cover || '/assets/img/hero-mountain.svg'} alt={`${track.title} 封面`} width={520} height={520} priority={false} />
+      </div>
       <div>
         <p className="eyebrow">Now playing</p>
         <h2>{track.title}</h2>
         <p>{track.artist} / {track.mood}</p>
         {track.note ? <span>{track.note}</span> : null}
         <small>{total} 首歌单条目，适合文章阅读、项目复盘和夜间写作。</small>
+        <div className="radio-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div>
       </div>
     </section>
   );
@@ -125,7 +128,7 @@ export function RadioHeroCard({ track, total }: { track?: MusicTrack; total: num
 
 export function GalleryTile({ item }: { item: GalleryItem }) {
   return (
-    <article className="gallery-item gallery-tile">
+    <article className="gallery-tile">
       <Image src={item.image} alt={item.alt || item.title} width={720} height={460} />
       <div>
         <strong>{item.title}</strong>
@@ -139,7 +142,7 @@ export function GalleryCollectionCard({ item }: { item: GalleryItem }) {
   const images = item.items?.length ? item.items : [{ title: item.title, image: item.image, alt: item.alt }];
 
   return (
-    <article className={`glass-card gallery-collection${item.featured ? ' featured' : ''}`}>
+    <article className={`gallery-collection${item.featured ? ' featured' : ''}`}>
       <div className="gallery-collection-media" aria-label={`${item.title} 图集`}>
         {images.slice(0, 4).map((image, index) => (
           <Image src={image.image} alt={image.alt || image.title} width={420} height={280} key={`${image.title}-${index}`} />
@@ -161,7 +164,7 @@ export function GalleryCollectionCard({ item }: { item: GalleryItem }) {
 
 export function MomentTimelineCard({ note, index }: { note: BlogNote; index: number }) {
   return (
-    <article className="glass-card moment-card wide moment-entry">
+    <article className="moment-card moment-entry">
       <div className="moment-index">{String(index + 1).padStart(2, '0')}</div>
       <div>
         <div className="moment-entry-head">
@@ -177,6 +180,19 @@ export function MomentTimelineCard({ note, index }: { note: BlogNote; index: num
         ) : null}
       </div>
     </article>
+  );
+}
+
+export function FriendLinkCard({ link }: { link: BlogLink }) {
+  const external = link.url.startsWith('http');
+
+  return (
+    <a className="link-card" href={link.url} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}>
+      <span>{link.title.slice(0, 1).toUpperCase()}</span>
+      <strong>{link.title}</strong>
+      <small>{external ? new URL(link.url).hostname : '站内入口'}</small>
+      <p>{link.description}</p>
+    </a>
   );
 }
 

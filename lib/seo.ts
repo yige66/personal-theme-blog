@@ -35,21 +35,21 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   },
   {
     path: '/tags',
-    title: '标签云',
+    title: '标签星图',
     description: '通过标签探索文章主题和知识路径。',
     changeFrequency: 'weekly',
     priority: 0.76
   },
   {
     path: '/gallery',
-    title: '灵境照片墙',
+    title: '灵感照片墙',
     description: '展示站点视觉素材、照片和生活片段。',
     changeFrequency: 'weekly',
     priority: 0.72
   },
   {
     path: '/moments',
-    title: '近期动态',
+    title: '说说动态',
     description: '记录站点维护、学习进度和日常状态。',
     changeFrequency: 'daily',
     priority: 0.7

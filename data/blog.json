@@ -5,8 +5,8 @@
     "owner": "Lu Longfei",
     "role": "全栈练习生 / 博客系统维护者",
     "motto": "把日常、代码和灵感整理成可以再次抵达的星图。",
-    "bio": "计算机学习者 / 后端与前端练习者 / 喜欢把复杂问题拆成可以落地的小系统。",
-    "status": "正在向 XHBlogs 靠齐：玻璃拟态前台、动态、音乐、照片墙、评论占位和 GitHub/Vercel 发布流。",
+    "bio": "计算机学习者，喜欢把复杂问题拆成可以落地的小系统，也喜欢收集音乐、照片和日常碎片。",
+    "status": "正在向完整二次元个人博客站点靠齐：文章、项目、动态、音乐、照片墙、友链、评论和发布工作流会逐步连成一个完整系统。",
     "location": "Changsha, China",
     "email": "hello@example.com",
     "github": "https://github.com/yige66",
@@ -17,26 +17,28 @@
     "level": 12,
     "experience": 68,
     "streak": 27,
-    "assistantName": "星屿助理",
-    "assistantPrompt": "我会根据站点文章、动态和作者资料，为访客推荐阅读路径，并提示评论、音乐与作品集入口。",
+    "assistantName": "星屿助手",
+    "assistantPrompt": "根据文章、动态和作者资料，为访客推荐阅读路径。",
     "effects": {
       "enabled": true,
       "danmaku": [
-        "今日份摸鱼补给完成",
-        "BGM 已循环到第三遍",
-        "路过打卡，站长在吗",
+        "今天也有认真更新",
+        "BGM 正在循环中",
+        "路过打卡，晚点再来看",
         "这张封面有点心动",
-        "晚风和樱花都在线",
         "相册区适合慢慢逛",
         "写完这篇就去听歌",
-        "评论区留个脚印",
-        "灵感刚刚冒泡了",
-        "今天也要温柔更新"
+        "评论区先留个脚印",
+        "灵感刚刚冒泡",
+        "夜间模式很适合发呆",
+        "把日常收进时间线",
+        "照片墙等你上传新图",
+        "今天也要温柔一点"
       ],
       "fireflies": true,
       "petals": true,
       "grass": true,
-      "cursorTrail": true,
+      "cursorTrail": false,
       "floatingCompanion": true,
       "intensity": 72
     },
@@ -98,21 +100,17 @@
         "title": "站点视觉基调",
         "description": "首页头图、头像轨道和夜间背景共同组成站点第一眼的视觉气质。",
         "image": "/assets/img/hero-mountain.svg",
-        "alt": "山脉与夜色构成的博客首页头图",
+        "alt": "山脊与夜色构成的博客首页头图",
         "collection": "Hero set",
         "location": "Homepage",
         "date": "2026-06-28",
         "featured": true,
-        "tags": [
-          "头图",
-          "首页",
-          "视觉"
-        ],
+        "tags": ["头图", "首页", "视觉"],
         "items": [
           {
-            "title": "山脉头图",
+            "title": "山脊头图",
             "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脉与夜色构成的博客首页头图"
+            "alt": "山脊与夜色构成的博客首页头图"
           },
           {
             "title": "头像轨道",
@@ -130,11 +128,7 @@
         "location": "Archive",
         "date": "2026-06-24",
         "featured": true,
-        "tags": [
-          "写作",
-          "笔记",
-          "归档"
-        ],
+        "tags": ["写作", "笔记", "归档"],
         "items": [
           {
             "title": "桌面笔记",
@@ -142,9 +136,9 @@
             "alt": "桌面笔记与写作工具插画"
           },
           {
-            "title": "山脉头图",
+            "title": "山脊头图",
             "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脉与夜色构成的博客首页头图"
+            "alt": "山脊与夜色构成的博客首页头图"
           }
         ]
       },
@@ -157,11 +151,7 @@
         "location": "Console",
         "date": "2026-06-28",
         "featured": true,
-        "tags": [
-          "发布",
-          "GitHub",
-          "Vercel"
-        ],
+        "tags": ["发布", "GitHub", "Vercel"],
         "items": [
           {
             "title": "后台面板",
@@ -174,9 +164,9 @@
             "alt": "桌面笔记与写作工具插画"
           },
           {
-            "title": "山脉头图",
+            "title": "山脊头图",
             "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脉与夜色构成的博客首页头图"
+            "alt": "山脊与夜色构成的博客首页头图"
           }
         ]
       },
@@ -188,10 +178,7 @@
         "collection": "Project set",
         "location": "Projects",
         "date": "2026-06-20",
-        "tags": [
-          "项目",
-          "截图"
-        ]
+        "tags": ["项目", "截图"]
       },
       {
         "title": "阅读背景位",
@@ -201,10 +188,7 @@
         "collection": "Article set",
         "location": "Posts",
         "date": "2026-06-18",
-        "tags": [
-          "文章",
-          "阅读"
-        ]
+        "tags": ["文章", "阅读"]
       },
       {
         "title": "关于页头像位",
@@ -214,10 +198,7 @@
         "collection": "Profile set",
         "location": "About",
         "date": "2026-06-16",
-        "tags": [
-          "头像",
-          "关于"
-        ]
+        "tags": ["头像", "关于"]
       }
     ]
   },
@@ -225,30 +206,27 @@
     {
       "title": "GitHub",
       "url": "https://github.com/yige66",
-      "description": "代码与项目记录"
+      "description": "代码与项目记录。"
     },
     {
       "title": "发布工作流",
       "url": "/console",
-      "description": "内容同步、质量门禁与部署入口"
+      "description": "内容同步、质量门禁与部署入口。"
     },
     {
       "title": "归档",
       "url": "/archive",
-      "description": "按时间回看文章"
+      "description": "按时间回看文章。"
     }
   ],
   "notes": [
     {
       "id": "note-1",
       "title": "发布流完成第一轮闭环",
-      "content": "今天把博客前台升级为可部署的 Next.js 玻璃拟态首页，并把发布工作流整理进仓库。",
+      "content": "今天把博客前台升级为可部署的 Next.js 站点，并把发布工作流整理进仓库。",
       "date": "2026-06-28",
       "mood": "Deploy",
-      "tags": [
-        "Next.js",
-        "Vercel"
-      ]
+      "tags": ["Next.js", "Vercel"]
     },
     {
       "id": "note-2",
@@ -256,21 +234,15 @@
       "content": "本地写作控制台保留为辅助工具，正式发布交给 GitHub 与 Vercel，让内容版本可以追踪。",
       "date": "2026-06-24",
       "mood": "Workflow",
-      "tags": [
-        "GitHub",
-        "内容流"
-      ]
+      "tags": ["GitHub", "内容流"]
     },
     {
       "id": "note-3",
       "title": "下一批交互入口",
-      "content": "下一步可以接入 GitHub Issues 评论、Vercel 正式域名和图床上传，让站点从展示页继续走向运营态。",
+      "content": "下一步可以接入 GitHub Issues 评论、正式域名和图床上传，让站点从展示页继续走向运营态。",
       "date": "2026-06-20",
       "mood": "Plan",
-      "tags": [
-        "评论",
-        "图床"
-      ]
+      "tags": ["评论", "图床"]
     },
     {
       "id": "note-4",
@@ -278,10 +250,7 @@
       "content": "把单张图片改成图集视角后，首页视觉、发布工作台和项目截图都能独立维护。",
       "date": "2026-06-18",
       "mood": "Gallery",
-      "tags": [
-        "照片墙",
-        "素材"
-      ]
+      "tags": ["照片墙", "素材"]
     },
     {
       "id": "note-5",
@@ -289,21 +258,15 @@
       "content": "目前歌单先记录场景、封面和说明，等真实音频资源确定后再补充可播放地址。",
       "date": "2026-06-14",
       "mood": "Music",
-      "tags": [
-        "音乐",
-        "阅读"
-      ]
+      "tags": ["音乐", "阅读"]
     },
     {
       "id": "note-6",
       "title": "文章归档保持轻量",
-      "content": "归档、标签和项目页先确保能扫描信息，后续再加评论、搜索和更多内容样本。",
+      "content": "归档、标签和项目页先确保能扫描信息，后续再加搜索、评论和更多内容样本。",
       "date": "2026-06-10",
       "mood": "Writing",
-      "tags": [
-        "归档",
-        "文章"
-      ]
+      "tags": ["归档", "文章"]
     }
   ],
   "posts": [
@@ -313,11 +276,7 @@
       "slug": "build-my-own-blog",
       "summary": "记录个人主题博客的功能拆解：前台展示、后台管理、Markdown 写作、数据持久化与部署思路。",
       "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 写作工具需要能存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用 JSON 数据保存内容，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。内容变更进入 GitHub 后，由 CI 和 Vercel 把预览、构建和正式发布串起来。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传、图床或在线 CMS。",
-      "tags": [
-        "博客",
-        "Next.js",
-        "项目实践"
-      ],
+      "tags": ["博客", "Next.js", "项目实践"],
       "category": "工程实践",
       "cover": "/assets/img/hero-mountain.svg",
       "status": "published",
@@ -331,11 +290,8 @@
       "slug": "turn-notes-into-assets",
       "summary": "从零散笔记到专题知识库：用标签、摘要和归档把学习过程变成可以复盘的系统。",
       "content": "## 学习笔记为什么容易失效\n\n很多笔记只记录了当下的结论，没有说明问题背景、踩坑过程和复盘入口。过一段时间再看，就很难继续使用。\n\n## 我的整理方式\n\n1. 先写一句摘要，确认这篇笔记解决什么问题。\n2. 用标签连接同类主题。\n3. 每篇保留一个可以继续扩展的后续问题。\n\n这样做的目标不是追求篇幅，而是让内容可以被未来的自己再次调用。",
-      "tags": [
-        "学习方法",
-        "知识管理"
-      ],
-      "category": "学习札记",
+      "tags": ["学习方法", "知识管理"],
+      "category": "学习笔记",
       "cover": "/assets/img/desk-notes.svg",
       "status": "published",
       "featured": false,
@@ -348,10 +304,7 @@
       "slug": "admin-system-checklist",
       "summary": "一个个人博客后台至少应该具备的功能：文章 CRUD、草稿、站点资料、导入导出和基础安全。",
       "content": "## 最小可用后台\n\n个人博客后台不必一开始就做得很重，但至少要覆盖这些操作：\n\n- 新增、编辑、删除文章\n- 发布与草稿状态切换\n- 修改站点资料和个人简介\n- 导入导出 JSON 备份\n- 登录保护和输入校验\n\n这套项目先把这些基础能力跑通，再为数据库、云存储、评论系统留扩展空间。",
-      "tags": [
-        "后台",
-        "产品设计"
-      ],
+      "tags": ["后台", "产品设计"],
       "category": "系统设计",
       "cover": "/assets/img/admin-board.svg",
       "status": "draft",
@@ -368,11 +321,7 @@
       "url": "/console",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/admin-board.svg",
-      "tags": [
-        "Next.js",
-        "CMS",
-        "内容系统"
-      ],
+      "tags": ["Next.js", "CMS", "内容系统"],
       "status": "active",
       "featured": true,
       "startedAt": "2026-06-28"
@@ -384,11 +333,7 @@
       "url": "/archive",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/desk-notes.svg",
-      "tags": [
-        "知识管理",
-        "归档",
-        "标签"
-      ],
+      "tags": ["知识管理", "归档", "标签"],
       "status": "planning",
       "featured": false,
       "startedAt": "2026-06-20"

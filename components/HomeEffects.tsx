@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MouseEvent } from 'react';
 import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
 
 type HomeEffectsProps = {
@@ -12,39 +12,50 @@ type HomeEffectsProps = {
   activeTrack?: MusicTrack;
 };
 
-function uniqueMessages(values: string[]): string[] {
-  const seen = new Set<string>();
-  return values.map((item) => item.trim()).filter((item) => {
-    if (!item || seen.has(item)) {
-      return false;
-    }
-    seen.add(item);
-    return true;
-  }).slice(0, 18);
-}
+type Ripple = {
+  x: number;
+  y: number;
+  radius: number;
+  opacity: number;
+  speed: number;
+};
 
 const dailyDanmaku = [
-  '今日份摸鱼补给完成',
-  'BGM 已循环到第三遍',
-  '路过打卡，站长在吗',
+  '今天也有认真更新',
+  'BGM 正在循环中',
+  '路过打卡，晚点再来看',
   '这张封面有点心动',
-  '晚风和樱花都在线',
-  '头像可以在后台换喔',
   '相册区适合慢慢逛',
   '写完这篇就去听歌',
-  '评论区留个脚印',
-  '灵感刚刚冒泡了',
-  '今天也要温柔更新',
-  '补番前先写两段'
+  '评论区先留个脚印',
+  '灵感刚刚冒泡',
+  '夜间模式很适合发呆',
+  '把日常收进时间线',
+  '照片墙等你上传新图',
+  '今天也要温柔一点'
 ];
 
-function isMotionReduced(): boolean {
+function uniqueMessages(values: string[]): string[] {
+  const seen = new Set<string>();
+  return values
+    .map((item) => item.trim())
+    .filter((item) => {
+      if (!item || seen.has(item)) {
+        return false;
+      }
+      seen.add(item);
+      return true;
+    })
+    .slice(0, 18);
+}
+
+function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pathname = usePathname();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [nightMode, setNightMode] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
@@ -52,14 +63,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   const messages = useMemo(() => {
     const configured = effects.danmaku && effects.danmaku.length > 0 ? effects.danmaku : dailyDanmaku;
-    return uniqueMessages([
-      ...configured,
-      ...dailyDanmaku,
-      site.status
-    ]);
-  }, [effects.danmaku, site.status]);
+    const postTitles = posts.slice(0, 3).map((post) => `正在读：${post.title}`);
+    const noteLines = notes.slice(0, 2).map((note) => note.title || note.content);
+    return uniqueMessages([...configured, ...dailyDanmaku, ...postTitles, ...noteLines, site.status]);
+  }, [effects.danmaku, notes, posts, site.status]);
 
-  const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 8) }, (_item, index) => ({
+  const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 9) }, (_item, index) => ({
     id: `firefly-${index}`,
     left: `${(index * 17 + 9) % 100}%`,
     top: `${(index * 29 + 14) % 82}%`,
@@ -67,14 +76,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     duration: `${7 + (index % 6)}s`
   })), [intensity]);
 
-  const petals = useMemo(() => Array.from({ length: Math.round(intensity / 9) }, (_item, index) => ({
+  const petals = useMemo(() => Array.from({ length: Math.round(intensity / 10) }, (_item, index) => ({
     id: `petal-${index}`,
     left: `${(index * 23 + 4) % 100}%`,
     delay: `${(index % 10) * 0.72}s`,
     duration: `${10 + (index % 7)}s`
   })), [intensity]);
 
-  const sparkles = useMemo(() => Array.from({ length: 12 }, (_item, index) => ({
+  const sparkles = useMemo(() => Array.from({ length: 10 }, (_item, index) => ({
     id: `sparkle-${index}`,
     left: `${(index * 19 + 11) % 100}%`,
     top: `${(index * 31 + 8) % 88}%`,
@@ -87,6 +96,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       setNightMode(savedMode === 'night');
       return;
     }
+
     const hour = new Date().getHours();
     setNightMode(hour >= 18 || hour < 6);
   }, []);
@@ -97,7 +107,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   }, [nightMode]);
 
   useEffect(() => {
-    if (!effects.enabled || !effects.cursorTrail || isMotionReduced()) {
+    if (!effects.enabled || prefersReducedMotion()) {
       return undefined;
     }
 
@@ -107,8 +117,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       return undefined;
     }
 
-    const particles: Array<{ x: number; y: number; life: number; hue: number; size: number }> = [];
-    let frame = 0;
+    const ripples: Ripple[] = [];
     let animationId = 0;
 
     const resize = () => {
@@ -120,57 +129,71 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
-    const handlePointerMove = (event: PointerEvent) => {
-      frame += 1;
-      if (frame % 2 !== 0) {
-        return;
-      }
-      particles.push({
+    const handleClick = (event: PointerEvent) => {
+      ripples.push({
         x: event.clientX,
         y: event.clientY,
-        life: 1,
-        hue: 148 + Math.random() * 42,
-        size: 2 + Math.random() * 4
+        radius: 0,
+        opacity: 0.56,
+        speed: 2.8
       });
-      if (particles.length > 90) {
-        particles.splice(0, particles.length - 90);
+
+      if (ripples.length > 16) {
+        ripples.splice(0, ripples.length - 16);
       }
     };
 
     const draw = () => {
       context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      for (let index = particles.length - 1; index >= 0; index -= 1) {
-        const particle = particles[index];
-        particle.life -= 0.026;
-        particle.y -= 0.36;
-        particle.x += Math.sin(particle.life * 9) * 0.24;
 
-        if (particle.life <= 0) {
-          particles.splice(index, 1);
+      for (let index = ripples.length - 1; index >= 0; index -= 1) {
+        const ripple = ripples[index];
+        ripple.radius += ripple.speed;
+        ripple.speed *= 0.982;
+        ripple.opacity -= 0.012;
+
+        if (ripple.opacity <= 0 || ripple.radius > 82) {
+          ripples.splice(index, 1);
           continue;
         }
 
+        const gradient = context.createRadialGradient(ripple.x, ripple.y, Math.max(1, ripple.radius * 0.2), ripple.x, ripple.y, ripple.radius);
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${ripple.opacity * 0.18})`);
+        gradient.addColorStop(0.62, `rgba(255, 143, 199, ${ripple.opacity * 0.2})`);
+        gradient.addColorStop(1, `rgba(124, 217, 255, 0)`);
+
         context.beginPath();
-        context.fillStyle = `hsla(${particle.hue}, 78%, 72%, ${particle.life})`;
-        context.shadowColor = `hsla(${particle.hue}, 78%, 60%, ${particle.life})`;
-        context.shadowBlur = 14;
-        context.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
+        context.fillStyle = gradient;
+        context.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
         context.fill();
+
+        context.beginPath();
+        context.lineWidth = 1.6;
+        context.strokeStyle = `rgba(255, 143, 199, ${ripple.opacity})`;
+        context.arc(ripple.x, ripple.y, ripple.radius * 0.76, 0, Math.PI * 2);
+        context.stroke();
       }
+
       animationId = window.requestAnimationFrame(draw);
     };
 
     resize();
     draw();
     window.addEventListener('resize', resize);
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerdown', handleClick, { passive: true });
 
     return () => {
       window.cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerdown', handleClick);
     };
-  }, [effects.cursorTrail, effects.enabled]);
+  }, [effects.enabled]);
+
+  const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setNightMode((value) => !value);
+  };
 
   if (!effects.enabled) {
     return null;
@@ -185,14 +208,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       </div>
 
       {messages.length > 0 ? (
-        <div className="xh-danmaku-layer" aria-label="首页弹幕">
+        <div className="xh-danmaku-layer" aria-label="站点弹幕">
           {messages.map((message, index) => (
             <span
               className="xh-danmaku-item"
               style={{
                 '--lane': index % 6,
-                '--delay': `${index * -1.45}s`,
-                '--speed': `${18 + (index % 5) * 2}s`
+                '--delay': `${index * -1.35}s`,
+                '--speed': `${22 + (index % 5) * 2}s`
               } as CSSProperties}
               key={`${message}-${index}`}
             >
@@ -205,10 +228,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       {effects.fireflies ? (
         <div className="xh-firefly-layer" aria-hidden="true">
           {fireflies.map((item) => (
-            <i
-              key={item.id}
-              style={{ left: item.left, top: item.top, animationDelay: item.delay, animationDuration: item.duration }}
-            />
+            <i key={item.id} style={{ left: item.left, top: item.top, animationDelay: item.delay, animationDuration: item.duration }} />
           ))}
         </div>
       ) : null}
@@ -225,32 +245,32 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       <div className="xh-kirakira-layer" aria-hidden="true">
         {sparkles.map((item) => (
-          <i key={item.id} style={{ left: item.left, top: item.top, animationDelay: item.delay }}>✦</i>
+          <i key={item.id} style={{ left: item.left, top: item.top, animationDelay: item.delay }} />
         ))}
       </div>
 
-      <button className={`xh-theme-switch${isHome ? ' is-home' : ''}`} type="button" aria-pressed={nightMode} onClick={() => setNightMode((value) => !value)}>
+      <button className={`xh-theme-switch${isHome ? ' is-home' : ''}`} type="button" aria-pressed={nightMode} onClick={toggleTheme}>
         <span>{nightMode ? 'Firefly Night' : 'Sakura Day'}</span>
         <strong>{nightMode ? '夜间模式' : '樱花日间'}</strong>
-        <small>{nightMode ? '流萤飞舞的深空' : '粉白花瓣的晴空'}</small>
+        <small>{nightMode ? '柔光深空' : '粉白晴空'}</small>
       </button>
 
       {!isHome ? (
         <aside className="xh-floating-player" aria-label="悬浮音乐状态">
           <span>Cloud Music</span>
-          <strong>{activeTrack?.title || '歌单待添加'}</strong>
+          <strong>{activeTrack?.title || '歌单待补充'}</strong>
           <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '后台可维护音乐封面与音频地址'}</small>
         </aside>
       ) : null}
 
       {effects.floatingCompanion ? (
         <div className="xh-floating-companion" aria-label={`${site.assistantName} 浮动状态`}>
-          <span>✦</span>
+          <span>{site.assistantName.slice(0, 1)}</span>
           <strong>{site.assistantName}</strong>
         </div>
       ) : null}
 
-      {effects.cursorTrail ? <canvas className="xh-cursor-canvas" ref={canvasRef} aria-hidden="true" /> : null}
+      <canvas className="xh-click-canvas" ref={canvasRef} aria-hidden="true" />
     </>
   );
 }

@@ -183,7 +183,7 @@ const fallbackSite: BlogSite = {
     fireflies: true,
     petals: true,
     grass: true,
-    cursorTrail: true,
+    cursorTrail: false,
     floatingCompanion: true,
     intensity: 72
   },
