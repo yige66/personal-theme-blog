@@ -609,6 +609,78 @@ textarea:focus-visible {
   line-height: 1.65;
 }
 
+.page-insight-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 22px;
+}
+
+.page-insight-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.page-insight-item {
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(14, 24, 35, 0.66);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(22px);
+}
+
+.page-insight-item strong,
+.page-insight-item span,
+.page-insight-item small,
+.rich-empty strong,
+.rich-empty span {
+  display: block;
+}
+
+.page-insight-item strong {
+  color: var(--accent);
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.page-insight-item span {
+  margin-top: 12px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.page-insight-item small {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.page-insight-bar .text-link {
+  align-self: stretch;
+  min-width: 130px;
+  border-radius: 20px;
+}
+
+.rich-empty {
+  grid-column: 1 / -1;
+  padding: 28px;
+}
+
+.rich-empty strong {
+  color: var(--text);
+  font-size: 24px;
+}
+
+.rich-empty span {
+  margin-top: 8px;
+  line-height: 1.7;
+}
+
 .portal-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -827,8 +899,13 @@ textarea:focus-visible {
 
 @media (max-width: 960px) {
   .portal-grid,
+  .page-insight-items,
   .tag-cloud-page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-insight-bar {
+    grid-template-columns: 1fr;
   }
 
   .project-grid,
@@ -846,6 +923,7 @@ textarea:focus-visible {
 
 @media (max-width: 640px) {
   .portal-grid,
+  .page-insight-items,
   .tag-cloud-page {
     grid-template-columns: 1fr;
   }

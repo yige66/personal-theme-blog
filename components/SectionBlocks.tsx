@@ -35,6 +35,38 @@ export function StatPortal({ stats }: { stats: BlogStats }) {
   );
 }
 
+export function PageInsightBar({
+  items,
+  action
+}: {
+  items: Array<{ label: string; value: string | number; caption: string }>;
+  action?: { href: string; label: string };
+}) {
+  return (
+    <section className="main-shell page-insight-bar" aria-label="页面概览">
+      <div className="page-insight-items">
+        {items.map((item) => (
+          <div className="page-insight-item" key={`${item.label}-${item.value}`}>
+            <strong>{item.value}</strong>
+            <span>{item.label}</span>
+            <small>{item.caption}</small>
+          </div>
+        ))}
+      </div>
+      {action ? <Link className="text-link" href={action.href}>{action.label}</Link> : null}
+    </section>
+  );
+}
+
+export function EmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="empty-state rich-empty">
+      <strong>{title}</strong>
+      <span>{description}</span>
+    </div>
+  );
+}
+
 export function ProjectCard({ project }: { project: BlogProject }) {
   return (
     <article className="glass-card project-card">
