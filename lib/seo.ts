@@ -15,7 +15,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     path: '/',
     title: '首页',
-    description: '个人博客门户，聚合文章、项目、动态、音乐、照片墙和本地 CMS 入口。',
+    description: '个人博客门户，聚合文章、项目、动态、音乐、照片墙和发布工作流入口。',
     changeFrequency: 'daily',
     priority: 1
   },
@@ -77,8 +77,8 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   },
   {
     path: '/console',
-    title: '控制台入口',
-    description: '进入本地优先的博客内容管理工作台。',
+    title: '发布工作流',
+    description: '查看 GitHub、Vercel 和内容数据同步的博客发布方式。',
     changeFrequency: 'monthly',
     priority: 0.42
   }
@@ -89,7 +89,8 @@ export const staticPageMetadata = Object.fromEntries(
 ) as Record<string, Metadata>;
 
 export function getSiteUrl(): URL {
-  return new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '';
+  return new URL(process.env.NEXT_PUBLIC_SITE_URL || vercelUrl || 'http://localhost:3000');
 }
 
 export function absoluteUrl(path: string, base = getSiteUrl()): string {

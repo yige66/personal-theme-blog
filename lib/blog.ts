@@ -131,7 +131,7 @@ const fallbackSite: BlogSite = {
   role: '全栈练习生 / 博客系统维护者',
   motto: '把日常、代码和灵感整理成可以再次抵达的星图。',
   bio: '计算机学习者，喜欢把复杂问题拆成可以落地的小系统。',
-  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙、友链和本地 CMS。',
+  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙、友链和 GitHub/Vercel 发布流。',
   location: 'Changsha, China',
   email: 'hello@example.com',
   github: 'https://github.com/yige66/personal-theme-blog',
@@ -179,7 +179,7 @@ const fallbackSite: BlogSite = {
     },
     {
       title: '后台面板',
-      description: '本地控制台承载文章、动态和备份。',
+      description: '发布工作流承载内容版本、预览和备份。',
       image: '/assets/img/admin-board.svg',
       alt: '后台面板插画'
     }
@@ -190,7 +190,7 @@ const fallbackProjects: BlogProject[] = [
   {
     id: 'project-console',
     title: 'Personal Blog Console',
-    description: '一个本地优先的个人博客内容控制台，用 JSON 串联文章、动态、音乐、相册、友链和部署流程。',
+    description: '一个可部署的个人博客内容系统，用 JSON、GitHub 和 Vercel 串联文章、动态、音乐、相册、友链和部署流程。',
     url: '/console',
     repo: 'https://github.com/yige66/personal-theme-blog',
     cover: '/assets/img/admin-board.svg',

@@ -1,12 +1,13 @@
 # 星屿手记 Personal Theme Blog
 
-一个向 [XinghuisamaBlogs](https://github.com/heiehiehi/XinghuisamaBlogs) 靠齐的个人博客系统：前台已升级为可部署的 Next.js App Router 博客，后台保留本地控制台用于文章、草稿、动态、友链、站点资料和备份管理。
+一个向 [XinghuisamaBlogs](https://github.com/heiehiehi/XinghuisamaBlogs) 学习范式的个人博客：前台是可部署的 Next.js App Router 站点，内容通过 `data/blog.json` 进入版本库，再由 GitHub 和 Vercel 完成预览、构建与生产发布。
 
 ## 当前定位
 
-- `Next.js 前台`：玻璃拟态首页、个人名片、等级经验、音乐挂件、AI 助手卡、文章星图、动态、灵境照片墙、文章详情页、自定义 404、SEO metadata。
-- `本地控制台`：沿用原本 Node.js CMS，支持登录保护、CSRF、文章 CRUD、草稿、站点配置、歌单/照片墙 JSON、动态、友链和导入导出。
-- `数据源`：`data/blog.json`。本地控制台写入数据，Next.js 前台读取同一份数据用于构建与部署。
+- `沉浸式前台`：玻璃拟态首页、个人名片、等级经验、音乐挂件、AI 助手卡、文章星图、动态、灵境照片墙、文章详情页、自定义 404 和 SEO metadata。
+- `站点型 IA`：归档、标签、项目、音乐、照片墙、动态/说说、友链、关于、发布工作流入口。
+- `内容数据源`：`data/blog.json` 承载文章、草稿、动态、友链、站点资料、歌单、相册和项目。
+- `发布方式`：本地控制台只作为写作辅助；线上交付以 GitHub 仓库、CI 质量门禁和 Vercel 部署为主。
 
 ## 运行
 
@@ -16,73 +17,71 @@
 npm install
 ```
 
-启动可部署前台：
+启动 Next.js 前台：
 
 ```powershell
 npm run dev
 ```
 
-默认打开：`http://localhost:3000`
-
-启动本地内容控制台：
+启动本地写作控制台：
 
 ```powershell
 npm run cms
 ```
 
-默认打开：
+## 部署
 
-- 前台旧静态预览：`http://localhost:4173/`
-- 本地控制台：`http://localhost:4173/admin.html`
+推荐生产流程：
 
-## 构建与部署
+1. 修改 `data/blog.json`、`public/assets/` 和源码。
+2. 运行 `npm run check`。
+3. 提交并推送到 GitHub。
+4. 在 Vercel 导入 `https://github.com/yige66/personal-theme-blog`。
+5. 设置环境变量 `NEXT_PUBLIC_SITE_URL` 为你的正式域名。
+6. 让 Vercel 通过 GitHub push 自动生成 Preview 和 Production。
 
-```powershell
-npm run build
-npm run start
-```
+Vercel 推荐配置已写入 `vercel.json`：
 
-部署到 Vercel 时，选择 Next.js 项目即可。当前版本没有把后台写入接口部署为线上 CMS；推荐流程是：
+- Framework Preset: `Next.js`
+- Install Command: `npm ci`
+- Build Command: `npm run build`
+- Output Directory: `.next`
 
-1. 本地运行 `npm run cms` 写文章、改配置、导出备份。
-2. 确认 `data/blog.json` 已更新。
-3. 运行 `npm run build` 检查 Next 前台。
-4. 将项目推送到 GitHub，由 Vercel 构建部署。
+更多细节见 [docs/deployment.md](docs/deployment.md)。
 
 ## 项目结构
 
 ```text
 personal-theme-blog/
 ├─ app/                    # Next.js App Router 前台
-├─ components/             # 首页和文章组件
+├─ components/             # 首页、文章和子页体验组件
 ├─ lib/blog.ts             # JSON 内容读取、统计和 Markdown 渲染
 ├─ public/assets/img/      # Next.js 静态资源
-├─ admin.html              # 本地控制台页面
+├─ admin.html              # 本地写作控制台页面
 ├─ server.js               # 本地 CMS/API 服务
-├─ assets/                 # 本地控制台和旧前台资源
 ├─ data/blog.json          # 内容与站点配置
-└─ tests/server.test.js    # 本地 CMS API 测试
+├─ docs/deployment.md      # 部署工作流说明
+└─ .github/workflows/ci.yml # GitHub Actions 质量门禁
 ```
 
-## 已向 XHBlogs 同步的能力
+## 已向 XHBlogs 学习并落地的能力
 
-- 高颜值玻璃拟态首页
-- 独立本地后台控制台
-- Markdown 文章与草稿
+- 高完成度玻璃拟态首页与响应式子页
 - 个人名片、等级经验、连续写作天数
-- 动态/说说区
-- 音乐挂件数据结构
-- 灵境/照片墙数据结构
-- 评论系统配置占位
-- AI 助手提示词配置占位
-- 可部署 Next.js 前台与 Vercel 构建脚本
+- 文章归档、标签云、项目集、动态/说说
+- 音乐、灵境照片墙、友链、关于页
+- 评论系统配置占位和 AI 助手提示词配置占位
+- 本地写作辅助 + GitHub/Vercel 发布工作流
+- GitHub Actions CI、Vercel 构建配置和部署文档
 
 ## 验证
 
 ```powershell
 node --check server.js
 node --test
+npx tsc --noEmit
 npm run build
+npm run check
 ```
 
 如果 PowerShell 禁止执行 `npm.ps1`，可以使用：

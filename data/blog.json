@@ -6,7 +6,7 @@
     "role": "全栈练习生 / 博客系统维护者",
     "motto": "把日常、代码和灵感整理成可以再次抵达的星图。",
     "bio": "计算机学习者 / 后端与前端练习者 / 喜欢把复杂问题拆成可以落地的小系统。",
-    "status": "正在向 XHBlogs 靠齐：玻璃拟态前台、独立控制台、动态、音乐、评论和可部署内容流。",
+    "status": "正在向 XHBlogs 靠齐：玻璃拟态前台、动态、音乐、照片墙、评论占位和 GitHub/Vercel 发布流。",
     "location": "Changsha, China",
     "email": "hello@example.com",
     "github": "https://github.com/yige66",
@@ -58,7 +58,7 @@
       },
       {
         "title": "后台面板",
-        "description": "本地控制台承载文章、动态和备份。",
+        "description": "发布工作流承载内容版本、预览和备份。",
         "image": "/assets/img/admin-board.svg"
       }
     ]
@@ -70,9 +70,9 @@
       "description": "代码与项目记录"
     },
     {
-      "title": "本地控制台",
+      "title": "发布工作流",
       "url": "/console",
-      "description": "文章、动态、站点资料与备份管理"
+      "description": "内容同步、质量门禁与部署入口"
     },
     {
       "title": "归档",
@@ -88,12 +88,12 @@
     },
     {
       "id": "note-2",
-      "content": "继续保留本地控制台，让写作、草稿和备份不依赖外部服务。",
+      "content": "本地写作控制台保留为辅助工具，正式发布交给 GitHub 与 Vercel。",
       "date": "2026-06-24"
     },
     {
       "id": "note-3",
-      "content": "下一步可以接入 GitHub Issues 评论、Vercel 部署和图床上传。",
+      "content": "下一步可以接入 GitHub Issues 评论、Vercel 正式域名和图床上传。",
       "date": "2026-06-20"
     }
   ],
@@ -103,7 +103,7 @@
       "title": "从零搭一个属于自己的博客",
       "slug": "build-my-own-blog",
       "summary": "记录个人主题博客的功能拆解：前台展示、后台管理、Markdown 写作、数据持久化与部署思路。",
-      "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 后台需要能写文章、存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用本地控制台保存 JSON 数据，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。它很适合课程设计、个人作品集和后续二次开发。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传或 GitHub Actions 自动部署。",
+      "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 写作工具需要能存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用 JSON 数据保存内容，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。内容变更进入 GitHub 后，由 CI 和 Vercel 把预览、构建和正式发布串起来。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传、图床或在线 CMS。",
       "tags": [
         "博客",
         "Next.js",
@@ -155,7 +155,7 @@
     {
       "id": "project-personal-blog",
       "title": "个人博客控制台",
-      "description": "以 Next.js 前台和本地 CMS 串联文章、动态、音乐、相册、项目与部署流程的个人站点工程。",
+      "description": "以 Next.js 前台、JSON 内容源、GitHub 版本库和 Vercel 发布流串联文章、动态、音乐、相册与项目的个人站点工程。",
       "url": "/console",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/admin-board.svg",

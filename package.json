@@ -1,7 +1,7 @@
 {
   "name": "personal-theme-blog",
   "version": "2.0.0",
-  "description": "A deployable XHBlogs-inspired personal blog with a local admin console.",
+  "description": "A deployable XHBlogs-inspired personal blog with a GitHub and Vercel publishing workflow.",
   "type": "module",
   "scripts": {
     "dev": "next dev",
@@ -28,6 +28,9 @@
     "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

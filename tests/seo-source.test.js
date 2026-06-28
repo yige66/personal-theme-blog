@@ -22,6 +22,8 @@ describe('publishing SEO surface wiring', () => {
     assert.match(sitemap, /PUBLIC_ROUTES/);
     assert.match(robots, /disallow: \['\/api\/', '\/admin.html'\]/);
     assert.match(manifest, /display: 'standalone'/);
+    assert.match(seo, /NEXT_PUBLIC_SITE_URL/);
+    assert.match(seo, /VERCEL_URL/);
   });
 
   it('adds page and article metadata plus JSON-LD output', async () => {
