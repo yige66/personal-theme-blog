@@ -1,4 +1,4 @@
-﻿import assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -162,6 +162,35 @@ describe('admin authentication and article management', () => {
     assert.equal(updated.status, 200);
     assert.equal(updated.data.projects.length, 1);
     assert.equal(updated.data.projects[0].title, 'Updated Project Console');
+  });
+
+  it('preserves existing projects when importing an older backup without projects', async () => {
+    const setup = await json('/api/setup', {
+      method: 'POST',
+      body: { password: TEST_ADMIN_PASSPHRASE }
+    });
+    const cookie = setup.headers.get('set-cookie').split(';')[0];
+    const csrfToken = setup.data.csrfToken;
+
+    const oldBackup = createSeedData();
+    oldBackup.site = { ...oldBackup.site, title: 'Imported Legacy Blog' };
+    delete oldBackup.projects;
+
+    const imported = await json('/api/admin/import', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: oldBackup
+    });
+
+    assert.equal(imported.status, 200);
+    assert.equal(imported.data.site.title, 'Imported Legacy Blog');
+    assert.equal(imported.data.projects.length, 1);
+    assert.equal(imported.data.projects[0].title, 'Project Console');
+
+    const publicPayload = await json('/api/blog');
+    assert.equal(publicPayload.data.projects.length, 1);
+    assert.equal(publicPayload.data.stats.projects, 1);
   });
 
   it('validates post slugs and prevents duplicates', async () => {

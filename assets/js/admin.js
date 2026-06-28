@@ -435,7 +435,7 @@ async function handleSaveProjects(event) {
     const payload = await api('/api/admin/projects', { method: 'PUT', body: { projects }, csrf: true });
     state.data = payload.data;
     renderAll();
-    showToast('?????');
+    showToast('\u9879\u76ee\u5df2\u4fdd\u5b58');
   } catch (error) {
     showToast(error.message, true);
   }

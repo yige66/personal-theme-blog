@@ -348,7 +348,11 @@ async function handleAdminApi(request, response, context, url) {
 
   if (request.method === 'POST' && url.pathname === '/api/admin/import') {
     const body = await readJsonBody(request);
-    const nextData = validateBlogData(body);
+    const currentData = await readBlogData(context);
+    const importData = Object.prototype.hasOwnProperty.call(body, 'projects')
+      ? body
+      : { ...body, projects: currentData.projects };
+    const nextData = validateBlogData(importData);
     await writeBlogData(context, nextData);
     sendJson(response, 200, { success: true, data: nextData });
     return;
@@ -718,20 +722,20 @@ function validateNotes(input) {
 
 function validateProjects(input) {
   if (!Array.isArray(input)) {
-    throw new ApiError(400, '???????');
+    throw new ApiError(400, '\u9879\u76ee\u5217\u8868\u5fc5\u987b\u662f\u6570\u7ec4');
   }
 
   return input.slice(0, 12).map((project) => ({
     id: optionalString(project.id, 80) || createId('project'),
-    title: requiredString(project.title, '????', 1, 80),
-    description: requiredString(project.description, '????', 1, 240),
+    title: requiredString(project.title, '\u9879\u76ee\u6807\u9898', 1, 80),
+    description: requiredString(project.description, '\u9879\u76ee\u63cf\u8ff0', 1, 240),
     url: optionalPathOrUrl(project.url, '#'),
     repo: optionalPathOrUrl(project.repo, ''),
     cover: optionalPathOrUrl(project.cover, '/assets/img/admin-board.svg'),
     tags: validateTags(project.tags),
     status: optionalString(project.status, 40) || 'active',
     featured: Boolean(project.featured),
-    startedAt: validateDateString(project.startedAt || new Date().toISOString().slice(0, 10), '????')
+    startedAt: validateDateString(project.startedAt || new Date().toISOString().slice(0, 10), '\u9879\u76ee\u5f00\u59cb\u65e5\u671f')
   }));
 }
 

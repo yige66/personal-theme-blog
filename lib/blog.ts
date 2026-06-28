@@ -310,6 +310,8 @@ export function renderMarkdown(markdown: string): string {
   const blocks: string[] = [];
   let listItems: string[] = [];
   let paragraph: string[] = [];
+  let quoteLines: string[] = [];
+  let codeFence: { language: string; lines: string[] } | null = null;
 
   const flushParagraph = () => {
     if (paragraph.length > 0) {
@@ -325,50 +327,90 @@ export function renderMarkdown(markdown: string): string {
     }
   };
 
+  const flushQuote = () => {
+    if (quoteLines.length > 0) {
+      blocks.push(`<blockquote><p>${quoteLines.map(renderInline).join('<br />')}</p></blockquote>`);
+      quoteLines = [];
+    }
+  };
+
+  const flushCode = () => {
+    if (codeFence) {
+      const languageClass = codeFence.language ? ` class="language-${escapeAttribute(codeFence.language)}"` : '';
+      blocks.push(`<pre><code${languageClass}>${escapeHtml(codeFence.lines.join('\n'))}\n</code></pre>`);
+      codeFence = null;
+    }
+  };
+
+  const flushTextBlocks = () => {
+    flushParagraph();
+    flushList();
+    flushQuote();
+  };
+
   for (const rawLine of lines) {
     const line = rawLine.trim();
 
+    if (codeFence) {
+      if (line.startsWith('```')) {
+        flushCode();
+      } else {
+        codeFence.lines.push(rawLine);
+      }
+      continue;
+    }
+
+    if (line.startsWith('```')) {
+      flushTextBlocks();
+      codeFence = { language: line.slice(3).trim(), lines: [] };
+      continue;
+    }
+
     if (line === '') {
+      flushTextBlocks();
+      continue;
+    }
+
+    if (line.startsWith('> ')) {
       flushParagraph();
       flushList();
+      quoteLines.push(line.slice(2));
       continue;
     }
 
     if (line.startsWith('### ')) {
-      flushParagraph();
-      flushList();
+      flushTextBlocks();
       blocks.push(`<h3>${renderInline(line.slice(4))}</h3>`);
       continue;
     }
 
     if (line.startsWith('## ')) {
-      flushParagraph();
-      flushList();
+      flushTextBlocks();
       blocks.push(`<h2>${renderInline(line.slice(3))}</h2>`);
       continue;
     }
 
     if (line.startsWith('# ')) {
-      flushParagraph();
-      flushList();
+      flushTextBlocks();
       blocks.push(`<h2>${renderInline(line.slice(2))}</h2>`);
       continue;
     }
 
     if (/^- /.test(line)) {
       flushParagraph();
+      flushQuote();
       listItems.push(line.slice(2));
       continue;
     }
 
+    flushQuote();
     paragraph.push(line);
   }
 
-  flushParagraph();
-  flushList();
+  flushTextBlocks();
+  flushCode();
   return blocks.join('');
 }
-
 function normalizeBlogData(input: Partial<BlogData>): BlogData {
   const siteInput: Partial<BlogSite> = input.site ?? {};
   const site: BlogSite = {
@@ -425,11 +467,50 @@ function estimateWords(content: string): number {
 }
 
 function renderInline(text: string): string {
-  return escapeHtml(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+  const codeSegments: string[] = [];
+  const codeTokenPrefix = '__BLOG_INLINE_CODE_';
+  const protectedText = escapeHtml(text).replace(/`([^`]+)`/g, (_match, code: string) => {
+    const token = `${codeTokenPrefix}${codeSegments.length}__`;
+    codeSegments.push(`<code>${code}</code>`);
+    return token;
+  });
+
+  const withImages = protectedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match, alt: string, src: string) => {
+    const safeSrc = sanitizeHref(src);
+    return safeSrc ? `<img src="${escapeAttribute(safeSrc)}" alt="${escapeAttribute(alt)}" loading="lazy" />` : `<span>${escapeHtml(alt)}</span>`;
+  });
+
+  return renderInlineLinks(withImages.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'))
+    .replace(new RegExp(`${codeTokenPrefix}(\\d+)__`, 'g'), (_match, index: string) => codeSegments[Number(index)] ?? '');
 }
 
+function renderInlineLinks(value: string): string {
+  return value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label: string, href: string) => {
+    const safeHref = sanitizeHref(href);
+    if (!safeHref) {
+      return `<span>${label}</span>`;
+    }
+
+    const externalAttrs = isExternalHref(safeHref) ? ' target="_blank" rel="noreferrer"' : '';
+    return `<a href="${escapeAttribute(safeHref)}"${externalAttrs}>${label}</a>`;
+  });
+}
+
+function sanitizeHref(value: string): string {
+  const href = String(value || '').trim();
+  if (/^https?:\/\/[^\s]+$/i.test(href) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(href) || /^#[a-zA-Z0-9_-]+$/.test(href)) {
+    return href;
+  }
+  return '';
+}
+
+function isExternalHref(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+function escapeAttribute(value: string): string {
+  return escapeHtml(value).replace(/`/g, '&#96;');
+}
 function escapeHtml(value: string): string {
   return String(value)
     .replace(/&/g, '&amp;')
