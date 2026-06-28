@@ -9,7 +9,7 @@
     "status": "正在向 XHBlogs 靠齐：玻璃拟态前台、独立控制台、动态、音乐、评论和可部署内容流。",
     "location": "Changsha, China",
     "email": "hello@example.com",
-    "github": "https://github.com/",
+    "github": "https://github.com/yige66",
     "themeColor": "#6fb7a8",
     "accentColor": "#f0c36a",
     "heroImage": "/assets/img/hero-mountain.svg",
@@ -66,17 +66,17 @@
   "links": [
     {
       "title": "GitHub",
-      "url": "https://github.com/",
+      "url": "https://github.com/yige66",
       "description": "代码与项目记录"
     },
     {
       "title": "本地控制台",
-      "url": "/admin.html",
+      "url": "/console",
       "description": "文章、动态、站点资料与备份管理"
     },
     {
       "title": "归档",
-      "url": "#posts",
+      "url": "/archive",
       "description": "按时间回看文章"
     }
   ],
@@ -154,15 +154,15 @@
   "projects": [
     {
       "id": "project-personal-blog",
-      "title": "????????",
-      "description": "? Next.js ????? CMS ????????????????????????????????",
+      "title": "个人博客控制台",
+      "description": "以 Next.js 前台和本地 CMS 串联文章、动态、音乐、相册、项目与部署流程的个人站点工程。",
       "url": "/console",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/admin-board.svg",
       "tags": [
         "Next.js",
         "CMS",
-        "????"
+        "内容系统"
       ],
       "status": "active",
       "featured": true,
@@ -170,15 +170,15 @@
     },
     {
       "id": "project-study-map",
-      "title": "?????????",
-      "description": "??????????????????????????????????",
+      "title": "学习主题地图",
+      "description": "用归档、标签和项目卡片把学习记录整理成可检索、可复访的知识路径。",
       "url": "/archive",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/desk-notes.svg",
       "tags": [
-        "????",
-        "??",
-        "??"
+        "知识管理",
+        "归档",
+        "标签"
       ],
       "status": "planning",
       "featured": false,

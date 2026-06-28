@@ -32,6 +32,9 @@ describe('admin structured CMS UI wiring', () => {
     assert.ok(script.includes("galleryEditor: document.querySelector('#galleryEditor')"));
     assert.match(script, /handleUploadImage/);
     assert.match(script, /handleCopyUploadPath/);
+    assert.match(script, /setLastStructuredField/);
+    assert.match(script, /inputs\.at\(-1\)/);
+    assert.match(script, /addStructuredItem\(fallbackKind\)/);
     assert.ok(script.includes('/api/admin/uploads/image'));
     assert.match(script, /syncProjectsJsonFromEditor/);
     assert.match(script, /syncMediaJsonFromEditors/);

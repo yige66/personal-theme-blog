@@ -634,13 +634,27 @@ function applyUploadedPath(path) {
   if (target === 'avatar') elements.siteAvatar.value = path;
   if (target === 'postCover') elements.postCover.value = path;
   if (target === 'galleryImage') {
-    const input = elements.galleryEditor.querySelector('[data-field="image"]');
-    if (input) input.value = path;
+    setLastStructuredField(elements.galleryEditor, 'image', path, 'gallery', syncMediaJsonFromEditors);
   }
   if (target === 'projectCover') {
-    const input = elements.projectsEditor.querySelector('[data-field="cover"]');
-    if (input) input.value = path;
+    setLastStructuredField(elements.projectsEditor, 'cover', path, 'projects', syncProjectsJsonFromEditor);
   }
+}
+
+function setLastStructuredField(container, field, value, fallbackKind, syncJson) {
+  let inputs = [...container.querySelectorAll(`[data-field="${field}"]`)];
+  if (inputs.length === 0) {
+    addStructuredItem(fallbackKind);
+    inputs = [...container.querySelectorAll(`[data-field="${field}"]`)];
+  }
+
+  const input = inputs.at(-1);
+  if (!input) {
+    return;
+  }
+
+  input.value = value;
+  syncJson();
 }
 async function handleSaveLinks(event) {
   event.preventDefault();
