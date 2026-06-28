@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
 
@@ -22,22 +23,41 @@ function uniqueMessages(values: string[]): string[] {
   }).slice(0, 18);
 }
 
+const dailyDanmaku = [
+  '今日份摸鱼补给完成',
+  'BGM 已循环到第三遍',
+  '路过打卡，站长在吗',
+  '这张封面有点心动',
+  '晚风和樱花都在线',
+  '头像可以在后台换喔',
+  '相册区适合慢慢逛',
+  '写完这篇就去听歌',
+  '评论区留个脚印',
+  '灵感刚刚冒泡了',
+  '今天也要温柔更新',
+  '补番前先写两段'
+];
+
 function isMotionReduced(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pathname = usePathname();
   const [nightMode, setNightMode] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
+  const isHome = pathname === '/';
 
-  const messages = useMemo(() => uniqueMessages([
-    ...(effects.danmaku || []),
-    site.status,
-    ...notes.slice(0, 5).map((note) => note.title || note.content),
-    ...posts.slice(0, 5).map((post) => post.title)
-  ]), [effects.danmaku, notes, posts, site.status]);
+  const messages = useMemo(() => {
+    const configured = effects.danmaku && effects.danmaku.length > 0 ? effects.danmaku : dailyDanmaku;
+    return uniqueMessages([
+      ...configured,
+      ...dailyDanmaku,
+      site.status
+    ]);
+  }, [effects.danmaku, site.status]);
 
   const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 8) }, (_item, index) => ({
     id: `firefly-${index}`,
@@ -209,17 +229,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         ))}
       </div>
 
-      <button className="xh-theme-switch" type="button" aria-pressed={nightMode} onClick={() => setNightMode((value) => !value)}>
+      <button className={`xh-theme-switch${isHome ? ' is-home' : ''}`} type="button" aria-pressed={nightMode} onClick={() => setNightMode((value) => !value)}>
         <span>{nightMode ? 'Firefly Night' : 'Sakura Day'}</span>
         <strong>{nightMode ? '夜间模式' : '樱花日间'}</strong>
         <small>{nightMode ? '流萤飞舞的深空' : '粉白花瓣的晴空'}</small>
       </button>
 
-      <aside className="xh-floating-player" aria-label="悬浮音乐状态">
-        <span>Cloud Music</span>
-        <strong>{activeTrack?.title || '歌单待添加'}</strong>
-        <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '后台可维护音乐封面与音频地址'}</small>
-      </aside>
+      {!isHome ? (
+        <aside className="xh-floating-player" aria-label="悬浮音乐状态">
+          <span>Cloud Music</span>
+          <strong>{activeTrack?.title || '歌单待添加'}</strong>
+          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '后台可维护音乐封面与音频地址'}</small>
+        </aside>
+      ) : null}
 
       {effects.floatingCompanion ? (
         <div className="xh-floating-companion" aria-label={`${site.assistantName} 浮动状态`}>
