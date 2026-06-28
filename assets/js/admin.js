@@ -2,7 +2,8 @@ const state = {
   csrfToken: '',
   data: null,
   selectedPostId: '',
-  search: ''
+  search: '',
+  uploadPath: ''
 };
 
 const elements = {
@@ -66,10 +67,23 @@ const elements = {
   siteCommentClientId: document.querySelector('#siteCommentClientId'),
   siteMusic: document.querySelector('#siteMusic'),
   siteGallery: document.querySelector('#siteGallery'),
+  musicEditor: document.querySelector('#musicEditor'),
+  galleryEditor: document.querySelector('#galleryEditor'),
+  mediaForm: document.querySelector('#mediaForm'),
+  addMusicButton: document.querySelector('#addMusicButton'),
+  addGalleryButton: document.querySelector('#addGalleryButton'),
+  uploadFile: document.querySelector('#uploadFile'),
+  uploadTarget: document.querySelector('#uploadTarget'),
+  uploadButton: document.querySelector('#uploadButton'),
+  uploadPath: document.querySelector('#uploadPath'),
   linksForm: document.querySelector('#linksForm'),
   linksInput: document.querySelector('#linksInput'),
+  linksEditor: document.querySelector('#linksEditor'),
+  addLinkButton: document.querySelector('#addLinkButton'),
   projectsForm: document.querySelector('#projectsForm'),
   projectsInput: document.querySelector('#projectsInput'),
+  projectsEditor: document.querySelector('#projectsEditor'),
+  addProjectButton: document.querySelector('#addProjectButton'),
   exportButton: document.querySelector('#exportButton'),
   importInput: document.querySelector('#importInput'),
   importButton: document.querySelector('#importButton')
@@ -103,6 +117,12 @@ function bindEvents() {
   elements.siteForm.addEventListener('submit', handleSaveSite);
   elements.linksForm.addEventListener('submit', handleSaveLinks);
   elements.projectsForm.addEventListener('submit', handleSaveProjects);
+  elements.mediaForm.addEventListener('submit', handleSaveMedia);
+  elements.addLinkButton.addEventListener('click', () => addStructuredItem('links'));
+  elements.addProjectButton.addEventListener('click', () => addStructuredItem('projects'));
+  elements.addMusicButton.addEventListener('click', () => addStructuredItem('music'));
+  elements.addGalleryButton.addEventListener('click', () => addStructuredItem('gallery'));
+  elements.uploadButton.addEventListener('click', handleUploadImage);
   elements.notesForm.addEventListener('submit', handleSaveNotes);
   elements.exportButton.addEventListener('click', handleExport);
   elements.importButton.addEventListener('click', handleImport);
@@ -185,6 +205,7 @@ function renderAll() {
   renderRecentPosts();
   renderPostList();
   renderSiteForm();
+  renderStructuredEditors();
   renderJsonEditors();
   if (!state.selectedPostId) {
     clearPostForm();
@@ -358,18 +379,187 @@ function renderSiteForm() {
 
 async function handleSaveSite(event) {
   event.preventDefault();
-  let music;
-  let gallery;
+  await saveSitePayload('Site profile saved');
+}
+function renderStructuredEditors() {
+  renderLinksEditor();
+  renderProjectsEditor();
+  renderMusicEditor();
+  renderGalleryEditor();
+}
 
-  try {
-    music = JSON.parse(elements.siteMusic.value || '[]');
-    gallery = JSON.parse(elements.siteGallery.value || '[]');
-  } catch {
-    showToast('歌单或照片墙 JSON 格式不正确', true);
+function renderJsonEditors() {
+  elements.linksInput.value = JSON.stringify(state.data.links || [], null, 2);
+  elements.projectsInput.value = JSON.stringify(state.data.projects || [], null, 2);
+  elements.siteMusic.value = JSON.stringify(state.data.site.music || [], null, 2);
+  elements.siteGallery.value = JSON.stringify(state.data.site.gallery || [], null, 2);
+  elements.notesInput.value = JSON.stringify(state.data.notes || [], null, 2);
+}
+
+function renderLinksEditor() {
+  elements.linksEditor.innerHTML = (state.data.links || []).map((link, index) => `
+    <article class="structured-item" data-kind="links" data-index="${index}">
+      <div class="structured-item-head"><strong>Link ${index + 1}</strong><button class="button danger" type="button" data-remove="links:${index}">Remove</button></div>
+      <label><span>Title</span><input data-field="title" value="${escapeAttribute(link.title || '')}"></label>
+      <label><span>URL</span><input data-field="url" value="${escapeAttribute(link.url || '')}"></label>
+      <label><span>Description</span><input data-field="description" value="${escapeAttribute(link.description || '')}"></label>
+    </article>
+  `).join('');
+  bindStructuredRemove(elements.linksEditor);
+}
+
+function renderProjectsEditor() {
+  elements.projectsEditor.innerHTML = (state.data.projects || []).map((project, index) => `
+    <article class="structured-item" data-kind="projects" data-index="${index}">
+      <div class="structured-item-head"><strong>Project ${index + 1}</strong><button class="button danger" type="button" data-remove="projects:${index}">Remove</button></div>
+      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(project.title || '')}"></label><label><span>Status</span><input data-field="status" value="${escapeAttribute(project.status || 'active')}"></label></div>
+      <label><span>Description</span><textarea data-field="description" rows="3">${escapeHtml(project.description || '')}</textarea></label>
+      <div class="form-row"><label><span>URL</span><input data-field="url" value="${escapeAttribute(project.url || '')}"></label><label><span>Repo</span><input data-field="repo" value="${escapeAttribute(project.repo || '')}"></label></div>
+      <div class="form-row"><label><span>Cover</span><input data-field="cover" value="${escapeAttribute(project.cover || '')}"></label><label><span>Started</span><input data-field="startedAt" type="date" value="${escapeAttribute(project.startedAt || '')}"></label></div>
+      <div class="form-row check-row"><label><input data-field="featured" type="checkbox" ${project.featured ? 'checked' : ''}><span>Featured</span></label><label><span>Tags</span><input data-field="tags" value="${escapeAttribute((project.tags || []).join(', '))}"></label></div>
+    </article>
+  `).join('');
+  bindStructuredRemove(elements.projectsEditor);
+}
+
+function renderMusicEditor() {
+  elements.musicEditor.innerHTML = (state.data.site.music || []).map((track, index) => `
+    <article class="structured-item" data-kind="music" data-index="${index}">
+      <div class="structured-item-head"><strong>Track ${index + 1}</strong><button class="button danger" type="button" data-remove="music:${index}">Remove</button></div>
+      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(track.title || '')}"></label><label><span>Artist</span><input data-field="artist" value="${escapeAttribute(track.artist || '')}"></label></div>
+      <div class="form-row"><label><span>Mood</span><input data-field="mood" value="${escapeAttribute(track.mood || '')}"></label><label><span>Audio URL</span><input data-field="url" value="${escapeAttribute(track.url || '')}"></label></div>
+    </article>
+  `).join('');
+  bindStructuredRemove(elements.musicEditor);
+}
+
+function renderGalleryEditor() {
+  elements.galleryEditor.innerHTML = (state.data.site.gallery || []).map((item, index) => `
+    <article class="structured-item" data-kind="gallery" data-index="${index}">
+      <div class="structured-item-head"><strong>Gallery ${index + 1}</strong><button class="button danger" type="button" data-remove="gallery:${index}">Remove</button></div>
+      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(item.title || '')}"></label><label><span>Image</span><input data-field="image" value="${escapeAttribute(item.image || '')}"></label></div>
+      <label><span>Description</span><textarea data-field="description" rows="3">${escapeHtml(item.description || '')}</textarea></label>
+    </article>
+  `).join('');
+  bindStructuredRemove(elements.galleryEditor);
+}
+
+function bindStructuredRemove(container) {
+  container.querySelectorAll('[data-remove]').forEach((button) => {
+    button.addEventListener('click', () => removeStructuredItem(button.dataset.remove));
+  });
+}
+
+function readStructuredItems(container, mapper) {
+  return [...container.querySelectorAll('.structured-item')].map((item) => mapper(item));
+}
+
+function fieldValue(item, field) {
+  const input = item.querySelector(`[data-field="${field}"]`);
+  return input?.value?.trim() || '';
+}
+
+function fieldChecked(item, field) {
+  return Boolean(item.querySelector(`[data-field="${field}"]`)?.checked);
+}
+
+function syncLinksJsonFromEditor() {
+  const links = readStructuredItems(elements.linksEditor, (item) => ({
+    title: fieldValue(item, 'title'),
+    url: fieldValue(item, 'url') || '#',
+    description: fieldValue(item, 'description')
+  }));
+  elements.linksInput.value = JSON.stringify(links, null, 2);
+  return links;
+}
+
+function syncProjectsJsonFromEditor() {
+  const projects = readStructuredItems(elements.projectsEditor, (item) => ({
+    id: state.data.projects[Number(item.dataset.index)]?.id || '',
+    title: fieldValue(item, 'title'),
+    description: fieldValue(item, 'description'),
+    url: fieldValue(item, 'url') || '#',
+    repo: fieldValue(item, 'repo'),
+    cover: fieldValue(item, 'cover') || '/assets/img/admin-board.svg',
+    tags: fieldValue(item, 'tags').split(',').map((tag) => tag.trim()).filter(Boolean),
+    status: fieldValue(item, 'status') || 'active',
+    featured: fieldChecked(item, 'featured'),
+    startedAt: fieldValue(item, 'startedAt') || new Date().toISOString().slice(0, 10)
+  }));
+  elements.projectsInput.value = JSON.stringify(projects, null, 2);
+  return projects;
+}
+
+function syncMediaJsonFromEditors() {
+  const music = readStructuredItems(elements.musicEditor, (item) => ({
+    title: fieldValue(item, 'title'),
+    artist: fieldValue(item, 'artist') || 'Local Playlist',
+    mood: fieldValue(item, 'mood'),
+    url: fieldValue(item, 'url')
+  }));
+  const gallery = readStructuredItems(elements.galleryEditor, (item) => ({
+    title: fieldValue(item, 'title'),
+    description: fieldValue(item, 'description'),
+    image: fieldValue(item, 'image') || '/assets/img/hero-mountain.svg'
+  }));
+  elements.siteMusic.value = JSON.stringify(music, null, 2);
+  elements.siteGallery.value = JSON.stringify(gallery, null, 2);
+  return { music, gallery };
+}
+
+function addStructuredItem(kind) {
+  if (kind === 'links') {
+    state.data.links = [...(state.data.links || []), { title: '', url: 'https://', description: '' }];
+    renderLinksEditor();
     return;
   }
+  if (kind === 'projects') {
+    state.data.projects = [...(state.data.projects || []), { title: '', description: '', url: '#', repo: '', cover: state.uploadPath || '/assets/img/admin-board.svg', tags: [], status: 'active', featured: false, startedAt: new Date().toISOString().slice(0, 10) }];
+    renderProjectsEditor();
+    return;
+  }
+  if (kind === 'music') {
+    state.data.site.music = [...(state.data.site.music || []), { title: '', artist: 'Local Playlist', mood: '', url: '' }];
+    renderMusicEditor();
+    return;
+  }
+  if (kind === 'gallery') {
+    state.data.site.gallery = [...(state.data.site.gallery || []), { title: '', description: '', image: state.uploadPath || '/assets/img/hero-mountain.svg' }];
+    renderGalleryEditor();
+  }
+}
 
-  const site = {
+function removeStructuredItem(value) {
+  const [kind, rawIndex] = String(value || '').split(':');
+  const index = Number(rawIndex);
+  if (!Number.isInteger(index) || index < 0) return;
+  if (kind === 'links') { state.data.links = state.data.links.filter((_item, itemIndex) => itemIndex !== index); renderLinksEditor(); }
+  if (kind === 'projects') { state.data.projects = state.data.projects.filter((_item, itemIndex) => itemIndex !== index); renderProjectsEditor(); }
+  if (kind === 'music') { state.data.site.music = state.data.site.music.filter((_item, itemIndex) => itemIndex !== index); renderMusicEditor(); }
+  if (kind === 'gallery') { state.data.site.gallery = state.data.site.gallery.filter((_item, itemIndex) => itemIndex !== index); renderGalleryEditor(); }
+  renderJsonEditors();
+}
+
+async function handleSaveMedia(event) {
+  event.preventDefault();
+  await saveSitePayload('Media saved');
+}
+
+async function saveSitePayload(successMessage) {
+  const { music, gallery } = syncMediaJsonFromEditors();
+  const site = readSitePayload(music, gallery);
+  try {
+    const payload = await api('/api/admin/site', { method: 'PUT', body: site, csrf: true });
+    state.data = payload.data;
+    renderAll();
+    showToast(successMessage);
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+function readSitePayload(music, gallery) {
+  return {
     title: elements.siteTitle.value,
     owner: elements.siteOwner.value,
     subtitle: elements.siteSubtitle.value,
@@ -398,27 +588,49 @@ async function handleSaveSite(event) {
     music,
     gallery
   };
+}
 
+async function handleUploadImage() {
+  const file = elements.uploadFile.files?.[0];
+  if (!file) { showToast('Please choose an image', true); return; }
   try {
-    const payload = await api('/api/admin/site', { method: 'PUT', body: site, csrf: true });
-    state.data = payload.data;
-    renderAll();
-    showToast('站点资料已保存');
+    const payload = await api('/api/admin/uploads/image', { method: 'POST', body: { filename: file.name, contentType: file.type, dataBase64: await fileToBase64(file) }, csrf: true });
+    state.uploadPath = payload.data.url;
+    elements.uploadPath.value = payload.data.url;
+    applyUploadedPath(payload.data.url);
+    showToast('Image uploaded');
   } catch (error) {
     showToast(error.message, true);
   }
 }
 
-function renderJsonEditors() {
-  elements.linksInput.value = JSON.stringify(state.data.links || [], null, 2);
-  elements.projectsInput.value = JSON.stringify(state.data.projects || [], null, 2);
-  elements.notesInput.value = JSON.stringify(state.data.notes || [], null, 2);
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = () => reject(new Error('Image read failed'));
+    reader.readAsDataURL(file);
+  });
 }
 
+function applyUploadedPath(path) {
+  const target = elements.uploadTarget.value;
+  if (target === 'heroImage') elements.siteHeroImage.value = path;
+  if (target === 'avatar') elements.siteAvatar.value = path;
+  if (target === 'postCover') elements.postCover.value = path;
+  if (target === 'galleryImage') {
+    const input = elements.galleryEditor.querySelector('[data-field="image"]');
+    if (input) input.value = path;
+  }
+  if (target === 'projectCover') {
+    const input = elements.projectsEditor.querySelector('[data-field="cover"]');
+    if (input) input.value = path;
+  }
+}
 async function handleSaveLinks(event) {
   event.preventDefault();
   try {
-    const links = JSON.parse(elements.linksInput.value);
+    const links = syncLinksJsonFromEditor();
     const payload = await api('/api/admin/links', { method: 'PUT', body: { links }, csrf: true });
     state.data = payload.data;
     renderAll();
@@ -431,7 +643,7 @@ async function handleSaveLinks(event) {
 async function handleSaveProjects(event) {
   event.preventDefault();
   try {
-    const projects = JSON.parse(elements.projectsInput.value);
+    const projects = syncProjectsJsonFromEditor();
     const payload = await api('/api/admin/projects', { method: 'PUT', body: { projects }, csrf: true });
     state.data = payload.data;
     renderAll();

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
@@ -8,17 +8,19 @@ import { createBlogServer } from '../server.js';
 let server;
 let baseUrl;
 let dataDir;
+let publicDir;
 
 const TEST_ADMIN_PASSPHRASE = 'test-fixture-passphrase';
 const INVALID_ADMIN_PASSPHRASE = 'invalid-test-passphrase';
 
 beforeEach(async () => {
   dataDir = await mkdtemp(join(tmpdir(), 'personal-theme-blog-'));
+  publicDir = await mkdtemp(join(tmpdir(), 'personal-theme-blog-public-'));
   await writeFile(join(dataDir, 'blog.json'), `${JSON.stringify(createSeedData(), null, 2)}\n`, 'utf8');
   server = createBlogServer({
     rootDir: process.cwd(),
     dataDir,
-    publicDir: process.cwd()
+    publicDir
   });
   await new Promise((resolve) => {
     server.listen(0, '127.0.0.1', resolve);
@@ -30,6 +32,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await new Promise((resolve) => server.close(resolve));
   await rm(dataDir, { recursive: true, force: true });
+  await rm(publicDir, { recursive: true, force: true });
 });
 
 describe('public blog API', () => {
@@ -191,6 +194,58 @@ describe('admin authentication and article management', () => {
     const publicPayload = await json('/api/blog');
     assert.equal(publicPayload.data.projects.length, 1);
     assert.equal(publicPayload.data.stats.projects, 1);
+  });
+
+  it('uploads authenticated local image assets safely', async () => {
+    const setup = await json('/api/setup', {
+      method: 'POST',
+      body: { password: TEST_ADMIN_PASSPHRASE }
+    });
+    const cookie = setup.headers.get('set-cookie').split(';')[0];
+    const csrfToken = setup.data.csrfToken;
+    const pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
+
+    const missingCsrf = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      body: { filename: 'avatar.png', contentType: 'image/png', dataBase64: pngBase64 }
+    });
+    assert.equal(missingCsrf.status, 403);
+
+    const invalidType = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: { filename: 'note.txt', contentType: 'text/plain', dataBase64: Buffer.from('hello').toString('base64') }
+    });
+    assert.equal(invalidType.status, 400);
+
+    const mismatchedExtension = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: { filename: 'avatar.jpg', contentType: 'image/png', dataBase64: pngBase64 }
+    });
+    assert.equal(mismatchedExtension.status, 400);
+
+    const fakeImage = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: { filename: 'avatar.png', contentType: 'image/png', dataBase64: Buffer.from('not an image').toString('base64') }
+    });
+    assert.equal(fakeImage.status, 400);
+
+    const uploaded = await json('/api/admin/uploads/image', {
+      method: 'POST',
+      cookie,
+      csrfToken,
+      body: { filename: 'avatar.png', contentType: 'image/png', dataBase64: pngBase64 }
+    });
+
+    assert.equal(uploaded.status, 201);
+    assert.match(uploaded.data.url, /^\/assets\/uploads\/avatar-[a-f0-9]{12}\.png$/);
+    await access(join(publicDir, uploaded.data.url.slice(1)));
   });
 
   it('validates post slugs and prevents duplicates', async () => {

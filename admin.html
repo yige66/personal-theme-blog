@@ -38,6 +38,7 @@
             <button class="nav-button" type="button" data-panel="sitePanel">站点</button>
             <button class="nav-button" type="button" data-panel="linksPanel">友链</button>
             <button class="nav-button" type="button" data-panel="projectsPanel">&#39033;&#30446;</button>
+            <button class="nav-button" type="button" data-panel="mediaPanel">&#32032;&#26448;</button>
             <button class="nav-button" type="button" data-panel="backupPanel">备份</button>
           </nav>
           <button class="button ghost" id="logoutButton" type="button">退出登录</button>
@@ -268,14 +269,6 @@
                   <input id="siteCommentClientId" maxlength="120">
                 </label>
               </div>
-              <label>
-                <span>歌单 JSON</span>
-                <textarea id="siteMusic" rows="8" aria-label="歌单 JSON"></textarea>
-              </label>
-              <label>
-                <span>灵境照片墙 JSON</span>
-                <textarea id="siteGallery" rows="8" aria-label="照片墙 JSON"></textarea>
-              </label>
               <button class="button primary" type="submit">保存站点资料</button>
             </form>
           </section>
@@ -283,9 +276,16 @@
           <section class="panel" id="linksPanel">
             <form class="work-card" id="linksForm">
               <p class="eyebrow">Links</p>
-              <h2>友链管理</h2>
-              <textarea id="linksInput" rows="12" aria-label="友链 JSON"></textarea>
-              <button class="button primary" type="submit">保存友链</button>
+              <h2>&#21451;&#38142;&#31649;&#29702;</h2>
+              <div class="cms-toolbar">
+                <button class="button ghost" id="addLinkButton" type="button">&#26032;&#22686;&#21451;&#38142;</button>
+              </div>
+              <div class="structured-list" id="linksEditor" aria-label="&#21451;&#38142;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+              <details class="advanced-json">
+                <summary>JSON Preview</summary>
+                <textarea id="linksInput" rows="10" aria-label="&#21451;&#38142; JSON"></textarea>
+              </details>
+              <button class="button primary" type="submit">&#20445;&#23384;&#21451;&#38142;</button>
             </form>
           </section>
 
@@ -293,10 +293,69 @@
             <form class="work-card" id="projectsForm">
               <p class="eyebrow">Projects</p>
               <h2>&#39033;&#30446;&#31649;&#29702;</h2>
-              <p>&#32500;&#25252; JSON &#39033;&#30446;&#25968;&#25454;&#65292;&#29992;&#20110; /projects &#39029;&#38754;&#21644;&#39318;&#39029;&#23637;&#31034;&#12290;</p>
-              <textarea id="projectsInput" rows="14" aria-label="&#39033;&#30446; JSON"></textarea>
+              <p>&#32500;&#25252;&#32467;&#26500;&#21270;&#39033;&#30446;&#21345;&#29255;&#65292;&#29992;&#20110; /projects &#39029;&#38754;&#21644;&#39318;&#39029;&#23637;&#31034;&#12290;</p>
+              <div class="cms-toolbar">
+                <button class="button ghost" id="addProjectButton" type="button">&#26032;&#22686;&#39033;&#30446;</button>
+              </div>
+              <div class="structured-list" id="projectsEditor" aria-label="&#39033;&#30446;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+              <details class="advanced-json">
+                <summary>JSON Preview</summary>
+                <textarea id="projectsInput" rows="12" aria-label="&#39033;&#30446; JSON"></textarea>
+              </details>
               <button class="button primary" type="submit">&#20445;&#23384;&#39033;&#30446;</button>
             </form>
+          </section>
+
+          <section class="panel" id="mediaPanel">
+            <div class="two-column">
+              <form class="work-card" id="mediaForm">
+                <p class="eyebrow">Media</p>
+                <h2>&#32032;&#26448;&#31649;&#29702;</h2>
+                <div class="cms-toolbar">
+                  <button class="button ghost" id="addMusicButton" type="button">&#26032;&#22686;&#38899;&#20048;</button>
+                  <button class="button ghost" id="addGalleryButton" type="button">&#26032;&#22686;&#30456;&#20876;</button>
+                </div>
+                <h3>&#38899;&#20048;</h3>
+                <div class="structured-list" id="musicEditor" aria-label="&#38899;&#20048;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+                <details class="advanced-json">
+                  <summary>Music JSON Preview</summary>
+                  <textarea id="siteMusic" rows="8" aria-label="&#27468;&#21333; JSON"></textarea>
+                </details>
+                <h3>&#30456;&#20876;</h3>
+                <div class="structured-list" id="galleryEditor" aria-label="&#30456;&#20876;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+                <details class="advanced-json">
+                  <summary>Gallery JSON Preview</summary>
+                  <textarea id="siteGallery" rows="8" aria-label="&#29031;&#29255;&#22681; JSON"></textarea>
+                </details>
+                <button class="button primary" type="submit">&#20445;&#23384;&#32032;&#26448;</button>
+              </form>
+
+              <article class="work-card upload-card">
+                <p class="eyebrow">Upload</p>
+                <h2>&#22270;&#29255;&#19978;&#20256;</h2>
+                <p>&#25903;&#25345; PNG / JPG / WebP / GIF&#65292;&#20445;&#23384;&#21040; assets/uploads&#12290;</p>
+                <label>
+                  <span>&#36873;&#25321;&#22270;&#29255;</span>
+                  <input id="uploadFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+                </label>
+                <label>
+                  <span>&#22238;&#22635;&#30446;&#26631;</span>
+                  <select id="uploadTarget">
+                    <option value="copy">&#20165;&#22797;&#21046;&#36335;&#24452;</option>
+                    <option value="heroImage">&#31449;&#28857;&#22836;&#22270;</option>
+                    <option value="avatar">&#31449;&#28857;&#22836;&#20687;</option>
+                    <option value="postCover">&#24403;&#21069;&#25991;&#31456;&#23553;&#38754;</option>
+                    <option value="galleryImage">&#30456;&#20876;&#39318;&#22270;</option>
+                    <option value="projectCover">&#39033;&#30446;&#39318;&#22270;</option>
+                  </select>
+                </label>
+                <button class="button primary" id="uploadButton" type="button">&#19978;&#20256;&#22270;&#29255;</button>
+                <label>
+                  <span>&#29983;&#25104;&#36335;&#24452;</span>
+                  <input id="uploadPath" readonly placeholder="/assets/uploads/image.png">
+                </label>
+              </article>
+            </div>
           </section>
 
           <section class="panel" id="backupPanel">

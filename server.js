@@ -1,8 +1,8 @@
-import { createHash, pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
+import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
 import { createReadStream, existsSync } from 'node:fs';
 import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -10,6 +10,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const DEFAULT_PORT = Number.parseInt(process.env.PORT || '4173', 10);
 const SESSION_TTL_MS = 1000 * 60 * 60 * 8;
 const MAX_BODY_BYTES = 1024 * 1024;
+const MAX_UPLOAD_BYTES = 2 * 1024 * 1024;
 const SESSION_COOKIE = 'blog_session';
 const AUTH_FILE = 'auth.json';
 const DATA_FILE = 'blog.json';
@@ -22,7 +23,18 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.ico': 'image/x-icon',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif'
+};
+
+const UPLOAD_IMAGE_TYPES = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif'
 };
 
 const defaultSite = {
@@ -245,6 +257,12 @@ async function handleApiRoutes(request, response, context, url) {
 }
 
 async function handleAdminApi(request, response, context, url) {
+  if (request.method === 'POST' && url.pathname === '/api/admin/uploads/image') {
+    const upload = await readUploadImageBody(request);
+    const data = await saveUploadedImage(context, upload);
+    sendJson(response, 201, { success: true, data });
+    return;
+  }
   if (request.method === 'PUT' && url.pathname === '/api/admin/site') {
     const body = await readJsonBody(request);
     const site = validateSite(body);
@@ -409,13 +427,13 @@ async function serveStatic(request, response, publicDir, pathname) {
   }
 }
 
-async function readJsonBody(request) {
+async function readJsonBody(request, maxBytes = MAX_BODY_BYTES) {
   const chunks = [];
   let size = 0;
 
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > MAX_BODY_BYTES) {
+    if (size > maxBytes) {
       throw new ApiError(413, '请求内容过大');
     }
     chunks.push(chunk);
@@ -430,6 +448,85 @@ async function readJsonBody(request) {
   } catch {
     throw new ApiError(400, 'JSON 格式不正确');
   }
+}
+
+async function readUploadImageBody(request) {
+  const body = await readJsonBody(request, Math.ceil(MAX_UPLOAD_BYTES * 1.4) + 4096);
+  const filename = requiredString(body.filename, 'Upload filename', 1, 120);
+  const contentType = requiredString(body.contentType, 'Upload content type', 1, 80).toLowerCase();
+  const dataBase64 = requiredString(body.dataBase64, 'Upload payload', 1, Math.ceil(MAX_UPLOAD_BYTES * 1.4));
+
+  if (!Object.prototype.hasOwnProperty.call(UPLOAD_IMAGE_TYPES, contentType)) {
+    throw new ApiError(400, 'Only PNG, JPG, WebP, and GIF uploads are allowed');
+  }
+
+  const originalExtension = extname(filename).toLowerCase();
+  const extension = UPLOAD_IMAGE_TYPES[contentType];
+  const allowedExtensions = extension === '.jpg' ? ['.jpg', '.jpeg'] : [extension];
+  if (!allowedExtensions.includes(originalExtension)) {
+    throw new ApiError(400, 'Upload extension does not match image type');
+  }
+
+  if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) {
+    throw new ApiError(400, 'Upload filename is not allowed');
+  }
+
+  const buffer = Buffer.from(dataBase64, 'base64');
+  if (buffer.length === 0 || buffer.length > MAX_UPLOAD_BYTES) {
+    throw new ApiError(413, 'Upload image is too large');
+  }
+  if (!hasImageSignature(buffer, contentType)) {
+    throw new ApiError(400, 'Upload payload is not a valid image');
+  }
+
+  return { filename, contentType, extension, buffer };
+}
+
+async function saveUploadedImage(context, upload) {
+  const uploadsDir = resolve(context.publicDir, 'assets', 'uploads');
+  const publicRoot = resolve(context.publicDir);
+  const relativeUploads = relative(publicRoot, uploadsDir);
+  if (relativeUploads.startsWith('..') || normalize(relativeUploads) !== normalize(join('assets', 'uploads'))) {
+    throw new ApiError(500, 'Upload directory is not allowed');
+  }
+
+  await mkdir(uploadsDir, { recursive: true });
+  const baseName = sanitizeUploadBaseName(upload.filename);
+  const storedName = baseName + '-' + randomBytes(6).toString('hex') + upload.extension;
+  const targetPath = resolve(uploadsDir, storedName);
+  if (resolve(targetPath) !== join(uploadsDir, storedName)) {
+    throw new ApiError(400, 'Upload path is not allowed');
+  }
+
+  await writeFile(targetPath, upload.buffer);
+  return {
+    url: '/assets/uploads/' + storedName,
+    filename: storedName,
+    contentType: upload.contentType,
+    size: upload.buffer.length
+  };
+}
+
+function sanitizeUploadBaseName(filename) {
+  const base = filename.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  return base || 'image';
+}
+
+function hasImageSignature(buffer, contentType) {
+  if (contentType === 'image/png') {
+    return buffer.length > 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  }
+  if (contentType === 'image/jpeg') {
+    return buffer.length > 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[buffer.length - 2] === 0xff && buffer[buffer.length - 1] === 0xd9;
+  }
+  if (contentType === 'image/webp') {
+    return buffer.length > 12 && buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+  }
+  if (contentType === 'image/gif') {
+    const signature = buffer.subarray(0, 6).toString('ascii');
+    return signature === 'GIF87a' || signature === 'GIF89a';
+  }
+  return false;
 }
 
 async function readBlogData(context) {
