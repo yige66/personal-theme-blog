@@ -1,15 +1,15 @@
 ﻿import Link from 'next/link';
 
 const navItems = [
-  { href: '/archive', label: '归档' },
-  { href: '/tags', label: '标签' },
   { href: '/projects', label: '项目' },
+  { href: '/archive', label: '归档' },
+  { href: '/gallery', label: '照片墙' },
   { href: '/music', label: '音乐' },
-  { href: '/gallery', label: '相册' },
-  { href: '/moments', label: '动态' },
+  { href: '/moments', label: '说说' },
+  { href: '/tags', label: '标签' },
   { href: '/links', label: '友链' },
   { href: '/about', label: '关于' },
-  { href: '/console', label: '控制台' }
+  { href: '/console', label: '发布' }
 ];
 
 export function SiteNav({ title }: { title: string }) {

@@ -22,3 +22,28 @@ describe('homepage experience showcase wiring', () => {
     assert.match(css, /\.experience-current/);
   });
 });
+
+describe('target-inspired homepage shell', () => {
+  it('keeps the configurable profile card and target-style entry cards on the homepage', async () => {
+    const [page, nav, css] = await Promise.all([
+      readFile('app/page.tsx', 'utf8'),
+      readFile('components/SiteNav.tsx', 'utf8'),
+      readFile('app/globals.css', 'utf8')
+    ]);
+
+    assert.match(page, /data\.site\.owner \|\| data\.site\.title/);
+    assert.match(page, /data\.site\.avatar/);
+    assert.match(page, /data\.site\.motto/);
+    assert.match(page, /CONNECTING/);
+    assert.match(page, /Latest Insight/);
+    assert.match(page, /xh-profile-card/);
+    assert.match(page, /xh-side-stack/);
+    assert.match(page, /xh-tech-strip/);
+    assert.match(page, /JSON CMS/);
+    assert.match(nav, /照片墙/);
+    assert.match(nav, /说说/);
+    assert.match(css, /\.xh-profile-card/);
+    assert.match(css, /\.xh-insight-card/);
+    assert.match(css, /\.xh-tech-strip/);
+  });
+});
