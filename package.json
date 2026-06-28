@@ -1,0 +1,38 @@
+{
+  "name": "personal-theme-blog",
+  "version": "2.0.0",
+  "description": "A deployable XHBlogs-inspired personal blog with a local admin console.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "cms": "node start.mjs",
+    "dev:cms": "node start.mjs",
+    "test": "node --test",
+    "check": "node --check server.js && node --test && next build"
+  },
+  "keywords": [
+    "blog",
+    "nextjs",
+    "admin",
+    "personal-site",
+    "xhblogs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.8.0"
+  }
+}

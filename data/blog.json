@@ -1,0 +1,154 @@
+{
+  "site": {
+    "title": "星屿手记",
+    "subtitle": "写代码，也写生活里发光的片刻。",
+    "owner": "Lu Longfei",
+    "role": "全栈练习生 / 博客系统维护者",
+    "motto": "把日常、代码和灵感整理成可以再次抵达的星图。",
+    "bio": "计算机学习者 / 后端与前端练习者 / 喜欢把复杂问题拆成可以落地的小系统。",
+    "status": "正在向 XHBlogs 靠齐：玻璃拟态前台、独立控制台、动态、音乐、评论和可部署内容流。",
+    "location": "Changsha, China",
+    "email": "hello@example.com",
+    "github": "https://github.com/",
+    "themeColor": "#6fb7a8",
+    "accentColor": "#f0c36a",
+    "heroImage": "/assets/img/hero-mountain.svg",
+    "avatar": "/assets/img/avatar-orbit.svg",
+    "level": 12,
+    "experience": 68,
+    "streak": 27,
+    "assistantName": "星屿助理",
+    "assistantPrompt": "我会根据站点文章、动态和作者资料，为访客推荐阅读路径，并提示评论、音乐与作品集入口。",
+    "comments": {
+      "enabled": false,
+      "provider": "GitHub Issues / Gitalk",
+      "repo": "your-name/blog-comments",
+      "clientId": ""
+    },
+    "music": [
+      {
+        "title": "晚风经过编译器",
+        "artist": "Local Playlist",
+        "mood": "写作 / Coding",
+        "url": ""
+      },
+      {
+        "title": "纸页与星轨",
+        "artist": "星屿电台",
+        "mood": "阅读 / Quiet",
+        "url": ""
+      },
+      {
+        "title": "未完成的部署",
+        "artist": "Blog Console",
+        "mood": "Deploy / Vercel",
+        "url": ""
+      }
+    ],
+    "gallery": [
+      {
+        "title": "山脉头图",
+        "description": "首页主题视觉与长期写作的起点。",
+        "image": "/assets/img/hero-mountain.svg"
+      },
+      {
+        "title": "桌面笔记",
+        "description": "把学习碎片整理成专题文章。",
+        "image": "/assets/img/desk-notes.svg"
+      },
+      {
+        "title": "后台面板",
+        "description": "本地控制台承载文章、动态和备份。",
+        "image": "/assets/img/admin-board.svg"
+      }
+    ]
+  },
+  "links": [
+    {
+      "title": "GitHub",
+      "url": "https://github.com/",
+      "description": "代码与项目记录"
+    },
+    {
+      "title": "本地控制台",
+      "url": "/admin.html",
+      "description": "文章、动态、站点资料与备份管理"
+    },
+    {
+      "title": "归档",
+      "url": "#posts",
+      "description": "按时间回看文章"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-1",
+      "content": "今天把博客前台升级为可部署的 Next.js 玻璃拟态首页。",
+      "date": "2026-06-28"
+    },
+    {
+      "id": "note-2",
+      "content": "继续保留本地控制台，让写作、草稿和备份不依赖外部服务。",
+      "date": "2026-06-24"
+    },
+    {
+      "id": "note-3",
+      "content": "下一步可以接入 GitHub Issues 评论、Vercel 部署和图床上传。",
+      "date": "2026-06-20"
+    }
+  ],
+  "posts": [
+    {
+      "id": "post-1",
+      "title": "从零搭一个属于自己的博客",
+      "slug": "build-my-own-blog",
+      "summary": "记录个人主题博客的功能拆解：前台展示、后台管理、Markdown 写作、数据持久化与部署思路。",
+      "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 后台需要能写文章、存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用本地控制台保存 JSON 数据，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。它很适合课程设计、个人作品集和后续二次开发。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传或 GitHub Actions 自动部署。",
+      "tags": [
+        "博客",
+        "Next.js",
+        "项目实践"
+      ],
+      "category": "工程实践",
+      "cover": "/assets/img/hero-mountain.svg",
+      "status": "published",
+      "featured": true,
+      "createdAt": "2026-06-01T09:00:00.000Z",
+      "updatedAt": "2026-06-28T10:00:00.000Z"
+    },
+    {
+      "id": "post-2",
+      "title": "把学习笔记写成可复用资产",
+      "slug": "turn-notes-into-assets",
+      "summary": "从零散笔记到专题知识库：用标签、摘要和归档把学习过程变成可以复盘的系统。",
+      "content": "## 学习笔记为什么容易失效\n\n很多笔记只记录了当下的结论，没有说明问题背景、踩坑过程和复盘入口。过一段时间再看，就很难继续使用。\n\n## 我的整理方式\n\n1. 先写一句摘要，确认这篇笔记解决什么问题。\n2. 用标签连接同类主题。\n3. 每篇保留一个可以继续扩展的后续问题。\n\n这样做的目标不是追求篇幅，而是让内容可以被未来的自己再次调用。",
+      "tags": [
+        "学习方法",
+        "知识管理"
+      ],
+      "category": "学习札记",
+      "cover": "/assets/img/desk-notes.svg",
+      "status": "published",
+      "featured": false,
+      "createdAt": "2026-05-18T08:00:00.000Z",
+      "updatedAt": "2026-05-20T11:30:00.000Z"
+    },
+    {
+      "id": "post-3",
+      "title": "后台系统设计清单",
+      "slug": "admin-system-checklist",
+      "summary": "一个个人博客后台至少应该具备的功能：文章 CRUD、草稿、站点资料、导入导出和基础安全。",
+      "content": "## 最小可用后台\n\n个人博客后台不必一开始就做得很重，但至少要覆盖这些操作：\n\n- 新增、编辑、删除文章\n- 发布与草稿状态切换\n- 修改站点资料和个人简介\n- 导入导出 JSON 备份\n- 登录保护和输入校验\n\n这套项目先把这些基础能力跑通，再为数据库、云存储、评论系统留扩展空间。",
+      "tags": [
+        "后台",
+        "产品设计"
+      ],
+      "category": "系统设计",
+      "cover": "/assets/img/admin-board.svg",
+      "status": "draft",
+      "featured": false,
+      "createdAt": "2026-06-12T14:00:00.000Z",
+      "updatedAt": "2026-06-18T14:00:00.000Z"
+    }
+  ]
+}

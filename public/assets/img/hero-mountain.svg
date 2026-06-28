@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-label="Layered green mountains at sunrise">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7dfba"/>
+      <stop offset="0.42" stop-color="#d6e5d6"/>
+      <stop offset="1" stop-color="#6c9a87"/>
+    </linearGradient>
+    <linearGradient id="ridgeA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6d907a"/>
+      <stop offset="1" stop-color="#2b6658"/>
+    </linearGradient>
+    <linearGradient id="ridgeB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#355f55"/>
+      <stop offset="1" stop-color="#183b37"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.13"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1400" height="900" fill="url(#sky)"/>
+  <circle cx="1070" cy="210" r="92" fill="#efb955" opacity="0.9"/>
+  <path d="M0 552 C170 470 232 504 350 430 C490 342 570 414 706 326 C828 247 940 327 1038 278 C1190 202 1260 238 1400 176 L1400 900 L0 900Z" fill="#8aac84" opacity="0.6"/>
+  <path d="M0 632 C98 560 182 570 276 512 C396 438 508 508 644 426 C790 338 882 430 1010 370 C1160 300 1266 326 1400 278 L1400 900 L0 900Z" fill="url(#ridgeA)"/>
+  <path d="M0 760 C160 654 252 696 384 618 C548 520 640 638 798 542 C928 464 1042 520 1158 452 C1278 382 1340 404 1400 372 L1400 900 L0 900Z" fill="url(#ridgeB)"/>
+  <path d="M0 810 C130 752 242 784 358 734 C492 674 610 750 738 690 C870 628 1012 700 1136 630 C1258 562 1334 586 1400 548 L1400 900 L0 900Z" fill="#102e2d"/>
+  <rect width="1400" height="900" filter="url(#grain)" opacity="0.45"/>
+</svg>
