@@ -1,8 +1,10 @@
-﻿import Link from 'next/link';
+import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PageHero } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { formatDate, getBlogData, getPostsByTag, getTagSummaries, estimateReadingMinutes } from '@/lib/blog';
+import { createTagMetadata } from '@/lib/seo';
 
 type TagPageProps = {
   params: Promise<{ tag: string }>;
@@ -11,6 +13,18 @@ type TagPageProps = {
 export async function generateStaticParams() {
   const tags = await getTagSummaries();
   return tags.map((tag) => ({ tag: tag.name }));
+}
+
+export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
+  const { tag } = await params;
+  const decodedTag = decodeURIComponent(tag);
+  const posts = await getPostsByTag(decodedTag);
+
+  if (posts.length === 0) {
+    return { title: '#Not Found' };
+  }
+
+  return createTagMetadata(decodedTag, posts.length);
 }
 
 export default async function TagPage({ params }: TagPageProps) {

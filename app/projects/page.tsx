@@ -1,4 +1,8 @@
-﻿import { PageHero, ProjectCard } from '@/components/SectionBlocks';
+import { staticPageMetadata } from '@/lib/seo';
+
+export const metadata = staticPageMetadata.projects;
+
+import { PageHero, ProjectCard } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
 

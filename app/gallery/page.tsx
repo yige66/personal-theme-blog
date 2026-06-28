@@ -1,4 +1,8 @@
-﻿import { GalleryTile, PageHero } from '@/components/SectionBlocks';
+import { staticPageMetadata } from '@/lib/seo';
+
+export const metadata = staticPageMetadata.gallery;
+
+import { GalleryTile, PageHero } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
 

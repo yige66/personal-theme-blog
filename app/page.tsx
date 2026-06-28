@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArticleExplorer } from '@/components/ArticleExplorer';
 import { AssistantCard } from '@/components/AssistantCard';
@@ -9,15 +9,18 @@ import { ProfileCard } from '@/components/ProfileCard';
 import { GalleryTile, ProjectCard, StatPortal } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { formatDate, getBlogData, getBlogStats, getFeaturedProjects, getPublishedPosts } from '@/lib/blog';
+import { createWebsiteJsonLd, toJsonLd } from '@/lib/seo';
 
 export default async function HomePage() {
   const [data, posts, stats, projects] = await Promise.all([getBlogData(), getPublishedPosts(), getBlogStats(), getFeaturedProjects()]);
   const featuredPost = posts.find((post) => post.featured) ?? posts[0];
   const regularPosts = posts.filter((post) => post.id !== featuredPost?.id).slice(0, 4);
   const galleryPreview = data.site.gallery.slice(0, 3);
+  const websiteJsonLd = createWebsiteJsonLd(data);
 
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(websiteJsonLd) }} />
       <section className="hero-stage" id="top" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
         <SiteNav title={data.site.title} />
 

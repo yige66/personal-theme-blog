@@ -1,4 +1,8 @@
-﻿import Link from 'next/link';
+import { staticPageMetadata } from '@/lib/seo';
+
+export const metadata = staticPageMetadata.console;
+
+import Link from 'next/link';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
 

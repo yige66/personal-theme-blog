@@ -1,4 +1,8 @@
-﻿import { PageHero } from '@/components/SectionBlocks';
+import { staticPageMetadata } from '@/lib/seo';
+
+export const metadata = staticPageMetadata.links;
+
+import { PageHero } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
 

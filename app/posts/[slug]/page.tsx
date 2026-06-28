@@ -1,8 +1,9 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteNav } from '@/components/SiteNav';
 import { estimateReadingMinutes, formatDate, getBlogData, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
+import { createArticleJsonLd, createPostMetadata, toJsonLd } from '@/lib/seo';
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
@@ -21,17 +22,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     return { title: '文章不存在' };
   }
 
-  return {
-    title: post.title,
-    description: post.summary,
-    openGraph: {
-      title: post.title,
-      description: post.summary,
-      type: 'article',
-      images: [post.cover],
-      siteName: data.site.title
-    }
-  };
+  return createPostMetadata(data.site, post);
 }
 
 export default async function PostPage({ params }: PostPageProps) {
@@ -42,8 +33,11 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
+  const articleJsonLd = createArticleJsonLd(data.site, post);
+
   return (
     <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(articleJsonLd) }} />
       <SiteNav title={data.site.title} />
       <article className="article-shell">
         <p className="eyebrow">{post.category}</p>

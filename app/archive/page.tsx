@@ -1,4 +1,8 @@
-﻿import Link from 'next/link';
+import { staticPageMetadata } from '@/lib/seo';
+
+export const metadata = staticPageMetadata.archive;
+
+import Link from 'next/link';
 import { PageHero } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { formatDate, getArchiveGroups, getBlogData, estimateReadingMinutes } from '@/lib/blog';
