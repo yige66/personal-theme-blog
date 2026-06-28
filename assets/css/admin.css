@@ -59,6 +59,16 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(47, 125, 104, 0.12);
 }
 
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 label {
   display: grid;
   gap: 7px;
@@ -213,6 +223,7 @@ label {
 }
 
 .nav-button.active,
+.nav-button[aria-selected="true"],
 .nav-button:hover {
   color: var(--deep);
   background: #f8efd8;

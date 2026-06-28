@@ -11,6 +11,12 @@ describe('admin structured CMS UI wiring', () => {
 
     assert.match(html, /data-panel="projectsPanel"/);
     assert.match(html, /data-panel="mediaPanel"/);
+    assert.match(html, /role="tablist"/);
+    assert.match(html, /role="tab"/);
+    assert.match(html, /role="tabpanel"/);
+    assert.match(html, /aria-selected="true"/);
+    assert.match(html, /aria-controls="postsPanel"/);
+    assert.match(html, /aria-live="polite"/);
     assert.match(html, /id="linksEditor"/);
     assert.match(html, /id="projectsEditor"/);
     assert.match(html, /id="musicEditor"/);
@@ -30,6 +36,13 @@ describe('admin structured CMS UI wiring', () => {
     assert.ok(script.includes("projectsEditor: document.querySelector('#projectsEditor')"));
     assert.ok(script.includes("musicEditor: document.querySelector('#musicEditor')"));
     assert.ok(script.includes("galleryEditor: document.querySelector('#galleryEditor')"));
+    assert.match(script, /handlePanelKeydown/);
+    assert.match(script, /getNextPanelIndex/);
+    assert.match(script, /aria-selected/);
+    assert.match(script, /panel\.hidden = !isActive/);
+    assert.match(script, /role="listitem"/);
+    assert.match(script, /aria-label="删除项目/);
+    assert.match(script, /首页精选/);
     assert.match(script, /handleUploadImage/);
     assert.match(script, /handleCopyUploadPath/);
     assert.match(script, /setLastStructuredField/);
@@ -38,5 +51,13 @@ describe('admin structured CMS UI wiring', () => {
     assert.ok(script.includes('/api/admin/uploads/image'));
     assert.match(script, /syncProjectsJsonFromEditor/);
     assert.match(script, /syncMediaJsonFromEditors/);
+  });
+
+  it('keeps keyboard focus states visible in the admin console', async () => {
+    const css = await readFile('assets/css/admin.css', 'utf8');
+
+    assert.match(css, /:focus-visible/);
+    assert.match(css, /outline: 3px solid var\(--gold\)/);
+    assert.match(css, /\.nav-button\[aria-selected="true"\]/);
   });
 });

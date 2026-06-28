@@ -103,6 +103,7 @@ function bindEvents() {
   elements.logoutButton.addEventListener('click', handleLogout);
   elements.navButtons.forEach((button) => {
     button.addEventListener('click', () => showPanel(button.dataset.panel));
+    button.addEventListener('keydown', handlePanelKeydown);
   });
   elements.newPostButton.addEventListener('click', () => {
     showPanel('postsPanel');
@@ -195,11 +196,44 @@ function showDashboard() {
 
 function showPanel(panelId) {
   elements.navButtons.forEach((button) => {
-    button.classList.toggle('active', button.dataset.panel === panelId);
+    const isActive = button.dataset.panel === panelId;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+    button.tabIndex = isActive ? 0 : -1;
   });
   elements.panels.forEach((panel) => {
-    panel.classList.toggle('active', panel.id === panelId);
+    const isActive = panel.id === panelId;
+    panel.classList.toggle('active', isActive);
+    panel.hidden = !isActive;
   });
+}
+
+function handlePanelKeydown(event) {
+  const keys = ['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft', 'Home', 'End'];
+  if (!keys.includes(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
+  const buttons = [...elements.navButtons];
+  const currentIndex = buttons.indexOf(event.currentTarget);
+  const lastIndex = buttons.length - 1;
+  const nextIndex = getNextPanelIndex(event.key, currentIndex, lastIndex);
+  const nextButton = buttons[nextIndex];
+  if (!nextButton) {
+    return;
+  }
+
+  showPanel(nextButton.dataset.panel);
+  nextButton.focus();
+}
+
+function getNextPanelIndex(key, currentIndex, lastIndex) {
+  if (key === 'Home') return 0;
+  if (key === 'End') return lastIndex;
+  if (key === 'ArrowDown' || key === 'ArrowRight') return currentIndex >= lastIndex ? 0 : currentIndex + 1;
+  if (key === 'ArrowUp' || key === 'ArrowLeft') return currentIndex <= 0 ? lastIndex : currentIndex - 1;
+  return currentIndex;
 }
 
 function renderAll() {
@@ -228,7 +262,7 @@ function renderRecentPosts() {
     .slice(0, 5);
 
   elements.recentPosts.innerHTML = recentPosts.map((post) => `
-    <button class="compact-post" type="button" data-edit-post="${escapeAttribute(post.id)}">
+    <button class="compact-post" type="button" role="listitem" data-edit-post="${escapeAttribute(post.id)}">
       <strong>${escapeHtml(post.title)}</strong>
       <span>${escapeHtml(post.status === 'published' ? '已发布' : '草稿')} / ${formatDate(post.updatedAt)}</span>
     </button>
@@ -249,7 +283,7 @@ function renderPostList() {
   });
 
   elements.adminPostList.innerHTML = posts.map((post) => `
-    <button class="admin-post-row ${state.selectedPostId === post.id ? 'active' : ''}" type="button" data-post-id="${escapeAttribute(post.id)}">
+    <button class="admin-post-row ${state.selectedPostId === post.id ? 'active' : ''}" type="button" role="listitem" data-post-id="${escapeAttribute(post.id)}" aria-pressed="${state.selectedPostId === post.id ? 'true' : 'false'}">
       <strong>${escapeHtml(post.title)}</strong>
       <span>${escapeHtml(post.summary)}</span>
       <span class="row-meta">
@@ -400,11 +434,11 @@ function renderJsonEditors() {
 
 function renderLinksEditor() {
   elements.linksEditor.innerHTML = (state.data.links || []).map((link, index) => `
-    <article class="structured-item" data-kind="links" data-index="${index}">
-      <div class="structured-item-head"><strong>Link ${index + 1}</strong><button class="button danger" type="button" data-remove="links:${index}">Remove</button></div>
-      <label><span>Title</span><input data-field="title" value="${escapeAttribute(link.title || '')}"></label>
+    <article class="structured-item" role="listitem" data-kind="links" data-index="${index}">
+      <div class="structured-item-head"><strong>友链 ${index + 1}</strong><button class="button danger" type="button" data-remove="links:${index}" aria-label="删除友链 ${index + 1}">删除</button></div>
+      <label><span>标题</span><input data-field="title" value="${escapeAttribute(link.title || '')}"></label>
       <label><span>URL</span><input data-field="url" value="${escapeAttribute(link.url || '')}"></label>
-      <label><span>Description</span><input data-field="description" value="${escapeAttribute(link.description || '')}"></label>
+      <label><span>描述</span><input data-field="description" value="${escapeAttribute(link.description || '')}"></label>
     </article>
   `).join('');
   bindStructuredRemove(elements.linksEditor);
@@ -412,13 +446,13 @@ function renderLinksEditor() {
 
 function renderProjectsEditor() {
   elements.projectsEditor.innerHTML = (state.data.projects || []).map((project, index) => `
-    <article class="structured-item" data-kind="projects" data-index="${index}">
-      <div class="structured-item-head"><strong>Project ${index + 1}</strong><button class="button danger" type="button" data-remove="projects:${index}">Remove</button></div>
-      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(project.title || '')}"></label><label><span>Status</span><input data-field="status" value="${escapeAttribute(project.status || 'active')}"></label></div>
-      <label><span>Description</span><textarea data-field="description" rows="3">${escapeHtml(project.description || '')}</textarea></label>
-      <div class="form-row"><label><span>URL</span><input data-field="url" value="${escapeAttribute(project.url || '')}"></label><label><span>Repo</span><input data-field="repo" value="${escapeAttribute(project.repo || '')}"></label></div>
-      <div class="form-row"><label><span>Cover</span><input data-field="cover" value="${escapeAttribute(project.cover || '')}"></label><label><span>Started</span><input data-field="startedAt" type="date" value="${escapeAttribute(project.startedAt || '')}"></label></div>
-      <div class="form-row check-row"><label><input data-field="featured" type="checkbox" ${project.featured ? 'checked' : ''}><span>Featured</span></label><label><span>Tags</span><input data-field="tags" value="${escapeAttribute((project.tags || []).join(', '))}"></label></div>
+    <article class="structured-item" role="listitem" data-kind="projects" data-index="${index}">
+      <div class="structured-item-head"><strong>项目 ${index + 1}</strong><button class="button danger" type="button" data-remove="projects:${index}" aria-label="删除项目 ${index + 1}">删除</button></div>
+      <div class="form-row"><label><span>标题</span><input data-field="title" value="${escapeAttribute(project.title || '')}"></label><label><span>状态</span><input data-field="status" value="${escapeAttribute(project.status || 'active')}"></label></div>
+      <label><span>描述</span><textarea data-field="description" rows="3">${escapeHtml(project.description || '')}</textarea></label>
+      <div class="form-row"><label><span>访问地址</span><input data-field="url" value="${escapeAttribute(project.url || '')}"></label><label><span>仓库地址</span><input data-field="repo" value="${escapeAttribute(project.repo || '')}"></label></div>
+      <div class="form-row"><label><span>封面</span><input data-field="cover" value="${escapeAttribute(project.cover || '')}"></label><label><span>开始日期</span><input data-field="startedAt" type="date" value="${escapeAttribute(project.startedAt || '')}"></label></div>
+      <div class="form-row check-row"><label><input data-field="featured" type="checkbox" ${project.featured ? 'checked' : ''}><span>首页精选</span></label><label><span>标签</span><input data-field="tags" value="${escapeAttribute((project.tags || []).join(', '))}"></label></div>
     </article>
   `).join('');
   bindStructuredRemove(elements.projectsEditor);
@@ -426,10 +460,10 @@ function renderProjectsEditor() {
 
 function renderMusicEditor() {
   elements.musicEditor.innerHTML = (state.data.site.music || []).map((track, index) => `
-    <article class="structured-item" data-kind="music" data-index="${index}">
-      <div class="structured-item-head"><strong>Track ${index + 1}</strong><button class="button danger" type="button" data-remove="music:${index}">Remove</button></div>
-      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(track.title || '')}"></label><label><span>Artist</span><input data-field="artist" value="${escapeAttribute(track.artist || '')}"></label></div>
-      <div class="form-row"><label><span>Mood</span><input data-field="mood" value="${escapeAttribute(track.mood || '')}"></label><label><span>Audio URL</span><input data-field="url" value="${escapeAttribute(track.url || '')}"></label></div>
+    <article class="structured-item" role="listitem" data-kind="music" data-index="${index}">
+      <div class="structured-item-head"><strong>音乐 ${index + 1}</strong><button class="button danger" type="button" data-remove="music:${index}" aria-label="删除音乐 ${index + 1}">删除</button></div>
+      <div class="form-row"><label><span>标题</span><input data-field="title" value="${escapeAttribute(track.title || '')}"></label><label><span>艺术家</span><input data-field="artist" value="${escapeAttribute(track.artist || '')}"></label></div>
+      <div class="form-row"><label><span>氛围</span><input data-field="mood" value="${escapeAttribute(track.mood || '')}"></label><label><span>音频地址</span><input data-field="url" value="${escapeAttribute(track.url || '')}"></label></div>
     </article>
   `).join('');
   bindStructuredRemove(elements.musicEditor);
@@ -437,10 +471,10 @@ function renderMusicEditor() {
 
 function renderGalleryEditor() {
   elements.galleryEditor.innerHTML = (state.data.site.gallery || []).map((item, index) => `
-    <article class="structured-item" data-kind="gallery" data-index="${index}">
-      <div class="structured-item-head"><strong>Gallery ${index + 1}</strong><button class="button danger" type="button" data-remove="gallery:${index}">Remove</button></div>
-      <div class="form-row"><label><span>Title</span><input data-field="title" value="${escapeAttribute(item.title || '')}"></label><label><span>Image</span><input data-field="image" value="${escapeAttribute(item.image || '')}"></label></div>
-      <label><span>Description</span><textarea data-field="description" rows="3">${escapeHtml(item.description || '')}</textarea></label>
+    <article class="structured-item" role="listitem" data-kind="gallery" data-index="${index}">
+      <div class="structured-item-head"><strong>相册 ${index + 1}</strong><button class="button danger" type="button" data-remove="gallery:${index}" aria-label="删除相册 ${index + 1}">删除</button></div>
+      <div class="form-row"><label><span>标题</span><input data-field="title" value="${escapeAttribute(item.title || '')}"></label><label><span>图片地址</span><input data-field="image" value="${escapeAttribute(item.image || '')}"></label></div>
+      <label><span>描述</span><textarea data-field="description" rows="3">${escapeHtml(item.description || '')}</textarea></label>
     </article>
   `).join('');
   bindStructuredRemove(elements.galleryEditor);

@@ -32,14 +32,14 @@
             <span>星屿</span>
             <small>Blog Admin</small>
           </a>
-          <nav class="admin-nav" aria-label="后台导航">
-            <button class="nav-button active" type="button" data-panel="overviewPanel">总览</button>
-            <button class="nav-button" type="button" data-panel="postsPanel">文章</button>
-            <button class="nav-button" type="button" data-panel="sitePanel">站点</button>
-            <button class="nav-button" type="button" data-panel="linksPanel">友链</button>
-            <button class="nav-button" type="button" data-panel="projectsPanel">&#39033;&#30446;</button>
-            <button class="nav-button" type="button" data-panel="mediaPanel">&#32032;&#26448;</button>
-            <button class="nav-button" type="button" data-panel="backupPanel">备份</button>
+          <nav class="admin-nav" role="tablist" aria-label="后台工作区">
+            <button class="nav-button active" id="overviewTab" type="button" role="tab" data-panel="overviewPanel" aria-controls="overviewPanel" aria-selected="true">总览</button>
+            <button class="nav-button" id="postsTab" type="button" role="tab" data-panel="postsPanel" aria-controls="postsPanel" aria-selected="false" tabindex="-1">文章</button>
+            <button class="nav-button" id="siteTab" type="button" role="tab" data-panel="sitePanel" aria-controls="sitePanel" aria-selected="false" tabindex="-1">站点</button>
+            <button class="nav-button" id="linksTab" type="button" role="tab" data-panel="linksPanel" aria-controls="linksPanel" aria-selected="false" tabindex="-1">友链</button>
+            <button class="nav-button" id="projectsTab" type="button" role="tab" data-panel="projectsPanel" aria-controls="projectsPanel" aria-selected="false" tabindex="-1">&#39033;&#30446;</button>
+            <button class="nav-button" id="mediaTab" type="button" role="tab" data-panel="mediaPanel" aria-controls="mediaPanel" aria-selected="false" tabindex="-1">&#32032;&#26448;</button>
+            <button class="nav-button" id="backupTab" type="button" role="tab" data-panel="backupPanel" aria-controls="backupPanel" aria-selected="false" tabindex="-1">备份</button>
           </nav>
           <button class="button ghost" id="logoutButton" type="button">退出登录</button>
         </aside>
@@ -56,9 +56,9 @@
             </div>
           </header>
 
-          <p class="toast" id="toast" role="status" hidden></p>
+          <p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
 
-          <section class="panel active" id="overviewPanel">
+          <section class="panel active" id="overviewPanel" role="tabpanel" aria-labelledby="overviewTab">
             <div class="metric-grid">
               <div class="metric">
                 <span>文章总数</span>
@@ -80,7 +80,7 @@
             <div class="two-column">
               <article class="work-card">
                 <h2>最近文章</h2>
-                <div class="compact-list" id="recentPosts"></div>
+                <div class="compact-list" id="recentPosts" role="list" aria-label="最近文章"></div>
               </article>
               <article class="work-card">
                 <h2>动态快记</h2>
@@ -92,7 +92,7 @@
             </div>
           </section>
 
-          <section class="panel" id="postsPanel">
+          <section class="panel" id="postsPanel" role="tabpanel" aria-labelledby="postsTab" hidden>
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Posts</p>
@@ -104,7 +104,7 @@
               </label>
             </div>
             <div class="admin-grid">
-              <div class="post-table" id="adminPostList"></div>
+              <div class="post-table" id="adminPostList" role="list" aria-label="文章列表"></div>
               <form class="editor" id="postForm">
                 <input type="hidden" id="postId">
                 <div class="editor-head">
@@ -159,7 +159,7 @@
             </div>
           </section>
 
-          <section class="panel" id="sitePanel">
+          <section class="panel" id="sitePanel" role="tabpanel" aria-labelledby="siteTab" hidden>
             <form class="work-card site-form" id="siteForm">
               <p class="eyebrow">Profile</p>
               <h2>站点资料</h2>
@@ -273,14 +273,14 @@
             </form>
           </section>
 
-          <section class="panel" id="linksPanel">
+          <section class="panel" id="linksPanel" role="tabpanel" aria-labelledby="linksTab" hidden>
             <form class="work-card" id="linksForm">
               <p class="eyebrow">Links</p>
               <h2>&#21451;&#38142;&#31649;&#29702;</h2>
               <div class="cms-toolbar">
                 <button class="button ghost" id="addLinkButton" type="button">&#26032;&#22686;&#21451;&#38142;</button>
               </div>
-              <div class="structured-list" id="linksEditor" aria-label="&#21451;&#38142;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+              <div class="structured-list" id="linksEditor" role="list" aria-label="&#21451;&#38142;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
               <details class="advanced-json">
                 <summary>JSON Preview</summary>
                 <textarea id="linksInput" rows="10" aria-label="&#21451;&#38142; JSON" readonly></textarea>
@@ -289,7 +289,7 @@
             </form>
           </section>
 
-          <section class="panel" id="projectsPanel">
+          <section class="panel" id="projectsPanel" role="tabpanel" aria-labelledby="projectsTab" hidden>
             <form class="work-card" id="projectsForm">
               <p class="eyebrow">Projects</p>
               <h2>&#39033;&#30446;&#31649;&#29702;</h2>
@@ -297,7 +297,7 @@
               <div class="cms-toolbar">
                 <button class="button ghost" id="addProjectButton" type="button">&#26032;&#22686;&#39033;&#30446;</button>
               </div>
-              <div class="structured-list" id="projectsEditor" aria-label="&#39033;&#30446;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+              <div class="structured-list" id="projectsEditor" role="list" aria-label="&#39033;&#30446;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
               <details class="advanced-json">
                 <summary>JSON Preview</summary>
                 <textarea id="projectsInput" rows="12" aria-label="&#39033;&#30446; JSON" readonly></textarea>
@@ -306,7 +306,7 @@
             </form>
           </section>
 
-          <section class="panel" id="mediaPanel">
+          <section class="panel" id="mediaPanel" role="tabpanel" aria-labelledby="mediaTab" hidden>
             <div class="two-column">
               <form class="work-card" id="mediaForm">
                 <p class="eyebrow">Media</p>
@@ -316,13 +316,13 @@
                   <button class="button ghost" id="addGalleryButton" type="button">&#26032;&#22686;&#30456;&#20876;</button>
                 </div>
                 <h3>&#38899;&#20048;</h3>
-                <div class="structured-list" id="musicEditor" aria-label="&#38899;&#20048;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+                <div class="structured-list" id="musicEditor" role="list" aria-label="&#38899;&#20048;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
                 <details class="advanced-json">
                   <summary>Music JSON Preview</summary>
                   <textarea id="siteMusic" rows="8" aria-label="&#27468;&#21333; JSON" readonly></textarea>
                 </details>
                 <h3>&#30456;&#20876;</h3>
-                <div class="structured-list" id="galleryEditor" aria-label="&#30456;&#20876;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
+                <div class="structured-list" id="galleryEditor" role="list" aria-label="&#30456;&#20876;&#32467;&#26500;&#21270;&#32534;&#36753;"></div>
                 <details class="advanced-json">
                   <summary>Gallery JSON Preview</summary>
                   <textarea id="siteGallery" rows="8" aria-label="&#29031;&#29255;&#22681; JSON" readonly></textarea>
@@ -361,7 +361,7 @@
             </div>
           </section>
 
-          <section class="panel" id="backupPanel">
+          <section class="panel" id="backupPanel" role="tabpanel" aria-labelledby="backupTab" hidden>
             <div class="two-column">
               <article class="work-card">
                 <p class="eyebrow">Export</p>
