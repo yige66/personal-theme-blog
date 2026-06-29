@@ -23,7 +23,6 @@ const routeSpotlight = [
   { id: 'friends', title: '友链星图', intro: '把朋友、同频站点和申请格式放在一个关系网络里。' },
   { id: 'chatter', title: '云端杂谈', intro: '收纳正式文章之外的设计想法、片段和站点复现记录。' },
   { id: 'timeline', title: '时间线', intro: '按时间串起文章、动态、项目和每一次迭代。' },
-  { id: 'tree', title: '灵境树', intro: '实验、模型、工具和跳脱玩法的隐藏入口。' },
   { id: 'music', title: '夜航电台', intro: '音乐、歌词和写作状态在全站持续流动。' }
 ] as const;
 
@@ -172,11 +171,11 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
             <h2>友链申请与星图</h2>
             <p>{data.site.friendLinkApplyFormat.split('\n')[0] || '把同频站点变成可以访问、可以维护的关系入口。'}</p>
           </Link>
-          <Link className="xh-mode-card xh-window-tile is-tree" href="/tree" data-motion="stack-card">
+          <Link className="xh-mode-card xh-window-tile is-archive" href="/timeline" data-motion="stack-card">
             <span aria-hidden="true" />
-            <p className="eyebrow">Tree Lab</p>
-            <h2>灵境实验室</h2>
-            <p>把模型、工具、创作实验和跳脱性玩法留给一棵会继续生长的树。</p>
+            <p className="eyebrow">Timeline</p>
+            <h2>归档与探索</h2>
+            <p>按时间回看文章、杂谈、动态和项目，让访客像目标站一样从年表进入内容。</p>
           </Link>
         </div>
       </div>

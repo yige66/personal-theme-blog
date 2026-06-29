@@ -13,12 +13,12 @@ export function SpaceDock({ data, stats }: SpaceDockProps) {
   const routeCount = experienceRoutes.length;
 
   return (
-    <section className="xh-space-dock" data-motion="portal-card" aria-label="个人空间模块">
+    <section className="xh-space-dock" data-motion="portal-card" aria-label="站点频道模块">
       <div className="xh-space-copy">
-        <p className="eyebrow">Personal Space</p>
+        <p className="eyebrow">Portal Index</p>
         <h2>{data.site.title}</h2>
         <p>
-          把文章、照片、音乐与日常拆成可漫游的空间入口，首页负责建立气氛，真正的内容交给每个房间展开。
+          把文章、照片、音乐与日常拆成清晰频道，首页只保留入口、推荐和状态，让真正的内容在对应栏目里展开。
         </p>
         <div className="xh-space-route-line" aria-hidden="true">
           <span />
@@ -27,7 +27,7 @@ export function SpaceDock({ data, stats }: SpaceDockProps) {
         </div>
       </div>
 
-      <div className="xh-space-modules" aria-label="空间入口">
+      <div className="xh-space-modules" aria-label="频道入口">
         {modules.map((module) => (
           <Link className="xh-space-module" href={module.href} key={module.href}>
             <em>{module.coordinate}</em>
@@ -39,8 +39,8 @@ export function SpaceDock({ data, stats }: SpaceDockProps) {
         ))}
       </div>
 
-      <div className="xh-space-status" aria-label="空间状态">
-        <span><strong>Online</strong><small>空间同步中</small></span>
+      <div className="xh-space-status" aria-label="站点状态">
+        <span><strong>Online</strong><small>频道同步中</small></span>
         <span><strong>{data.site.streak} Days</strong><small>连续维护</small></span>
         <span><strong>{data.site.assistantName}</strong><small>后台可改名</small></span>
         <span><strong>{routeCount} Routes</strong><small>全站星轨</small></span>

@@ -54,8 +54,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeWorld, /friends/);
     assert.match(homeWorld, /chatter/);
     assert.match(homeWorld, /timeline/);
-    assert.match(homeWorld, /tree/);
     assert.match(homeWorld, /music/);
+    assert.doesNotMatch(homeWorld, /\/tree|灵境|Tree Lab|is-tree/);
     assert.doesNotMatch(homeWorld, /RoomConsole/);
     assert.doesNotMatch(homeWorld, /xh-home-room-deck/);
     assert.doesNotMatch(page, /ExperienceShowcase|ArticleExplorer|post-teasers|projects-section|gallery-section|links-section/);
@@ -64,7 +64,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(spaceDock, /createSpaceModules/);
     assert.match(spaceDock, /createSpaceSignals/);
     assert.match(spaceDock, /experienceRoutes/);
-    assert.match(spaceDock, /Personal Space/);
+    assert.match(spaceDock, /Portal Index/);
+    assert.match(spaceDock, /频道入口/);
     assert.match(portalSearch, /searchPortal/);
     assert.match(portalSearch, /highlightMatchedText/);
     assert.match(portalSearch, /portal-channel-grid/);
@@ -99,7 +100,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(experience, /photowall/);
     assert.match(experience, /friends/);
     assert.match(experience, /timeline/);
-    assert.match(experience, /tree/);
+    assert.doesNotMatch(experience, /id: 'tree'|\/tree|灵境/);
     assert.match(nav, /className=\{active \? 'active' : ''\}/);
     assert.match(nav, /mobile-orbit-toggle/);
     assert.match(nav, /mobile-orbit-panel/);
@@ -113,8 +114,6 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-route-orb/);
     assert.match(css, /\.xh-home-feed-deck/);
     assert.match(css, /\.xh-home-bottom-grid/);
-    assert.match(css, /"left main right"/);
-    assert.match(css, /"left main"/);
     assert.match(css, /"main"/);
     assert.match(css, /\.portal-search/);
     assert.match(css, /\.xh-portal-grid/);

@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 describe('subpage experience surfaces', () => {
   it('keeps index pages connected to page scenes and channel worlds', async () => {
     const pageExpectations = [
-      ['app/archive/page.tsx', /PageScene/, /ArchiveSwitchboard|ArchiveConstellation/],
+      ['app/archive/page.tsx', /PageScene/, /ArchiveSwitchboard/],
       ['app/projects/page.tsx', /PageScene/, /ProjectShowcase/],
       ['app/gallery/page.tsx', /PageScene/, /GalleryWall|EmptyState/],
       ['app/photowall/page.tsx', /metadata/, /gallery\/page/],
@@ -15,7 +15,6 @@ describe('subpage experience surfaces', () => {
       ['app/links/page.tsx', /PageScene/, /LinkStarMap/],
       ['app/friends/page.tsx', /PageScene/, /FriendsBoard/],
       ['app/timeline/page.tsx', /PageScene/, /TimelineArchive/],
-      ['app/tree/page.tsx', /PageScene/, /KnowledgeTree/],
       ['app/tags/page.tsx', /PageScene/, /TagNebula/]
     ];
 
@@ -28,8 +27,10 @@ describe('subpage experience surfaces', () => {
     const worlds = await readFile('components/ChannelWorlds.tsx', 'utf8');
     const archiveSwitchboard = await readFile('components/ArchiveSwitchboard.tsx', 'utf8');
     assert.match(worlds, /EmptyState/);
-    assert.match(worlds, /ArchiveConstellation/);
     assert.match(archiveSwitchboard, /archive-view-toggle/);
+    assert.match(archiveSwitchboard, /archive-tag-rail/);
+    assert.match(archiveSwitchboard, /selectedTag/);
+    assert.match(archiveSwitchboard, /post\.tags\.includes\(selectedTag\)/);
     assert.match(archiveSwitchboard, /role="tab"/);
     assert.match(archiveSwitchboard, /aria-selected/);
     assert.match(archiveSwitchboard, /aria-controls/);
@@ -49,8 +50,6 @@ describe('subpage experience surfaces', () => {
     assert.match(worlds, /chatter-masonry/);
     assert.match(worlds, /TimelineArchive/);
     assert.match(worlds, /timeline-spine/);
-    assert.match(worlds, /KnowledgeTree/);
-    assert.match(worlds, /tree-branch/);
     assert.match(worlds, /link-map-stage/);
     assert.match(worlds, /link-constellation-lines/);
     assert.match(worlds, /TagNebula/);
@@ -110,8 +109,9 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.chatter-masonry/);
     assert.match(css, /\.timeline-world/);
     assert.match(css, /\.timeline-spine/);
-    assert.match(css, /\.tree-world/);
-    assert.match(css, /\.tree-node/);
+    assert.match(css, /\.archive-xh-timeline/);
+    assert.match(css, /\.archive-tag-rail/);
+    assert.match(css, /\.archive-row-xh/);
     assert.match(css, /\.gallery-studio/);
     assert.match(css, /\.gallery-album-overview/);
     assert.match(css, /\.gallery-light-table/);
@@ -125,7 +125,7 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.article-radio-card/);
     assert.match(css, /\.archive-switchboard/);
     assert.match(css, /\.archive-card-view/);
-    assert.match(css, /grid-template-areas:[\s\S]*"copy"[\s\S]*"media"[\s\S]*"stats"[\s\S]*"id"[\s\S]*"signal"/);
+    assert.match(css, /grid-template-areas:[\s\S]*"copy"[\s\S]*"media"[\s\S]*"stats"[\s\S]*"signal"/);
     assert.match(css, /\.moments-board/);
     assert.match(css, /\.moments-stream/);
     assert.match(css, /\.archive-world/);

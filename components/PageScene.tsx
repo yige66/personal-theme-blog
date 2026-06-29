@@ -74,20 +74,17 @@ export function PageScene({
         <p className="eyebrow">{eyebrow}</p>
         <h1>
           <span>{title}</span>
-          {image ? <i aria-hidden="true" style={visualStyle} /> : null}
         </h1>
         <p>{description}</p>
         {actions.length ? <div className="page-scene-actions">{actions.slice(0, 2).map(renderAction)}</div> : null}
       </div>
 
-      <div className="page-scene-media" data-motion="image-scale" aria-hidden={image ? undefined : true}>
+      <div className="page-scene-media" data-motion="image-scale" style={visualStyle}>
         {image ? (
           <Image src={image} alt={imageAlt || title} width={860} height={620} priority={false} />
         ) : (
-          <div className="page-scene-abstract" />
+          <div className="page-scene-abstract" aria-hidden="true" />
         )}
-        <span />
-        <span />
       </div>
 
       {stats.length ? (

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import type { ArchiveGroup, BlogChatter, BlogLink, BlogPost, BlogProject, BlogSite, BlogTreeNode, TagSummary, TimelineItem } from '@/lib/blog';
+import type { ArchiveGroup, BlogChatter, BlogLink, BlogPost, BlogProject, BlogSite, TagSummary, TimelineItem } from '@/lib/blog';
 import { estimateReadingMinutes, formatDate } from '@/lib/blog';
 import { EmptyState } from './SectionBlocks';
 
@@ -295,49 +295,6 @@ export function TimelineArchive({ items }: { items: TimelineItem[] }) {
           </Link>
         ))}
       </div>
-    </section>
-  );
-}
-
-export function KnowledgeTree({ nodes }: { nodes: BlogTreeNode[] }) {
-  if (nodes.length === 0) {
-    return (
-      <section className="main-shell tree-world">
-        <EmptyState title="暂无灵境节点" description="补充 tree 数据后，这里会形成实验室、工坊和内容树入口。" />
-      </section>
-    );
-  }
-
-  const groups = nodes.reduce<Map<string, BlogTreeNode[]>>((map, node) => {
-    map.set(node.group, [...(map.get(node.group) ?? []), node]);
-    return map;
-  }, new Map());
-
-  return (
-    <section className="main-shell tree-world" aria-label="灵境内容树">
-      <div className="tree-canopy" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-      {[...groups.entries()].map(([group, groupNodes], groupIndex) => (
-        <article className="tree-branch" key={group}>
-          <header>
-            <small>{String(groupIndex + 1).padStart(2, '0')}</small>
-            <strong>{group}</strong>
-          </header>
-          <div>
-            {groupNodes.map((node, index) => (
-              <Link className="tree-node" href={node.href || '#'} key={node.id} style={{ '--tree-weight': node.weight ?? index + 1 } as CSSProperties}>
-                <span>{node.status || 'online'}</span>
-                <strong>{node.title}</strong>
-                <p>{node.description}</p>
-                <small>{node.tags?.map((tag) => `#${tag}`).join(' ')}</small>
-              </Link>
-            ))}
-          </div>
-        </article>
-      ))}
     </section>
   );
 }

@@ -11,10 +11,15 @@ type ArchiveEntry = {
 };
 
 type ArchiveView = 'timeline' | 'cards';
+type ArchiveTag = {
+  name: string;
+  count: number;
+};
 
 export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
   const [view, setView] = useState<ArchiveView>('timeline');
   const [query, setQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState('All');
   const timelinePanelId = 'archive-timeline-panel';
   const cardPanelId = 'archive-card-panel';
 
@@ -22,17 +27,24 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
     group.posts.map((post, index) => ({ post, year: group.year, index }))
   )), [groups]);
 
+  const tags = useMemo<ArchiveTag[]>(() => {
+    const counts = new Map<string, number>();
+    entries.forEach(({ post }) => {
+      post.tags.forEach((tag) => counts.set(tag, (counts.get(tag) ?? 0) + 1));
+    });
+    return Array.from(counts, ([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [entries]);
+
   const filteredEntries = useMemo(() => {
     const needle = query.trim().toLowerCase();
 
-    if (!needle) {
-      return entries;
-    }
-
-    return entries.filter(({ post, year }) => (
-      [post.title, post.summary, post.category, year, ...post.tags].join(' ').toLowerCase().includes(needle)
-    ));
-  }, [entries, query]);
+    return entries.filter(({ post, year }) => {
+      const matchesTag = selectedTag === 'All' || post.tags.includes(selectedTag);
+      const haystack = [post.title, post.summary, post.category, year, ...post.tags].join(' ').toLowerCase();
+      return matchesTag && (!needle || haystack.includes(needle));
+    });
+  }, [entries, query, selectedTag]);
 
   const filteredGroups = useMemo(() => groups
     .map((group) => ({
@@ -42,21 +54,16 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
     .filter((group) => group.posts.length > 0), [filteredEntries, groups]);
 
   return (
-    <section className="main-shell archive-world archive-switchboard" aria-label="文章时间航道">
-      <div className="archive-orbit" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-
+    <section className="main-shell archive-world archive-switchboard archive-xh-timeline" aria-label="文章归档与探索">
       <div className="archive-control-deck">
-        <div>
-          <span>{filteredEntries.length} / {entries.length} posts</span>
-          <strong>{view === 'timeline' ? '时间航道' : '卡片索引'}</strong>
+        <div className="archive-control-title">
+          <span>{filteredEntries.length} / {entries.length} 篇文章</span>
+          <strong>{view === 'timeline' ? '归档时间线' : '卡片矩阵'}</strong>
+          <small>XHBlogs-style archive: search, tags, timeline, cards.</small>
         </div>
-        <label>
+        <label className="archive-search">
           <span>搜索归档</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="标题、摘要、年份或标签" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题、摘要、年份或标签" />
         </label>
         <div className="archive-view-toggle" role="tablist" aria-label="归档视图">
           <button
@@ -68,7 +75,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
             aria-controls={timelinePanelId}
             onClick={() => setView('timeline')}
           >
-            Timeline
+            时间线
           </button>
           <button
             id="archive-tab-cards"
@@ -79,9 +86,29 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
             aria-controls={cardPanelId}
             onClick={() => setView('cards')}
           >
-            Cards
+            卡片
           </button>
         </div>
+      </div>
+
+      <div className="archive-tag-rail" aria-label="归档标签筛选">
+        <button
+          className={selectedTag === 'All' ? 'is-active' : ''}
+          type="button"
+          onClick={() => setSelectedTag('All')}
+        >
+          全部 <span>{entries.length}</span>
+        </button>
+        {tags.map((tag) => (
+          <button
+            className={selectedTag === tag.name ? 'is-active' : ''}
+            type="button"
+            onClick={() => setSelectedTag(tag.name)}
+            key={tag.name}
+          >
+            {tag.name} <span>{tag.count}</span>
+          </button>
+        ))}
       </div>
 
       {view === 'timeline' ? (
@@ -91,7 +118,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
               <header>
                 <small>Year</small>
                 <h2>{group.year}</h2>
-                <span>{group.posts.length} posts</span>
+                <span>{group.posts.length} 篇</span>
               </header>
               <div className="article-list">
                 {group.posts.map((post, index) => (
@@ -115,18 +142,20 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
         </div>
       )}
 
-      {filteredEntries.length === 0 ? <p className="archive-empty">没有匹配的文章，换一个关键词试试。</p> : null}
+      {entries.length === 0 ? <p className="archive-empty">暂无已发布文章。</p> : null}
+      {entries.length > 0 && filteredEntries.length === 0 ? <p className="archive-empty">没有匹配的文章，换一个关键词或标签试试。</p> : null}
     </section>
   );
 }
 
 function ArchiveRow({ post, index }: { post: BlogPost; index: number }) {
   return (
-    <Link className="article-row archive-rune" href={`/posts/${post.slug}`}>
+    <Link className="article-row archive-row-xh" href={`/posts/${post.slug}`}>
       <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
       <span>
         <strong>{post.title}</strong>
         <small>{post.summary}</small>
+        <em>{post.tags.slice(0, 3).map((tag) => `#${tag}`).join(' ')}</em>
       </span>
       <span className="row-meta">{formatDate(post.createdAt)} / {estimateReadingMinutes(post.content)} min</span>
     </Link>

@@ -97,13 +97,6 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     priority: 0.8
   },
   {
-    path: '/tree',
-    title: '灵境内容树',
-    description: '把站点文章、项目、相册、音乐和后台能力组织成树状实验入口。',
-    changeFrequency: 'weekly',
-    priority: 0.74
-  },
-  {
     path: '/about',
     title: '关于',
     description: '了解作者、站点状态和联系方式。',

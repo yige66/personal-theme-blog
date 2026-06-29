@@ -17,7 +17,6 @@ const curatedFiles = [
   'app/api/music/route.ts',
   'app/music/page.tsx',
   'app/timeline/page.tsx',
-  'app/tree/page.tsx',
   'app/posts/[slug]/page.tsx',
   'app/projects/page.tsx',
   'app/tags/page.tsx',

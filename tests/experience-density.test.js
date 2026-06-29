@@ -18,7 +18,7 @@ describe('XHBlogs-inspired experience density', () => {
     assert.ok(data.site.music.every((track) => track.cover));
   });
 
-  it('adds the missing XHBlogs content ecology routes and data sources', async () => {
+  it('keeps the XHBlogs content ecology while removing the retired tree entrance', async () => {
     const data = await readBlogData();
     const [blogLib, portalIndex, seo, sitemap, nav, toolbox] = await Promise.all([
       readFile('lib/blog.ts', 'utf8'),
@@ -30,18 +30,19 @@ describe('XHBlogs-inspired experience density', () => {
     ]);
 
     assert.ok(Array.isArray(data.chatters) && data.chatters.length >= 3);
-    assert.ok(Array.isArray(data.tree) && data.tree.length >= 6);
     assert.ok(data.links.some((link) => link.avatar && link.themeColor && link.badge));
     assert.match(blogLib, /export type BlogChatter/);
-    assert.match(blogLib, /export type BlogTreeNode/);
     assert.match(blogLib, /getTimelineItems/);
     assert.match(portalIndex, /type: '杂谈'/);
     assert.match(portalIndex, /type: '友链'/);
-    assert.match(portalIndex, /type: '灵境'/);
-    for (const route of ['/photowall', '/friends', '/chatter', '/timeline', '/tree']) {
+    assert.doesNotMatch(portalIndex, /type: '灵境'|\/tree|createChannel\('tree'/);
+    for (const route of ['/photowall', '/friends', '/chatter', '/timeline']) {
       assert.ok(seo.includes(`path: '${route}'`), `missing SEO route ${route}`);
       assert.ok(nav.includes(`href: '${route}'`) || toolbox.includes(`href: '${route}'`), `missing navigation route ${route}`);
     }
+    assert.doesNotMatch(seo, /path: '\/tree'/);
+    assert.doesNotMatch(nav, /href: '\/tree'|id: 'tree'|灵境/);
+    assert.doesNotMatch(toolbox, /href: '\/tree'|灵境/);
     assert.match(sitemap, /getChatters/);
     assert.match(sitemap, /\/chatter\/\$\{chatter\.slug\}/);
   });

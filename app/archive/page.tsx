@@ -1,5 +1,4 @@
 import { ArchiveSwitchboard } from '@/components/ArchiveSwitchboard';
-import { ArchiveConstellation } from '@/components/ChannelWorlds';
 import { PageScene } from '@/components/PageScene';
 import { SiteNav } from '@/components/SiteNav';
 import { getArchiveGroups, getBlogData } from '@/lib/blog';
@@ -17,7 +16,7 @@ export default async function ArchivePage() {
       <PageScene
         eyebrow="Archive"
         title="文章归档"
-        description="按时间线回看文章、项目记录和学习笔记，让零散片段变成可以复访的地图。"
+        description="按 XHBlogs 的归档逻辑组织文章：搜索标题与摘要、按标签筛选，并在时间线和卡片矩阵之间切换。"
         image={data.site.heroImage}
         imageAlt={`${data.site.title} 归档背景`}
         variant="archive"
@@ -32,7 +31,7 @@ export default async function ArchivePage() {
         ]}
         signal={`${postCount} posts / ${groups.length} archive years / topic routes online`}
       />
-      {groups.length ? <ArchiveSwitchboard groups={groups} /> : <ArchiveConstellation groups={groups} />}
+      <ArchiveSwitchboard groups={groups} />
     </main>
   );
 }

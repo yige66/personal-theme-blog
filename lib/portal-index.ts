@@ -1,6 +1,6 @@
 import type { BlogData, BlogPost } from './blog';
 
-export type PortalEntryKind = '文章' | '项目' | '动态' | '杂谈' | '相册' | '音乐' | '友链' | '灵境' | '路由';
+export type PortalEntryKind = '文章' | '项目' | '动态' | '杂谈' | '相册' | '音乐' | '友链' | '路由';
 
 export type PortalSearchEntry = {
   id: string;
@@ -90,15 +90,6 @@ export function createPortalSearchEntries(data: BlogData, posts: BlogPost[]): Po
       href: link.url,
       keywords: [link.badge || '', link.since || ''].filter(Boolean),
       weight: 54 - index
-    })),
-    ...data.tree.map((node, index) => ({
-      id: `tree:${node.id}`,
-      type: '灵境' as const,
-      title: node.title,
-      description: node.description,
-      href: node.href || '/tree',
-      keywords: [node.group, node.status || '', ...(node.tags ?? [])].filter(Boolean),
-      weight: 64 + (node.weight ?? 0) - index
     }))
   ];
 }
@@ -128,8 +119,7 @@ export function createPortalChannels(entries: PortalSearchEntry[]): PortalChanne
     createChannel('chatter', '云端杂谈', 'Chatter', '/chatter', entries, '杂谈'),
     createChannel('gallery', '视觉衣柜', 'Wardrobe', '/photowall', entries, '相册'),
     createChannel('music', '夜航电台', 'Radio', '/music', entries, '音乐'),
-    createChannel('friends', '友链星团', 'Friends', '/friends', entries, '友链'),
-    createChannel('tree', '灵境内容树', 'Tree', '/tree', entries, '灵境')
+    createChannel('friends', '友链星团', 'Friends', '/friends', entries, '友链')
   ];
 }
 

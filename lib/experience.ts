@@ -12,7 +12,6 @@ export type ExperienceRouteId =
   | 'tags'
   | 'friends'
   | 'timeline'
-  | 'tree'
   | 'about'
   | 'console';
 
@@ -72,13 +71,12 @@ export const experienceRoutes: ExperienceRoute[] = [
   { id: 'tags', href: '/tags', label: '标签', tone: 'Tags', coordinate: '57', room: 'Tarot' },
   { id: 'friends', href: '/friends', label: '友链', tone: 'Friends', coordinate: '68', room: 'Starmap' },
   { id: 'timeline', href: '/timeline', label: '时间线', tone: 'Timeline', coordinate: '73', room: 'Archive' },
-  { id: 'tree', href: '/tree', label: '灵境', tone: 'Tree', coordinate: '77', room: 'Lab' },
-  { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Room' },
+  { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Profile' },
   { id: 'console', href: '/console', label: '后台', tone: 'CMS', coordinate: '99', room: 'Console' }
 ];
 
 const spaceModuleBlueprints = [
-  { id: 'room', href: '/about', label: 'Room', title: '个人房间', coordinate: 'A-01' },
+  { id: 'profile', href: '/about', label: 'Profile', title: '个人档案', coordinate: 'A-01' },
   { id: 'library', href: '/archive', label: 'Library', title: '文章书架', coordinate: 'B-12' },
   { id: 'memory', href: '/moments', label: 'Memory', title: '记忆星图', coordinate: 'C-07' },
   { id: 'radio', href: '/music', label: 'Radio', title: '夜航电台', coordinate: 'D-24' }

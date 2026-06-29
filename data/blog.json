@@ -277,10 +277,10 @@
     {
       "title": "InternalBeyond Reference",
       "url": "https://github.com/Sui-IB/InternalBeyond",
-      "description": "本项目房间、氛围、热点和窗口感交互的开源视觉参考。",
+      "description": "本项目背景氛围、热点和窗口感交互的开源视觉参考。",
       "avatar": "/assets/img/avatar-orbit.svg",
       "themeColor": "rgba(255, 143, 199, 0.5)",
-      "badge": "Room",
+      "badge": "Visual",
       "since": "Reference"
     }
   ],
@@ -357,8 +357,8 @@
       "id": "chatter-xh-ecosystem",
       "slug": "xh-ecosystem-rebuild",
       "title": "为什么不能只做一个漂亮首页",
-      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、timeline、photowall 和 tree 都是独立内容入口。",
-      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、时间线、照片墙和灵境页让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 补 `/timeline`，把文章、动态、项目和杂谈合并成全站年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n- 补 `/tree`，把项目、标签和内容入口组织成实验树。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
+      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、timeline 和 photowall 都是独立内容入口。",
+      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、时间线和照片墙让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 补 `/timeline`，把文章、动态、项目和杂谈合并成全站年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n- 强化 `/archive`，让文章按目标站一样支持搜索、标签筛选和时间线浏览。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
       "date": "2026-06-29",
       "tags": [
         "XHBlogs",
@@ -374,7 +374,7 @@
       "slug": "content-density-notes",
       "title": "内容密度比单个组件更重要",
       "summary": "一个个人站不像目标站，通常不是按钮样式的问题，而是页面缺少能被持续浏览的真实内容层。",
-      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和时间线；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters`、`tree` 和聚合时间线补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
+      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和时间线；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters` 和聚合时间线补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
       "date": "2026-06-27",
       "tags": [
         "设计",
@@ -389,8 +389,8 @@
       "id": "chatter-route-parity",
       "slug": "route-parity-check",
       "title": "路由名字本身也是体验",
-      "summary": "`/photowall`、`/friends`、`/timeline`、`/tree` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
-      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链、树、时间线做成可以从后台维护的数据段，而不是写死在页面组件里。",
+      "summary": "`/photowall`、`/friends`、`/timeline` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
+      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链、时间线和归档做成可以从后台维护的数据段，而不是写死在页面组件里。",
       "date": "2026-06-25",
       "tags": [
         "路由",
@@ -454,118 +454,6 @@
       "featured": false,
       "createdAt": "2026-06-12T14:00:00.000Z",
       "updatedAt": "2026-06-18T14:00:00.000Z"
-    }
-  ],
-  "tree": [
-    {
-      "id": "tree-writing",
-      "title": "文章书架",
-      "description": "长文、复盘、学习笔记和系统设计记录从这里进入，承担 XHBlogs posts 的长期知识库角色。",
-      "href": "/archive",
-      "group": "内容主干",
-      "tags": [
-        "posts",
-        "archive",
-        "writing"
-      ],
-      "status": "online",
-      "weight": 92
-    },
-    {
-      "id": "tree-chatter",
-      "title": "云端杂谈",
-      "description": "介于说说和正式文章之间的轻文章频道，用来保存正在形成的想法。",
-      "href": "/chatter",
-      "group": "内容主干",
-      "tags": [
-        "chatter",
-        "masonry",
-        "notes"
-      ],
-      "status": "new",
-      "weight": 88
-    },
-    {
-      "id": "tree-moments",
-      "title": "说说水流",
-      "description": "轻状态、进度、心情和日常碎片，承接 XHBlogs moments 的短内容角色。",
-      "href": "/moments",
-      "group": "内容主干",
-      "tags": [
-        "moments",
-        "daily"
-      ],
-      "status": "online",
-      "weight": 80
-    },
-    {
-      "id": "tree-photowall",
-      "title": "照片墙衣柜",
-      "description": "图集、封面、项目截图和视觉素材集中管理，形成站点的视觉记忆。",
-      "href": "/photowall",
-      "group": "视觉与声音",
-      "tags": [
-        "photowall",
-        "gallery",
-        "album"
-      ],
-      "status": "online",
-      "weight": 78
-    },
-    {
-      "id": "tree-radio",
-      "title": "夜航电台",
-      "description": "歌单、歌词、阅读 BGM 和侧边播放器共同维持站点的声音身份。",
-      "href": "/music",
-      "group": "视觉与声音",
-      "tags": [
-        "music",
-        "lyrics",
-        "radio"
-      ],
-      "status": "online",
-      "weight": 74
-    },
-    {
-      "id": "tree-friends",
-      "title": "友链星团",
-      "description": "朋友站点、项目入口和外部资源用头像卡与星图两种方式呈现。",
-      "href": "/friends",
-      "group": "关系网络",
-      "tags": [
-        "friends",
-        "links"
-      ],
-      "status": "new",
-      "weight": 70
-    },
-    {
-      "id": "tree-timeline",
-      "title": "归档与探索",
-      "description": "把文章、动态、项目和杂谈合并成全站内容时间线。",
-      "href": "/timeline",
-      "group": "关系网络",
-      "tags": [
-        "timeline",
-        "search",
-        "archive"
-      ],
-      "status": "new",
-      "weight": 84
-    },
-    {
-      "id": "tree-console",
-      "title": "发布控制台",
-      "description": "内容、素材、项目、部署和备份的操作入口，后续可以承接更多后台字段。",
-      "href": "/console",
-      "group": "实验室",
-      "tags": [
-        "cms",
-        "deploy",
-        "vercel"
-      ],
-      "status": "active",
-      "weight": 76
     }
   ],
   "projects": [

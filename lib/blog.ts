@@ -101,17 +101,6 @@ export type BlogChatter = {
   featured?: boolean;
 };
 
-export type BlogTreeNode = {
-  id: string;
-  title: string;
-  description: string;
-  href: string;
-  group: string;
-  tags?: string[];
-  status?: string;
-  weight?: number;
-};
-
 export type TimelineItem = {
   id: string;
   type: 'post' | 'note' | 'project' | 'chatter';
@@ -184,7 +173,6 @@ export type BlogData = {
   notes: BlogNote[];
   chatters: BlogChatter[];
   projects: BlogProject[];
-  tree: BlogTreeNode[];
   posts: BlogPost[];
 };
 
@@ -200,7 +188,6 @@ export type BlogStats = {
   gallery: number;
   tracks: number;
   links: number;
-  tree: number;
 };
 
 export type TagSummary = {
@@ -328,7 +315,6 @@ const fallbackData: BlogData = {
   notes: [],
   chatters: [],
   projects: fallbackProjects,
-  tree: [],
   posts: []
 };
 
@@ -367,11 +353,6 @@ export async function getChatters(): Promise<BlogChatter[]> {
 export async function getChatterBySlug(slug: string): Promise<BlogChatter | null> {
   const chatters = await getChatters();
   return chatters.find((chatter) => chatter.slug === slug) ?? null;
-}
-
-export async function getTreeNodes(): Promise<BlogTreeNode[]> {
-  const data = await getBlogData();
-  return [...data.tree].sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0) || a.title.localeCompare(b.title));
 }
 
 export async function getTimelineItems(): Promise<TimelineItem[]> {
@@ -477,8 +458,7 @@ export async function getBlogStats(): Promise<BlogStats> {
     chatters: data.chatters.length,
     gallery: data.site.gallery.length,
     tracks: data.site.music.length,
-    links: data.links.length,
-    tree: data.tree.length
+    links: data.links.length
   };
 }
 
@@ -683,7 +663,6 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     notes: Array.isArray(input.notes) ? input.notes : [],
     chatters: Array.isArray(input.chatters) ? input.chatters : [],
     projects: normalizeArray(input.projects, fallbackProjects),
-    tree: Array.isArray(input.tree) ? input.tree : [],
     posts: Array.isArray(input.posts) ? input.posts : []
   };
 }

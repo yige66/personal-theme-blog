@@ -14,8 +14,7 @@ const tools = [
   { href: '/music', label: '音', title: '音乐电台' },
   { href: '/moments', label: '记', title: '说说动态' },
   { href: '/chatter', label: '谈', title: '云端杂谈' },
-  { href: '/friends', label: '友', title: '友链星团' },
-  { href: '/tree', label: '树', title: '灵境内容树' }
+  { href: '/friends', label: '友', title: '友链星团' }
 ];
 
 export function GlobalToolbox({ github, email }: GlobalToolboxProps) {
