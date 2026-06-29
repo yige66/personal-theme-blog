@@ -1,7 +1,8 @@
-import Link from 'next/link';
-import { EmptyState, PageHero, PageInsightBar } from '@/components/SectionBlocks';
+import { ArchiveSwitchboard } from '@/components/ArchiveSwitchboard';
+import { ArchiveConstellation } from '@/components/ChannelWorlds';
+import { PageScene } from '@/components/PageScene';
 import { SiteNav } from '@/components/SiteNav';
-import { estimateReadingMinutes, formatDate, getArchiveGroups, getBlogData } from '@/lib/blog';
+import { getArchiveGroups, getBlogData } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
 
 export const metadata = staticPageMetadata.archive;
@@ -13,35 +14,25 @@ export default async function ArchivePage() {
   return (
     <main className="subpage archive-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageHero eyebrow="Archive" title="文章归档" description="按时间线回看文章、项目记录和学习笔记，让零散片段变成可以复访的地图。" />
-      <PageInsightBar
-        items={[
+      <PageScene
+        eyebrow="Archive"
+        title="文章归档"
+        description="按时间线回看文章、项目记录和学习笔记，让零散片段变成可以复访的地图。"
+        image={data.site.heroImage}
+        imageAlt={`${data.site.title} 归档背景`}
+        variant="archive"
+        stats={[
           { label: '文章', value: postCount, caption: '已发布归档' },
           { label: '年份', value: groups.length, caption: '时间跨度' },
           { label: '入口', value: 'Tags', caption: '按主题继续探索' }
         ]}
-        action={{ href: '/tags', label: '查看标签' }}
+        actions={[
+          { href: '/tags', label: '查看标签' },
+          { href: '/moments', label: '看看动态' }
+        ]}
+        signal={`${postCount} posts / ${groups.length} archive years / topic routes online`}
       />
-      <section className="main-shell archive-list">
-        {groups.length === 0 ? <EmptyState title="暂无归档文章" description="在后台发布文章后，这里会自动生成按年份组织的时间线。" /> : null}
-        {groups.map((group) => (
-          <div className="archive-year" key={group.year}>
-            <h2>{group.year}</h2>
-            <div className="article-list">
-              {group.posts.map((post, index) => (
-                <Link className="article-row" href={`/posts/${post.slug}`} key={post.id}>
-                  <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
-                  <span>
-                    <strong>{post.title}</strong>
-                    <small>{post.summary}</small>
-                  </span>
-                  <span className="row-meta">{formatDate(post.createdAt)} / {estimateReadingMinutes(post.content)} min</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
+      {groups.length ? <ArchiveSwitchboard groups={groups} /> : <ArchiveConstellation groups={groups} />}
     </main>
   );
 }

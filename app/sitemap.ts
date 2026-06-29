@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { getBlogData, getPublishedPosts, getTagSummaries } from '@/lib/blog';
+import { getBlogData, getChatters, getPublishedPosts, getTagSummaries } from '@/lib/blog';
 import { absoluteUrl, mostRecentDate, PUBLIC_ROUTES } from '@/lib/seo';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [data, posts, tags] = await Promise.all([getBlogData(), getPublishedPosts(), getTagSummaries()]);
+  const [data, posts, tags, chatters] = await Promise.all([getBlogData(), getPublishedPosts(), getTagSummaries(), getChatters()]);
   const siteLastModified = mostRecentDate([
     ...data.posts.map((post) => post.updatedAt),
     ...data.notes.map((note) => note.date),
@@ -31,5 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: Math.min(0.78, 0.48 + tag.count * 0.05)
   }));
 
-  return [...staticRoutes, ...postRoutes, ...tagRoutes];
+  const chatterRoutes = chatters.map((chatter) => ({
+    url: absoluteUrl(`/chatter/${chatter.slug}`),
+    lastModified: new Date(chatter.date),
+    changeFrequency: 'monthly' as const,
+    priority: chatter.featured ? 0.78 : 0.66
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...tagRoutes, ...chatterRoutes];
 }

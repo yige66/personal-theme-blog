@@ -21,6 +21,10 @@ export type BlogLink = {
   title: string;
   url: string;
   description: string;
+  avatar?: string;
+  themeColor?: string;
+  badge?: string;
+  since?: string;
 };
 
 export type BlogNote = {
@@ -50,6 +54,7 @@ export type GalleryItem = {
 };
 
 export type MusicTrack = {
+  id?: string;
   title: string;
   artist: string;
   mood: string;
@@ -57,6 +62,17 @@ export type MusicTrack = {
   cover?: string;
   source?: string;
   note?: string;
+  provider?: 'local' | 'netease' | string;
+  duration?: number;
+  lrc?: string;
+  lyric?: string;
+  lyrics?: string | string[] | Array<{ time: number; text: string }>;
+};
+
+export type ArticleHeading = {
+  level: 2 | 3;
+  text: string;
+  id: string;
 };
 
 export type BlogProject = {
@@ -72,11 +88,55 @@ export type BlogProject = {
   startedAt: string;
 };
 
+export type BlogChatter = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  content: string;
+  date: string;
+  tags: string[];
+  mood?: string;
+  cover?: string;
+  featured?: boolean;
+};
+
+export type BlogTreeNode = {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  group: string;
+  tags?: string[];
+  status?: string;
+  weight?: number;
+};
+
+export type TimelineItem = {
+  id: string;
+  type: 'post' | 'note' | 'project' | 'chatter';
+  title: string;
+  summary: string;
+  date: string;
+  href: string;
+  tags: string[];
+  cover?: string;
+  accent?: string;
+};
+
 export type CommentConfig = {
   enabled: boolean;
   provider: string;
   repo: string;
-  clientId: string;
+  clientId?: string;
+  owner?: string;
+  admin?: string[];
+  proxy?: string;
+  mapping?: string;
+  label?: string;
+  theme?: string;
+  category?: string;
+  categoryId?: string;
 };
 
 export type VisualEffectsConfig = {
@@ -110,6 +170,8 @@ export type BlogSite = {
   streak: number;
   assistantName: string;
   assistantPrompt: string;
+  cloudMusicIds: string[];
+  friendLinkApplyFormat: string;
   comments: CommentConfig;
   effects: VisualEffectsConfig;
   music: MusicTrack[];
@@ -120,7 +182,9 @@ export type BlogData = {
   site: BlogSite;
   links: BlogLink[];
   notes: BlogNote[];
+  chatters: BlogChatter[];
   projects: BlogProject[];
+  tree: BlogTreeNode[];
   posts: BlogPost[];
 };
 
@@ -132,9 +196,11 @@ export type BlogStats = {
   words: number;
   projects: number;
   notes: number;
+  chatters: number;
   gallery: number;
   tracks: number;
   links: number;
+  tree: number;
 };
 
 export type TagSummary = {
@@ -168,6 +234,8 @@ const fallbackSite: BlogSite = {
   streak: 27,
   assistantName: '星屿助手',
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
+  cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
+  friendLinkApplyFormat: '名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg',
   effects: {
     enabled: true,
     danmaku: [
@@ -188,10 +256,16 @@ const fallbackSite: BlogSite = {
     intensity: 72
   },
   comments: {
-    enabled: false,
-    provider: 'GitHub Issues / Gitalk',
-    repo: 'your-name/blog-comments',
-    clientId: ''
+    enabled: true,
+    provider: 'gitalk',
+    repo: 'personal-theme-blog',
+    owner: 'yige66',
+    admin: ['yige66'],
+    clientId: '',
+    proxy: '/api/github',
+    mapping: 'pathname',
+    label: 'comment',
+    theme: 'auto'
   },
   music: [
     {
@@ -252,7 +326,9 @@ const fallbackData: BlogData = {
   site: fallbackSite,
   links: [],
   notes: [],
+  chatters: [],
   projects: fallbackProjects,
+  tree: [],
   posts: []
 };
 
@@ -281,6 +357,70 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 export async function getFeaturedProjects(): Promise<BlogProject[]> {
   const data = await getBlogData();
   return [...data.projects].sort(compareProjects).slice(0, 4);
+}
+
+export async function getChatters(): Promise<BlogChatter[]> {
+  const data = await getBlogData();
+  return [...data.chatters].sort(compareByDateDesc);
+}
+
+export async function getChatterBySlug(slug: string): Promise<BlogChatter | null> {
+  const chatters = await getChatters();
+  return chatters.find((chatter) => chatter.slug === slug) ?? null;
+}
+
+export async function getTreeNodes(): Promise<BlogTreeNode[]> {
+  const data = await getBlogData();
+  return [...data.tree].sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0) || a.title.localeCompare(b.title));
+}
+
+export async function getTimelineItems(): Promise<TimelineItem[]> {
+  const [data, posts] = await Promise.all([getBlogData(), getPublishedPosts()]);
+  const postItems = posts.map((post): TimelineItem => ({
+    id: post.id,
+    type: 'post',
+    title: post.title,
+    summary: post.summary,
+    date: post.createdAt,
+    href: `/posts/${post.slug}`,
+    tags: post.tags,
+    cover: post.cover,
+    accent: 'Article'
+  }));
+  const noteItems = data.notes.map((note): TimelineItem => ({
+    id: note.id,
+    type: 'note',
+    title: note.title || note.mood || 'Moment',
+    summary: note.content,
+    date: note.date,
+    href: '/moments',
+    tags: note.tags ?? [],
+    accent: note.mood || 'Moment'
+  }));
+  const projectItems = data.projects.map((project): TimelineItem => ({
+    id: project.id,
+    type: 'project',
+    title: project.title,
+    summary: project.description,
+    date: project.startedAt,
+    href: project.url || '/projects',
+    tags: project.tags,
+    cover: project.cover,
+    accent: project.status
+  }));
+  const chatterItems = data.chatters.map((chatter): TimelineItem => ({
+    id: chatter.id,
+    type: 'chatter',
+    title: chatter.title,
+    summary: chatter.summary || chatter.content,
+    date: chatter.date,
+    href: `/chatter/${chatter.slug}`,
+    tags: chatter.tags,
+    cover: chatter.cover,
+    accent: chatter.mood || 'Chatter'
+  }));
+
+  return [...postItems, ...noteItems, ...projectItems, ...chatterItems].sort(compareByDateDesc);
 }
 
 export async function getTagSummaries(): Promise<TagSummary[]> {
@@ -334,9 +474,11 @@ export async function getBlogStats(): Promise<BlogStats> {
     words: posts.reduce((total, post) => total + estimateWords(post.content), 0),
     projects: data.projects.length,
     notes: data.notes.length,
+    chatters: data.chatters.length,
     gallery: data.site.gallery.length,
     tracks: data.site.music.length,
-    links: data.links.length
+    links: data.links.length,
+    tree: data.tree.length
   };
 }
 
@@ -359,6 +501,7 @@ export function renderMarkdown(markdown: string): string {
   let paragraph: string[] = [];
   let quoteLines: string[] = [];
   let codeFence: { language: string; lines: string[] } | null = null;
+  const headingIds = new Map<string, number>();
 
   const flushParagraph = () => {
     if (paragraph.length > 0) {
@@ -427,19 +570,22 @@ export function renderMarkdown(markdown: string): string {
 
     if (line.startsWith('### ')) {
       flushTextBlocks();
-      blocks.push(`<h3>${renderInline(line.slice(4))}</h3>`);
+      const text = line.slice(4);
+      blocks.push(`<h3 id="${escapeAttribute(createHeadingId(text, headingIds))}">${renderInline(text)}</h3>`);
       continue;
     }
 
     if (line.startsWith('## ')) {
       flushTextBlocks();
-      blocks.push(`<h2>${renderInline(line.slice(3))}</h2>`);
+      const text = line.slice(3);
+      blocks.push(`<h2 id="${escapeAttribute(createHeadingId(text, headingIds))}">${renderInline(text)}</h2>`);
       continue;
     }
 
     if (line.startsWith('# ')) {
       flushTextBlocks();
-      blocks.push(`<h2>${renderInline(line.slice(2))}</h2>`);
+      const text = line.slice(2);
+      blocks.push(`<h2 id="${escapeAttribute(createHeadingId(text, headingIds))}">${renderInline(text)}</h2>`);
       continue;
     }
 
@@ -458,6 +604,54 @@ export function renderMarkdown(markdown: string): string {
   flushCode();
   return blocks.join('');
 }
+
+export function extractTableOfContents(markdown: string): ArticleHeading[] {
+  const headingIds = new Map<string, number>();
+  return markdown
+    .split(/\r?\n/)
+    .map((rawLine) => rawLine.trim())
+    .filter((line) => /^#{1,3}\s+/.test(line))
+    .map((line): ArticleHeading | null => {
+      if (line.startsWith('### ')) {
+        const text = cleanHeadingText(line.slice(4));
+        return { level: 3, text, id: createHeadingId(text, headingIds) };
+      }
+
+      if (line.startsWith('## ')) {
+        const text = cleanHeadingText(line.slice(3));
+        return { level: 2, text, id: createHeadingId(text, headingIds) };
+      }
+
+      if (line.startsWith('# ')) {
+        const text = cleanHeadingText(line.slice(2));
+        return { level: 2, text, id: createHeadingId(text, headingIds) };
+      }
+
+      return null;
+    })
+    .filter((item): item is ArticleHeading => Boolean(item && item.text));
+}
+
+function createHeadingId(text: string, seen: Map<string, number>): string {
+  const cleanText = cleanHeadingText(text);
+  const base = cleanText
+    .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'section';
+  const count = seen.get(base) ?? 0;
+  seen.set(base, count + 1);
+  return count === 0 ? `toc-${base}` : `toc-${base}-${count + 1}`;
+}
+
+function cleanHeadingText(value: string): string {
+  return String(value || '')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/<\/?[^>]+(>|$)/g, '')
+    .replace(/[*_~`#]/g, '')
+    .trim();
+}
+
 function normalizeBlogData(input: Partial<BlogData>): BlogData {
   const siteInput: Partial<BlogSite> = input.site ?? {};
   const site: BlogSite = {
@@ -467,6 +661,8 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
       ...fallbackSite.comments,
       ...(siteInput.comments ?? {})
     },
+    cloudMusicIds: normalizeCloudMusicIds(siteInput.cloudMusicIds),
+    friendLinkApplyFormat: siteInput.friendLinkApplyFormat || fallbackSite.friendLinkApplyFormat,
     music: normalizeArray(siteInput.music, fallbackSite.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     avatar: siteInput.avatar || fallbackSite.avatar,
@@ -485,9 +681,15 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     site,
     links: Array.isArray(input.links) ? input.links : [],
     notes: Array.isArray(input.notes) ? input.notes : [],
+    chatters: Array.isArray(input.chatters) ? input.chatters : [],
     projects: normalizeArray(input.projects, fallbackProjects),
+    tree: Array.isArray(input.tree) ? input.tree : [],
     posts: Array.isArray(input.posts) ? input.posts : []
   };
+}
+
+function compareByDateDesc(a: { date: string }, b: { date: string }): number {
+  return new Date(b.date).getTime() - new Date(a.date).getTime();
 }
 
 function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
@@ -511,6 +713,16 @@ function normalizeEffects(value: unknown): VisualEffectsConfig {
     floatingCompanion: source.floatingCompanion ?? fallback.floatingCompanion,
     intensity: Math.min(100, Math.max(0, toInteger(source.intensity, fallback.intensity)))
   };
+}
+
+function normalizeCloudMusicIds(value: unknown): string[] {
+  const source = Array.isArray(value) ? value : fallbackSite.cloudMusicIds;
+  const ids = source
+    .map((item) => String(item).trim())
+    .filter((item) => /^\d{1,20}$/.test(item))
+    .slice(0, 20);
+
+  return ids.length > 0 ? ids : fallbackSite.cloudMusicIds;
 }
 
 function comparePosts(a: BlogPost, b: BlogPost): number {

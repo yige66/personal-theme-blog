@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { renderMarkdown } from '../lib/blog.ts';
+import { extractTableOfContents, renderMarkdown } from '../lib/blog.ts';
 
 describe('renderMarkdown', () => {
   it('renders links, images, blockquotes and fenced code blocks safely', () => {
@@ -15,11 +15,32 @@ const unsafe = "<script>";
 \`\`\`
 `);
 
-    assert.match(html, /<h2>Heading<\/h2>/);
+    assert.match(html, /<h2 id="toc-heading">Heading<\/h2>/);
     assert.match(html, /<blockquote><p>quoted <strong>text<\/strong><\/p><\/blockquote>/);
     assert.match(html, /<a href="https:\/\/github\.com\/yige66" target="_blank" rel="noreferrer">GitHub<\/a>/);
     assert.match(html, /<img src="\/assets\/img\/hero-mountain\.svg" alt="Cover" loading="lazy" \/>/);
     assert.match(html, /<pre><code class="language-ts">const unsafe = &quot;&lt;script&gt;&quot;;\n<\/code><\/pre>/);
+  });
+
+  it('extracts heading ids that match rendered markdown headings', () => {
+    const markdown = `## Reading path
+
+### [Linked title](/posts/example)
+
+### Reading path
+`;
+
+    const toc = extractTableOfContents(markdown);
+    const html = renderMarkdown(markdown);
+
+    assert.deepEqual(toc, [
+      { level: 2, text: 'Reading path', id: 'toc-reading-path' },
+      { level: 3, text: 'Linked title', id: 'toc-linked-title' },
+      { level: 3, text: 'Reading path', id: 'toc-reading-path-2' }
+    ]);
+    assert.match(html, /<h2 id="toc-reading-path">Reading path<\/h2>/);
+    assert.match(html, /<h3 id="toc-linked-title"><a href="\/posts\/example">Linked title<\/a><\/h3>/);
+    assert.match(html, /<h3 id="toc-reading-path-2">Reading path<\/h3>/);
   });
 
   it('does not create unsafe javascript links', () => {

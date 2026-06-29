@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArticleTOC } from '@/components/article/ArticleTOC';
+import { GitHubComments } from '@/components/comments/GitHubComments';
+import { SidebarLyric } from '@/components/music/SidebarLyric';
 import { SiteNav } from '@/components/SiteNav';
-import { estimateReadingMinutes, formatDate, getBlogData, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
+import { estimateReadingMinutes, extractTableOfContents, formatDate, getBlogData, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
 import { createArticleJsonLd, createPostMetadata, toJsonLd } from '@/lib/seo';
 
 type PostPageProps = {
@@ -36,32 +39,38 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const articleJsonLd = createArticleJsonLd(data.site, post);
   const recentPosts = allPosts.filter((item) => item.id !== post.id).slice(0, 4);
+  const readingMinutes = estimateReadingMinutes(post.content);
+  const toc = extractTableOfContents(post.content);
 
   return (
     <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(articleJsonLd) }} />
       <SiteNav title={data.site.title} />
       <section className="main-shell article-layout">
-        <article className="article-shell">
-          <div className="article-cover">
-            <Image src={post.cover || data.site.heroImage} alt={`${post.title} 封面`} width={980} height={520} priority />
+        <article className="article-shell article-capsule">
+          <div className="article-cover" data-motion="image-scale">
+            <Image src={post.cover || data.site.heroImage} alt={`${post.title} 封面`} width={1080} height={620} priority />
           </div>
-          <p className="eyebrow">{post.category}</p>
+          <div className="article-kicker">
+            <p className="eyebrow">{post.category}</p>
+            <span>{readingMinutes} min read</span>
+          </div>
           <h1>{post.title}</h1>
           <p className="article-summary">{post.summary}</p>
           <div className="article-meta">
             <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
-            <span>{estimateReadingMinutes(post.content)} min read</span>
             {post.tags.map((tag) => <Link href={`/tags/${encodeURIComponent(tag)}`} key={tag}>{tag}</Link>)}
           </div>
-          <div className="markdown-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
+          <div id="article-content" className="markdown-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
         </article>
-        <aside className="article-sidebar" aria-label="文章侧栏">
-          <section>
+        <aside className="article-sidebar article-dock" aria-label="文章侧栏">
+          <section className="article-author-card">
             <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={88} height={88} />
             <strong>{data.site.owner}</strong>
             <span>{data.site.role}</span>
           </section>
+          <SidebarLyric />
+          <ArticleTOC headings={toc} />
           {recentPosts.length ? (
             <section>
               <h2>最近文章</h2>
@@ -70,12 +79,9 @@ export default async function PostPage({ params }: PostPageProps) {
               ))}
             </section>
           ) : null}
-          <section>
-            <h2>评论</h2>
-            <p>{data.site.comments.enabled ? data.site.comments.provider : '评论系统待配置。后台已预留 GitHub Issues / Gitalk 类配置。'}</p>
-          </section>
         </aside>
       </section>
+      <GitHubComments config={data.site.comments} term={`/posts/${post.slug}`} title={post.title} />
     </main>
   );
 }

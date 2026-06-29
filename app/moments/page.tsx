@@ -1,4 +1,6 @@
-import { EmptyState, MomentTimelineCard, PageHero, PageInsightBar } from '@/components/SectionBlocks';
+import { MomentsBoard } from '@/components/MomentsBoard';
+import { PageScene } from '@/components/PageScene';
+import { EmptyState } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
@@ -14,24 +16,36 @@ export default async function MomentsPage() {
   return (
     <main className="subpage moments-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageHero eyebrow="Moments" title="说说动态流" description="轻量记录每天的进度、状态和灵感。不必等到完整文章，站点也能持续有呼吸感。" />
-      <PageInsightBar
-        items={[
+      <PageScene
+        eyebrow="Moments"
+        title="说说动态流"
+        description="轻量记录每天的进度、状态和灵感。不必等到完整文章，站点也能持续有呼吸感。"
+        image={data.site.avatar}
+        imageAlt={`${data.site.owner} 的头像`}
+        variant="moments"
+        stats={[
           { label: '动态', value: notes.length, caption: '状态记录' },
           { label: '主题', value: tags.length || '-', caption: '轻标签' },
           { label: '节奏', value: data.site.streak || 0, caption: '连续维护天数' }
         ]}
-        action={{ href: '/archive', label: '阅读文章' }}
+        actions={[
+          { href: '/archive', label: '阅读文章' },
+          { href: '/console', label: '管理动态' }
+        ]}
+        signal="daily notes / mood filters / soft timeline"
       />
       {moods.length ? (
         <section className="main-shell moment-mood-rail" aria-label="动态心情">
           {moods.map((mood) => <span key={mood}>{mood}</span>)}
         </section>
       ) : null}
-      <section className="main-shell moment-waterfall">
-        {notes.length === 0 ? <EmptyState title="暂无动态" description="在后台维护动态后，这里会形成轻量时间线。" /> : null}
-        {notes.map((note, index) => <MomentTimelineCard note={note} index={index} key={note.id} />)}
-      </section>
+      {notes.length ? (
+        <MomentsBoard comments={data.site.comments} notes={notes} />
+      ) : (
+        <section className="main-shell moment-waterfall">
+          <EmptyState title="暂无动态" description="在后台维护动态后，这里会形成轻量时间线。" />
+        </section>
+      )}
     </main>
   );
 }

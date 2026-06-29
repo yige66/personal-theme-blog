@@ -1,6 +1,5 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { PageHero } from '@/components/SectionBlocks';
+import { AboutRoom } from '@/components/ChannelWorlds';
+import { PageScene } from '@/components/PageScene';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData, getBlogStats } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
@@ -13,36 +12,26 @@ export default async function AboutPage() {
   return (
     <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageHero eyebrow="About" title={data.site.owner} description={data.site.bio} />
-      <section className="main-shell about-profile">
-        <div className="about-cover">
-          <Image src={data.site.heroImage} alt={`${data.site.title} 头图`} width={1180} height={520} priority />
-        </div>
-        <div className="about-avatar">
-          <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={160} height={160} />
-        </div>
-        <div className="about-profile-copy">
-          <p className="eyebrow">Now</p>
-          <h2>{data.site.role}</h2>
-          <p>{data.site.status}</p>
-          <p>{data.site.motto}</p>
-          <div className="project-actions">
-            <a href={data.site.github} target="_blank" rel="noreferrer">GitHub</a>
-            <Link href="/links">友链</Link>
-          </div>
-        </div>
-      </section>
+      <PageScene
+        eyebrow="About"
+        title={data.site.owner}
+        description={data.site.bio}
+        image={data.site.avatar}
+        imageAlt={`${data.site.owner} 的头像`}
+        variant="about"
+        stats={[
+          { label: '文章', value: stats.posts, caption: '公开记录' },
+          { label: '项目', value: stats.projects, caption: '长期维护' },
+          { label: '动态', value: stats.notes, caption: '日常片段' }
+        ]}
+        actions={[
+          { href: `mailto:${data.site.email}`, label: '联系我' },
+          { href: data.site.github, label: 'GitHub' }
+        ]}
+        signal={`${data.site.role} / ${data.site.location} / ${data.site.assistantName}`}
+      />
+      <AboutRoom site={data.site} stats={stats} />
       <section className="main-shell about-grid">
-        <article className="about-card">
-          <p className="eyebrow">Stats</p>
-          <h2>站点概况</h2>
-          <div className="about-stats">
-            <span><strong>{stats.posts}</strong>文章</span>
-            <span><strong>{stats.projects}</strong>项目</span>
-            <span><strong>{stats.notes}</strong>动态</span>
-            <span><strong>{stats.gallery}</strong>图片</span>
-          </div>
-        </article>
         <article className="about-card">
           <p className="eyebrow">Contact</p>
           <h2>找到我</h2>
@@ -57,6 +46,11 @@ export default async function AboutPage() {
               <i key={index} style={{ '--level': (index * 7 + stats.posts + stats.notes) % 5 } as React.CSSProperties} />
             ))}
           </div>
+        </article>
+        <article className="about-card">
+          <p className="eyebrow">Assistant</p>
+          <h2>{data.site.assistantName}</h2>
+          <p>{data.site.assistantPrompt}</p>
         </article>
       </section>
     </main>

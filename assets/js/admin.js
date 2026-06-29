@@ -64,8 +64,12 @@ const elements = {
   siteAssistantPrompt: document.querySelector('#siteAssistantPrompt'),
   siteEffects: document.querySelector('#siteEffects'),
   siteCommentsEnabled: document.querySelector('#siteCommentsEnabled'),
+  siteCommentProvider: document.querySelector('#siteCommentProvider'),
+  siteCommentMapping: document.querySelector('#siteCommentMapping'),
   siteCommentRepo: document.querySelector('#siteCommentRepo'),
   siteCommentClientId: document.querySelector('#siteCommentClientId'),
+  siteCloudMusicIds: document.querySelector('#siteCloudMusicIds'),
+  siteFriendLinkApplyFormat: document.querySelector('#siteFriendLinkApplyFormat'),
   siteMusic: document.querySelector('#siteMusic'),
   siteGallery: document.querySelector('#siteGallery'),
   musicEditor: document.querySelector('#musicEditor'),
@@ -409,8 +413,12 @@ function renderSiteForm() {
   elements.siteAssistantPrompt.value = site.assistantPrompt || '';
   elements.siteEffects.value = JSON.stringify(site.effects || {}, null, 2);
   elements.siteCommentsEnabled.checked = Boolean(site.comments?.enabled);
+  elements.siteCommentProvider.value = site.comments?.provider || 'utterances';
+  elements.siteCommentMapping.value = site.comments?.mapping || 'pathname';
   elements.siteCommentRepo.value = site.comments?.repo || '';
   elements.siteCommentClientId.value = site.comments?.clientId || '';
+  elements.siteCloudMusicIds.value = (site.cloudMusicIds || []).join(', ');
+  elements.siteFriendLinkApplyFormat.value = site.friendLinkApplyFormat || '';
   elements.siteMusic.value = JSON.stringify(site.music || [], null, 2);
   elements.siteGallery.value = JSON.stringify(site.gallery || [], null, 2);
 }
@@ -441,6 +449,8 @@ function renderLinksEditor() {
       <label><span>标题</span><input data-field="title" value="${escapeAttribute(link.title || '')}"></label>
       <label><span>URL</span><input data-field="url" value="${escapeAttribute(link.url || '')}"></label>
       <label><span>描述</span><input data-field="description" value="${escapeAttribute(link.description || '')}"></label>
+      <div class="form-row"><label><span>头像</span><input data-field="avatar" value="${escapeAttribute(link.avatar || '')}"></label><label><span>徽章</span><input data-field="badge" value="${escapeAttribute(link.badge || '')}"></label></div>
+      <div class="form-row"><label><span>主题色</span><input data-field="themeColor" value="${escapeAttribute(link.themeColor || '')}"></label><label><span>相识时间</span><input data-field="since" value="${escapeAttribute(link.since || '')}"></label></div>
     </article>
   `).join('');
   bindStructuredRemove(elements.linksEditor);
@@ -466,6 +476,8 @@ function renderMusicEditor() {
       <div class="structured-item-head"><strong>音乐 ${index + 1}</strong><button class="button danger" type="button" data-remove="music:${index}" aria-label="删除音乐 ${index + 1}">删除</button></div>
       <div class="form-row"><label><span>标题</span><input data-field="title" value="${escapeAttribute(track.title || '')}"></label><label><span>艺术家</span><input data-field="artist" value="${escapeAttribute(track.artist || '')}"></label></div>
       <div class="form-row"><label><span>氛围</span><input data-field="mood" value="${escapeAttribute(track.mood || '')}"></label><label><span>音频地址</span><input data-field="url" value="${escapeAttribute(track.url || '')}"></label></div>
+      <div class="form-row"><label><span>封面</span><input data-field="cover" value="${escapeAttribute(track.cover || '')}"></label><label><span>来源</span><input data-field="source" value="${escapeAttribute(track.source || '')}"></label></div>
+      <label><span>歌词 LRC</span><textarea data-field="lrc" rows="3">${escapeHtml(track.lrc || track.lyric || '')}</textarea></label>
     </article>
   `).join('');
   bindStructuredRemove(elements.musicEditor);
@@ -505,7 +517,11 @@ function syncLinksJsonFromEditor() {
   const links = readStructuredItems(elements.linksEditor, (item) => ({
     title: fieldValue(item, 'title'),
     url: fieldValue(item, 'url') || '#',
-    description: fieldValue(item, 'description')
+    description: fieldValue(item, 'description'),
+    avatar: fieldValue(item, 'avatar'),
+    themeColor: fieldValue(item, 'themeColor'),
+    badge: fieldValue(item, 'badge'),
+    since: fieldValue(item, 'since')
   }));
   elements.linksInput.value = JSON.stringify(links, null, 2);
   return links;
@@ -530,10 +546,14 @@ function syncProjectsJsonFromEditor() {
 
 function syncMediaJsonFromEditors() {
   const music = readStructuredItems(elements.musicEditor, (item) => ({
+    id: state.data.site.music[Number(item.dataset.index)]?.id || '',
     title: fieldValue(item, 'title'),
     artist: fieldValue(item, 'artist') || 'Local Playlist',
     mood: fieldValue(item, 'mood'),
-    url: fieldValue(item, 'url')
+    url: fieldValue(item, 'url'),
+    cover: fieldValue(item, 'cover') || '/assets/img/hero-mountain.svg',
+    source: fieldValue(item, 'source') || 'local-draft',
+    lrc: fieldValue(item, 'lrc')
   }));
   const gallery = readStructuredItems(elements.galleryEditor, (item) => ({
     title: fieldValue(item, 'title'),
@@ -547,7 +567,7 @@ function syncMediaJsonFromEditors() {
 
 function addStructuredItem(kind) {
   if (kind === 'links') {
-    state.data.links = [...(state.data.links || []), { title: '', url: 'https://', description: '' }];
+    state.data.links = [...(state.data.links || []), { title: '', url: 'https://', description: '', avatar: '', badge: '', themeColor: '', since: '' }];
     renderLinksEditor();
     return;
   }
@@ -557,7 +577,7 @@ function addStructuredItem(kind) {
     return;
   }
   if (kind === 'music') {
-    state.data.site.music = [...(state.data.site.music || []), { title: '', artist: 'Local Playlist', mood: '', url: '' }];
+    state.data.site.music = [...(state.data.site.music || []), { title: '', artist: 'Local Playlist', mood: '', url: '', cover: state.uploadPath || '/assets/img/hero-mountain.svg', source: 'local-draft', lrc: '' }];
     renderMusicEditor();
     return;
   }
@@ -618,12 +638,17 @@ function readSitePayload(music, gallery, effects) {
     accentColor: elements.siteAccentColor.value,
     assistantName: elements.siteAssistantName.value,
     assistantPrompt: elements.siteAssistantPrompt.value,
+    cloudMusicIds: elements.siteCloudMusicIds.value.split(',').map((item) => item.trim()).filter(Boolean),
+    friendLinkApplyFormat: elements.siteFriendLinkApplyFormat.value,
     effects,
     comments: {
       enabled: elements.siteCommentsEnabled.checked,
-      provider: 'GitHub Issues / Gitalk',
+      provider: elements.siteCommentProvider.value || 'utterances',
       repo: elements.siteCommentRepo.value,
-      clientId: elements.siteCommentClientId.value
+      clientId: elements.siteCommentClientId.value,
+      mapping: elements.siteCommentMapping.value || 'pathname',
+      label: 'comment',
+      theme: 'preferred-color-scheme'
     },
     music,
     gallery

@@ -29,7 +29,7 @@ const dailyDanmaku = [
   '写完这篇就去听歌',
   '评论区先留个脚印',
   '灵感刚刚冒泡',
-  '夜间模式很适合发呆',
+  '夜间模式适合发呆',
   '把日常收进时间线',
   '照片墙等你上传新图',
   '今天也要温柔一点'
@@ -56,7 +56,9 @@ function prefersReducedMotion(): boolean {
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const transitionTimerRef = useRef<number | null>(null);
   const [nightMode, setNightMode] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
   const isHome = pathname === '/';
@@ -90,6 +92,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     delay: `${(index % 6) * 0.54}s`
   })), []);
 
+  const rainDrops = useMemo(() => Array.from({ length: Math.round(intensity / 4) }, (_item, index) => ({
+    id: `rain-${index}`,
+    left: `${(index * 13 + 7) % 100}%`,
+    delay: `${(index % 12) * -0.22}s`,
+    duration: `${0.82 + (index % 7) * 0.08}s`,
+    height: `${38 + (index % 6) * 8}px`
+  })), [intensity]);
+
   useEffect(() => {
     const savedMode = window.localStorage.getItem('xh-theme-mode');
     if (savedMode) {
@@ -103,8 +113,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   useEffect(() => {
     document.documentElement.dataset.xhTheme = nightMode ? 'night' : 'day';
+    document.documentElement.dataset.xhThemeTransition = isTransitioning ? 'active' : 'idle';
     window.localStorage.setItem('xh-theme-mode', nightMode ? 'night' : 'day');
-  }, [nightMode]);
+  }, [isTransitioning, nightMode]);
+
+  useEffect(() => () => {
+    if (transitionTimerRef.current) {
+      window.clearTimeout(transitionTimerRef.current);
+    }
+  }, []);
 
   useEffect(() => {
     if (!effects.enabled || prefersReducedMotion()) {
@@ -160,7 +177,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const gradient = context.createRadialGradient(ripple.x, ripple.y, Math.max(1, ripple.radius * 0.2), ripple.x, ripple.y, ripple.radius);
         gradient.addColorStop(0, `rgba(255, 255, 255, ${ripple.opacity * 0.18})`);
         gradient.addColorStop(0.62, `rgba(255, 143, 199, ${ripple.opacity * 0.2})`);
-        gradient.addColorStop(1, `rgba(124, 217, 255, 0)`);
+        gradient.addColorStop(1, 'rgba(124, 217, 255, 0)');
 
         context.beginPath();
         context.fillStyle = gradient;
@@ -192,7 +209,17 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (transitionTimerRef.current) {
+      window.clearTimeout(transitionTimerRef.current);
+    }
+
+    setIsTransitioning(true);
     setNightMode((value) => !value);
+    transitionTimerRef.current = window.setTimeout(() => {
+      setIsTransitioning(false);
+      document.documentElement.dataset.xhThemeTransition = 'idle';
+    }, 1250);
   };
 
   if (!effects.enabled) {
@@ -205,6 +232,33 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <span />
         <span />
         <span />
+      </div>
+
+      <div className="xh-prism-layer" aria-hidden="true">
+        <span />
+        <span />
+      </div>
+
+      <div className="xh-room-vignette" aria-hidden="true" />
+
+      <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nightMode ? 'night' : 'day'} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+
+      <div className={`xh-space-rain${nightMode ? ' is-visible' : ''}`} aria-hidden="true">
+        {rainDrops.map((item) => (
+          <i
+            key={item.id}
+            style={{
+              '--rain-left': item.left,
+              '--rain-delay': item.delay,
+              '--rain-duration': item.duration,
+              '--rain-height': item.height
+            } as CSSProperties}
+          />
+        ))}
       </div>
 
       {messages.length > 0 ? (
@@ -249,16 +303,23 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         ))}
       </div>
 
-      <button className={`xh-theme-switch${isHome ? ' is-home' : ''}`} type="button" aria-pressed={nightMode} onClick={toggleTheme}>
-        <span>{nightMode ? 'Firefly Night' : 'Sakura Day'}</span>
-        <strong>{nightMode ? '夜间模式' : '樱花日间'}</strong>
-        <small>{nightMode ? '柔光深空' : '粉白晴空'}</small>
+      <button
+        className={`xh-theme-switch${isHome ? ' is-home' : ''}${isTransitioning ? ' is-transitioning' : ''}`}
+        type="button"
+        aria-pressed={nightMode}
+        aria-live="polite"
+        data-transitioning={isTransitioning ? 'true' : 'false'}
+        onClick={toggleTheme}
+      >
+        <span>{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
+        <strong>{nightMode ? '夜色场景' : '晨光场景'}</strong>
+        <small>{isTransitioning ? '场景转换中' : nightMode ? '雨幕与微光' : '晴空与虹影'}</small>
       </button>
 
       {!isHome ? (
         <aside className="xh-floating-player" aria-label="悬浮音乐状态">
           <span>Cloud Music</span>
-          <strong>{activeTrack?.title || '歌单待补充'}</strong>
+          <strong>{activeTrack?.title || '歌单待补全'}</strong>
           <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '后台可维护音乐封面与音频地址'}</small>
         </aside>
       ) : null}

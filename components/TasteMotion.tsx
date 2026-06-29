@@ -17,15 +17,18 @@ export function TasteMotion() {
     gsap.registerPlugin(ScrollTrigger);
 
     const context = gsap.context(() => {
-      gsap.from('[data-motion="portal-card"]', {
-        autoAlpha: 0,
-        y: 42,
-        scale: 0.96,
-        rotateX: 5,
-        duration: 1.05,
-        stagger: 0.08,
-        ease: 'power3.out'
-      });
+      const portalCards = gsap.utils.toArray<HTMLElement>('[data-motion="portal-card"]');
+      if (portalCards.length > 0) {
+        gsap.from(portalCards, {
+          autoAlpha: 0,
+          y: 42,
+          scale: 0.96,
+          rotateX: 5,
+          duration: 1.05,
+          stagger: 0.08,
+          ease: 'power3.out'
+        });
+      }
 
       gsap.utils.toArray<HTMLElement>('[data-motion="image-scale"]').forEach((element) => {
         gsap.fromTo(

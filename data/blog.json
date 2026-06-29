@@ -19,6 +19,12 @@
     "streak": 27,
     "assistantName": "星屿助手",
     "assistantPrompt": "根据文章、动态和作者资料，为访客推荐阅读路径。",
+    "cloudMusicIds": [
+      "1901371647",
+      "1859245776",
+      "1974443814"
+    ],
+    "friendLinkApplyFormat": "名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg",
     "effects": {
       "enabled": true,
       "danmaku": [
@@ -43,10 +49,18 @@
       "intensity": 72
     },
     "comments": {
-      "enabled": false,
-      "provider": "GitHub Issues / Gitalk",
-      "repo": "your-name/blog-comments",
-      "clientId": ""
+      "enabled": true,
+      "provider": "gitalk",
+      "repo": "personal-theme-blog",
+      "owner": "yige66",
+      "admin": [
+        "yige66"
+      ],
+      "clientId": "",
+      "proxy": "/api/github",
+      "mapping": "pathname",
+      "label": "comment",
+      "theme": "auto"
     },
     "music": [
       {
@@ -105,7 +119,11 @@
         "location": "Homepage",
         "date": "2026-06-28",
         "featured": true,
-        "tags": ["头图", "首页", "视觉"],
+        "tags": [
+          "头图",
+          "首页",
+          "视觉"
+        ],
         "items": [
           {
             "title": "山脊头图",
@@ -128,7 +146,11 @@
         "location": "Archive",
         "date": "2026-06-24",
         "featured": true,
-        "tags": ["写作", "笔记", "归档"],
+        "tags": [
+          "写作",
+          "笔记",
+          "归档"
+        ],
         "items": [
           {
             "title": "桌面笔记",
@@ -151,7 +173,11 @@
         "location": "Console",
         "date": "2026-06-28",
         "featured": true,
-        "tags": ["发布", "GitHub", "Vercel"],
+        "tags": [
+          "发布",
+          "GitHub",
+          "Vercel"
+        ],
         "items": [
           {
             "title": "后台面板",
@@ -178,7 +204,10 @@
         "collection": "Project set",
         "location": "Projects",
         "date": "2026-06-20",
-        "tags": ["项目", "截图"]
+        "tags": [
+          "项目",
+          "截图"
+        ]
       },
       {
         "title": "阅读背景位",
@@ -188,7 +217,10 @@
         "collection": "Article set",
         "location": "Posts",
         "date": "2026-06-18",
-        "tags": ["文章", "阅读"]
+        "tags": [
+          "文章",
+          "阅读"
+        ]
       },
       {
         "title": "关于页头像位",
@@ -198,7 +230,10 @@
         "collection": "Profile set",
         "location": "About",
         "date": "2026-06-16",
-        "tags": ["头像", "关于"]
+        "tags": [
+          "头像",
+          "关于"
+        ]
       }
     ]
   },
@@ -206,17 +241,47 @@
     {
       "title": "GitHub",
       "url": "https://github.com/yige66",
-      "description": "代码与项目记录。"
+      "description": "代码与项目记录。",
+      "avatar": "/assets/img/admin-board.svg",
+      "themeColor": "rgba(124, 217, 255, 0.55)",
+      "badge": "Code",
+      "since": "2026"
     },
     {
       "title": "发布工作流",
       "url": "/console",
-      "description": "内容同步、质量门禁与部署入口。"
+      "description": "内容同步、质量门禁与部署入口。",
+      "avatar": "/assets/img/admin-board.svg",
+      "themeColor": "rgba(255, 143, 199, 0.55)",
+      "badge": "Console",
+      "since": "local"
     },
     {
       "title": "归档",
       "url": "/archive",
-      "description": "按时间回看文章。"
+      "description": "按时间回看文章。",
+      "avatar": "/assets/img/desk-notes.svg",
+      "themeColor": "rgba(255, 226, 138, 0.55)",
+      "badge": "Archive",
+      "since": "index"
+    },
+    {
+      "title": "XHBlogs Reference",
+      "url": "https://github.com/heiehiehi/XinghuisamaBlogs",
+      "description": "本次内容生态复现参考的开源个人站项目，学习其路由、内容目录和组件分层。",
+      "avatar": "/assets/img/hero-mountain.svg",
+      "themeColor": "rgba(167, 139, 250, 0.58)",
+      "badge": "Reference",
+      "since": "CC BY-NC 4.0"
+    },
+    {
+      "title": "InternalBeyond Reference",
+      "url": "https://github.com/Sui-IB/InternalBeyond",
+      "description": "本项目房间、氛围、热点和窗口感交互的开源视觉参考。",
+      "avatar": "/assets/img/avatar-orbit.svg",
+      "themeColor": "rgba(255, 143, 199, 0.5)",
+      "badge": "Room",
+      "since": "Reference"
     }
   ],
   "notes": [
@@ -226,7 +291,10 @@
       "content": "今天把博客前台升级为可部署的 Next.js 站点，并把发布工作流整理进仓库。",
       "date": "2026-06-28",
       "mood": "Deploy",
-      "tags": ["Next.js", "Vercel"]
+      "tags": [
+        "Next.js",
+        "Vercel"
+      ]
     },
     {
       "id": "note-2",
@@ -234,7 +302,10 @@
       "content": "本地写作控制台保留为辅助工具，正式发布交给 GitHub 与 Vercel，让内容版本可以追踪。",
       "date": "2026-06-24",
       "mood": "Workflow",
-      "tags": ["GitHub", "内容流"]
+      "tags": [
+        "GitHub",
+        "内容流"
+      ]
     },
     {
       "id": "note-3",
@@ -242,7 +313,10 @@
       "content": "下一步可以接入 GitHub Issues 评论、正式域名和图床上传，让站点从展示页继续走向运营态。",
       "date": "2026-06-20",
       "mood": "Plan",
-      "tags": ["评论", "图床"]
+      "tags": [
+        "评论",
+        "图床"
+      ]
     },
     {
       "id": "note-4",
@@ -250,7 +324,10 @@
       "content": "把单张图片改成图集视角后，首页视觉、发布工作台和项目截图都能独立维护。",
       "date": "2026-06-18",
       "mood": "Gallery",
-      "tags": ["照片墙", "素材"]
+      "tags": [
+        "照片墙",
+        "素材"
+      ]
     },
     {
       "id": "note-5",
@@ -258,7 +335,10 @@
       "content": "目前歌单先记录场景、封面和说明，等真实音频资源确定后再补充可播放地址。",
       "date": "2026-06-14",
       "mood": "Music",
-      "tags": ["音乐", "阅读"]
+      "tags": [
+        "音乐",
+        "阅读"
+      ]
     },
     {
       "id": "note-6",
@@ -266,7 +346,60 @@
       "content": "归档、标签和项目页先确保能扫描信息，后续再加搜索、评论和更多内容样本。",
       "date": "2026-06-10",
       "mood": "Writing",
-      "tags": ["归档", "文章"]
+      "tags": [
+        "归档",
+        "文章"
+      ]
+    }
+  ],
+  "chatters": [
+    {
+      "id": "chatter-xh-ecosystem",
+      "slug": "xh-ecosystem-rebuild",
+      "title": "为什么不能只做一个漂亮首页",
+      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、timeline、photowall 和 tree 都是独立内容入口。",
+      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、时间线、照片墙和灵境页让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 补 `/timeline`，把文章、动态、项目和杂谈合并成全站年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n- 补 `/tree`，把项目、标签和内容入口组织成实验树。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
+      "date": "2026-06-29",
+      "tags": [
+        "XHBlogs",
+        "内容生态",
+        "复现"
+      ],
+      "mood": "Refactor",
+      "cover": "/assets/img/admin-board.svg",
+      "featured": true
+    },
+    {
+      "id": "chatter-content-density",
+      "slug": "content-density-notes",
+      "title": "内容密度比单个组件更重要",
+      "summary": "一个个人站不像目标站，通常不是按钮样式的问题，而是页面缺少能被持续浏览的真实内容层。",
+      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和时间线；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters`、`tree` 和聚合时间线补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
+      "date": "2026-06-27",
+      "tags": [
+        "设计",
+        "信息架构",
+        "博客"
+      ],
+      "mood": "Design",
+      "cover": "/assets/img/hero-mountain.svg",
+      "featured": false
+    },
+    {
+      "id": "chatter-route-parity",
+      "slug": "route-parity-check",
+      "title": "路由名字本身也是体验",
+      "summary": "`/photowall`、`/friends`、`/timeline`、`/tree` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
+      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链、树、时间线做成可以从后台维护的数据段，而不是写死在页面组件里。",
+      "date": "2026-06-25",
+      "tags": [
+        "路由",
+        "Next.js",
+        "复刻"
+      ],
+      "mood": "Plan",
+      "cover": "/assets/img/desk-notes.svg",
+      "featured": false
     }
   ],
   "posts": [
@@ -276,7 +409,11 @@
       "slug": "build-my-own-blog",
       "summary": "记录个人主题博客的功能拆解：前台展示、后台管理、Markdown 写作、数据持久化与部署思路。",
       "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 写作工具需要能存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用 JSON 数据保存内容，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。内容变更进入 GitHub 后，由 CI 和 Vercel 把预览、构建和正式发布串起来。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传、图床或在线 CMS。",
-      "tags": ["博客", "Next.js", "项目实践"],
+      "tags": [
+        "博客",
+        "Next.js",
+        "项目实践"
+      ],
       "category": "工程实践",
       "cover": "/assets/img/hero-mountain.svg",
       "status": "published",
@@ -290,7 +427,10 @@
       "slug": "turn-notes-into-assets",
       "summary": "从零散笔记到专题知识库：用标签、摘要和归档把学习过程变成可以复盘的系统。",
       "content": "## 学习笔记为什么容易失效\n\n很多笔记只记录了当下的结论，没有说明问题背景、踩坑过程和复盘入口。过一段时间再看，就很难继续使用。\n\n## 我的整理方式\n\n1. 先写一句摘要，确认这篇笔记解决什么问题。\n2. 用标签连接同类主题。\n3. 每篇保留一个可以继续扩展的后续问题。\n\n这样做的目标不是追求篇幅，而是让内容可以被未来的自己再次调用。",
-      "tags": ["学习方法", "知识管理"],
+      "tags": [
+        "学习方法",
+        "知识管理"
+      ],
       "category": "学习笔记",
       "cover": "/assets/img/desk-notes.svg",
       "status": "published",
@@ -304,13 +444,128 @@
       "slug": "admin-system-checklist",
       "summary": "一个个人博客后台至少应该具备的功能：文章 CRUD、草稿、站点资料、导入导出和基础安全。",
       "content": "## 最小可用后台\n\n个人博客后台不必一开始就做得很重，但至少要覆盖这些操作：\n\n- 新增、编辑、删除文章\n- 发布与草稿状态切换\n- 修改站点资料和个人简介\n- 导入导出 JSON 备份\n- 登录保护和输入校验\n\n这套项目先把这些基础能力跑通，再为数据库、云存储、评论系统留扩展空间。",
-      "tags": ["后台", "产品设计"],
+      "tags": [
+        "后台",
+        "产品设计"
+      ],
       "category": "系统设计",
       "cover": "/assets/img/admin-board.svg",
       "status": "draft",
       "featured": false,
       "createdAt": "2026-06-12T14:00:00.000Z",
       "updatedAt": "2026-06-18T14:00:00.000Z"
+    }
+  ],
+  "tree": [
+    {
+      "id": "tree-writing",
+      "title": "文章书架",
+      "description": "长文、复盘、学习笔记和系统设计记录从这里进入，承担 XHBlogs posts 的长期知识库角色。",
+      "href": "/archive",
+      "group": "内容主干",
+      "tags": [
+        "posts",
+        "archive",
+        "writing"
+      ],
+      "status": "online",
+      "weight": 92
+    },
+    {
+      "id": "tree-chatter",
+      "title": "云端杂谈",
+      "description": "介于说说和正式文章之间的轻文章频道，用来保存正在形成的想法。",
+      "href": "/chatter",
+      "group": "内容主干",
+      "tags": [
+        "chatter",
+        "masonry",
+        "notes"
+      ],
+      "status": "new",
+      "weight": 88
+    },
+    {
+      "id": "tree-moments",
+      "title": "说说水流",
+      "description": "轻状态、进度、心情和日常碎片，承接 XHBlogs moments 的短内容角色。",
+      "href": "/moments",
+      "group": "内容主干",
+      "tags": [
+        "moments",
+        "daily"
+      ],
+      "status": "online",
+      "weight": 80
+    },
+    {
+      "id": "tree-photowall",
+      "title": "照片墙衣柜",
+      "description": "图集、封面、项目截图和视觉素材集中管理，形成站点的视觉记忆。",
+      "href": "/photowall",
+      "group": "视觉与声音",
+      "tags": [
+        "photowall",
+        "gallery",
+        "album"
+      ],
+      "status": "online",
+      "weight": 78
+    },
+    {
+      "id": "tree-radio",
+      "title": "夜航电台",
+      "description": "歌单、歌词、阅读 BGM 和侧边播放器共同维持站点的声音身份。",
+      "href": "/music",
+      "group": "视觉与声音",
+      "tags": [
+        "music",
+        "lyrics",
+        "radio"
+      ],
+      "status": "online",
+      "weight": 74
+    },
+    {
+      "id": "tree-friends",
+      "title": "友链星团",
+      "description": "朋友站点、项目入口和外部资源用头像卡与星图两种方式呈现。",
+      "href": "/friends",
+      "group": "关系网络",
+      "tags": [
+        "friends",
+        "links"
+      ],
+      "status": "new",
+      "weight": 70
+    },
+    {
+      "id": "tree-timeline",
+      "title": "归档与探索",
+      "description": "把文章、动态、项目和杂谈合并成全站内容时间线。",
+      "href": "/timeline",
+      "group": "关系网络",
+      "tags": [
+        "timeline",
+        "search",
+        "archive"
+      ],
+      "status": "new",
+      "weight": 84
+    },
+    {
+      "id": "tree-console",
+      "title": "发布控制台",
+      "description": "内容、素材、项目、部署和备份的操作入口，后续可以承接更多后台字段。",
+      "href": "/console",
+      "group": "实验室",
+      "tags": [
+        "cms",
+        "deploy",
+        "vercel"
+      ],
+      "status": "active",
+      "weight": 76
     }
   ],
   "projects": [
@@ -321,7 +576,11 @@
       "url": "/console",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/admin-board.svg",
-      "tags": ["Next.js", "CMS", "内容系统"],
+      "tags": [
+        "Next.js",
+        "CMS",
+        "内容系统"
+      ],
       "status": "active",
       "featured": true,
       "startedAt": "2026-06-28"
@@ -333,7 +592,11 @@
       "url": "/archive",
       "repo": "https://github.com/yige66/personal-theme-blog",
       "cover": "/assets/img/desk-notes.svg",
-      "tags": ["知识管理", "归档", "标签"],
+      "tags": [
+        "知识管理",
+        "归档",
+        "标签"
+      ],
       "status": "planning",
       "featured": false,
       "startedAt": "2026-06-20"

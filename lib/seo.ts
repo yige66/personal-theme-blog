@@ -48,11 +48,25 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     priority: 0.72
   },
   {
+    path: '/photowall',
+    title: '照片墙',
+    description: 'XHBlogs 风格的照片墙路由入口，按图集、焦点图和单张照片组织视觉内容。',
+    changeFrequency: 'weekly',
+    priority: 0.73
+  },
+  {
     path: '/moments',
     title: '说说动态',
     description: '记录站点维护、学习进度和日常状态。',
     changeFrequency: 'daily',
     priority: 0.7
+  },
+  {
+    path: '/chatter',
+    title: '云端杂谈',
+    description: '介于动态和正式文章之间的轻文章、想法片段与主题杂谈。',
+    changeFrequency: 'weekly',
+    priority: 0.71
   },
   {
     path: '/music',
@@ -67,6 +81,27 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     description: '整理站内外入口和友链推荐。',
     changeFrequency: 'monthly',
     priority: 0.58
+  },
+  {
+    path: '/friends',
+    title: '友链星团',
+    description: '头像化的朋友站点、外部链接和友链申请信息。',
+    changeFrequency: 'monthly',
+    priority: 0.6
+  },
+  {
+    path: '/timeline',
+    title: '归档与探索',
+    description: '聚合文章、说说、杂谈和项目的全站内容时间线。',
+    changeFrequency: 'weekly',
+    priority: 0.8
+  },
+  {
+    path: '/tree',
+    title: '灵境内容树',
+    description: '把站点文章、项目、相册、音乐和后台能力组织成树状实验入口。',
+    changeFrequency: 'weekly',
+    priority: 0.74
   },
   {
     path: '/about',

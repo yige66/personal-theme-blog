@@ -57,6 +57,8 @@ const defaultSite = {
   streak: 27,
   assistantName: '星屿助理',
   assistantPrompt: '我会根据站点文章、动态和作者资料，为访客推荐阅读路径，并提示评论、音乐与作品集入口。',
+  cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
+  friendLinkApplyFormat: 'Name: Star Island Notes\nDescription: A personal blog for code, life, and glowing fragments.\nLink: https://github.com/yige66/personal-theme-blog\nAvatar: /assets/img/avatar-orbit.svg',
   effects: {
     enabled: true,
     danmaku: [
@@ -77,10 +79,13 @@ const defaultSite = {
     intensity: 72
   },
   comments: {
-    enabled: false,
-    provider: 'GitHub Issues / Gitalk',
-    repo: 'your-name/blog-comments',
-    clientId: ''
+    enabled: true,
+    provider: 'utterances',
+    repo: 'yige66/personal-theme-blog',
+    clientId: '',
+    mapping: 'pathname',
+    label: 'comment',
+    theme: 'preferred-color-scheme'
   },
   music: [
     {
@@ -386,9 +391,12 @@ async function handleAdminApi(request, response, context, url) {
   if (request.method === 'POST' && url.pathname === '/api/admin/import') {
     const body = await readJsonBody(request);
     const currentData = await readBlogData(context);
-    const importData = Object.prototype.hasOwnProperty.call(body, 'projects')
-      ? body
-      : { ...body, projects: currentData.projects };
+    const importData = {
+      ...body,
+      projects: Object.prototype.hasOwnProperty.call(body, 'projects') ? body.projects : currentData.projects,
+      chatters: Object.prototype.hasOwnProperty.call(body, 'chatters') ? body.chatters : currentData.chatters,
+      tree: Object.prototype.hasOwnProperty.call(body, 'tree') ? body.tree : currentData.tree
+    };
     const nextData = validateBlogData(importData);
     await writeBlogData(context, nextData);
     sendJson(response, 200, { success: true, data: nextData });
@@ -723,6 +731,8 @@ function validateBlogData(input) {
   const links = validateLinks(input.links || []);
   const notes = validateNotes(input.notes || []);
   const projects = validateProjects(input.projects || []);
+  const chatters = Array.isArray(input.chatters) ? input.chatters : [];
+  const tree = Array.isArray(input.tree) ? input.tree : [];
   const posts = Array.isArray(input.posts) ? input.posts.map(validatePost) : [];
   const slugs = new Set();
 
@@ -737,7 +747,9 @@ function validateBlogData(input) {
     site,
     links,
     notes,
+    chatters,
     projects,
+    tree,
     posts
   };
 }
@@ -772,6 +784,8 @@ function validateSite(input = {}) {
     streak: validateInteger(source.streak, '连续写作天数', 0, 999, 27),
     assistantName: optionalString(source.assistantName, 40) || defaultSite.assistantName,
     assistantPrompt: optionalString(source.assistantPrompt, 240) || defaultSite.assistantPrompt,
+    cloudMusicIds: validateCloudMusicIds(source.cloudMusicIds),
+    friendLinkApplyFormat: optionalString(source.friendLinkApplyFormat, 400) || defaultSite.friendLinkApplyFormat,
     effects: validateEffects(source.effects),
     comments: validateComments(source.comments),
     music: validateMusic(source.music),
@@ -803,10 +817,25 @@ function validateEffects(input = {}) {
 function validateComments(input = {}) {
   return {
     enabled: Boolean(input.enabled),
-    provider: optionalString(input.provider, 40) || defaultSite.comments.provider,
+    provider: optionalString(input.provider, 40) || 'utterances',
     repo: optionalString(input.repo, 120) || defaultSite.comments.repo,
-    clientId: optionalString(input.clientId, 120)
+    clientId: optionalString(input.clientId, 120),
+    mapping: optionalString(input.mapping, 40) || defaultSite.comments.mapping,
+    label: optionalString(input.label, 40) || defaultSite.comments.label,
+    theme: optionalString(input.theme, 80) || defaultSite.comments.theme,
+    category: optionalString(input.category, 80),
+    categoryId: optionalString(input.categoryId, 120)
   };
+}
+
+function validateCloudMusicIds(input) {
+  const source = Array.isArray(input) ? input : defaultSite.cloudMusicIds;
+  const ids = source
+    .map((item) => optionalString(item, 20))
+    .filter((item) => /^\d{1,20}$/.test(item))
+    .slice(0, 20);
+
+  return ids.length > 0 ? ids : defaultSite.cloudMusicIds;
 }
 
 function validateMusic(input) {
@@ -815,10 +844,19 @@ function validateMusic(input) {
   }
 
   return input.slice(0, 8).map((track) => ({
+    id: optionalString(track.id, 80),
     title: requiredString(track.title, '歌曲标题', 1, 60),
     artist: optionalString(track.artist, 60) || 'Local Playlist',
     mood: optionalString(track.mood, 40),
-    url: optionalPathOrUrl(track.url, '')
+    url: optionalPathOrUrl(track.url, ''),
+    cover: optionalPathOrUrl(track.cover, '/assets/img/hero-mountain.svg'),
+    source: optionalString(track.source, 60),
+    provider: optionalString(track.provider, 40),
+    note: optionalString(track.note, 180),
+    duration: track.duration === undefined ? undefined : validateInteger(track.duration, '歌曲时长', 1, 7200, 180),
+    lrc: optionalString(track.lrc, 8000),
+    lyric: optionalString(track.lyric, 8000),
+    lyrics: typeof track.lyrics === 'string' ? optionalString(track.lyrics, 8000) : undefined
   }));
 }
 
@@ -842,7 +880,11 @@ function validateLinks(input) {
   return input.slice(0, 12).map((link) => ({
     title: requiredString(link.title, '友链标题', 1, 40),
     url: optionalPathOrUrl(link.url, '#'),
-    description: optionalString(link.description, 100)
+    description: optionalString(link.description, 100),
+    avatar: optionalPathOrUrl(link.avatar, ''),
+    themeColor: optionalString(link.themeColor, 60),
+    badge: optionalString(link.badge, 40),
+    since: optionalString(link.since, 40)
   }));
 }
 

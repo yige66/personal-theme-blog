@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { PageHero, PageInsightBar } from '@/components/SectionBlocks';
+import { TagReadingDock } from '@/components/ChannelWorlds';
+import { PageScene } from '@/components/PageScene';
 import { SiteNav } from '@/components/SiteNav';
-import { estimateReadingMinutes, formatDate, getBlogData, getPostsByTag, getTagSummaries } from '@/lib/blog';
+import { getBlogData, getPostsByTag, getTagSummaries } from '@/lib/blog';
 import { createTagMetadata } from '@/lib/seo';
 
 type TagPageProps = {
@@ -39,27 +39,25 @@ export default async function TagPage({ params }: TagPageProps) {
   return (
     <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageHero eyebrow="Tag" title={`#${decodedTag}`} description="同一标签下的文章集合。" />
-      <PageInsightBar
-        items={[
+      <PageScene
+        eyebrow="Tag"
+        title={`#${decodedTag}`}
+        description="同一标签下的文章集合，被收束到一个可继续漫游的阅读舱里。"
+        image={posts[0]?.cover || data.site.heroImage}
+        imageAlt={`${decodedTag} 标签文章封面`}
+        variant="tags"
+        stats={[
           { label: '文章', value: posts.length, caption: '当前标签内' },
           { label: '标签', value: decodedTag, caption: '主题聚焦' },
-          { label: '阅读', value: 'List', caption: '按发布时间浏览' }
+          { label: '阅读', value: 'Dock', caption: '阅读舱浏览' }
         ]}
-        action={{ href: '/tags', label: '全部标签' }}
+        actions={[
+          { href: '/tags', label: '全部标签' },
+          { href: '/archive', label: '时间归档' }
+        ]}
+        signal={`#${decodedTag} / ${posts.length} posts / reading dock`}
       />
-      <section className="main-shell article-list">
-        {posts.map((post, index) => (
-          <Link className="article-row" href={`/posts/${post.slug}`} key={post.id}>
-            <span className="row-index">{String(index + 1).padStart(2, '0')}</span>
-            <span>
-              <strong>{post.title}</strong>
-              <small>{post.summary}</small>
-            </span>
-            <span className="row-meta">{formatDate(post.createdAt)} / {estimateReadingMinutes(post.content)} min</span>
-          </Link>
-        ))}
-      </section>
+      <TagReadingDock tag={decodedTag} posts={posts} />
     </main>
   );
 }
