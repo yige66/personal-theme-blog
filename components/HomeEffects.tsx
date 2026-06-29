@@ -206,10 +206,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
   }, [effects.enabled]);
 
-  const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
+  const startThemeTransition = () => {
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
     }
@@ -221,6 +218,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       document.documentElement.dataset.xhThemeTransition = 'idle';
     }, 1250);
   };
+
+  const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    startThemeTransition();
+  };
+
+  useEffect(() => {
+    const handleExternalToggle = () => startThemeTransition();
+    window.addEventListener('xh-toggle-theme', handleExternalToggle);
+    return () => window.removeEventListener('xh-toggle-theme', handleExternalToggle);
+  }, []);
 
   if (!effects.enabled) {
     return null;
@@ -303,18 +312,20 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         ))}
       </div>
 
-      <button
-        className={`xh-theme-switch${isHome ? ' is-home' : ''}${isTransitioning ? ' is-transitioning' : ''}`}
-        type="button"
-        aria-pressed={nightMode}
-        aria-live="polite"
-        data-transitioning={isTransitioning ? 'true' : 'false'}
-        onClick={toggleTheme}
-      >
-        <span>{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
-        <strong>{nightMode ? '夜色场景' : '晨光场景'}</strong>
-        <small>{isTransitioning ? '场景转换中' : nightMode ? '雨幕与微光' : '晴空与虹影'}</small>
-      </button>
+      {!isHome ? (
+        <button
+          className={`xh-theme-switch${isTransitioning ? ' is-transitioning' : ''}`}
+          type="button"
+          aria-pressed={nightMode}
+          aria-live="polite"
+          data-transitioning={isTransitioning ? 'true' : 'false'}
+          onClick={toggleTheme}
+        >
+          <span>{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
+          <strong>{nightMode ? '夜色场景' : '晨光场景'}</strong>
+          <small>{isTransitioning ? '场景转换中' : nightMode ? '雨幕与微光' : '晴空与虹影'}</small>
+        </button>
+      ) : null}
 
       {!isHome ? (
         <aside className="xh-floating-player" aria-label="悬浮音乐状态">
@@ -324,7 +335,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         </aside>
       ) : null}
 
-      {effects.floatingCompanion ? (
+      {!isHome && effects.floatingCompanion ? (
         <div className="xh-floating-companion" aria-label={`${site.assistantName} 浮动状态`}>
           <span>{site.assistantName.slice(0, 1)}</span>
           <strong>{site.assistantName}</strong>

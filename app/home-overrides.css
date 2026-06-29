@@ -1,0 +1,480 @@
+/* Final XHBlogs-style homepage override.
+   Imported after globals.css so the rebuilt homepage source owns its layout. */
+
+body:has(.xh-home-minimal) {
+  overflow-x: hidden;
+}
+
+body:has(.xh-home-minimal) .xh-danmaku-layer,
+body:has(.xh-home-minimal) .xh-floating-companion,
+body:has(.xh-home-minimal) .xh-global-toolbox {
+  display: none !important;
+}
+
+.xh-home-minimal.xh-home-minimal {
+  display: block !important;
+  width: min(1160px, calc(100% - 32px)) !important;
+  min-height: 0 !important;
+  margin-inline: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow-x: clip !important;
+}
+
+.xh-home-minimal *,
+.xh-home-minimal *::before,
+.xh-home-minimal *::after {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  writing-mode: horizontal-tb !important;
+}
+
+.xh-home-minimal .xh-home-stack,
+.xh-home-minimal .xh-home-row,
+.xh-home-minimal .xh-home-main-deck,
+.xh-home-minimal .xh-home-side-deck,
+.xh-home-minimal .xh-home-feed-deck,
+.xh-home-minimal .xh-home-route-cluster,
+.xh-home-minimal .xh-home-bottom-deck,
+.xh-home-minimal .xh-profile-stats,
+.xh-home-minimal .xh-site-dashboard {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.xh-home-minimal .xh-home-stack {
+  display: grid !important;
+  gap: clamp(14px, 1.8vw, 22px) !important;
+}
+
+.xh-home-minimal .xh-home-row {
+  display: grid !important;
+  align-items: stretch !important;
+  gap: clamp(14px, 1.8vw, 22px) !important;
+}
+
+.xh-home-minimal .xh-home-row-primary {
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.82fr) !important;
+}
+
+.xh-home-minimal .xh-home-row-secondary {
+  grid-template-columns: minmax(0, 1.48fr) minmax(272px, 0.62fr) !important;
+}
+
+.xh-home-minimal .xh-portal-profile,
+.xh-home-minimal .xh-cloud-player-card,
+.xh-home-minimal .xh-home-feature-stack,
+.xh-home-minimal .xh-window-tile,
+.xh-home-minimal .xh-theme-scene-card,
+.xh-home-minimal .xh-space-dock,
+.xh-home-minimal .xh-site-dashboard {
+  grid-area: auto !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.58) !important;
+  background: rgba(255, 255, 255, 0.48) !important;
+  box-shadow: 0 20px 70px rgba(116, 66, 132, 0.14) !important;
+  backdrop-filter: blur(22px) saturate(1.08);
+}
+
+.xh-home-minimal .xh-profile-window {
+  min-height: 292px !important;
+  padding: 18px 20px 20px !important;
+  overflow: hidden !important;
+}
+
+.xh-home-minimal .xh-profile-window h1 {
+  margin: 4px 0 !important;
+  font-size: clamp(32px, 4vw, 52px) !important;
+  line-height: 1 !important;
+}
+
+.xh-home-minimal .xh-profile-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.xh-home-minimal .xh-profile-stats span {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.xh-home-minimal .xh-cloud-player-card {
+  display: grid !important;
+  grid-template-columns: 100px minmax(0, 1fr) !important;
+  align-content: center !important;
+  align-items: center !important;
+  min-height: 292px !important;
+  padding: 18px !important;
+  gap: 16px !important;
+}
+
+.xh-home-minimal .xh-disc-cover {
+  width: 96px !important;
+  height: 96px !important;
+}
+
+.xh-home-minimal .xh-cloud-copy h2 {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.xh-home-minimal .xh-player-progress,
+.xh-home-minimal .xh-player-controls {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+.xh-home-minimal .xh-home-feature-stack {
+  display: grid !important;
+  grid-template-columns: minmax(210px, 0.7fr) minmax(310px, 1fr) !important;
+  min-height: 346px !important;
+  padding: clamp(16px, 2vw, 22px) !important;
+  gap: clamp(14px, 1.8vw, 20px) !important;
+  overflow: hidden !important;
+}
+
+.xh-home-minimal .xh-home-feature-stack .xh-latest-card {
+  height: 302px !important;
+  min-height: 302px !important;
+}
+
+.xh-home-minimal .xh-home-feed-deck {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(210px, 0.72fr) !important;
+  grid-template-areas:
+    "photo note"
+    "photo chatter" !important;
+  gap: clamp(12px, 1.6vw, 16px) !important;
+}
+
+.xh-home-minimal .xh-photo-poster {
+  grid-area: photo !important;
+  min-height: 384px !important;
+}
+
+.xh-home-minimal .xh-record-card {
+  grid-area: note !important;
+}
+
+.xh-home-minimal .xh-mode-card.is-chatter {
+  grid-area: chatter !important;
+}
+
+.xh-home-minimal .xh-window-tile {
+  min-height: 184px !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+}
+
+.xh-home-minimal .xh-theme-scene-card {
+  display: grid !important;
+  min-height: 198px !important;
+  padding: 18px !important;
+  place-items: center !important;
+  color: var(--xh-ink);
+  cursor: pointer;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+
+.xh-theme-scene-card .eyebrow,
+.xh-theme-scene-card strong,
+.xh-theme-scene-card small {
+  position: relative;
+  z-index: 2;
+}
+
+.xh-theme-scene-card strong {
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.1;
+}
+
+.xh-theme-scene-card small {
+  color: var(--xh-muted);
+  line-height: 1.45;
+}
+
+.xh-theme-scene-card .xh-theme-orb {
+  position: relative;
+  display: grid;
+  width: 78px;
+  height: 78px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  box-shadow: inset 0 0 24px rgba(255, 255, 255, 0.34), 0 18px 42px rgba(124, 217, 255, 0.18);
+}
+
+.xh-theme-orb-scene,
+.xh-theme-orb em {
+  position: absolute;
+  inset: 0;
+  transition: opacity 620ms var(--xh-ease), transform 760ms var(--xh-ease);
+}
+
+.xh-theme-orb-scene.is-day {
+  background: linear-gradient(145deg, #bdefff 0%, #ffe9a8 100%);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.xh-theme-orb-scene.is-night {
+  background: linear-gradient(145deg, #151c4d 0%, #060816 100%);
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.xh-theme-orb-scene.is-day i,
+.xh-theme-orb-scene.is-night i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.xh-theme-orb-scene.is-day i {
+  background: #fff6a7;
+  box-shadow: 0 0 22px rgba(255, 226, 138, 0.88);
+}
+
+.xh-theme-orb-scene.is-night i {
+  background: #f6fbff;
+  box-shadow: -8px 2px 0 #151c4d, 0 0 18px rgba(210, 232, 255, 0.72);
+}
+
+.xh-theme-orb-scene b {
+  position: absolute;
+  inset: auto 12px 14px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.xh-theme-orb em {
+  opacity: 0;
+  background:
+    linear-gradient(115deg, transparent 12%, rgba(255, 255, 255, 0.78) 48%, transparent 76%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 58%);
+  transform: translateX(-120%) skewX(-12deg);
+}
+
+.xh-theme-scene-card.is-night .xh-theme-orb-scene.is-day {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.xh-theme-scene-card.is-night .xh-theme-orb-scene.is-night {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.xh-theme-scene-card.is-transitioning .xh-theme-orb em {
+  opacity: 1;
+  transform: translateX(120%) skewX(-12deg);
+}
+
+.xh-theme-scene-card.is-transitioning .xh-theme-orb {
+  animation: xh-theme-card-pulse 1250ms var(--xh-ease);
+}
+
+@keyframes xh-theme-card-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  46% {
+    transform: scale(1.07);
+  }
+}
+
+.xh-home-minimal .xh-space-dock {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-content: start !important;
+  gap: 14px !important;
+  min-height: 0 !important;
+  padding: 18px !important;
+}
+
+.xh-home-minimal .xh-space-copy p:not(.eyebrow),
+.xh-home-minimal .xh-space-route-line,
+.xh-home-minimal .xh-space-marquee,
+.xh-home-minimal .xh-space-status {
+  display: none !important;
+}
+
+.xh-home-minimal .xh-space-modules {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.xh-home-minimal .xh-space-module {
+  display: grid !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 74px !important;
+  align-content: end !important;
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+
+.xh-home-minimal .xh-space-module span,
+.xh-home-minimal .xh-space-module b {
+  display: none !important;
+}
+
+.xh-home-minimal .xh-space-module strong {
+  display: block !important;
+  overflow: hidden !important;
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.xh-home-minimal .xh-home-route-cluster {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.xh-home-minimal .xh-route-orb {
+  min-height: 116px !important;
+  padding: 14px !important;
+  border-radius: 20px !important;
+}
+
+.xh-home-minimal .xh-home-bottom-deck .xh-site-dashboard {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html[data-xh-theme="night"] .xh-home-minimal .xh-portal-profile,
+html[data-xh-theme="night"] .xh-home-minimal .xh-cloud-player-card,
+html[data-xh-theme="night"] .xh-home-minimal .xh-home-feature-stack,
+html[data-xh-theme="night"] .xh-home-minimal .xh-window-tile,
+html[data-xh-theme="night"] .xh-home-minimal .xh-theme-scene-card,
+html[data-xh-theme="night"] .xh-home-minimal .xh-space-dock,
+html[data-xh-theme="night"] .xh-home-minimal .xh-site-dashboard {
+  border-color: rgba(124, 217, 255, 0.18) !important;
+  background: rgba(11, 14, 32, 0.62) !important;
+}
+
+@media (max-width: 1120px) {
+  .xh-home-minimal .xh-home-row-primary,
+  .xh-home-minimal .xh-home-row-secondary,
+  .xh-home-minimal .xh-home-feature-stack,
+  .xh-home-minimal .xh-home-feed-deck {
+    grid-template-columns: 1fr !important;
+  }
+
+  .xh-home-minimal .xh-home-feed-deck {
+    grid-template-areas:
+      "photo"
+      "note"
+      "chatter" !important;
+  }
+
+  .xh-home-minimal .xh-home-route-cluster {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .xh-home-minimal .xh-home-bottom-deck .xh-site-dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .xh-home.xh-home {
+    padding-top: 86px !important;
+    overflow-x: clip !important;
+  }
+
+  .xh-home-minimal.xh-home-minimal {
+    width: calc(100% - 18px) !important;
+  }
+
+  .xh-home-minimal .xh-portal-profile,
+  .xh-home-minimal .xh-cloud-player-card,
+  .xh-home-minimal .xh-home-feature-stack,
+  .xh-home-minimal .xh-window-tile,
+  .xh-home-minimal .xh-theme-scene-card,
+  .xh-home-minimal .xh-space-dock,
+  .xh-home-minimal .xh-site-dashboard {
+    border-radius: 20px !important;
+  }
+
+  .xh-home-minimal .xh-profile-window {
+    min-height: 0 !important;
+    padding: 16px !important;
+  }
+
+  .xh-home-minimal .xh-profile-window h1 {
+    font-size: clamp(30px, 12vw, 42px) !important;
+  }
+
+  .xh-home-minimal .xh-profile-stats {
+    grid-template-columns: repeat(3, calc((100% - 16px) / 3)) !important;
+  }
+
+  .xh-home-minimal .xh-profile-stats span {
+    padding: 8px 6px !important;
+  }
+
+  .xh-home-minimal .xh-cloud-player-card {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    min-height: 0 !important;
+    padding: 14px !important;
+    text-align: center !important;
+  }
+
+  .xh-home-minimal .xh-disc-cover {
+    width: 74px !important;
+    height: 74px !important;
+  }
+
+  .xh-home-minimal .xh-cloud-copy,
+  .xh-home-minimal .xh-player-progress {
+    width: 100% !important;
+  }
+
+  .xh-home-minimal .xh-cloud-copy h2 {
+    white-space: normal !important;
+  }
+
+  .xh-home-minimal .xh-player-progress {
+    grid-template-columns: 34px minmax(0, 1fr) 42px !important;
+  }
+
+  .xh-home-minimal .xh-player-bars {
+    display: none !important;
+  }
+
+  .xh-home-minimal .xh-home-feature-stack .xh-latest-card {
+    height: 272px !important;
+    min-height: 272px !important;
+  }
+
+  .xh-home-minimal .xh-photo-poster {
+    min-height: 264px !important;
+  }
+
+  .xh-home-minimal .xh-home-route-cluster,
+  .xh-home-minimal .xh-home-bottom-deck .xh-site-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+}

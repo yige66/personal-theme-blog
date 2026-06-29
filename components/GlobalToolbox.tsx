@@ -20,10 +20,15 @@ const tools = [
 export function GlobalToolbox({ github, email }: GlobalToolboxProps) {
   const pathname = usePathname();
   const githubIsExternal = github.startsWith('http');
+  const isHome = pathname === '/';
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (isHome) {
+    return null;
+  }
 
   return (
     <aside className="xh-global-toolbox" aria-label="全局快捷工具">

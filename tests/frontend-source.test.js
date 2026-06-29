@@ -17,6 +17,7 @@ describe('target-inspired homepage portal', () => {
       lyricStrip,
       siteDashboard,
       latestCarousel,
+      themeSceneCard,
       experience,
       css
     ] = await Promise.all([
@@ -32,6 +33,7 @@ describe('target-inspired homepage portal', () => {
       readFile('components/music/LyricStrip.tsx', 'utf8'),
       readFile('components/SiteDashboard.tsx', 'utf8'),
       readFile('components/LatestPostCarousel.tsx', 'utf8'),
+      readFile('components/ThemeSceneCard.tsx', 'utf8'),
       readFile('lib/experience.ts', 'utf8'),
       readFile('app/globals.css', 'utf8')
     ]);
@@ -44,12 +46,16 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeWorld, /LyricStrip/);
     assert.match(homeWorld, /SiteDashboard/);
     assert.match(homeWorld, /LatestPostCarousel/);
+    assert.match(homeWorld, /ThemeSceneCard/);
+    assert.match(homeWorld, /xh-home-row-primary/);
+    assert.match(homeWorld, /xh-home-row-secondary/);
+    assert.match(homeWorld, /xh-home-minimal/);
     assert.match(homeWorld, /xh-home-main-deck/);
     assert.match(homeWorld, /xh-home-feature-stack/);
     assert.match(homeWorld, /xh-home-route-cluster/);
     assert.match(homeWorld, /xh-route-orb/);
     assert.match(homeWorld, /xh-home-feed-deck/);
-    assert.match(homeWorld, /xh-home-bottom-grid/);
+    assert.doesNotMatch(homeWorld, /xh-home-bottom-grid/);
     assert.match(homeWorld, /photowall/);
     assert.match(homeWorld, /friends/);
     assert.match(homeWorld, /chatter/);
@@ -92,6 +98,10 @@ describe('target-inspired homepage portal', () => {
     assert.match(latestCarousel, /setInterval/);
     assert.match(latestCarousel, /stopPropagation/);
     assert.match(latestCarousel, /aria-current/);
+    assert.match(themeSceneCard, /xh-theme-scene-card/);
+    assert.match(themeSceneCard, /xh-toggle-theme/);
+    assert.match(themeSceneCard, /MutationObserver/);
+    assert.match(themeSceneCard, /xh-theme-orb-scene/);
     assert.match(siteDashboard, /xh-site-dashboard/);
     assert.match(siteDashboard, /createDashboardBadges/);
     assert.match(siteDashboard, /formatUptime/);
@@ -167,6 +177,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(motion, /gsap/);
     assert.match(motion, /ScrollTrigger/);
     assert.match(toolbox, /xh-global-toolbox/);
+    assert.match(toolbox, /pathname === '\/'/);
+    assert.match(toolbox, /return null/);
     assert.match(blog, /VisualEffectsConfig/);
     assert.match(blog, /danmaku: string\[\]/);
     assert.match(blog, /cursorTrail: false/);
