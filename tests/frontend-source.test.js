@@ -19,7 +19,8 @@ describe('target-inspired homepage portal', () => {
       latestCarousel,
       themeSceneCard,
       experience,
-      css
+      globalCss,
+      homeCss
     ] = await Promise.all([
       readFile('app/page.tsx', 'utf8'),
       readFile('components/HomeWorld.tsx', 'utf8'),
@@ -35,8 +36,10 @@ describe('target-inspired homepage portal', () => {
       readFile('components/LatestPostCarousel.tsx', 'utf8'),
       readFile('components/ThemeSceneCard.tsx', 'utf8'),
       readFile('lib/experience.ts', 'utf8'),
-      readFile('app/globals.css', 'utf8')
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
+    const css = `${globalCss}\n${homeCss}`;
 
     assert.match(page, /HomeWorld/);
     assert.match(page, /createPortalSearchEntries/);
@@ -47,15 +50,15 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeWorld, /SiteDashboard/);
     assert.match(homeWorld, /LatestPostCarousel/);
     assert.match(homeWorld, /ThemeSceneCard/);
-    assert.match(homeWorld, /xh-home-row-primary/);
-    assert.match(homeWorld, /xh-home-row-secondary/);
-    assert.match(homeWorld, /xh-home-minimal/);
-    assert.match(homeWorld, /xh-home-main-deck/);
-    assert.match(homeWorld, /xh-home-feature-stack/);
-    assert.match(homeWorld, /xh-home-route-cluster/);
-    assert.match(homeWorld, /xh-route-orb/);
-    assert.match(homeWorld, /xh-home-feed-deck/);
+    assert.match(homeWorld, /xh-clean-home/);
+    assert.match(homeWorld, /xh-clean-home__hero/);
+    assert.match(homeWorld, /xh-clean-home__content/);
+    assert.match(homeWorld, /xh-clean-feature/);
+    assert.match(homeWorld, /xh-clean-routes/);
+    assert.match(homeWorld, /xh-clean-route/);
+    assert.match(homeWorld, /xh-clean-feed/);
     assert.doesNotMatch(homeWorld, /xh-home-bottom-grid/);
+    assert.doesNotMatch(homeWorld, /xh-home-world|xh-home-minimal|xh-home-row-primary|xh-home-row-secondary/);
     assert.match(homeWorld, /photowall/);
     assert.match(homeWorld, /friends/);
     assert.match(homeWorld, /chatter/);
@@ -124,6 +127,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-route-orb/);
     assert.match(css, /\.xh-home-feed-deck/);
     assert.match(css, /\.xh-home-bottom-grid/);
+    assert.match(css, /\.xh-clean-home/);
+    assert.match(css, /\.xh-clean-home__hero/);
+    assert.match(css, /\.xh-clean-home__content/);
+    assert.match(css, /\.xh-clean-routes/);
+    assert.match(css, /\.xh-clean-route/);
     assert.match(css, /"main"/);
     assert.match(css, /\.portal-search/);
     assert.match(css, /\.xh-portal-grid/);

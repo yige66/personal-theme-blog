@@ -43,14 +43,14 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
   const featureHref = featuredPost ? `/posts/${featuredPost.slug}` : featuredProject?.url ?? '/archive';
 
   return (
-    <section className="main-shell xh-home-world xh-home-minimal" aria-label="个人博客首页">
-      <div className="xh-home-search-panel">
+    <section className="main-shell xh-clean-home" aria-label="个人博客首页">
+      <div className="xh-clean-home__search">
         <PortalSearch entries={searchEntries} />
       </div>
 
-      <main className="xh-home-stack" aria-label="XHBlogs 风格首页内容">
-        <section className="xh-home-row xh-home-row-primary">
-          <article className="xh-portal-profile xh-profile-window" data-motion="portal-card">
+      <main className="xh-clean-home__stack" aria-label="XHBlogs 风格首页内容">
+        <section className="xh-clean-home__hero" aria-label="个人资料与音乐">
+          <article className="xh-clean-card xh-clean-profile xh-profile-window" data-motion="portal-card">
             <div className="xh-profile-window-bar" aria-hidden="true">
               <span />
               <span />
@@ -77,18 +77,18 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
           <CloudPlayerCard fallbackImage={data.site.heroImage} />
         </section>
 
-        <div className="xh-home-lyric-row">
+        <div className="xh-clean-home__lyrics">
           <LyricStrip />
         </div>
 
-        <section className="xh-home-row xh-home-row-secondary">
-          <div className="xh-home-main-deck">
-            <section className="xh-home-feature-stack" data-motion="portal-card" aria-label="首页推荐">
-              <div className="xh-feature-hero-copy">
+        <section className="xh-clean-home__content" aria-label="推荐内容和站点入口">
+          <div className="xh-clean-home__main">
+            <section className="xh-clean-feature" data-motion="portal-card" aria-label="首页推荐">
+              <div className="xh-clean-feature__copy">
                 <p className="eyebrow">Personal Portal</p>
                 <h2>{featureTitle}</h2>
                 <p>{featureSummary}</p>
-                <div className="xh-feature-actions">
+                <div className="xh-clean-actions">
                   <Link href={featureHref}>进入推荐</Link>
                   <Link href="/archive">文章归档</Link>
                 </div>
@@ -96,8 +96,8 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
               <LatestPostCarousel posts={latestPosts} fallbackImage={data.site.heroImage} />
             </section>
 
-            <section className="xh-home-feed-deck" aria-label="照片、动态和杂谈">
-              <Link className="xh-photo-poster xh-window-tile is-photo" href="/photowall" data-motion="stack-card">
+            <section className="xh-clean-feed" aria-label="照片、动态和杂谈">
+              <Link className="xh-window-tile xh-photo-poster is-photo" href="/photowall" data-motion="stack-card">
                 <Image
                   src={primaryGallery?.image || data.site.heroImage}
                   alt={primaryGallery?.alt || primaryGallery?.title || '照片墙'}
@@ -112,14 +112,14 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
                 </div>
               </Link>
 
-              <Link className="xh-record-card xh-window-tile is-note" href="/moments" data-motion="stack-card">
+              <Link className="xh-window-tile xh-record-card is-note" href="/moments" data-motion="stack-card">
                 <p className="eyebrow">Moments</p>
                 <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
                 <h2>{latestNote?.title || '近期动态'}</h2>
                 <p>{latestNote?.content || data.site.status}</p>
               </Link>
 
-              <Link className="xh-mode-card xh-window-tile is-chatter" href={latestChatter ? `/chatter/${latestChatter.slug}` : '/chatter'} data-motion="stack-card">
+              <Link className="xh-window-tile xh-mode-card is-chatter" href={latestChatter ? `/chatter/${latestChatter.slug}` : '/chatter'} data-motion="stack-card">
                 <span aria-hidden="true" />
                 <p className="eyebrow">Chatter</p>
                 <h2>{latestChatter?.title || '云端杂谈'}</h2>
@@ -128,18 +128,18 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
             </section>
           </div>
 
-          <aside className="xh-home-side-deck" aria-label="主题与站点状态">
+          <aside className="xh-clean-home__aside" aria-label="主题与站点状态">
             <ThemeSceneCard />
             <SpaceDock data={data} stats={stats} />
           </aside>
         </section>
 
-        <section className="xh-home-route-cluster" aria-label="站点核心入口">
+        <section className="xh-clean-routes" aria-label="站点核心入口">
           {routeSpotlight.map((item, index) => {
             const route = getRoute(item.id);
             return (
               <Link
-                className={`xh-route-orb tone-${route?.tone.toLowerCase() ?? item.id}`}
+                className={`xh-clean-route tone-${route?.tone.toLowerCase() ?? item.id}`}
                 href={route?.href ?? '/'}
                 data-motion="stack-card"
                 key={item.id}
@@ -152,7 +152,7 @@ export function HomeWorld({ data, featuredPost, posts, searchEntries, stats }: H
           })}
         </section>
 
-        <div className="xh-home-bottom-deck" aria-label="站点运行面板">
+        <div className="xh-clean-dashboard" aria-label="站点运行面板">
           <SiteDashboard data={data} stats={stats} />
         </div>
       </main>

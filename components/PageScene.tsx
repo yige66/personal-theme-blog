@@ -65,16 +65,13 @@ export function PageScene({
   actions = [],
   signal
 }: PageSceneProps) {
-  const marquee = signal || [eyebrow, title, ...stats.map((item) => `${item.label} ${item.value}`)].join(' / ');
   const visualStyle = image ? ({ '--scene-image': `url(${image})` } as CSSProperties) : undefined;
 
   return (
-    <header className={`page-scene main-shell page-scene-${variant}`} data-motion="portal-card">
+    <header className={`page-scene main-shell page-scene-${variant} page-scene-compact`} data-motion="portal-card">
       <div className="page-scene-copy">
         <p className="eyebrow">{eyebrow}</p>
-        <h1>
-          <span>{title}</span>
-        </h1>
+        <h1>{title}</h1>
         <p>{description}</p>
         {actions.length ? <div className="page-scene-actions">{actions.slice(0, 2).map(renderAction)}</div> : null}
       </div>
@@ -99,14 +96,9 @@ export function PageScene({
         </div>
       ) : null}
 
-      <div className="page-scene-id" aria-hidden="true">
+      <div className="page-scene-id page-scene-signal" aria-hidden="true">
         <span>{variant}</span>
-        <strong>{sceneCoordinates[variant]}</strong>
-      </div>
-
-      <div className="page-scene-marquee" aria-hidden="true">
-        <span>{marquee}</span>
-        <span>{marquee}</span>
+        <strong>{signal || sceneCoordinates[variant]}</strong>
       </div>
     </header>
   );
