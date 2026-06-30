@@ -18,6 +18,7 @@ describe('target-inspired homepage portal', () => {
       siteDashboard,
       latestCarousel,
       themeSceneCard,
+      splash,
       experience,
       globalCss,
       homeCss
@@ -35,6 +36,7 @@ describe('target-inspired homepage portal', () => {
       readFile('components/SiteDashboard.tsx', 'utf8'),
       readFile('components/LatestPostCarousel.tsx', 'utf8'),
       readFile('components/ThemeSceneCard.tsx', 'utf8'),
+      readFile('components/SplashScreen.tsx', 'utf8'),
       readFile('lib/experience.ts', 'utf8'),
       readFile('app/globals.css', 'utf8'),
       readFile('app/home-overrides.css', 'utf8')
@@ -44,21 +46,22 @@ describe('target-inspired homepage portal', () => {
     assert.match(page, /HomeWorld/);
     assert.match(page, /createPortalSearchEntries/);
     assert.match(homeWorld, /PortalSearch/);
-    assert.match(homeWorld, /SpaceDock/);
+    assert.doesNotMatch(homeWorld, /SpaceDock/);
     assert.match(homeWorld, /CloudPlayerCard/);
     assert.match(homeWorld, /LyricStrip/);
     assert.match(homeWorld, /SiteDashboard/);
     assert.match(homeWorld, /LatestPostCarousel/);
     assert.match(homeWorld, /ThemeSceneCard/);
     assert.match(homeWorld, /xh-clean-home/);
-    assert.match(homeWorld, /xh-clean-home__hero/);
-    assert.match(homeWorld, /xh-clean-home__content/);
-    assert.match(homeWorld, /xh-clean-feature/);
+    assert.match(homeWorld, /xh-clean-home__grid/);
+    assert.match(homeWorld, /xh-clean-home__identity/);
+    assert.match(homeWorld, /xh-clean-home__showcase/);
+    assert.match(homeWorld, /xh-clean-home__media/);
+    assert.match(homeWorld, /xh-clean-home__mini-grid/);
     assert.match(homeWorld, /xh-clean-routes/);
     assert.match(homeWorld, /xh-clean-route/);
-    assert.match(homeWorld, /xh-clean-feed/);
     assert.doesNotMatch(homeWorld, /xh-home-bottom-grid/);
-    assert.doesNotMatch(homeWorld, /xh-home-world|xh-home-minimal|xh-home-row-primary|xh-home-row-secondary/);
+    assert.doesNotMatch(homeWorld, /xh-home-world|xh-home-minimal|xh-home-row-primary|xh-home-row-secondary|xh-clean-feature|xh-clean-feed/);
     assert.match(homeWorld, /photowall/);
     assert.match(homeWorld, /friends/);
     assert.match(homeWorld, /chatter/);
@@ -84,6 +87,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(layout, /MusicProvider/);
     assert.match(layout, /BackgroundSlider/);
     assert.match(layout, /HomeEffects/);
+    assert.match(layout, /SplashScreen/);
+    assert.match(layout, /xh-app-root/);
+    assert.match(layout, /xh-splash-seen/);
     assert.match(layout, /TasteMotion/);
     assert.match(layout, /GlobalToolbox/);
     assert.match(musicProvider, /currentTrack/);
@@ -128,10 +134,15 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-home-feed-deck/);
     assert.match(css, /\.xh-home-bottom-grid/);
     assert.match(css, /\.xh-clean-home/);
-    assert.match(css, /\.xh-clean-home__hero/);
-    assert.match(css, /\.xh-clean-home__content/);
+    assert.match(css, /\.xh-clean-home__grid/);
+    assert.match(css, /\.xh-clean-home__identity/);
+    assert.match(css, /\.xh-clean-home__showcase/);
+    assert.match(css, /\.xh-clean-home__mini-grid/);
+    assert.match(css, /\.xh-clean-home__posts \.xh-latest-carousel-copy/);
+    assert.match(css, /\.xh-clean-home__posts \.xh-latest-card[\s\S]*grid-area: auto !important/);
     assert.match(css, /\.xh-clean-routes/);
     assert.match(css, /\.xh-clean-route/);
+    assert.match(css, /--xh-panel: rgba\(255, 255, 255, 0\.34\)/);
     assert.match(css, /"main"/);
     assert.match(css, /\.portal-search/);
     assert.match(css, /\.xh-portal-grid/);
@@ -139,18 +150,25 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-cloud-player-card/);
     assert.match(css, /\.xh-latest-carousel/);
     assert.match(css, /\.xh-dashboard-clock/);
+    assert.match(splash, /personal-theme-blog:splash-seen/);
+    assert.match(splash, /ib-entry-splash/);
+    assert.match(splash, /ib-entry-mist/);
+    assert.match(splash, /ib-entry-window/);
+    assert.match(splash, /ib-entry-progress/);
   });
 
   it('implements InternalBeyond-like background layers and day/night transition states', async () => {
-    const [layout, background, component, toolbox, motion, blog, css] = await Promise.all([
+    const [layout, background, component, toolbox, motion, blog, globalCss, homeCss] = await Promise.all([
       readFile('app/layout.tsx', 'utf8'),
       readFile('components/BackgroundSlider.tsx', 'utf8'),
       readFile('components/HomeEffects.tsx', 'utf8'),
       readFile('components/GlobalToolbox.tsx', 'utf8'),
       readFile('components/TasteMotion.tsx', 'utf8'),
       readFile('lib/blog.ts', 'utf8'),
-      readFile('app/globals.css', 'utf8')
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
+    const css = `${globalCss}\n${homeCss}`;
 
     assert.match(layout, /<BackgroundSlider site=\{data\.site\} \/>/);
     assert.match(layout, /<HomeEffects site=\{data\.site\} posts=\{posts\} notes=\{data\.notes\} activeTrack=\{activeTrack\}/);
@@ -167,6 +185,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(background, /ib-crystal-glow/);
     assert.match(background, /ib-candle-row/);
     assert.match(background, /ib-transition-wipe/);
+    assert.match(background, /ib-horizon-glow/);
+    assert.match(background, /ib-glass-refraction/);
     assert.match(component, /pointerdown/);
     assert.match(component, /usePathname/);
     assert.match(component, /isTransitioning/);
@@ -197,6 +217,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.ib-dust-field/);
     assert.match(css, /\.ib-crystal-glow/);
     assert.match(css, /\.ib-transition-wipe/);
+    assert.match(css, /\.ib-horizon-glow/);
+    assert.match(css, /\.ib-glass-refraction/);
+    assert.match(css, /\.ib-entry-splash/);
+    assert.match(css, /@keyframes ib-entry-mist/);
+    assert.match(css, /@keyframes ib-entry-progress/);
     assert.match(css, /\.xh-theme-transition/);
     assert.match(css, /@keyframes ib-beam-sway/);
     assert.match(css, /@keyframes ib-rain-glide/);

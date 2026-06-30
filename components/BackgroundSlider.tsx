@@ -88,7 +88,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
   }
 
   return (
-    <div className={`xh-background-slider ib-scene-shell is-${themeMode}`} aria-hidden="true" data-scene-theme={themeMode}>
+    <div className={`xh-background-slider ib-scene-shell is-${themeMode}`} aria-hidden="true" data-scene-theme={themeMode} data-loading-scene="ready">
       <div className="ib-stage">
         {images.map((image, index) => (
           <span
@@ -161,6 +161,8 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
           <span />
         </div>
         <div className="ib-transition-wipe" />
+        <div className="ib-horizon-glow" />
+        <div className="ib-glass-refraction" />
         <i className="ib-scene-vignette" />
       </div>
     </div>

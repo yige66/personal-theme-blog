@@ -23,6 +23,7 @@ const curatedFiles = [
   'app/tags/[tag]/page.tsx',
   'components/HomeEffects.tsx',
   'components/BackgroundSlider.tsx',
+  'components/SplashScreen.tsx',
   'components/ChannelWorlds.tsx',
   'components/ChannelHeader.tsx',
   'components/PhotoWallClient.tsx',
