@@ -12,9 +12,7 @@ describe('subpage experience surfaces', () => {
       ['app/moments/page.tsx', /ChannelHeader/, /MomentsBoard|EmptyState/],
       ['app/chatter/page.tsx', /ChannelHeader/, /ChatterMasonry/],
       ['app/music/page.tsx', /ChannelHeader/, /MusicStudio|EmptyState/],
-      ['app/links/page.tsx', /ChannelHeader/, /LinkStarMap/],
       ['app/friends/page.tsx', /ChannelHeader/, /FriendsBoardClient/],
-      ['app/timeline/page.tsx', /ChannelHeader/, /TimelineArchive/],
       ['app/tags/page.tsx', /ChannelHeader/, /TagNebula/]
     ];
 
@@ -29,9 +27,7 @@ describe('subpage experience surfaces', () => {
       archiveSwitchboard,
       channelHeader,
       projectShowcase,
-      linkStarMap,
       chatterMasonry,
-      timelineArchive,
       tagSurfaces,
       aboutRoom,
       photoWallClient
@@ -40,9 +36,7 @@ describe('subpage experience surfaces', () => {
       readFile('components/ArchiveSwitchboard.tsx', 'utf8'),
       readFile('components/ChannelHeader.tsx', 'utf8'),
       readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
-      readFile('components/channels/LinkStarMap.tsx', 'utf8'),
       readFile('components/channels/ChatterMasonry.tsx', 'utf8'),
-      readFile('components/channels/TimelineArchive.tsx', 'utf8'),
       readFile('components/channels/TagSurfaces.tsx', 'utf8'),
       readFile('components/channels/AboutRoom.tsx', 'utf8'),
       readFile('components/PhotoWallClient.tsx', 'utf8')
@@ -64,9 +58,9 @@ describe('subpage experience surfaces', () => {
     assert.match(archiveSwitchboard, /archive-card-view/);
     assert.match(archiveSwitchboard, /archive-timeline-view/);
     assert.match(worlds, /ProjectShowcase/);
-    assert.match(worlds, /LinkStarMap/);
+    assert.doesNotMatch(worlds, /LinkStarMap/);
     assert.match(worlds, /ChatterMasonry/);
-    assert.match(worlds, /TimelineArchive/);
+    assert.doesNotMatch(worlds, /TimelineArchive/);
     assert.match(worlds, /TagNebula/);
     assert.match(worlds, /TagReadingDock/);
     assert.match(worlds, /AboutRoom/);
@@ -76,14 +70,9 @@ describe('subpage experience surfaces', () => {
     assert.match(projectShowcase, /project-featured-console/);
     assert.match(projectShowcase, /project-exhibit-grid/);
     assert.match(projectShowcase, /project-status-rack/);
-    assert.match(linkStarMap, /link-map-stage/);
-    assert.match(linkStarMap, /--node-inverse/);
     assert.match(chatterMasonry, /chatter-masonry/);
     assert.match(chatterMasonry, /chatter-cover/);
     assert.match(chatterMasonry, /xh-reference-surface/);
-    assert.match(timelineArchive, /timeline-spine/);
-    assert.match(timelineArchive, /timeline-node-cover/);
-    assert.match(timelineArchive, /xh-reference-surface/);
     assert.match(tagSurfaces, /--tag-tilt/);
     assert.match(tagSurfaces, /--tag-inverse/);
     assert.match(tagSurfaces, /tag-nebula-core/);
@@ -143,12 +132,11 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.article-toc-list/);
     assert.match(css, /\.friends-board/);
     assert.match(css, /\.friend-node-card/);
-    assert.match(css, /\.friend-constellation-stage/);
-    assert.match(css, /\.friend-star-node/);
+    assert.match(css, /\.friend-apply-card/);
+    assert.doesNotMatch(css, /\.friend-constellation-stage/);
+    assert.doesNotMatch(css, /\.friend-star-node/);
     assert.match(css, /\.chatter-board/);
     assert.match(css, /\.chatter-masonry/);
-    assert.match(css, /\.timeline-world/);
-    assert.match(css, /\.timeline-spine/);
     assert.match(css, /\.archive-xh-timeline/);
     assert.match(css, /\.archive-tag-rail/);
     assert.match(css, /\.archive-row-xh/);
@@ -177,8 +165,6 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.photowall-album-stack img:nth-child\(2\)/);
     assert.match(css, /\.moments-stream[\s\S]*grid-template-columns: repeat\(2/);
     assert.match(css, /\.chatter-masonry[\s\S]*grid-template-columns: repeat\(3/);
-    assert.match(css, /\.timeline-node-cover/);
-    assert.match(css, /\.timeline-spine::before/);
     assert.match(css, /\.top-nav \.brand span::after/);
     assert.match(css, /grid-template-areas:[\s\S]*"copy"[\s\S]*"media"[\s\S]*"stats"[\s\S]*"signal"/);
     assert.match(css, /\.moments-board/);
@@ -194,8 +180,8 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.project-featured-console/);
     assert.match(css, /\.project-exhibit-grid/);
     assert.match(css, /\.project-status-rack/);
-    assert.match(css, /\.link-world/);
-    assert.match(css, /\.link-map-stage/);
+    assert.doesNotMatch(css, /\.link-world/);
+    assert.doesNotMatch(css, /\.link-map-stage/);
     assert.match(css, /\.tag-world/);
     assert.match(css, /\.tag-nebula-core/);
     assert.match(css, /\.tag-constellation-grid/);

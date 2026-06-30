@@ -30,17 +30,18 @@ describe('XHBlogs-inspired experience density', () => {
     ]);
 
     assert.ok(Array.isArray(data.chatters) && data.chatters.length >= 3);
-    assert.ok(data.links.some((link) => link.avatar && link.themeColor && link.badge));
+    assert.ok(data.links.some((link) => link.avatar && link.themeColor));
+    assert.ok(data.links.every((link) => !('badge' in link) && !('since' in link)));
     assert.match(blogLib, /export type BlogChatter/);
-    assert.match(blogLib, /getTimelineItems/);
+    assert.doesNotMatch(blogLib, /getTimelineItems|TimelineItem/);
     assert.match(portalIndex, /type: '杂谈'/);
     assert.match(portalIndex, /type: '友链'/);
     assert.doesNotMatch(portalIndex, /type: '灵境'|\/tree|createChannel\('tree'/);
-    for (const route of ['/photowall', '/friends', '/chatter', '/timeline']) {
+    for (const route of ['/photowall', '/friends', '/chatter']) {
       assert.ok(seo.includes(`path: '${route}'`), `missing SEO route ${route}`);
       assert.ok(nav.includes(`href: '${route}'`) || toolbox.includes(`href: '${route}'`), `missing navigation route ${route}`);
     }
-    assert.doesNotMatch(seo, /path: '\/tree'/);
+    assert.doesNotMatch(seo, /path: '\/tree'|path: '\/timeline'/);
     assert.doesNotMatch(nav, /href: '\/tree'|id: 'tree'|灵境/);
     assert.doesNotMatch(toolbox, /href: '\/tree'|灵境/);
     assert.match(sitemap, /getChatters/);

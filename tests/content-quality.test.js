@@ -17,8 +17,7 @@ describe('published content quality', () => {
 
     assert.equal(data.site.github, 'https://github.com/yige66');
     assert.ok(data.links.some((link) => link.url === 'https://github.com/yige66'));
-    assert.ok(data.links.some((link) => link.url === '/console'));
-    assert.ok(data.links.some((link) => link.url === '/archive'));
+    assert.ok(data.links.every((link) => link.url.startsWith('http')));
   });
 
   it('keeps project cards complete enough for the homepage and projects page', async () => {

@@ -4,6 +4,18 @@ import type { CSSProperties } from 'react';
 import type { BlogProject } from '@/lib/blog';
 import { EmptyState } from '@/components/SectionBlocks';
 
+const projectStatusLabels: Record<string, string> = {
+  active: '进行中',
+  planning: '规划中',
+  archived: '已归档',
+  maintenance: '维护中',
+  draft: '草稿'
+};
+
+function formatProjectStatus(status: string) {
+  return projectStatusLabels[status.toLowerCase()] ?? status;
+}
+
 export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
   if (projects.length === 0) {
     return (
@@ -41,7 +53,7 @@ export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
               {featuredProject.tags.map((tag) => <span key={tag}>{tag}</span>)}
             </div>
             <div className="project-featured-meta">
-              <span>{featuredProject.status}</span>
+              <span>{formatProjectStatus(featuredProject.status)}</span>
               <span>{featuredProject.startedAt || '长期维护'}</span>
               {featuredProject.repo ? <span>Repository</span> : null}
             </div>
@@ -56,7 +68,7 @@ export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
           {statuses.map((status, index) => (
             <span key={status} style={{ '--status-index': index } as CSSProperties}>
               <strong>{projects.filter((project) => project.status === status).length}</strong>
-              {status}
+              {formatProjectStatus(status)}
             </span>
           ))}
         </aside>
@@ -71,7 +83,7 @@ export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
             <div className="project-copy">
               <div className="project-coordinate">
                 <span>{String(index + 1).padStart(2, '0')}</span>
-                <small>{project.status}</small>
+                <small>{formatProjectStatus(project.status)}</small>
               </div>
               <h3>{project.title}</h3>
               <p>{project.description}</p>

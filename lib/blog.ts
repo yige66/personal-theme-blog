@@ -23,8 +23,6 @@ export type BlogLink = {
   description: string;
   avatar?: string;
   themeColor?: string;
-  badge?: string;
-  since?: string;
 };
 
 export type BlogNote = {
@@ -101,18 +99,6 @@ export type BlogChatter = {
   featured?: boolean;
 };
 
-export type TimelineItem = {
-  id: string;
-  type: 'post' | 'note' | 'project' | 'chatter';
-  title: string;
-  summary: string;
-  date: string;
-  href: string;
-  tags: string[];
-  cover?: string;
-  accent?: string;
-};
-
 export type CommentConfig = {
   enabled: boolean;
   provider: string;
@@ -139,6 +125,49 @@ export type VisualEffectsConfig = {
   intensity: number;
 };
 
+export type EntryPanelText = {
+  eyebrow: string;
+  eyebrowHighlight: string;
+  title: string;
+  description: string;
+};
+
+export type EntryHotspotText = {
+  label: string;
+  hint: string;
+  target: string;
+};
+
+export type EntryTextConfig = {
+  ariaLabel: string;
+  preloaderTitle: string;
+  preloaderSubtitle: string;
+  signaturePrefix: string;
+  signatureName: string;
+  signatureSuffix: string;
+  original: EntryPanelText;
+  beyond: EntryPanelText;
+  enterButton: string;
+  switchToBeyondButton: string;
+  switchToInternalButton: string;
+  skipButton: string;
+  statusLines: string[];
+  consoleTitle: string;
+  bootLines: string[];
+  hotspots: {
+    archive: EntryHotspotText;
+    music: EntryHotspotText;
+    friends: EntryHotspotText;
+    desk: EntryHotspotText;
+    theme: EntryHotspotText;
+  };
+  dialogue: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+};
+
 export type BlogSite = {
   title: string;
   subtitle: string;
@@ -161,6 +190,7 @@ export type BlogSite = {
   assistantPrompt: string;
   cloudMusicIds: string[];
   friendLinkApplyFormat: string;
+  entry: EntryTextConfig;
   comments: CommentConfig;
   effects: VisualEffectsConfig;
   music: MusicTrack[];
@@ -223,6 +253,54 @@ const fallbackSite: BlogSite = {
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
   cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
   friendLinkApplyFormat: '名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg',
+  entry: {
+    ariaLabel: 'Site entry',
+    preloaderTitle: 'InternalBeyond',
+    preloaderSubtitle: 'loading entry shell',
+    signaturePrefix: 'Design by',
+    signatureName: 'Lu Longfei',
+    signatureSuffix: 'Codex',
+    original: {
+      eyebrow: 'Welcome to',
+      eyebrowHighlight: '星屿手记',
+      title: 'Welcome',
+      description: 'Step through mist and starlight. Articles, projects, music, photos, friends and daily fragments wake behind the glass.'
+    },
+    beyond: {
+      eyebrow: 'Internal',
+      eyebrowHighlight: 'Beyond',
+      title: 'Internal Beyond',
+      description: 'Background crossfade, rain, glass blur, mode switching and the delayed route reveal rise together.'
+    },
+    enterButton: 'Enter Site',
+    switchToBeyondButton: 'Switch Beyond',
+    switchToInternalButton: 'Return Internal',
+    skipButton: 'Skip Intro',
+    statusLines: [
+      'Static shell prepared',
+      'Internal / Beyond layer ready',
+      'Choose a mode to begin'
+    ],
+    consoleTitle: 'ENTRY LOG',
+    bootLines: [
+      'background crossfade ready',
+      'mist field calibrated',
+      'rain ambience online',
+      'welcome route unlocked'
+    ],
+    hotspots: {
+      archive: { label: 'Archive', hint: 'articles / years', target: 'ARCHIVE' },
+      music: { label: 'Radio', hint: 'cloud playlist', target: 'MUSIC' },
+      friends: { label: 'Friends', hint: 'linked worlds', target: 'FRIENDS' },
+      desk: { label: 'Desk', hint: 'notes / projects', target: 'DESK' },
+      theme: { label: 'Mode', hint: 'swap atmosphere', target: 'MODE' }
+    },
+    dialogue: {
+      eyebrow: 'BOOT CHANNEL',
+      title: 'Entry channel connected',
+      description: 'Pick a marker in the scenery or use the welcome controls to open the blog.'
+    }
+  },
   effects: {
     enabled: true,
     danmaku: [
@@ -353,55 +431,6 @@ export async function getChatters(): Promise<BlogChatter[]> {
 export async function getChatterBySlug(slug: string): Promise<BlogChatter | null> {
   const chatters = await getChatters();
   return chatters.find((chatter) => chatter.slug === slug) ?? null;
-}
-
-export async function getTimelineItems(): Promise<TimelineItem[]> {
-  const [data, posts] = await Promise.all([getBlogData(), getPublishedPosts()]);
-  const postItems = posts.map((post): TimelineItem => ({
-    id: post.id,
-    type: 'post',
-    title: post.title,
-    summary: post.summary,
-    date: post.createdAt,
-    href: `/posts/${post.slug}`,
-    tags: post.tags,
-    cover: post.cover,
-    accent: 'Article'
-  }));
-  const noteItems = data.notes.map((note): TimelineItem => ({
-    id: note.id,
-    type: 'note',
-    title: note.title || note.mood || 'Moment',
-    summary: note.content,
-    date: note.date,
-    href: '/moments',
-    tags: note.tags ?? [],
-    accent: note.mood || 'Moment'
-  }));
-  const projectItems = data.projects.map((project): TimelineItem => ({
-    id: project.id,
-    type: 'project',
-    title: project.title,
-    summary: project.description,
-    date: project.startedAt,
-    href: project.url || '/projects',
-    tags: project.tags,
-    cover: project.cover,
-    accent: project.status
-  }));
-  const chatterItems = data.chatters.map((chatter): TimelineItem => ({
-    id: chatter.id,
-    type: 'chatter',
-    title: chatter.title,
-    summary: chatter.summary || chatter.content,
-    date: chatter.date,
-    href: `/chatter/${chatter.slug}`,
-    tags: chatter.tags,
-    cover: chatter.cover,
-    accent: chatter.mood || 'Chatter'
-  }));
-
-  return [...postItems, ...noteItems, ...projectItems, ...chatterItems].sort(compareByDateDesc);
 }
 
 export async function getTagSummaries(): Promise<TagSummary[]> {
@@ -654,6 +683,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     streak: toInteger(siteInput.streak, fallbackSite.streak),
     assistantName: siteInput.assistantName || fallbackSite.assistantName,
     assistantPrompt: siteInput.assistantPrompt || fallbackSite.assistantPrompt,
+    entry: normalizeEntry(siteInput.entry),
     effects: normalizeEffects(siteInput.effects)
   };
 
@@ -692,6 +722,72 @@ function normalizeEffects(value: unknown): VisualEffectsConfig {
     floatingCompanion: source.floatingCompanion ?? fallback.floatingCompanion,
     intensity: Math.min(100, Math.max(0, toInteger(source.intensity, fallback.intensity)))
   };
+}
+
+function normalizeEntry(value: unknown): EntryTextConfig {
+  const source = typeof value === 'object' && value !== null ? value as Partial<EntryTextConfig> : {};
+  const fallback = fallbackSite.entry;
+
+  return {
+    ariaLabel: textOrFallback(source.ariaLabel, fallback.ariaLabel),
+    preloaderTitle: textOrFallback(source.preloaderTitle, fallback.preloaderTitle),
+    preloaderSubtitle: textOrFallback(source.preloaderSubtitle, fallback.preloaderSubtitle),
+    signaturePrefix: textOrFallback(source.signaturePrefix, fallback.signaturePrefix),
+    signatureName: textOrFallback(source.signatureName, fallback.signatureName),
+    signatureSuffix: textOrFallback(source.signatureSuffix, fallback.signatureSuffix),
+    original: normalizeEntryPanel(source.original, fallback.original),
+    beyond: normalizeEntryPanel(source.beyond, fallback.beyond),
+    enterButton: textOrFallback(source.enterButton, fallback.enterButton),
+    switchToBeyondButton: textOrFallback(source.switchToBeyondButton, fallback.switchToBeyondButton),
+    switchToInternalButton: textOrFallback(source.switchToInternalButton, fallback.switchToInternalButton),
+    skipButton: textOrFallback(source.skipButton, fallback.skipButton),
+    statusLines: normalizeTextList(source.statusLines, fallback.statusLines, 6),
+    consoleTitle: textOrFallback(source.consoleTitle, fallback.consoleTitle),
+    bootLines: normalizeTextList(source.bootLines, fallback.bootLines, 8),
+    hotspots: {
+      archive: normalizeEntryHotspot(source.hotspots?.archive, fallback.hotspots.archive),
+      music: normalizeEntryHotspot(source.hotspots?.music, fallback.hotspots.music),
+      friends: normalizeEntryHotspot(source.hotspots?.friends, fallback.hotspots.friends),
+      desk: normalizeEntryHotspot(source.hotspots?.desk, fallback.hotspots.desk),
+      theme: normalizeEntryHotspot(source.hotspots?.theme, fallback.hotspots.theme)
+    },
+    dialogue: {
+      eyebrow: textOrFallback(source.dialogue?.eyebrow, fallback.dialogue.eyebrow),
+      title: textOrFallback(source.dialogue?.title, fallback.dialogue.title),
+      description: textOrFallback(source.dialogue?.description, fallback.dialogue.description)
+    }
+  };
+}
+
+function normalizeEntryPanel(value: unknown, fallback: EntryPanelText): EntryPanelText {
+  const source = typeof value === 'object' && value !== null ? value as Partial<EntryPanelText> : {};
+  return {
+    eyebrow: textOrFallback(source.eyebrow, fallback.eyebrow),
+    eyebrowHighlight: textOrFallback(source.eyebrowHighlight, fallback.eyebrowHighlight),
+    title: textOrFallback(source.title, fallback.title),
+    description: textOrFallback(source.description, fallback.description)
+  };
+}
+
+function normalizeEntryHotspot(value: unknown, fallback: EntryHotspotText): EntryHotspotText {
+  const source = typeof value === 'object' && value !== null ? value as Partial<EntryHotspotText> : {};
+  return {
+    label: textOrFallback(source.label, fallback.label),
+    hint: textOrFallback(source.hint, fallback.hint),
+    target: textOrFallback(source.target, fallback.target)
+  };
+}
+
+function normalizeTextList(value: unknown, fallback: string[], limit: number): string[] {
+  const items = Array.isArray(value)
+    ? value.map((item) => typeof item === 'string' ? item.trim() : '').filter(Boolean).slice(0, limit)
+    : [];
+
+  return items.length > 0 ? items : fallback;
+}
+
+function textOrFallback(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
 function normalizeCloudMusicIds(value: unknown): string[] {

@@ -88,7 +88,7 @@ export function createPortalSearchEntries(data: BlogData, posts: BlogPost[]): Po
       title: link.title,
       description: link.description,
       href: link.url,
-      keywords: [link.badge || '', link.since || ''].filter(Boolean),
+      keywords: [link.url, link.avatar || ''].filter(Boolean),
       weight: 54 - index
     }))
   ];

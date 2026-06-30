@@ -11,7 +11,6 @@ export type ExperienceRouteId =
   | 'chatter'
   | 'tags'
   | 'friends'
-  | 'timeline'
   | 'about'
   | 'console';
 
@@ -69,8 +68,7 @@ export const experienceRoutes: ExperienceRoute[] = [
   { id: 'moments', href: '/moments', label: '说说', tone: 'Daily', coordinate: '41', room: 'Tea' },
   { id: 'chatter', href: '/chatter', label: '杂谈', tone: 'Chatter', coordinate: '45', room: 'Cloud' },
   { id: 'tags', href: '/tags', label: '标签', tone: 'Tags', coordinate: '57', room: 'Tarot' },
-  { id: 'friends', href: '/friends', label: '友链', tone: 'Friends', coordinate: '68', room: 'Starmap' },
-  { id: 'timeline', href: '/timeline', label: '时间线', tone: 'Timeline', coordinate: '73', room: 'Archive' },
+  { id: 'friends', href: '/friends', label: '友链', tone: 'Friends', coordinate: '68', room: 'Friends' },
   { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Profile' },
   { id: 'console', href: '/console', label: '后台', tone: 'CMS', coordinate: '99', room: 'Console' }
 ];

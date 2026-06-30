@@ -80,16 +80,15 @@ describe('target-style music, friends, and GitHub comments', () => {
     const css = `${globalCss}\n${homeCss}`;
 
     assert.match(friendsPage, /FriendsBoardClient/);
-    assert.match(friendsPage, /友链星图/);
+    assert.match(friendsPage, /云端引力/);
     assert.match(friendsPage, /GitHubComments/);
-    assert.match(friendsClient, /friends-command-panel/);
-    assert.match(friendsClient, /friend-filter-rail/);
-    assert.match(friendsClient, /friend-constellation-stage/);
-    assert.match(friendsClient, /friend-star-node/);
-    assert.match(friendsClient, /--node-inverse/);
+    assert.match(friendsClient, /friends-board-grid/);
+    assert.match(friendsClient, /friend-node-card/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /friend-apply-console/);
-    assert.match(friendsClient, /友链是站点关系网络/);
+    assert.match(friendsClient, /建立神经连接/);
+    assert.match(friendsClient, /#gitalk-container/);
+    assert.doesNotMatch(friendsClient, /friends-command-panel|friend-filter-rail|friend-constellation-stage|friend-star-node|--node-inverse/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);
     assert.match(comments, /GITALK_STYLE_HREF/);
@@ -119,11 +118,11 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(musicPage, /GitHubComments/);
     assert.match(momentsPage, /comments=\{data\.site\.comments\}/);
     assert.match(momentsBoard, /MomentComments/);
-    assert.match(css, /\.friends-command-panel/);
-    assert.match(css, /\.friend-filter-rail/);
     assert.match(css, /\.friend-apply-console/);
-    assert.match(css, /\.friend-constellation-stage/);
-    assert.match(css, /\.friend-star-node/);
+    assert.doesNotMatch(css, /\.friends-command-panel/);
+    assert.doesNotMatch(css, /\.friend-filter-rail/);
+    assert.doesNotMatch(css, /\.friend-constellation-stage/);
+    assert.doesNotMatch(css, /\.friend-star-node/);
     assert.match(css, /\.github-comments-card/);
     assert.match(css, /\.github-comments-loader/);
     assert.match(css, /\.custom-gitalk-glass/);

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { BlogLink, BlogNote, BlogProject, BlogStats, GalleryItem, MusicTrack } from '@/lib/blog';
+import type { BlogNote, BlogProject, BlogStats, GalleryItem, MusicTrack } from '@/lib/blog';
 import { formatDate } from '@/lib/blog';
 
 export function PageHero({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
@@ -180,19 +180,6 @@ export function MomentTimelineCard({ note, index }: { note: BlogNote; index: num
         ) : null}
       </div>
     </article>
-  );
-}
-
-export function FriendLinkCard({ link }: { link: BlogLink }) {
-  const external = link.url.startsWith('http');
-
-  return (
-    <a className="link-card" href={link.url} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}>
-      <span>{link.title.slice(0, 1).toUpperCase()}</span>
-      <strong>{link.title}</strong>
-      <small>{external ? new URL(link.url).hostname : '站内入口'}</small>
-      <p>{link.description}</p>
-    </a>
   );
 }
 

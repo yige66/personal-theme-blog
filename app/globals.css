@@ -1089,7 +1089,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .article-row,
 .tag-cloud-card,
 .about-card,
-.link-card,
 .rich-empty,
 .gallery-collection,
 .gallery-tile,
@@ -2378,7 +2377,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .article-row,
 .tag-cloud-card,
 .about-card,
-.link-card,
 .gallery-collection,
 .gallery-tile {
   transition: transform 520ms var(--xh-ease), box-shadow 520ms var(--xh-ease), border-color 520ms var(--xh-ease);
@@ -2398,7 +2396,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .article-row:hover,
 .tag-cloud-card:hover,
 .about-card:hover,
-.link-card:hover,
 .gallery-collection:hover,
 .gallery-tile:hover {
   border-color: rgba(255, 143, 199, 0.56);
@@ -2468,7 +2465,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .about-card p,
 .article-summary,
 .markdown-body,
-.link-card p,
 .gallery-collection-copy p,
 .gallery-tile span {
   color: var(--xh-muted);
@@ -3487,7 +3483,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 
 .project-grid,
 .tag-cloud-page,
-.link-grid,
 .gallery-collection-grid {
   display: grid;
   grid-auto-flow: dense;
@@ -3526,8 +3521,7 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .track-card h3,
 .gallery-collection-copy h3,
 .moment-card h3,
-.about-card h2,
-.link-card strong {
+.about-card h2 {
   margin: 8px 0 0;
   color: var(--xh-ink);
   font-size: clamp(23px, 2.6vw, 36px);
@@ -5024,38 +5018,8 @@ html[data-xh-theme="night"] .xh-room-vignette {
   color: var(--xh-muted);
 }
 
-.link-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.link-card {
-  display: grid;
-  min-height: 220px;
-  align-content: start;
-  padding: 24px;
-  border-radius: 34px 18px 34px 34px;
-}
-
-.link-card > span {
-  display: grid;
-  width: 54px;
-  height: 54px;
-  place-items: center;
-  border-radius: 18px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--xh-sakura), var(--xh-cyan));
-  font-weight: 950;
-}
-
-.link-card small {
-  margin-top: 6px;
-  color: color-mix(in srgb, var(--theme) 64%, #4a2a4d 36%);
-  font-weight: 900;
-}
-
 .archive-world,
 .project-world,
-.link-world,
 .tag-world,
 .tag-reading-dock,
 .about-room {
@@ -5427,81 +5391,6 @@ html[data-xh-theme="night"] .xh-room-vignette {
 .project-coordinate small {
   text-transform: uppercase;
 }
-
-.link-world {
-  overflow: hidden;
-  padding: clamp(18px, 3vw, 28px);
-  border: 1px solid var(--xh-line);
-  border-radius: 46px 46px 18px 46px;
-  background:
-    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.62), transparent 9rem),
-    radial-gradient(circle at 14% 18%, rgba(255, 143, 199, 0.22), transparent 17rem),
-    radial-gradient(circle at 82% 14%, rgba(124, 217, 255, 0.22), transparent 18rem),
-    rgba(255, 255, 255, 0.36);
-  box-shadow: var(--xh-shadow);
-  backdrop-filter: blur(24px);
-}
-
-.link-constellation-lines {
-  position: absolute;
-  inset: 28px;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.link-constellation-lines span {
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  top: calc(18% + var(--line-index, 0) * 18%);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 143, 199, 0.3), rgba(124, 217, 255, 0.24), transparent);
-  transform: rotate(calc(-10deg + var(--line-index, 0) * 7deg));
-}
-
-.link-constellation-lines span:nth-child(1) { --line-index: 0; }
-.link-constellation-lines span:nth-child(2) { --line-index: 1; }
-.link-constellation-lines span:nth-child(3) { --line-index: 2; }
-.link-constellation-lines span:nth-child(4) { --line-index: 3; }
-
-.link-map-core {
-  display: grid;
-  width: min(210px, 48vw);
-  aspect-ratio: 1;
-  place-items: center;
-  margin: 0 auto 22px;
-  border: 1px solid rgba(255, 255, 255, 0.74);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.86), transparent 34%),
-    linear-gradient(145deg, rgba(255, 143, 199, 0.86), rgba(124, 217, 255, 0.72));
-  color: #fff;
-  text-align: center;
-  box-shadow: 0 26px 70px rgba(255, 143, 199, 0.22);
-}
-
-.link-map-core small,
-.link-map-core span {
-  font-weight: 900;
-  opacity: 0.82;
-}
-
-.link-map-core strong {
-  font-size: clamp(54px, 9vw, 92px);
-  line-height: 0.9;
-}
-
-.link-node {
-  min-height: 180px;
-  transform: translateY(var(--node-y, 0));
-}
-
-.link-node:nth-child(6n + 1) { --node-y: -12px; }
-.link-node:nth-child(6n + 2) { --node-y: 18px; }
-.link-node:nth-child(6n + 3) { --node-y: -4px; }
-.link-node:nth-child(6n + 4) { --node-y: 24px; }
-.link-node:nth-child(6n + 5) { --node-y: -18px; }
-.link-node:nth-child(6n + 6) { --node-y: 8px; }
 
 .tag-world {
   overflow: hidden;
@@ -6337,7 +6226,6 @@ html[data-xh-theme="night"] .moment-card,
 html[data-xh-theme="night"] .article-row,
 html[data-xh-theme="night"] .tag-cloud-card,
 html[data-xh-theme="night"] .about-card,
-html[data-xh-theme="night"] .link-card,
 html[data-xh-theme="night"] .rich-empty,
 html[data-xh-theme="night"] .gallery-collection,
 html[data-xh-theme="night"] .gallery-tile,
@@ -6353,7 +6241,6 @@ html[data-xh-theme="night"] .xh-global-toolbox,
 html[data-xh-theme="night"] .gallery-studio-toolbar,
 html[data-xh-theme="night"] .gallery-light-table,
 html[data-xh-theme="night"] .gallery-search-results,
-html[data-xh-theme="night"] .friends-command-panel,
 html[data-xh-theme="night"] .friend-node-card,
 html[data-xh-theme="night"] .friend-apply-card,
 html[data-xh-theme="night"] .github-comments-card,
@@ -6380,7 +6267,6 @@ html[data-xh-theme="night"] .page-scene-id {
 
 html[data-xh-theme="night"] .archive-world,
 html[data-xh-theme="night"] .archive-year header,
-html[data-xh-theme="night"] .link-world,
 html[data-xh-theme="night"] .tag-reading-dock aside,
 html[data-xh-theme="night"] .about-room {
   border-color: rgba(255, 255, 255, 0.16);
@@ -6720,7 +6606,6 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
   }
 
   .about-grid,
-  .link-grid,
   .tag-cloud-page {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -7228,9 +7113,6 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
     padding-bottom: 20px;
   }
 
-  .link-node {
-    transform: none;
-  }
 }
 
 @media (max-width: 640px) {
@@ -7366,7 +7248,6 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
     grid-template-columns: 1fr;
   }
 
-  .link-grid,
   .tag-cloud-page {
     grid-template-columns: 1fr;
   }
@@ -8317,72 +8198,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   grid-column: span 2;
 }
 
-.link-map-stage {
-  position: relative;
-  min-height: 640px;
-  margin: 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  border-radius: 42px 18px 42px 42px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.58), transparent 9rem),
-    radial-gradient(circle at 22% 22%, rgba(255, 143, 199, 0.14), transparent 18rem),
-    radial-gradient(circle at 78% 18%, rgba(124, 217, 255, 0.16), transparent 18rem);
-}
-
-.link-map-stage::before,
-.link-map-stage::after {
-  content: "";
-  position: absolute;
-  inset: 70px;
-  border: 1px dashed rgba(255, 143, 199, 0.26);
-  border-radius: 999px;
-  transform: rotate(-8deg);
-}
-
-.link-map-stage::after {
-  inset: 124px 96px;
-  border-color: rgba(124, 217, 255, 0.24);
-  transform: rotate(18deg);
-}
-
-.link-map-stage .link-map-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 4;
-  margin: 0;
-  transform: translate(-50%, -50%);
-}
-
-.link-map-stage .link-node {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 5;
-  width: min(220px, 28vw);
-  min-height: 152px;
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--node-angle))
-    translate(var(--node-radius))
-    rotate(var(--node-inverse));
-}
-
-.link-list-fallback {
-  display: none;
-}
-
-.link-list-fallback a {
-  display: grid;
-  gap: 4px;
-  min-height: 76px;
-  align-content: center;
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.54);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.42);
-}
-
 .tag-world .tag-cloud-page {
   min-height: 520px;
   align-items: center;
@@ -8484,53 +8299,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.34fr);
 }
 
-.friends-command-panel {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: end;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.58);
-  border-radius: 28px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(255, 238, 249, 0.38)),
-    rgba(255, 255, 255, 0.32);
-  box-shadow: 0 24px 70px rgba(94, 66, 129, 0.12);
-  backdrop-filter: blur(18px);
-}
-
-.friends-search {
-  display: grid;
-  gap: 7px;
-}
-
-.friends-search span {
-  color: color-mix(in srgb, var(--theme) 72%, #4a2a4d 28%);
-  font-size: 11px;
-  font-weight: 950;
-}
-
-.friends-search input {
-  min-height: 46px;
-  width: 100%;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.52);
-  color: var(--xh-ink);
-  font-weight: 850;
-  outline: 0;
-}
-
-.friend-filter-rail {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.friend-filter-rail button,
 .friend-apply-console button {
   min-height: 38px;
   padding: 0 13px;
@@ -8542,9 +8310,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   font-weight: 950;
 }
 
-.friend-filter-rail button.is-active,
-.friend-filter-rail button:hover,
-.friend-filter-rail button:focus-visible,
 .friend-apply-console button:hover,
 .friend-apply-console button:focus-visible {
   background: linear-gradient(135deg, var(--theme), var(--accent));
@@ -9186,14 +8951,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .friends-command-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .friend-filter-rail {
-    justify-content: flex-start;
-  }
-
   .github-comments-head {
     align-items: flex-start;
     flex-direction: column;
@@ -9244,35 +9001,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   .project-exhibit-grid .project-exhibit:nth-child(3n + 1),
   .project-exhibit-grid .project-exhibit:nth-child(3n + 2) {
     grid-column: 1 / -1;
-  }
-
-  .link-map-stage {
-    min-height: auto;
-    display: grid;
-    gap: 12px;
-    padding: 18px;
-  }
-
-  .link-map-stage::before,
-  .link-map-stage::after {
-    display: none;
-  }
-
-  .link-map-stage .link-map-core,
-  .link-map-stage .link-node {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: auto;
-    transform: none;
-  }
-
-  .link-map-stage .link-map-core {
-    margin: 0 auto;
-  }
-
-  .link-list-fallback {
-    display: none;
   }
 
   .about-room-activity {
@@ -9331,10 +9059,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 
   .project-workshop-header a {
     justify-self: start;
-  }
-
-  .link-map-stage {
-    padding: 12px;
   }
 
   .tag-world .tag-cloud-page {

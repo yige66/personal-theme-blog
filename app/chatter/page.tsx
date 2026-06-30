@@ -24,7 +24,7 @@ export default async function ChatterPage() {
         ]}
         actions={[
           { href: '/moments', label: '生活动态' },
-          { href: '/timeline', label: '聚合时间线' }
+          { href: '/archive', label: '文章归档' }
         ]}
         signal="chatter / light essays / mood cards / masonry stream"
       />

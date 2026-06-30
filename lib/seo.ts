@@ -22,7 +22,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     path: '/archive',
     title: '文章归档',
-    description: '按时间线回看文章、项目记录和学习笔记。',
+    description: '按时间回看文章、项目记录和学习笔记。',
     changeFrequency: 'weekly',
     priority: 0.9
   },
@@ -76,25 +76,11 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     priority: 0.62
   },
   {
-    path: '/links',
-    title: '友链',
-    description: '整理站内外入口和友链推荐。',
-    changeFrequency: 'monthly',
-    priority: 0.58
-  },
-  {
     path: '/friends',
-    title: '友链星团',
-    description: '头像化的朋友站点、外部链接和友链申请信息。',
+    title: '友链',
+    description: '头像化的朋友站点、友链申请格式和留言申请入口。',
     changeFrequency: 'monthly',
     priority: 0.6
-  },
-  {
-    path: '/timeline',
-    title: '归档与探索',
-    description: '聚合文章、说说、杂谈和项目的全站内容时间线。',
-    changeFrequency: 'weekly',
-    priority: 0.8
   },
   {
     path: '/about',

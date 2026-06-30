@@ -12,10 +12,11 @@ describe('publishing SEO surface wiring', () => {
       readFile('app/layout.tsx', 'utf8')
     ]);
 
-    for (const route of ['/', '/archive', '/projects', '/tags', '/gallery', '/photowall', '/moments', '/chatter', '/music', '/links', '/friends', '/timeline', '/about', '/console']) {
+    for (const route of ['/', '/archive', '/projects', '/tags', '/gallery', '/photowall', '/moments', '/chatter', '/music', '/friends', '/about', '/console']) {
       assert.ok(seo.includes(`path: '${route}'`), `missing public route ${route}`);
     }
-    assert.doesNotMatch(seo, /path: '\/tree'|灵境内容树/);
+    assert.doesNotMatch(seo, /path: '\/timeline'/);
+    assert.doesNotMatch(seo, /path: '\/tree'|path: '\/links'|灵境内容树/);
 
     assert.match(layout, /createSiteMetadata/);
     assert.match(sitemap, /getPublishedPosts/);

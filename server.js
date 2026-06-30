@@ -59,6 +59,54 @@ const defaultSite = {
   assistantPrompt: '我会根据站点文章、动态和作者资料，为访客推荐阅读路径，并提示评论、音乐与作品集入口。',
   cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
   friendLinkApplyFormat: 'Name: Star Island Notes\nDescription: A personal blog for code, life, and glowing fragments.\nLink: https://github.com/yige66/personal-theme-blog\nAvatar: /assets/img/avatar-orbit.svg',
+  entry: {
+    ariaLabel: 'Site entry',
+    preloaderTitle: 'InternalBeyond',
+    preloaderSubtitle: 'loading entry shell',
+    signaturePrefix: 'Design by',
+    signatureName: 'Lu Longfei',
+    signatureSuffix: 'Codex',
+    original: {
+      eyebrow: 'Welcome to',
+      eyebrowHighlight: '星屿手记',
+      title: 'Welcome',
+      description: 'Step through mist and starlight. Articles, projects, music, photos, friends and daily fragments wake behind the glass.'
+    },
+    beyond: {
+      eyebrow: 'Internal',
+      eyebrowHighlight: 'Beyond',
+      title: 'Internal Beyond',
+      description: 'Background crossfade, rain, glass blur, mode switching and the delayed route reveal rise together.'
+    },
+    enterButton: 'Enter Site',
+    switchToBeyondButton: 'Switch Beyond',
+    switchToInternalButton: 'Return Internal',
+    skipButton: 'Skip Intro',
+    statusLines: [
+      'Static shell prepared',
+      'Internal / Beyond layer ready',
+      'Choose a mode to begin'
+    ],
+    consoleTitle: 'ENTRY LOG',
+    bootLines: [
+      'background crossfade ready',
+      'mist field calibrated',
+      'rain ambience online',
+      'welcome route unlocked'
+    ],
+    hotspots: {
+      archive: { label: 'Archive', hint: 'articles / years', target: 'ARCHIVE' },
+      music: { label: 'Radio', hint: 'cloud playlist', target: 'MUSIC' },
+      friends: { label: 'Friends', hint: 'linked worlds', target: 'FRIENDS' },
+      desk: { label: 'Desk', hint: 'notes / projects', target: 'DESK' },
+      theme: { label: 'Mode', hint: 'swap atmosphere', target: 'MODE' }
+    },
+    dialogue: {
+      eyebrow: 'BOOT CHANNEL',
+      title: 'Entry channel connected',
+      description: 'Pick a marker in the scenery or use the welcome controls to open the blog.'
+    }
+  },
   effects: {
     enabled: true,
     danmaku: [
@@ -786,11 +834,95 @@ function validateSite(input = {}) {
     assistantPrompt: optionalString(source.assistantPrompt, 240) || defaultSite.assistantPrompt,
     cloudMusicIds: validateCloudMusicIds(source.cloudMusicIds),
     friendLinkApplyFormat: optionalString(source.friendLinkApplyFormat, 400) || defaultSite.friendLinkApplyFormat,
+    entry: validateEntry(source.entry),
     effects: validateEffects(source.effects),
     comments: validateComments(source.comments),
     music: validateMusic(source.music),
     gallery: validateGallery(source.gallery)
   };
+}
+
+function validateEntry(input = {}) {
+  const source = {
+    ...defaultSite.entry,
+    ...(input || {}),
+    original: {
+      ...defaultSite.entry.original,
+      ...((input || {}).original || {})
+    },
+    beyond: {
+      ...defaultSite.entry.beyond,
+      ...((input || {}).beyond || {})
+    },
+    hotspots: {
+      ...defaultSite.entry.hotspots,
+      ...((input || {}).hotspots || {})
+    },
+    dialogue: {
+      ...defaultSite.entry.dialogue,
+      ...((input || {}).dialogue || {})
+    }
+  };
+
+  return {
+    ariaLabel: optionalString(source.ariaLabel, 80) || defaultSite.entry.ariaLabel,
+    preloaderTitle: optionalString(source.preloaderTitle, 60) || defaultSite.entry.preloaderTitle,
+    preloaderSubtitle: optionalString(source.preloaderSubtitle, 80) || defaultSite.entry.preloaderSubtitle,
+    signaturePrefix: optionalString(source.signaturePrefix, 40) || defaultSite.entry.signaturePrefix,
+    signatureName: optionalString(source.signatureName, 60) || defaultSite.entry.signatureName,
+    signatureSuffix: optionalString(source.signatureSuffix, 60) || defaultSite.entry.signatureSuffix,
+    original: validateEntryPanel(source.original, defaultSite.entry.original),
+    beyond: validateEntryPanel(source.beyond, defaultSite.entry.beyond),
+    enterButton: optionalString(source.enterButton, 40) || defaultSite.entry.enterButton,
+    switchToBeyondButton: optionalString(source.switchToBeyondButton, 40) || defaultSite.entry.switchToBeyondButton,
+    switchToInternalButton: optionalString(source.switchToInternalButton, 40) || defaultSite.entry.switchToInternalButton,
+    skipButton: optionalString(source.skipButton, 40) || defaultSite.entry.skipButton,
+    statusLines: validateTextList(source.statusLines, defaultSite.entry.statusLines, 6, 80),
+    consoleTitle: optionalString(source.consoleTitle, 40) || defaultSite.entry.consoleTitle,
+    bootLines: validateTextList(source.bootLines, defaultSite.entry.bootLines, 8, 80),
+    hotspots: {
+      archive: validateEntryHotspot(source.hotspots.archive, defaultSite.entry.hotspots.archive),
+      music: validateEntryHotspot(source.hotspots.music, defaultSite.entry.hotspots.music),
+      friends: validateEntryHotspot(source.hotspots.friends, defaultSite.entry.hotspots.friends),
+      desk: validateEntryHotspot(source.hotspots.desk, defaultSite.entry.hotspots.desk),
+      theme: validateEntryHotspot(source.hotspots.theme, defaultSite.entry.hotspots.theme)
+    },
+    dialogue: {
+      eyebrow: optionalString(source.dialogue.eyebrow, 40) || defaultSite.entry.dialogue.eyebrow,
+      title: optionalString(source.dialogue.title, 80) || defaultSite.entry.dialogue.title,
+      description: optionalString(source.dialogue.description, 180) || defaultSite.entry.dialogue.description
+    }
+  };
+}
+
+function validateEntryPanel(input, fallback) {
+  return {
+    eyebrow: optionalString(input.eyebrow, 40) || fallback.eyebrow,
+    eyebrowHighlight: optionalString(input.eyebrowHighlight, 60) || fallback.eyebrowHighlight,
+    title: optionalString(input.title, 60) || fallback.title,
+    description: optionalString(input.description, 220) || fallback.description
+  };
+}
+
+function validateEntryHotspot(input, fallback) {
+  const source = {
+    ...fallback,
+    ...(input || {})
+  };
+
+  return {
+    label: optionalString(source.label, 40) || fallback.label,
+    hint: optionalString(source.hint, 80) || fallback.hint,
+    target: optionalString(source.target, 24) || fallback.target
+  };
+}
+
+function validateTextList(input, fallback, limit, maxLength) {
+  const lines = Array.isArray(input)
+    ? input.map((item) => optionalString(item, maxLength)).filter(Boolean).slice(0, limit)
+    : [];
+
+  return lines.length > 0 ? lines : fallback;
 }
 
 function validateEffects(input = {}) {
@@ -882,9 +1014,7 @@ function validateLinks(input) {
     url: optionalPathOrUrl(link.url, '#'),
     description: optionalString(link.description, 100),
     avatar: optionalPathOrUrl(link.avatar, ''),
-    themeColor: optionalString(link.themeColor, 60),
-    badge: optionalString(link.badge, 40),
-    since: optionalString(link.since, 40)
+    themeColor: optionalString(link.themeColor, 60)
   }));
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import type { BlogSite } from '@/lib/blog';
 
 type SplashScreenProps = {
@@ -13,11 +13,11 @@ type EntryMode = 'internal' | 'infernal';
 const SESSION_KEY = 'personal-theme-blog:splash-seen';
 
 const entryHotspots = [
-  { id: 'archive', label: 'Archive', hint: 'articles / years', x: 19, y: 58, target: 'ARCHIVE' },
-  { id: 'music', label: 'Radio', hint: 'cloud playlist', x: 80, y: 59, target: 'MUSIC' },
-  { id: 'friends', label: 'Friends', hint: 'linked worlds', x: 66, y: 31, target: 'FRIENDS' },
-  { id: 'desk', label: 'Desk', hint: 'notes / projects', x: 38, y: 73, target: 'DESK' },
-  { id: 'theme', label: 'Mode', hint: 'swap atmosphere', x: 52, y: 24, target: 'MODE' }
+  { id: 'archive', x: 19, y: 58 },
+  { id: 'music', x: 80, y: 59 },
+  { id: 'friends', x: 66, y: 31 },
+  { id: 'desk', x: 38, y: 73 },
+  { id: 'theme', x: 52, y: 24 }
 ] as const;
 
 const roomObjects = [
@@ -27,13 +27,6 @@ const roomObjects = [
   { id: 'shelf', x: 84, y: 70, label: 'music shelf' },
   { id: 'window', x: 51, y: 40, label: 'scene window' },
   { id: 'plant', x: 58, y: 83, label: 'floor bloom' }
-] as const;
-
-const bootLines = [
-  'background crossfade ready',
-  'mist field calibrated',
-  'rain ambience online',
-  'welcome route unlocked'
 ] as const;
 
 const dustMotes = Array.from({ length: 26 }, (_item, index) => ({
@@ -59,11 +52,8 @@ export function SplashScreen({ site }: SplashScreenProps) {
   const [loaded, setLoaded] = useState(false);
   const [mode, setMode] = useState<EntryMode>('internal');
 
-  const loadingLines = useMemo(() => [
-    'Static shell prepared',
-    'Internal / Beyond layer ready',
-    'Choose a mode to begin'
-  ], []);
+  const entry = site.entry;
+  const nextModeButton = mode === 'internal' ? entry.switchToBeyondButton : entry.switchToInternalButton;
 
   const entryStyle = {
     '--entry-hero-image': `url("${site.heroImage}")`
@@ -119,11 +109,11 @@ export function SplashScreen({ site }: SplashScreenProps) {
       style={entryStyle}
       role="dialog"
       aria-modal="true"
-      aria-label="Site entry"
+      aria-label={entry.ariaLabel}
     >
       <div className={`ib-entry-preloader${loaded ? ' fade-out' : ''}`} aria-hidden={loaded}>
-        <strong>InternalBeyond</strong>
-        <span>loading entry shell</span>
+        <strong>{entry.preloaderTitle}</strong>
+        <span>{entry.preloaderSubtitle}</span>
       </div>
 
       <div className="ib-entry-bg ib-entry-bg-internal" aria-hidden="true" />
@@ -207,15 +197,15 @@ export function SplashScreen({ site }: SplashScreenProps) {
             onClick={hotspot.id === 'theme' ? toggleMode : enterBlog}
             key={hotspot.id}
           >
-            <span aria-hidden="true">{hotspot.target}</span>
-            <strong>{hotspot.label}</strong>
-            <small>{hotspot.hint}</small>
+            <span aria-hidden="true">{entry.hotspots[hotspot.id].target}</span>
+            <strong>{entry.hotspots[hotspot.id].label}</strong>
+            <small>{entry.hotspots[hotspot.id].hint}</small>
           </button>
         ))}
         <aside className="ib-entry-dialogue" aria-label="Entry hint">
-          <small>BOOT CHANNEL</small>
-          <strong>Entry channel connected</strong>
-          <span>Pick a marker in the scenery or use the welcome controls to open the blog.</span>
+          <small>{entry.dialogue.eyebrow}</small>
+          <strong>{entry.dialogue.title}</strong>
+          <span>{entry.dialogue.description}</span>
         </aside>
         <span className="ib-entry-character" aria-hidden="true">
           <Image src={site.avatar} alt="" width={92} height={92} priority />
@@ -225,54 +215,54 @@ export function SplashScreen({ site }: SplashScreenProps) {
       <section className={`ib-entry-welcome${mode === 'infernal' ? ' ib-on' : ''}`} aria-label="Welcome">
         <span className="ib-entry-rule" aria-hidden="true" />
         <p className="ib-entry-sign">
-          Design by <span>{site.owner || site.title}</span>
+          {entry.signaturePrefix} <span>{entry.signatureName || site.owner || site.title}</span>
           <i aria-hidden="true"> | </i>
-          <em>Codex</em>
+          <em>{entry.signatureSuffix}</em>
         </p>
 
         <div className={`ib-entry-swap${mode === 'infernal' ? ' ib-mode' : ''}`}>
           <div className="ib-entry-original">
             <p className="ib-entry-title">
-              Welcome to <span>{site.title}</span>
+              {entry.original.eyebrow} <span>{entry.original.eyebrowHighlight}</span>
             </p>
-            <h1>Welcome</h1>
+            <h1>{entry.original.title}</h1>
             <p className="ib-entry-desc">
-              Step through mist and starlight. Articles, projects, music, photos, friends and daily fragments wake behind the glass.
+              {entry.original.description}
             </p>
           </div>
 
           <div className="ib-entry-beyond">
             <p className="ib-entry-title">
-              Internal <span>Beyond</span>
+              {entry.beyond.eyebrow} <span>{entry.beyond.eyebrowHighlight}</span>
             </p>
-            <h1>Internal Beyond</h1>
+            <h1>{entry.beyond.title}</h1>
             <p className="ib-entry-desc">
-              Background crossfade, rain, glass blur, mode switching and the delayed route reveal rise together.
+              {entry.beyond.description}
             </p>
           </div>
         </div>
 
         <div className="ib-entry-actions">
           <button className="ib-entry-action-btn" type="button" onClick={enterBlog}>
-            Enter Site
+            {entry.enterButton}
           </button>
           <button className="ib-entry-action-btn secondary" id="ib-mode-toggle" type="button" onClick={toggleMode}>
-            {mode === 'internal' ? 'Switch Beyond' : 'Return Internal'}
+            {nextModeButton}
           </button>
         </div>
 
         <button className="ib-entry-skip" type="button" onClick={enterBlog}>
-          Skip Intro
+          {entry.skipButton}
         </button>
 
         <div className="ib-entry-status" aria-hidden="true">
-          {loadingLines.map((line) => <b key={line}>{line}</b>)}
+          {entry.statusLines.map((line) => <b key={line}>{line}</b>)}
         </div>
       </section>
 
       <aside className="ib-entry-console" aria-hidden="true">
-        <span>ENTRY LOG</span>
-        {bootLines.map((line) => <b key={line}>{line}</b>)}
+        <span>{entry.consoleTitle}</span>
+        {entry.bootLines.map((line) => <b key={line}>{line}</b>)}
       </aside>
     </div>
   );

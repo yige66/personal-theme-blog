@@ -26,7 +26,7 @@ type PageSceneProps = {
 };
 
 const sceneCoordinates: Record<NonNullable<PageSceneProps['variant']>, string> = {
-  archive: 'Timeline / cards',
+  archive: 'Archive / cards',
   projects: 'Workshop index',
   links: 'Friend map',
   tags: 'Topic nebula',

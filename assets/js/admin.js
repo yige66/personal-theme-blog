@@ -70,6 +70,7 @@ const elements = {
   siteCommentClientId: document.querySelector('#siteCommentClientId'),
   siteCloudMusicIds: document.querySelector('#siteCloudMusicIds'),
   siteFriendLinkApplyFormat: document.querySelector('#siteFriendLinkApplyFormat'),
+  siteEntry: document.querySelector('#siteEntry'),
   siteMusic: document.querySelector('#siteMusic'),
   siteGallery: document.querySelector('#siteGallery'),
   musicEditor: document.querySelector('#musicEditor'),
@@ -419,6 +420,7 @@ function renderSiteForm() {
   elements.siteCommentClientId.value = site.comments?.clientId || '';
   elements.siteCloudMusicIds.value = (site.cloudMusicIds || []).join(', ');
   elements.siteFriendLinkApplyFormat.value = site.friendLinkApplyFormat || '';
+  elements.siteEntry.value = JSON.stringify(site.entry || {}, null, 2);
   elements.siteMusic.value = JSON.stringify(site.music || [], null, 2);
   elements.siteGallery.value = JSON.stringify(site.gallery || [], null, 2);
 }
@@ -606,8 +608,9 @@ async function handleSaveMedia(event) {
 async function saveSitePayload(successMessage) {
   const { music, gallery } = syncMediaJsonFromEditors();
   try {
+    const entry = JSON.parse(elements.siteEntry.value || '{}');
     const effects = JSON.parse(elements.siteEffects.value || '{}');
-    const site = readSitePayload(music, gallery, effects);
+    const site = readSitePayload(music, gallery, entry, effects);
     const payload = await api('/api/admin/site', { method: 'PUT', body: site, csrf: true });
     state.data = payload.data;
     renderAll();
@@ -617,7 +620,7 @@ async function saveSitePayload(successMessage) {
   }
 }
 
-function readSitePayload(music, gallery, effects) {
+function readSitePayload(music, gallery, entry, effects) {
   return {
     title: elements.siteTitle.value,
     owner: elements.siteOwner.value,
@@ -640,6 +643,7 @@ function readSitePayload(music, gallery, effects) {
     assistantPrompt: elements.siteAssistantPrompt.value,
     cloudMusicIds: elements.siteCloudMusicIds.value.split(',').map((item) => item.trim()).filter(Boolean),
     friendLinkApplyFormat: elements.siteFriendLinkApplyFormat.value,
+    entry,
     effects,
     comments: {
       enabled: elements.siteCommentsEnabled.checked,

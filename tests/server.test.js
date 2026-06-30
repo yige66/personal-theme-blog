@@ -167,6 +167,53 @@ describe('admin authentication and article management', () => {
     assert.equal(updated.data.projects[0].title, 'Updated Project Console');
   });
 
+  it('updates configurable entry page text through the admin site API', async () => {
+    const setup = await json('/api/setup', {
+      method: 'POST',
+      body: { password: TEST_ADMIN_PASSPHRASE }
+    });
+    const cookie = setup.headers.get('set-cookie').split(';')[0];
+    const csrfToken = setup.data.csrfToken;
+
+    const statePayload = await json('/api/admin/state', { cookie });
+    const entry = statePayload.data.site.entry;
+
+    const updated = await json('/api/admin/site', {
+      method: 'PUT',
+      cookie,
+      csrfToken,
+      body: {
+        ...statePayload.data.site,
+        entry: {
+          ...entry,
+          original: {
+            ...entry.original,
+            title: 'Custom Landing Title',
+            description: 'Custom intro copy from the admin console.'
+          },
+          enterButton: 'Open Journal',
+          consoleTitle: 'CUSTOM LOG',
+          statusLines: ['Ready from CMS'],
+          hotspots: {
+            ...entry.hotspots,
+            archive: {
+              ...entry.hotspots.archive,
+              label: 'Custom Archive'
+            }
+          }
+        }
+      }
+    });
+
+    assert.equal(updated.status, 200);
+    assert.equal(updated.data.site.entry.original.title, 'Custom Landing Title');
+    assert.equal(updated.data.site.entry.original.description, 'Custom intro copy from the admin console.');
+    assert.equal(updated.data.site.entry.enterButton, 'Open Journal');
+    assert.equal(updated.data.site.entry.consoleTitle, 'CUSTOM LOG');
+    assert.deepEqual(updated.data.site.entry.statusLines, ['Ready from CMS']);
+    assert.equal(updated.data.site.entry.hotspots.archive.label, 'Custom Archive');
+  });
+
   it('preserves existing projects when importing an older backup without projects', async () => {
     const setup = await json('/api/setup', {
       method: 'POST',

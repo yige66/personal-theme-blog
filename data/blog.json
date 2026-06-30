@@ -25,6 +25,74 @@
       "1974443814"
     ],
     "friendLinkApplyFormat": "名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg",
+    "entry": {
+      "ariaLabel": "Site entry",
+      "preloaderTitle": "InternalBeyond",
+      "preloaderSubtitle": "loading entry shell",
+      "signaturePrefix": "Design by",
+      "signatureName": "Lu Longfei",
+      "signatureSuffix": "Codex",
+      "original": {
+        "eyebrow": "Welcome to",
+        "eyebrowHighlight": "星屿手记",
+        "title": "Welcome",
+        "description": "Step through mist and starlight. Articles, projects, music, photos, friends and daily fragments wake behind the glass."
+      },
+      "beyond": {
+        "eyebrow": "Internal",
+        "eyebrowHighlight": "Beyond",
+        "title": "Internal Beyond",
+        "description": "Background crossfade, rain, glass blur, mode switching and the delayed route reveal rise together."
+      },
+      "enterButton": "Enter Site",
+      "switchToBeyondButton": "Switch Beyond",
+      "switchToInternalButton": "Return Internal",
+      "skipButton": "Skip Intro",
+      "statusLines": [
+        "Static shell prepared",
+        "Internal / Beyond layer ready",
+        "Choose a mode to begin"
+      ],
+      "consoleTitle": "ENTRY LOG",
+      "bootLines": [
+        "background crossfade ready",
+        "mist field calibrated",
+        "rain ambience online",
+        "welcome route unlocked"
+      ],
+      "hotspots": {
+        "archive": {
+          "label": "Archive",
+          "hint": "articles / years",
+          "target": "ARCHIVE"
+        },
+        "music": {
+          "label": "Radio",
+          "hint": "cloud playlist",
+          "target": "MUSIC"
+        },
+        "friends": {
+          "label": "Friends",
+          "hint": "linked worlds",
+          "target": "FRIENDS"
+        },
+        "desk": {
+          "label": "Desk",
+          "hint": "notes / projects",
+          "target": "DESK"
+        },
+        "theme": {
+          "label": "Mode",
+          "hint": "swap atmosphere",
+          "target": "MODE"
+        }
+      },
+      "dialogue": {
+        "eyebrow": "BOOT CHANNEL",
+        "title": "Entry channel connected",
+        "description": "Pick a marker in the scenery or use the welcome controls to open the blog."
+      }
+    },
     "effects": {
       "enabled": true,
       "danmaku": [
@@ -37,7 +105,7 @@
         "评论区先留个脚印",
         "灵感刚刚冒泡",
         "夜间模式很适合发呆",
-        "把日常收进时间线",
+        "把日常收进归档",
         "照片墙等你上传新图",
         "今天也要温柔一点"
       ],
@@ -243,45 +311,21 @@
       "url": "https://github.com/yige66",
       "description": "代码与项目记录。",
       "avatar": "/assets/img/admin-board.svg",
-      "themeColor": "rgba(124, 217, 255, 0.55)",
-      "badge": "Code",
-      "since": "2026"
-    },
-    {
-      "title": "发布工作流",
-      "url": "/console",
-      "description": "内容同步、质量门禁与部署入口。",
-      "avatar": "/assets/img/admin-board.svg",
-      "themeColor": "rgba(255, 143, 199, 0.55)",
-      "badge": "Console",
-      "since": "local"
-    },
-    {
-      "title": "归档",
-      "url": "/archive",
-      "description": "按时间回看文章。",
-      "avatar": "/assets/img/desk-notes.svg",
-      "themeColor": "rgba(255, 226, 138, 0.55)",
-      "badge": "Archive",
-      "since": "index"
+      "themeColor": "rgba(124, 217, 255, 0.55)"
     },
     {
       "title": "XHBlogs Reference",
       "url": "https://github.com/heiehiehi/XinghuisamaBlogs",
       "description": "本次内容生态复现参考的开源个人站项目，学习其路由、内容目录和组件分层。",
       "avatar": "/assets/img/hero-mountain.svg",
-      "themeColor": "rgba(167, 139, 250, 0.58)",
-      "badge": "Reference",
-      "since": "CC BY-NC 4.0"
+      "themeColor": "rgba(167, 139, 250, 0.58)"
     },
     {
       "title": "InternalBeyond Reference",
       "url": "https://github.com/Sui-IB/InternalBeyond",
       "description": "本项目背景氛围、热点和窗口感交互的开源视觉参考。",
       "avatar": "/assets/img/avatar-orbit.svg",
-      "themeColor": "rgba(255, 143, 199, 0.5)",
-      "badge": "Visual",
-      "since": "Reference"
+      "themeColor": "rgba(255, 143, 199, 0.5)"
     }
   ],
   "notes": [
@@ -357,8 +401,8 @@
       "id": "chatter-xh-ecosystem",
       "slug": "xh-ecosystem-rebuild",
       "title": "为什么不能只做一个漂亮首页",
-      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、timeline 和 photowall 都是独立内容入口。",
-      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、时间线和照片墙让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 补 `/timeline`，把文章、动态、项目和杂谈合并成全站年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n- 强化 `/archive`，让文章按目标站一样支持搜索、标签筛选和时间线浏览。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
+      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、archive 和 photowall 都是独立内容入口。",
+      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、归档和照片墙让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 强化 `/archive`，把文章按年份、标签和检索入口组织成可回看的内容年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
       "date": "2026-06-29",
       "tags": [
         "XHBlogs",
@@ -374,7 +418,7 @@
       "slug": "content-density-notes",
       "title": "内容密度比单个组件更重要",
       "summary": "一个个人站不像目标站，通常不是按钮样式的问题，而是页面缺少能被持续浏览的真实内容层。",
-      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和时间线；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters` 和聚合时间线补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
+      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和归档；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters` 和归档视图补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
       "date": "2026-06-27",
       "tags": [
         "设计",
@@ -389,8 +433,8 @@
       "id": "chatter-route-parity",
       "slug": "route-parity-check",
       "title": "路由名字本身也是体验",
-      "summary": "`/photowall`、`/friends`、`/timeline` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
-      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链、时间线和归档做成可以从后台维护的数据段，而不是写死在页面组件里。",
+      "summary": "`/photowall`、`/friends`、`/archive` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
+      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链和归档做成可以从后台维护的数据段，而不是写死在页面组件里。",
       "date": "2026-06-25",
       "tags": [
         "路由",

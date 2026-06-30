@@ -11,22 +11,32 @@ function getThemeMode(): ThemeMode {
   return document.documentElement.dataset.xhTheme === 'night' ? 'night' : 'day';
 }
 
+function getNextThemeMode(): ThemeMode {
+  if (typeof document === 'undefined') {
+    return 'day';
+  }
+  return document.documentElement.dataset.xhThemeNext === 'night' ? 'night' : 'day';
+}
+
 export function ThemeSceneCard() {
   const [mode, setMode] = useState<ThemeMode>('day');
+  const [nextMode, setNextMode] = useState<ThemeMode>('day');
   const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
     setMode(getThemeMode());
+    setNextMode(getNextThemeMode());
     setTransitioning(document.documentElement.dataset.xhThemeTransition === 'active');
 
     const observer = new MutationObserver(() => {
       setMode(getThemeMode());
+      setNextMode(getNextThemeMode());
       setTransitioning(document.documentElement.dataset.xhThemeTransition === 'active');
     });
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-xh-theme', 'data-xh-theme-transition']
+      attributeFilter: ['data-xh-theme', 'data-xh-theme-next', 'data-xh-theme-transition']
     });
 
     return () => observer.disconnect();
@@ -37,6 +47,7 @@ export function ThemeSceneCard() {
       className={`xh-theme-scene-card is-${mode}${transitioning ? ' is-transitioning' : ''}`}
       type="button"
       aria-pressed={mode === 'night'}
+      data-next-mode={nextMode}
       onClick={() => window.dispatchEvent(new Event('xh-toggle-theme'))}
     >
       <span className="xh-theme-orb" aria-hidden="true">

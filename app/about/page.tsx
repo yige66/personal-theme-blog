@@ -1,55 +1,70 @@
-import { ChannelHeader } from '@/components/ChannelHeader';
 import { AboutRoom } from '@/components/channels/AboutRoom';
 import { SiteNav } from '@/components/SiteNav';
-import { getBlogData, getBlogStats } from '@/lib/blog';
+import { getBlogData, getBlogStats, type BlogData } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
+import type { CSSProperties } from 'react';
 
 export const metadata = staticPageMetadata.about;
 
-export default async function AboutPage() {
+type AboutPageProps = {
+  searchParams?: Promise<{
+    tab?: string | string[];
+  }>;
+};
+
+type AboutActivity = {
+  id: string;
+  type: '文章' | '杂谈' | '说说';
+  title: string;
+  date: string;
+  href: string;
+};
+
+function normalizeTab(value: string | string[] | undefined): 'intro' | 'activity' {
+  const tab = Array.isArray(value) ? value[0] : value;
+  return tab === 'activity' ? 'activity' : 'intro';
+}
+
+function createAboutActivities(data: BlogData): AboutActivity[] {
+  const posts = data.posts
+    .filter((post) => post.status === 'published')
+    .map((post) => ({
+      id: `post-${post.id}`,
+      type: '文章' as const,
+      title: post.title,
+      date: post.updatedAt || post.createdAt,
+      href: `/posts/${post.slug}`
+    }));
+
+  const chatters = data.chatters.map((chatter) => ({
+    id: `chatter-${chatter.id}`,
+    type: '杂谈' as const,
+    title: chatter.title,
+    date: chatter.date,
+    href: `/chatter/${chatter.slug}`
+  }));
+
+  const notes = data.notes.map((note) => ({
+    id: `note-${note.id}`,
+    type: '说说' as const,
+    title: note.title || note.content.slice(0, 24),
+    date: note.date,
+    href: '/moments'
+  }));
+
+  return [...posts, ...chatters, ...notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export default async function AboutPage({ searchParams }: AboutPageProps) {
   const [data, stats] = await Promise.all([getBlogData(), getBlogStats()]);
+  const params = await searchParams;
+  const activeTab = normalizeTab(params?.tab);
+  const activities = createAboutActivities(data);
 
   return (
-    <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
+    <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
       <SiteNav title={data.site.title} />
-      <ChannelHeader
-        eyebrow="About"
-        title={data.site.owner}
-        description={data.site.bio}
-        stats={[
-          { label: '文章', value: stats.posts },
-          { label: '项目', value: stats.projects },
-          { label: '动态', value: stats.notes }
-        ]}
-        actions={[
-          { href: `mailto:${data.site.email}`, label: '联系我' },
-          { href: data.site.github, label: 'GitHub' }
-        ]}
-        signal={`${data.site.role} / ${data.site.location} / ${data.site.assistantName}`}
-      />
-      <AboutRoom site={data.site} stats={stats} />
-      <section className="main-shell about-grid">
-        <article className="about-card">
-          <p className="eyebrow">Contact</p>
-          <h2>找到我</h2>
-          <p>{data.site.location}</p>
-          <p>{data.site.email}</p>
-        </article>
-        <article className="about-card about-activity">
-          <p className="eyebrow">Activity</p>
-          <h2>维护热力</h2>
-          <div aria-label="站点维护热力图">
-            {Array.from({ length: 35 }, (_item, index) => (
-              <i key={index} style={{ '--level': (index * 7 + stats.posts + stats.notes) % 5 } as React.CSSProperties} />
-            ))}
-          </div>
-        </article>
-        <article className="about-card">
-          <p className="eyebrow">Assistant</p>
-          <h2>{data.site.assistantName}</h2>
-          <p>{data.site.assistantPrompt}</p>
-        </article>
-      </section>
+      <AboutRoom activeTab={activeTab} activities={activities} site={data.site} stats={stats} />
     </main>
   );
 }

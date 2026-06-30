@@ -65,7 +65,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeWorld, /photowall/);
     assert.match(homeWorld, /friends/);
     assert.match(homeWorld, /chatter/);
-    assert.match(homeWorld, /timeline/);
+    assert.match(homeWorld, /archive/);
+    assert.doesNotMatch(homeWorld, /timeline/);
     assert.match(homeWorld, /music/);
     assert.doesNotMatch(homeWorld, /\/tree|灵境|Tree Lab|is-tree/);
     assert.doesNotMatch(homeWorld, /RoomConsole/);
@@ -120,7 +121,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(experience, /experienceRoutes/);
     assert.match(experience, /photowall/);
     assert.match(experience, /friends/);
-    assert.match(experience, /timeline/);
+    assert.doesNotMatch(experience, /timeline|\/timeline/);
     assert.doesNotMatch(experience, /id: 'tree'|\/tree|灵境/);
     assert.match(nav, /className=\{active \? 'active' : ''\}/);
     assert.match(nav, /mobile-orbit-toggle/);
@@ -164,6 +165,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(splash, /ib-entry-welcome/);
     assert.match(splash, /ib-entry-action-btn/);
     assert.match(splash, /ib-mode-toggle/);
+    assert.match(splash, /const entry = site\.entry/);
+    assert.match(splash, /entry\.hotspots\[hotspot\.id\]/);
+    assert.match(splash, /entry\.consoleTitle/);
+    assert.doesNotMatch(splash, />Enter Site</);
+    assert.doesNotMatch(splash, />ENTRY LOG</);
   });
 
   it('implements InternalBeyond-like background layers and day/night transition states', async () => {
@@ -220,6 +226,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(toolbox, /pathname === '\/'/);
     assert.match(toolbox, /return null/);
     assert.match(blog, /VisualEffectsConfig/);
+    assert.match(blog, /EntryTextConfig/);
+    assert.match(blog, /consoleTitle: string/);
+    assert.match(blog, /entry: normalizeEntry\(siteInput\.entry\)/);
     assert.match(blog, /danmaku: string\[\]/);
     assert.match(blog, /cursorTrail: false/);
     assert.match(css, /\.ib-scene-day/);
