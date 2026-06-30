@@ -9,6 +9,7 @@ import { getBlogData, getPublishedPosts } from '@/lib/blog';
 import { createSiteMetadata } from '@/lib/seo';
 import './globals.css';
 import './home-overrides.css';
+import './entry-overrides.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getBlogData();

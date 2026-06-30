@@ -158,8 +158,12 @@ describe('target-inspired homepage portal', () => {
     assert.match(splash, /ib-entry-mist/);
     assert.match(splash, /ib-entry-window/);
     assert.match(splash, /ib-entry-hotspot/);
-    assert.match(splash, /ib-entry-cta/);
-    assert.match(splash, /ib-entry-progress/);
+    assert.match(splash, /ib-entry-preloader/);
+    assert.match(splash, /ib-entry-bg-internal/);
+    assert.match(splash, /ib-entry-bg-infernal/);
+    assert.match(splash, /ib-entry-welcome/);
+    assert.match(splash, /ib-entry-action-btn/);
+    assert.match(splash, /ib-mode-toggle/);
   });
 
   it('implements InternalBeyond-like background layers and day/night transition states', async () => {
