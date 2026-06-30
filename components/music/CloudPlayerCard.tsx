@@ -14,7 +14,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
       </div>
       <div className="xh-cloud-copy">
         <p className="eyebrow">Cloud Music</p>
-        <h2>{currentTrack?.title || '歌单待补充'}</h2>
+        <h2>{currentTrack?.title || '歌单待补全'}</h2>
         <p>{currentTrack?.artist || 'Local Playlist'}</p>
         <strong>{currentTrack?.note || '把写作、阅读和编码时的背景音乐收进这里。'}</strong>
       </div>

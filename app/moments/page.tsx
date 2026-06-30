@@ -18,8 +18,8 @@ export default async function MomentsPage() {
       <SiteNav title={data.site.title} />
       <ChannelHeader
         eyebrow="Moments"
-        title="说说动态流"
-        description="轻量记录每天的进度、状态和灵感。不必等到完整文章，站点也能持续有呼吸感。"
+        title="生活动态"
+        description="在代码之外捕捉瞬间的温度，用星图串起轻量的日常记录。"
         stats={[
           { label: '动态', value: notes.length },
           { label: '主题', value: tags.length || '-' },
@@ -29,7 +29,7 @@ export default async function MomentsPage() {
           { href: '/archive', label: '阅读文章' },
           { href: '/console', label: '管理动态' }
         ]}
-        signal="daily notes / mood filters / soft timeline"
+        signal="daily notes / mood filters / constellation stream"
       />
       {moods.length ? (
         <section className="main-shell moment-mood-rail" aria-label="动态心情">

@@ -16,11 +16,11 @@ export default async function FriendsPage() {
       <SiteNav title={data.site.title} />
       <ChannelHeader
         eyebrow="Friends"
-        title="友链星团"
-        description="复现 XHBlogs 的友链内容面：头像、站点气质、关系节点和申请提示都独立成页，而不是藏在普通链接列表里。"
+        title="友链星图"
+        description="友链是长期互访的关系网络：头像、站点气质、连接标签和申请格式都独立成面，而不是普通链接列表。"
         stats={[
           { label: '友链', value: externalLinks.length },
-          { label: '入口', value: data.links.length },
+          { label: '节点', value: data.links.length },
           { label: '格式', value: 'Apply' }
         ]}
         actions={[
@@ -30,7 +30,7 @@ export default async function FriendsPage() {
         signal="friends / avatars / link exchange / network nodes"
       />
       <FriendsBoardClient links={data.links} site={data.site} />
-      <GitHubComments config={data.site.comments} term="/friends" title="友链星团" />
+      <GitHubComments config={data.site.comments} term="/friends" title="友链星图" />
     </main>
   );
 }

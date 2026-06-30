@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import type { BlogProject } from '@/lib/blog';
 import { EmptyState } from '@/components/SectionBlocks';
 
 export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
   if (projects.length === 0) {
     return (
-      <section className="main-shell project-world">
-        <EmptyState title="暂无项目" description="在后台新增项目后，这里会自动生成作品展柜。" />
+      <section className="main-shell project-world project-starport xh-reference-surface">
+        <EmptyState title="暂无项目" description="在后台新增项目后，这里会自动生成作品星港。" />
       </section>
     );
   }
@@ -17,43 +18,54 @@ export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
   const galleryProjects = projects.filter((project) => project.id !== featuredProject.id);
 
   return (
-    <section className="main-shell project-world" aria-label="项目作品展柜">
+    <section className="main-shell project-world project-starport xh-reference-surface" aria-label="项目星港与作品矩阵">
       <header className="project-workshop-header">
         <div>
-          <small>Projects Matrix</small>
-          <strong>{featuredProject.title}</strong>
-          <span>{featuredProject.description}</span>
+          <small>Project Starport</small>
+          <strong>项目星港</strong>
+          <span>把长期实验、部署链路和可维护作品分区停靠。</span>
         </div>
-        <Link href={featuredProject.url || '#'}>Open Featured</Link>
+        <Link href={featuredProject.url || '#'}>进入精选</Link>
       </header>
 
-      <article className="project-featured-console" data-motion="portal-card">
-        <Link className="project-featured-cover" href={featuredProject.url || '#'}>
-          <Image src={featuredProject.cover} alt={`${featuredProject.title} 主展台`} width={1180} height={720} priority />
-        </Link>
-        <div className="project-featured-copy">
-          <p className="eyebrow">Featured Build</p>
-          <h2>{featuredProject.title}</h2>
-          <p>{featuredProject.description}</p>
-          <div className="tag-row">
-            {featuredProject.tags.map((tag) => <span key={tag}>{tag}</span>)}
+      <div className="project-orbit-layout">
+        <article className="project-featured-console" data-motion="portal-card">
+          <Link className="project-featured-cover" href={featuredProject.url || '#'}>
+            <Image src={featuredProject.cover} alt={`${featuredProject.title} 主展示`} width={1180} height={720} priority />
+          </Link>
+          <div className="project-featured-copy">
+            <p className="eyebrow">Featured Build</p>
+            <h2>{featuredProject.title}</h2>
+            <p>{featuredProject.description}</p>
+            <div className="tag-row">
+              {featuredProject.tags.map((tag) => <span key={tag}>{tag}</span>)}
+            </div>
+            <div className="project-featured-meta">
+              <span>{featuredProject.status}</span>
+              <span>{featuredProject.startedAt || '长期维护'}</span>
+              {featuredProject.repo ? <span>Repository</span> : null}
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <div className="project-status-rack" aria-label="项目状态">
-        {statuses.map((status) => (
-          <span key={status}>
-            <strong>{projects.filter((project) => project.status === status).length}</strong>
-            {status}
+        <aside className="project-status-rack" aria-label="项目状态轨道">
+          <span>
+            <strong>{projects.length}</strong>
+            全部作品
           </span>
-        ))}
+          {statuses.map((status, index) => (
+            <span key={status} style={{ '--status-index': index } as CSSProperties}>
+              <strong>{projects.filter((project) => project.status === status).length}</strong>
+              {status}
+            </span>
+          ))}
+        </aside>
       </div>
 
       <div className="project-exhibit-grid">
         {(galleryProjects.length ? galleryProjects : projects).map((project, index) => (
           <article className="project-card project-exhibit" key={project.id} data-motion="stack-card">
-            <Link className="project-cover" href={project.url || '#'}>
+            <Link className="project-cover" href={project.url || '#'} aria-label={`查看 ${project.title}`}>
               <Image src={project.cover} alt={`${project.title} 封面`} width={860} height={560} />
             </Link>
             <div className="project-copy">

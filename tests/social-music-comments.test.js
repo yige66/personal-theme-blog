@@ -50,7 +50,20 @@ describe('target-style music, friends, and GitHub comments', () => {
   });
 
   it('adds target-style Gitalk comment surfaces and a secure GitHub OAuth proxy', async () => {
-    const [friendsPage, friendsClient, comments, momentComments, githubApi, postPage, chatterPage, musicPage, momentsPage, momentsBoard, css] = await Promise.all([
+    const [
+      friendsPage,
+      friendsClient,
+      comments,
+      momentComments,
+      githubApi,
+      postPage,
+      chatterPage,
+      musicPage,
+      momentsPage,
+      momentsBoard,
+      globalCss,
+      homeCss
+    ] = await Promise.all([
       readFile('app/friends/page.tsx', 'utf8'),
       readFile('components/FriendsBoardClient.tsx', 'utf8'),
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
@@ -61,15 +74,22 @@ describe('target-style music, friends, and GitHub comments', () => {
       readFile('app/music/page.tsx', 'utf8'),
       readFile('app/moments/page.tsx', 'utf8'),
       readFile('components/MomentsBoard.tsx', 'utf8'),
-      readFile('app/globals.css', 'utf8')
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
+    const css = `${globalCss}\n${homeCss}`;
 
     assert.match(friendsPage, /FriendsBoardClient/);
+    assert.match(friendsPage, /友链星图/);
     assert.match(friendsPage, /GitHubComments/);
     assert.match(friendsClient, /friends-command-panel/);
     assert.match(friendsClient, /friend-filter-rail/);
+    assert.match(friendsClient, /friend-constellation-stage/);
+    assert.match(friendsClient, /friend-star-node/);
+    assert.match(friendsClient, /--node-inverse/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /friend-apply-console/);
+    assert.match(friendsClient, /友链是站点关系网络/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);
     assert.match(comments, /GITALK_STYLE_HREF/);
@@ -102,6 +122,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /\.friends-command-panel/);
     assert.match(css, /\.friend-filter-rail/);
     assert.match(css, /\.friend-apply-console/);
+    assert.match(css, /\.friend-constellation-stage/);
+    assert.match(css, /\.friend-star-node/);
     assert.match(css, /\.github-comments-card/);
     assert.match(css, /\.github-comments-loader/);
     assert.match(css, /\.custom-gitalk-glass/);

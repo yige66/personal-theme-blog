@@ -123,15 +123,15 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
   }
 
   return (
-    <section className="main-shell photowall-world" aria-label="照片墙图集">
-      <div className="photowall-toolbar">
+    <section className="main-shell photowall-world xh-reference-surface" aria-label="照片墙图集">
+      <div className="photowall-toolbar xh-reference-toolbar">
         <div>
           <span>{currentAlbum ? `${currentAlbum.photos.length} 张照片` : `${albums.length} 个图集`}</span>
           <strong>{currentAlbum?.title || '光影画廊'}</strong>
         </div>
         <label>
-          <span>搜索相册或照片</span>
-          <input value={searchQuery} onChange={(event) => setSearchQuery(event.currentTarget.value)} placeholder="标题、描述、地点、标签" />
+          <span>Search</span>
+          <input value={searchQuery} onChange={(event) => setSearchQuery(event.currentTarget.value)} placeholder="搜索相册名或照片描述..." />
         </label>
         {currentAlbum ? <button type="button" onClick={() => setCurrentAlbumTitle(null)}>返回画廊</button> : null}
       </div>
@@ -168,12 +168,14 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
                 key={album.title}
               >
                 <span className="photowall-album-stack" aria-hidden="true">
-                  {album.photos.slice(0, 3).map((photo, photoIndex) => (
-                    <img src={photo.image} alt="" loading={index === 0 && photoIndex === 0 ? 'eager' : 'lazy'} key={`${photo.image}-${photoIndex}`} />
-                  ))}
+                  {[0, 1, 2].map((slot) => {
+                    const photo = album.photos[slot] ?? album.photos[0];
+                    return <img src={photo.image} alt="" loading={index === 0 && slot === 0 ? 'eager' : 'lazy'} key={`${photo.image}-${slot}`} />;
+                  })}
+                  <span>{album.photos.length} 张照片</span>
                 </span>
                 <strong>{album.title}</strong>
-                <small>{album.photos.length} photos / {album.date || album.location || 'Memory'}</small>
+                <small>{album.date || album.location || 'Memory'}</small>
                 <em>{album.description}</em>
               </button>
             ))}

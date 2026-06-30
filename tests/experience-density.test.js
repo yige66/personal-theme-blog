@@ -48,7 +48,7 @@ describe('XHBlogs-inspired experience density', () => {
   });
 
   it('renders the upgraded gallery, moment, and music surfaces', async () => {
-    const [blocks, gallery, moments, music, galleryWall, momentsBoard, musicStudio, css] = await Promise.all([
+    const [blocks, gallery, moments, music, galleryWall, momentsBoard, musicStudio, globalCss, homeCss] = await Promise.all([
       readFile('components/SectionBlocks.tsx', 'utf8'),
       readFile('app/gallery/page.tsx', 'utf8'),
       readFile('app/moments/page.tsx', 'utf8'),
@@ -56,8 +56,10 @@ describe('XHBlogs-inspired experience density', () => {
       readFile('components/GalleryWall.tsx', 'utf8'),
       readFile('components/MomentsBoard.tsx', 'utf8'),
       readFile('components/MusicStudio.tsx', 'utf8'),
-      readFile('app/globals.css', 'utf8')
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
+    const css = `${globalCss}\n${homeCss}`;
 
     assert.match(blocks, /GalleryCollectionCard/);
     assert.match(blocks, /MomentTimelineCard/);
@@ -79,8 +81,10 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(galleryWall, /gallery-search-strip/);
     assert.match(galleryWall, /aria-live="polite"/);
     assert.match(momentsBoard, /moments-mood-filter/);
-    assert.match(momentsBoard, /moments-film-rail/);
-    assert.match(momentsBoard, /moment-note-/);
+    assert.match(momentsBoard, /moments-sort-toggle/);
+    assert.match(momentsBoard, /moment-avatar/);
+    assert.match(momentsBoard, /moment-image-grid/);
+    assert.match(momentsBoard, /moment-comment-dock/);
     assert.match(musicStudio, /music-lyrics/);
     assert.match(musicStudio, /music-playlist/);
     assert.match(musicStudio, /music-command-bar/);
@@ -97,7 +101,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /\.gallery-search-strip/);
     assert.match(css, /\.moment-mood-rail/);
     assert.match(css, /\.moments-board/);
-    assert.match(css, /\.moments-film-rail/);
+    assert.match(css, /\.moments-stream/);
+    assert.match(css, /\.moment-image-grid/);
     assert.match(css, /\.radio-hero-card/);
     assert.match(css, /\.music-studio/);
     assert.match(css, /\.music-command-bar/);

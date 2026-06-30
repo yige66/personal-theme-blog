@@ -54,16 +54,16 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
     .filter((group) => group.posts.length > 0), [filteredEntries, groups]);
 
   return (
-    <section className="main-shell archive-world archive-switchboard archive-xh-timeline" aria-label="文章归档与探索">
-      <div className="archive-control-deck">
+    <section className="main-shell archive-world archive-switchboard archive-xh-timeline xh-reference-surface" aria-label="文章归档与探索">
+      <div className="archive-control-deck xh-reference-toolbar">
         <div className="archive-control-title">
           <span>{filteredEntries.length} / {entries.length} 篇文章</span>
           <strong>{view === 'timeline' ? '归档时间线' : '卡片矩阵'}</strong>
           <small>XHBlogs-style archive: search, tags, timeline, cards.</small>
         </div>
         <label className="archive-search">
-          <span>搜索归档</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题、摘要、年份或标签" />
+          <span>Search</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索被封存的知识..." />
         </label>
         <div className="archive-view-toggle" role="tablist" aria-label="归档视图">
           <button
@@ -75,7 +75,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
             aria-controls={timelinePanelId}
             onClick={() => setView('timeline')}
           >
-            时间线
+            中枢链路
           </button>
           <button
             id="archive-tab-cards"
@@ -86,7 +86,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
             aria-controls={cardPanelId}
             onClick={() => setView('cards')}
           >
-            卡片
+            矩阵网格
           </button>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
           type="button"
           onClick={() => setSelectedTag('All')}
         >
-          全部 <span>{entries.length}</span>
+          全部档案 <span>{entries.length}</span>
         </button>
         {tags.map((tag) => (
           <button

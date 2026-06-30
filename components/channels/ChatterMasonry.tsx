@@ -8,7 +8,7 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
   if (chatters.length === 0) {
     return (
       <section className="main-shell chatter-board">
-        <EmptyState title="暂无杂谈" description="补充 chatter 内容后，这里会显示更接近 XHBlogs 的轻文章瀑布流。" />
+        <EmptyState title="暂无杂谈" description="补充 chatter 内容后，这里会显示更接近目标站的轻文章图文流。" />
       </section>
     );
   }
@@ -16,10 +16,10 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
   const tags = Array.from(new Set(chatters.flatMap((chatter) => chatter.tags)));
 
   return (
-    <section className="main-shell chatter-board" aria-label="云端杂谈瀑布">
+    <section className="main-shell chatter-board xh-reference-surface" aria-label="云端杂谈图文流">
       <div className="chatter-filter-rail">
         <span>全部</span>
-        {tags.slice(0, 8).map((tag) => <span key={tag}>#{tag}</span>)}
+        {tags.slice(0, 10).map((tag) => <span key={tag}># {tag}</span>)}
       </div>
       <div className="chatter-masonry">
         {chatters.map((chatter, index) => (
@@ -27,9 +27,10 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
             {chatter.cover ? (
               <span className="chatter-cover">
                 <Image src={chatter.cover} alt="" width={680} height={420} />
+                {chatter.mood ? <em>{chatter.mood}</em> : null}
               </span>
             ) : null}
-            <small>{formatDate(chatter.date)} / {chatter.mood || 'Chatter'}</small>
+            <small>{formatDate(chatter.date)}</small>
             <strong>{chatter.title}</strong>
             <p>{chatter.summary || chatter.content}</p>
             <span className="chatter-tags">

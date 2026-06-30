@@ -112,6 +112,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(themeSceneCard, /MutationObserver/);
     assert.match(themeSceneCard, /xh-theme-orb-scene/);
     assert.match(siteDashboard, /xh-site-dashboard/);
+    assert.match(siteDashboard, /xh-dashboard-meta/);
+    assert.match(siteDashboard, /xh-dashboard-badges/);
     assert.match(siteDashboard, /createDashboardBadges/);
     assert.match(siteDashboard, /formatUptime/);
     assert.match(siteDashboard, /setInterval/);
@@ -152,8 +154,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-dashboard-clock/);
     assert.match(splash, /personal-theme-blog:splash-seen/);
     assert.match(splash, /ib-entry-splash/);
+    assert.match(splash, /ib-entry-stage/);
     assert.match(splash, /ib-entry-mist/);
     assert.match(splash, /ib-entry-window/);
+    assert.match(splash, /ib-entry-hotspot/);
+    assert.match(splash, /ib-entry-cta/);
     assert.match(splash, /ib-entry-progress/);
   });
 
@@ -190,8 +195,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /pointerdown/);
     assert.match(component, /usePathname/);
     assert.match(component, /isTransitioning/);
+    assert.match(component, /nextMode/);
+    assert.match(component, /commitTimerRef/);
     assert.match(component, /xhThemeTransition/);
     assert.match(component, /xh-theme-transition/);
+    assert.match(component, /data-xh-theme-next/);
     assert.match(component, /data-transitioning/);
     assert.match(component, /setTimeout/);
     assert.match(component, /preventDefault/);

@@ -8365,7 +8365,7 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
     translate(-50%, -50%)
     rotate(var(--node-angle))
     translate(var(--node-radius))
-    rotate(calc(var(--node-angle) * -1));
+    rotate(var(--node-inverse));
 }
 
 .link-list-fallback {
@@ -8389,11 +8389,11 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 }
 
 .tag-world .tag-cloud-card {
-  transform: translateY(calc((var(--tag-index) % 4) * 9px)) rotate(var(--tag-tilt));
+  transform: translateY(var(--tag-y)) rotate(var(--tag-tilt));
 }
 
 .tag-world .tag-cloud-card:hover {
-  transform: translateY(calc((var(--tag-index) % 4) * 9px - 6px)) rotate(0deg);
+  transform: translateY(var(--tag-y-hover)) rotate(0deg);
 }
 
 .tag-world .tag-cloud-card.heat-5 {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { CSSProperties } from 'react';
 import { ArticleTOC } from '@/components/article/ArticleTOC';
 import { GitHubComments } from '@/components/comments/GitHubComments';
 import { SidebarLyric } from '@/components/music/SidebarLyric';
@@ -43,7 +44,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const toc = extractTableOfContents(post.content);
 
   return (
-    <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
+    <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(articleJsonLd) }} />
       <SiteNav title={data.site.title} />
       <section className="main-shell article-layout">

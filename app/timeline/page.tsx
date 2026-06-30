@@ -16,7 +16,7 @@ export default async function TimelinePage() {
       <ChannelHeader
         eyebrow="Timeline"
         title="归档与探索"
-        description="把文章、说说、杂谈和项目揉成一条可搜索的内容年表，补齐 XHBlogs 里 timeline 的站内探索角色。"
+        description="把文章、说说、杂谈和项目揉成一条可搜索的内容年表。"
         stats={[
           { label: '节点', value: items.length },
           { label: '类型', value: types.size },

@@ -14,8 +14,8 @@ export default async function TagsPage() {
       <SiteNav title={data.site.title} />
       <ChannelHeader
         eyebrow="Tags"
-        title="标签星图"
-        description="用标签把文章、主题和学习线索连起来，快速进入同一类内容。"
+        title="标签星云"
+        description="用标签把文章、主题和学习线索连起来，快速进入同一类内容轨道。"
         stats={[
           { label: '标签', value: tags.length },
           { label: '文章', value: tags.reduce((total, tag) => total + tag.count, 0) },

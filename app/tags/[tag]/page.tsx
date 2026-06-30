@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import type { CSSProperties } from 'react';
 import { ChannelHeader } from '@/components/ChannelHeader';
 import { TagReadingDock } from '@/components/channels/TagSurfaces';
 import { SiteNav } from '@/components/SiteNav';
@@ -37,12 +38,12 @@ export default async function TagPage({ params }: TagPageProps) {
   }
 
   return (
-    <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
+    <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
       <SiteNav title={data.site.title} />
       <ChannelHeader
         eyebrow="Tag"
         title={`#${decodedTag}`}
-        description="同一标签下的文章集合，被收束到一个可继续漫游的阅读舱里。"
+        description="同一标签下的文章集合，被收束到一条可以继续漫游的阅读轨道里。"
         stats={[
           { label: '文章', value: posts.length },
           { label: '标签', value: decodedTag },

@@ -44,14 +44,15 @@ export function SiteDashboard({ data, stats }: SiteDashboardProps) {
         <span>Local Time</span>
       </div>
       <div className="xh-dashboard-meta">
-        <span><i />系统已稳定运行：<strong>{now ? formatUptime(firstPostDate, now) : `${data.site.streak} days`}</strong></span>
-        <span>{data.site.location} / {data.site.assistantName}</span>
+        <span><i />系统已稳定运行</span>
+        <strong>{now ? formatUptime(firstPostDate, now) : `${data.site.streak} days`}</strong>
+        <small>{data.site.location} / {data.site.assistantName}</small>
       </div>
-      <div className="xh-dashboard-badges">
+      <div className="xh-dashboard-badges" aria-label="内容统计">
         {badges.map((badge) => (
           <span className={`tone-${badge.tone}`} key={badge.label}>
             <strong>{badge.value}</strong>
-            {badge.label}
+            <small>{badge.label}</small>
           </span>
         ))}
       </div>

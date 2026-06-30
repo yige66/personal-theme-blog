@@ -14,15 +14,15 @@ export default async function LinksPage() {
       <SiteNav title={data.site.title} />
       <ChannelHeader
         eyebrow="Friends"
-        title="友链与入口"
-        description="朋友站点、代码仓库、归档入口和常用链接都放在同一张可维护的关系图里。"
+        title="关系星图"
+        description="把友站、代码仓库、归档入口和长期连接放在同一张可维护的关系图里。"
         stats={[
           { label: '链接', value: data.links.length },
           { label: '外链', value: data.links.filter((link) => link.url.startsWith('http')).length },
           { label: '维护', value: 'CMS' }
         ]}
         actions={[
-          { href: '/console', label: '管理友链' },
+          { href: '/friends', label: '友链申请' },
           { href: data.site.github, label: 'GitHub' }
         ]}
         signal="friends / repositories / routes / soft connections"

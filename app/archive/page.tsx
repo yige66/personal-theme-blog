@@ -16,7 +16,7 @@ export default async function ArchivePage() {
       <ChannelHeader
         eyebrow="Archive"
         title="文章归档"
-        description="按 XHBlogs 的归档逻辑组织文章：搜索标题与摘要、按标签筛选，并在时间线和卡片矩阵之间切换。"
+        description="搜索标题、摘要、年份或标签，在时间线和卡片矩阵之间切换。"
         stats={[
           { label: '文章', value: postCount },
           { label: '年份', value: groups.length },

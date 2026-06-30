@@ -5,6 +5,37 @@ import { usePathname } from 'next/navigation';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { experienceRoutes } from '@/lib/experience';
 
+const routeLabels: Record<string, string> = {
+  home: '首页',
+  projects: '项目',
+  archive: '归档',
+  photowall: '照片墙',
+  music: '音乐',
+  moments: '说说',
+  chatter: '杂谈',
+  tags: '标签',
+  friends: '友链',
+  timeline: '时间线',
+  about: '关于',
+  console: '后台'
+};
+
+function cleanTitle(title: string): string {
+  if (title.includes('星') && (title.includes('手') || title.includes('记'))) {
+    return title;
+  }
+
+  if (/^[A-Za-z0-9\s'._-]+$/.test(title.trim())) {
+    return title;
+  }
+
+  return '星屿手记';
+}
+
+function labelFor(id: string, fallback: string): string {
+  return routeLabels[id] ?? fallback;
+}
+
 function isActive(pathname: string, href: string): boolean {
   if (href === '/') {
     return pathname === '/';
@@ -21,6 +52,7 @@ export function SiteNav({ title }: { title: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [orbitRotation, setOrbitRotation] = useState(0);
   const [orbitDragging, setOrbitDragging] = useState(false);
+  const brandTitle = cleanTitle(title);
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -117,8 +149,8 @@ export function SiteNav({ title }: { title: string }) {
   return (
     <>
       <nav className={`top-nav site-nav${hidden ? ' is-hidden' : ''}${menuOpen ? ' is-orbit-open' : ''}`} aria-label="主导航">
-        <Link className="brand" href="/" aria-label={`${title} 首页`}>
-          <span>{title}</span>
+        <Link className="brand" href="/" aria-label={`${brandTitle} 首页`}>
+          <span>{brandTitle}</span>
           <small>Personal Blog</small>
         </Link>
 
@@ -127,7 +159,7 @@ export function SiteNav({ title }: { title: string }) {
             const active = isActive(pathname, item.href);
             return (
               <Link className={active ? 'active' : ''} aria-current={active ? 'page' : undefined} key={item.href} href={item.href}>
-                {item.label}
+                {labelFor(item.id, item.label)}
               </Link>
             );
           })}
@@ -161,8 +193,8 @@ export function SiteNav({ title }: { title: string }) {
           style={{ '--orbit-rotation': `${orbitRotation}deg` } as CSSProperties}
         >
           <div className="mobile-orbit-core">
-            <strong>{title}</strong>
-            <small>Tap a route</small>
+            <strong>{brandTitle}</strong>
+            <small>选择入口</small>
           </div>
           {experienceRoutes.map((item, index) => {
             const active = isActive(pathname, item.href);
@@ -181,7 +213,7 @@ export function SiteNav({ title }: { title: string }) {
                 role="menuitem"
                 style={style}
               >
-                <span>{item.label}</span>
+                <span>{labelFor(item.id, item.label)}</span>
                 <small>{item.tone} / {item.coordinate}</small>
               </Link>
             );

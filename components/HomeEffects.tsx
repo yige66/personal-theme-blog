@@ -23,17 +23,19 @@ type Ripple = {
 const dailyDanmaku = [
   '今天也有认真更新',
   'BGM 正在循环中',
-  '路过打卡，晚点再来看',
-  '这张封面有点心动',
-  '相册区适合慢慢逛',
-  '写完这篇就去听歌',
-  '评论区先留个脚印',
-  '灵感刚刚冒泡',
-  '夜间模式适合发呆',
   '把日常收进时间线',
-  '照片墙等你上传新图',
-  '今天也要温柔一点'
+  '照片墙适合慢慢逛',
+  '评论区可以留下脚印',
+  '夜间模式适合发呆',
+  '友链是一张关系星图',
+  '项目页记录长期实验',
+  '灵感刚刚冒泡',
+  '写完这段就去听歌'
 ];
+
+const xhThemeAttribute = 'data-xh-theme';
+const xhThemeNextAttribute = 'data-xh-theme-next';
+const xhThemeTransitionAttribute = 'data-xh-theme-transition';
 
 function uniqueMessages(values: string[]): string[] {
   const seen = new Set<string>();
@@ -53,11 +55,19 @@ function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function setThemeAttributes(currentMode: 'day' | 'night', nextMode: 'day' | 'night', transition: 'active' | 'idle') {
+  document.documentElement.setAttribute(xhThemeAttribute, currentMode);
+  document.documentElement.setAttribute(xhThemeNextAttribute, nextMode);
+  document.documentElement.setAttribute(xhThemeTransitionAttribute, transition);
+}
+
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
+  const commitTimerRef = useRef<number | null>(null);
   const [nightMode, setNightMode] = useState(false);
+  const [nextMode, setNextMode] = useState<'day' | 'night'>('day');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
@@ -102,24 +112,23 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   useEffect(() => {
     const savedMode = window.localStorage.getItem('xh-theme-mode');
-    if (savedMode) {
-      setNightMode(savedMode === 'night');
-      return;
-    }
-
-    const hour = new Date().getHours();
-    setNightMode(hour >= 18 || hour < 6);
+    const initialNight = savedMode ? savedMode === 'night' : new Date().getHours() >= 18 || new Date().getHours() < 6;
+    setNightMode(initialNight);
+    setNextMode(initialNight ? 'night' : 'day');
+    setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.xhTheme = nightMode ? 'night' : 'day';
-    document.documentElement.dataset.xhThemeTransition = isTransitioning ? 'active' : 'idle';
+    setThemeAttributes(nightMode ? 'night' : 'day', nextMode, isTransitioning ? 'active' : 'idle');
     window.localStorage.setItem('xh-theme-mode', nightMode ? 'night' : 'day');
-  }, [isTransitioning, nightMode]);
+  }, [isTransitioning, nextMode, nightMode]);
 
   useEffect(() => () => {
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
+    }
+    if (commitTimerRef.current) {
+      window.clearTimeout(commitTimerRef.current);
     }
   }, []);
 
@@ -210,13 +219,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
     }
+    if (commitTimerRef.current) {
+      window.clearTimeout(commitTimerRef.current);
+    }
 
+    const targetMode = nightMode ? 'day' : 'night';
+    setNextMode(targetMode);
     setIsTransitioning(true);
-    setNightMode((value) => !value);
+
+    const commitDelay = prefersReducedMotion() ? 0 : 520;
+    const finishDelay = prefersReducedMotion() ? 160 : 1480;
+
+    commitTimerRef.current = window.setTimeout(() => {
+      setNightMode(targetMode === 'night');
+    }, commitDelay);
+
     transitionTimerRef.current = window.setTimeout(() => {
       setIsTransitioning(false);
-      document.documentElement.dataset.xhThemeTransition = 'idle';
-    }, 1250);
+      document.documentElement.setAttribute(xhThemeTransitionAttribute, 'idle');
+    }, finishDelay);
   };
 
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
@@ -229,7 +250,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const handleExternalToggle = () => startThemeTransition();
     window.addEventListener('xh-toggle-theme', handleExternalToggle);
     return () => window.removeEventListener('xh-toggle-theme', handleExternalToggle);
-  }, []);
+  }, [nightMode]);
 
   if (!effects.enabled) {
     return null;
@@ -250,7 +271,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       <div className="xh-room-vignette" aria-hidden="true" />
 
-      <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nightMode ? 'night' : 'day'} aria-hidden="true">
+      <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nextMode} aria-hidden="true">
         <span />
         <span />
         <span />
@@ -323,7 +344,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         >
           <span>{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
           <strong>{nightMode ? '夜色场景' : '晨光场景'}</strong>
-          <small>{isTransitioning ? '场景转换中' : nightMode ? '雨幕与微光' : '晴空与虹影'}</small>
+          <small>{isTransitioning ? '场景正在过渡' : nightMode ? '雨幕与微光' : '晴空与折光'}</small>
         </button>
       ) : null}
 

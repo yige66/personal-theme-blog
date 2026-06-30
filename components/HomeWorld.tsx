@@ -19,10 +19,10 @@ type HomeWorldProps = {
 
 const routeSpotlight = [
   { id: 'photowall', title: '照片墙', intro: '相册、封面和日常视觉归档。' },
-  { id: 'friends', title: '友链', intro: '朋友站点与申请格式。' },
-  { id: 'chatter', title: '杂谈', intro: '文章之外的轻记录。' },
-  { id: 'timeline', title: '时间线', intro: '按年份回看更新。' },
-  { id: 'music', title: '音乐', intro: '播放、歌词与歌单。' }
+  { id: 'friends', title: '友链', intro: '朋友站点、申请格式与长期互访。' },
+  { id: 'chatter', title: '杂谈', intro: '文章之外的轻记录与碎片想法。' },
+  { id: 'timeline', title: '时间线', intro: '按年份回看更新、笔记和里程碑。' },
+  { id: 'music', title: '音乐', intro: '云端歌单、歌词与播放状态。' }
 ] as const;
 
 function getRoute(id: string) {

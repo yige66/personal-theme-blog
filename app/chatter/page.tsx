@@ -16,14 +16,14 @@ export default async function ChatterPage() {
       <ChannelHeader
         eyebrow="Chatter"
         title="云端杂谈"
-        description="把短动态和正式文章之间的想法单独拎出来，形成 XHBlogs 那种带封面、心情、标签和瀑布节奏的轻文章频道。"
+        description="代码、学术、提瓦特与日常碎片的轻文章记录。"
         stats={[
           { label: '杂谈', value: chatters.length },
           { label: '标签', value: tags.size },
-          { label: '形态', value: 'Masonry' }
+          { label: '形式', value: 'Masonry' }
         ]}
         actions={[
-          { href: '/moments', label: '说说动态' },
+          { href: '/moments', label: '生活动态' },
           { href: '/timeline', label: '聚合时间线' }
         ]}
         signal="chatter / light essays / mood cards / masonry stream"

@@ -39,7 +39,7 @@ function renderAction(action: ChannelHeaderAction, index: number) {
 
 export function ChannelHeader({ actions = [], description, eyebrow, signal, stats = [], title }: ChannelHeaderProps) {
   return (
-    <header className="main-shell channel-hero" data-motion="portal-card">
+    <header className="main-shell channel-hero xh-reference-hero" data-motion="portal-card">
       <div className="channel-hero-copy">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>

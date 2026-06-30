@@ -18,7 +18,7 @@ export default async function PhotoWallPage() {
       <ChannelHeader
         eyebrow="Photo Wall"
         title="光影画廊"
-        description="按目标站的图集逻辑独立成页：先进入相册，再浏览照片墙，搜索时可以直接命中单张照片。"
+        description="定格时间，封存泰拉与现实的每一次心跳。"
         stats={[
           { label: '图集', value: albumCount },
           { label: '照片', value: totalImages },
