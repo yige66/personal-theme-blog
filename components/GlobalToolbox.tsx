@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { SiteColumn } from '@/lib/blog';
 
 type GlobalToolboxProps = {
+  columns?: SiteColumn[];
   github: string;
   email: string;
 };
@@ -18,11 +20,24 @@ const tools = [
   { href: '/friends', label: '友', title: '友链星团' }
 ];
 
-export function GlobalToolbox({ github, email }: GlobalToolboxProps) {
+function toolboxItems(columns: SiteColumn[] = []) {
+  const configured = columns
+    .filter((column) => column.visible && column.toolboxVisible)
+    .map((column) => ({
+      href: column.href,
+      label: column.label.slice(0, 1) || column.id.slice(0, 1),
+      title: column.title || column.label
+    }));
+
+  return configured.length > 0 ? configured : tools;
+}
+
+export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProps) {
   const pathname = usePathname();
   const githubIsExternal = github.startsWith('http');
   const isHome = pathname === '/';
   const [open, setOpen] = useState(false);
+  const items = toolboxItems(columns);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,7 +66,7 @@ export function GlobalToolbox({ github, email }: GlobalToolboxProps) {
             <path d="M12 5l7 7-1.4 1.4-4.6-4.58V20h-2V8.82l-4.6 4.58L5 12l7-7z" />
           </svg>
         </button>
-        {tools.map((tool) => {
+        {items.map((tool) => {
           const active = pathname === tool.href || pathname.startsWith(`${tool.href}/`);
           return (
             <Link

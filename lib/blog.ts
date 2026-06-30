@@ -32,6 +32,7 @@ export type BlogNote = {
   title?: string;
   mood?: string;
   tags?: string[];
+  images?: string[];
 };
 
 export type GalleryItem = {
@@ -168,6 +169,21 @@ export type EntryTextConfig = {
   };
 };
 
+export type SiteColumn = {
+  id: string;
+  href: string;
+  label: string;
+  title: string;
+  intro: string;
+  visible: boolean;
+  navVisible: boolean;
+  homeVisible: boolean;
+  toolboxVisible: boolean;
+  coordinate: string;
+  tone: string;
+  room: string;
+};
+
 export type BlogSite = {
   title: string;
   subtitle: string;
@@ -183,6 +199,8 @@ export type BlogSite = {
   accentColor: string;
   heroImage: string;
   avatar: string;
+  backgroundImages: string[];
+  columns: SiteColumn[];
   level: number;
   experience: number;
   streak: number;
@@ -246,6 +264,20 @@ const fallbackSite: BlogSite = {
   accentColor: '#f0c36a',
   heroImage: '/assets/img/hero-mountain.svg',
   avatar: '/assets/img/avatar-orbit.svg',
+  backgroundImages: ['/assets/img/hero-mountain.svg', '/assets/img/desk-notes.svg', '/assets/img/admin-board.svg'],
+  columns: [
+    { id: 'home', href: '/', label: '首页', title: '首页', intro: '站点总览入口', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '00', tone: 'Home', room: 'Lobby' },
+    { id: 'projects', href: '/projects', label: '项目', title: '项目陈列', intro: '项目、作品和系统实践入口。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '02', tone: 'Work', room: 'Workshop' },
+    { id: 'archive', href: '/archive', label: '文章', title: '文章归档', intro: '按年份、分类和标签回看长文记录。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '12', tone: 'Posts', room: 'Library' },
+    { id: 'photowall', href: '/photowall', label: '照片墙', title: '照片墙', intro: '头图、相册、截图和日常视觉素材。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '24', tone: 'Photo', room: 'Wardrobe' },
+    { id: 'music', href: '/music', label: '音乐', title: '夜航电台', intro: '背景音乐、歌词和播放列表。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '33', tone: 'Radio', room: 'Sleep' },
+    { id: 'moments', href: '/moments', label: '动态', title: '生活动态', intro: '轻量说说、心情和日常片段。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: true, coordinate: '41', tone: 'Daily', room: 'Tea' },
+    { id: 'chatter', href: '/chatter', label: '杂谈', title: '云端杂谈', intro: '文章之外的轻记录和碎片想法。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '45', tone: 'Chatter', room: 'Cloud' },
+    { id: 'tags', href: '/tags', label: '标签', title: '标签索引', intro: '从标签云进入主题阅读路径。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '57', tone: 'Tags', room: 'Tarot' },
+    { id: 'friends', href: '/friends', label: '友链', title: '友链星团', intro: '朋友站点和互访入口。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '68', tone: 'Friends', room: 'Friends' },
+    { id: 'about', href: '/about', label: '关于', title: '关于我', intro: '个人资料、时间线和联系方式。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '81', tone: 'Profile', room: 'Profile' },
+    { id: 'console', href: '/console', label: '发布', title: '发布工作流', intro: '内容版本、预览和生产发布入口。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '99', tone: 'Deploy', room: 'Console' }
+  ],
   level: 12,
   experience: 68,
   streak: 27,
@@ -364,10 +396,10 @@ const fallbackSite: BlogSite = {
       alt: '桌面笔记插画'
     },
     {
-      title: '后台面板',
+      title: '发布面板',
       description: '发布工作流承载内容版本、预览和备份。',
       image: '/assets/img/admin-board.svg',
-      alt: '后台面板插画'
+      alt: '发布面板插画'
     }
   ]
 };
@@ -380,7 +412,7 @@ const fallbackProjects: BlogProject[] = [
     url: '/console',
     repo: 'https://github.com/yige66/personal-theme-blog',
     cover: '/assets/img/admin-board.svg',
-    tags: ['Next.js', 'CMS', 'JSON'],
+    tags: ['Next.js', 'Deploy', 'JSON'],
     status: 'active',
     featured: true,
     startedAt: '2026-06-28'
@@ -675,6 +707,8 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     music: normalizeArray(siteInput.music, fallbackSite.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     avatar: siteInput.avatar || fallbackSite.avatar,
+    backgroundImages: normalizeAssetList(siteInput.backgroundImages, fallbackSite.backgroundImages, 12),
+    columns: normalizeColumns(siteInput.columns),
     role: siteInput.role || fallbackSite.role,
     motto: siteInput.motto || fallbackSite.motto,
     status: siteInput.status || fallbackSite.status,
@@ -703,6 +737,71 @@ function compareByDateDesc(a: { date: string }, b: { date: string }): number {
 
 function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
   return Array.isArray(value) && value.length > 0 ? (value as T[]) : fallback;
+}
+
+function normalizeAssetList(value: unknown, fallback: string[], limit: number): string[] {
+  const source = Array.isArray(value) ? value : fallback;
+  const seen = new Set<string>();
+  const assets = source
+    .map((item) => typeof item === 'string' ? item.trim() : '')
+    .filter((item) => Boolean(item) && (/^https?:\/\/[^\s]+$/i.test(item) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(item)))
+    .filter((item) => {
+      if (seen.has(item)) {
+        return false;
+      }
+      seen.add(item);
+      return true;
+    })
+    .slice(0, limit);
+
+  return assets.length > 0 ? assets : fallback;
+}
+
+function normalizeColumns(value: unknown): SiteColumn[] {
+  const input = Array.isArray(value) ? value : [];
+  const byId = new Map(
+    input
+      .filter((item): item is Partial<SiteColumn> => typeof item === 'object' && item !== null)
+      .map((item) => [typeof item.id === 'string' ? item.id.trim() : '', item] as const)
+      .filter(([id]) => Boolean(id))
+  );
+
+  const columns = fallbackSite.columns.map((fallback) => normalizeColumn(byId.get(fallback.id), fallback));
+  const customColumns = input
+    .filter((item): item is Partial<SiteColumn> => typeof item === 'object' && item !== null)
+    .filter((item) => typeof item.id === 'string' && !fallbackSite.columns.some((fallback) => fallback.id === item.id))
+    .slice(0, 6)
+    .map((item) => normalizeColumn(item, null));
+
+  return [...columns, ...customColumns];
+}
+
+function normalizeColumn(value: Partial<SiteColumn> | undefined, fallback: SiteColumn | null): SiteColumn {
+  const id = validColumnId(value?.id) || fallback?.id || 'custom';
+  return {
+    id,
+    href: fallback?.href || safeHref(value?.href) || '#',
+    label: textOrFallback(value?.label, fallback?.label || id),
+    title: textOrFallback(value?.title, fallback?.title || value?.label || id),
+    intro: textOrFallback(value?.intro, fallback?.intro || ''),
+    visible: value?.visible ?? fallback?.visible ?? true,
+    navVisible: value?.navVisible ?? fallback?.navVisible ?? true,
+    homeVisible: value?.homeVisible ?? fallback?.homeVisible ?? false,
+    toolboxVisible: value?.toolboxVisible ?? fallback?.toolboxVisible ?? false,
+    coordinate: textOrFallback(value?.coordinate, fallback?.coordinate || ''),
+    tone: textOrFallback(value?.tone, fallback?.tone || ''),
+    room: textOrFallback(value?.room, fallback?.room || '')
+  };
+}
+
+function validColumnId(value: unknown): string {
+  const id = typeof value === 'string' ? value.trim() : '';
+  return /^[a-z][a-z0-9-]{1,39}$/.test(id) ? id : '';
+}
+
+function safeHref(value: unknown): string {
+  const href = typeof value === 'string' ? value.trim() : '';
+  return /^https?:\/\/[^\s]+$/i.test(href) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(href) || /^#[a-zA-Z0-9_-]+$/.test(href) ? href : '';
 }
 
 function normalizeEffects(value: unknown): VisualEffectsConfig {

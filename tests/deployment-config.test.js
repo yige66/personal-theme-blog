@@ -20,8 +20,10 @@ describe('deployment workflow configuration', () => {
     assert.match(ci, /actions\/setup-node@v4/);
     assert.match(ci, /npm run build/);
     assert.match(ci, /npx tsc --noEmit/);
+    assert.doesNotMatch(ci, /server\.js/);
     assert.match(docs, /GitHub/);
     assert.match(docs, /Vercel/);
+    assert.doesNotMatch(docs, /local CMS|npm run cms|server\.js/);
   });
 
   it('keeps the public publishing console deployment-first', async () => {

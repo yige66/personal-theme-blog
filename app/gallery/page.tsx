@@ -14,11 +14,11 @@ export default async function GalleryPage() {
 
   return (
     <main className="subpage gallery-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Gallery"
         title="灵感照片墙"
-        description="头像、头图、项目截图和日常视觉碎片按图集归档。后台上传后，这里会自然长成站点自己的视觉记忆。"
+        description="头像、头图、项目截图和日常视觉碎片按图集归档。素材进入数据源后，这里会自然长成站点自己的视觉记忆。"
         stats={[
           { label: '图片', value: totalImages },
           { label: '图集', value: collectionCount },

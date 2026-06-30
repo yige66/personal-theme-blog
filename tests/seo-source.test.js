@@ -23,7 +23,8 @@ describe('publishing SEO surface wiring', () => {
     assert.match(sitemap, /getTagSummaries/);
     assert.match(sitemap, /getChatters/);
     assert.match(sitemap, /PUBLIC_ROUTES/);
-    assert.match(robots, /disallow: \['\/api\/', '\/admin.html'\]/);
+    assert.match(robots, /disallow: \['\/api\/'\]/);
+    assert.doesNotMatch(robots, /admin\.html/);
     assert.match(manifest, /display: 'standalone'/);
     assert.match(seo, /NEXT_PUBLIC_SITE_URL/);
     assert.match(seo, /VERCEL_URL/);

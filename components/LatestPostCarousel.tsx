@@ -47,7 +47,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
         <div>
           <p className="eyebrow">Latest Post</p>
           <h2>第一篇文章正在准备中</h2>
-          <span>等待后台发布后，这里会变成可轮播的阅读入口。</span>
+          <span>等待内容发布后，这里会变成可轮播的阅读入口。</span>
           <Link href="/archive">前往归档</Link>
         </div>
       </section>

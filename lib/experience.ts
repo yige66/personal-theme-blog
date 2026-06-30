@@ -70,7 +70,7 @@ export const experienceRoutes: ExperienceRoute[] = [
   { id: 'tags', href: '/tags', label: '标签', tone: 'Tags', coordinate: '57', room: 'Tarot' },
   { id: 'friends', href: '/friends', label: '友链', tone: 'Friends', coordinate: '68', room: 'Friends' },
   { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Profile' },
-  { id: 'console', href: '/console', label: '后台', tone: 'CMS', coordinate: '99', room: 'Console' }
+  { id: 'console', href: '/console', label: '发布', tone: 'Deploy', coordinate: '99', room: 'Console' }
 ];
 
 const spaceModuleBlueprints = [
@@ -184,7 +184,7 @@ export function createSpaceModules(data: BlogData, stats: BlogStats): SpaceModul
     {
       ...spaceModuleBlueprints[3],
       value: `${stats.tracks} 首`,
-      detail: activeTrack ? `${activeTrack.title} / ${activeTrack.artist}` : '等待后台补充歌单'
+      detail: activeTrack ? `${activeTrack.title} / ${activeTrack.artist}` : '等待数据源补充歌单'
     }
   ];
 }

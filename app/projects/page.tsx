@@ -11,7 +11,7 @@ export default async function ProjectsPage() {
 
   return (
     <main className="subpage projects-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Projects"
         title="项目星港"
@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
         stats={[
           { label: '项目', value: data.projects.length },
           { label: '精选', value: data.projects.filter((project) => project.featured).length },
-          { label: '维护', value: 'CMS' }
+          { label: '维护', value: 'Git' }
         ]}
         actions={[
           { href: '/console', label: '管理项目' },

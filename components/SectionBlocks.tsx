@@ -99,7 +99,7 @@ export function MusicTrackCard({ track, index }: { track: MusicTrack; index: num
         <p>{track.artist} / {track.mood || '阅读背景'}</p>
         {track.note ? <small>{track.note}</small> : null}
       </div>
-      {track.url ? <audio controls src={track.url}>浏览器不支持音频播放。</audio> : <small className="track-draft">等待后台补充音频地址</small>}
+      {track.url ? <audio controls src={track.url}>浏览器不支持音频播放。</audio> : <small className="track-draft">等待数据源补充音频地址</small>}
     </article>
   );
 }

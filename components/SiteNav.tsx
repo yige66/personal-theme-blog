@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { experienceRoutes } from '@/lib/experience';
+import type { SiteColumn } from '@/lib/blog';
 
 const routeLabels: Record<string, string> = {
   home: '首页',
@@ -16,7 +17,7 @@ const routeLabels: Record<string, string> = {
   tags: '标签',
   friends: '友链',
   about: '关于',
-  console: '后台'
+  console: '发布'
 };
 
 function cleanTitle(title: string): string {
@@ -35,6 +36,41 @@ function labelFor(id: string, fallback: string): string {
   return routeLabels[id] ?? fallback;
 }
 
+function navRoutes(columns: SiteColumn[] = []) {
+  const byId = new Map(columns.map((column) => [column.id, column]));
+  const routes = experienceRoutes
+    .map((route) => {
+      const column = byId.get(route.id);
+      if (column && (!column.visible || !column.navVisible)) {
+        return null;
+      }
+
+      return {
+        ...route,
+        href: column?.href || route.href,
+        label: column?.label || labelFor(route.id, route.label),
+        tone: column?.tone || route.tone,
+        coordinate: column?.coordinate || route.coordinate,
+        room: column?.room || route.room
+      };
+    })
+    .filter((route): route is NonNullable<typeof route> => Boolean(route));
+
+  const customRoutes = columns
+    .filter((column) => column.visible && column.navVisible)
+    .filter((column) => !experienceRoutes.some((route) => route.id === column.id))
+    .map((column) => ({
+      id: column.id,
+      href: column.href,
+      label: column.label,
+      tone: column.tone || 'Custom',
+      coordinate: column.coordinate || '',
+      room: column.room || column.title
+    }));
+
+  return [...routes, ...customRoutes];
+}
+
 function isActive(pathname: string, href: string): boolean {
   if (href === '/') {
     return pathname === '/';
@@ -43,7 +79,7 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteNav({ title }: { title: string }) {
+export function SiteNav({ columns = [], title }: { columns?: SiteColumn[]; title: string }) {
   const pathname = usePathname();
   const ringRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ angle: number; rotation: number } | null>(null);
@@ -52,6 +88,7 @@ export function SiteNav({ title }: { title: string }) {
   const [orbitRotation, setOrbitRotation] = useState(0);
   const [orbitDragging, setOrbitDragging] = useState(false);
   const brandTitle = cleanTitle(title);
+  const routes = navRoutes(columns);
 
   useEffect(() => {
     let previousY = window.scrollY;
@@ -154,11 +191,11 @@ export function SiteNav({ title }: { title: string }) {
         </Link>
 
         <div className="nav-links">
-          {experienceRoutes.map((item) => {
+          {routes.map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <Link className={active ? 'active' : ''} aria-current={active ? 'page' : undefined} key={item.href} href={item.href}>
-                {labelFor(item.id, item.label)}
+                {item.label}
               </Link>
             );
           })}
@@ -195,9 +232,9 @@ export function SiteNav({ title }: { title: string }) {
             <strong>{brandTitle}</strong>
             <small>选择入口</small>
           </div>
-          {experienceRoutes.map((item, index) => {
+          {routes.map((item, index) => {
             const active = isActive(pathname, item.href);
-            const angle = index * (360 / experienceRoutes.length) - 90;
+            const angle = index * (360 / routes.length) - 90;
             const style = {
               '--orbit-angle': `${angle}deg`,
               '--orbit-counter-angle': `${-(angle + orbitRotation)}deg`
@@ -212,7 +249,7 @@ export function SiteNav({ title }: { title: string }) {
                 role="menuitem"
                 style={style}
               >
-                <span>{labelFor(item.id, item.label)}</span>
+                <span>{item.label}</span>
                 <small>{item.tone} / {item.coordinate}</small>
               </Link>
             );

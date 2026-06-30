@@ -23,7 +23,7 @@ export default async function ChatterDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="article-page chatter-detail-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <article className="article-shell main-shell">
         <header className="article-capsule">
           <p className="article-kicker">Chatter / {chatter.mood || 'Notebook'}</p>

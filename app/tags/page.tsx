@@ -11,7 +11,7 @@ export default async function TagsPage() {
 
   return (
     <main className="subpage tags-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Tags"
         title="标签星云"

@@ -1,11 +1,11 @@
 # Deployment workflow
 
-This project is meant to run as a deployed Next.js personal blog. The local CMS remains an authoring helper, while GitHub and Vercel own the delivery path.
+This project is meant to run as a deployed Next.js personal blog. Content changes live in the repository, while GitHub and Vercel own the delivery path.
 
 ## Production model
 
 1. Edit articles, moments, gallery items, music, links, projects, and site profile data in `data/blog.json`.
-2. Use `npm run cms` only when you want a local writing console.
+2. Add production-facing images and icons under `public/assets/`.
 3. Run `npm run check` before publishing.
 4. Commit the changed JSON, assets, and source files.
 5. Push to GitHub.
@@ -34,7 +34,6 @@ The CI workflow runs on pushes to `main` and `refactor/**`, plus pull requests t
 
 The quality gate includes:
 
-- `node --check server.js`
 - `node --test`
 - `npx tsc --noEmit`
 - `npm run build`

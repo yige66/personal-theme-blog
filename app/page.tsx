@@ -12,7 +12,7 @@ export default async function HomePage() {
   return (
     <main className="xh-home" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(websiteJsonLd) }} />
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <HomeWorld data={data} stats={stats} posts={posts} searchEntries={searchEntries} />
     </main>
   );

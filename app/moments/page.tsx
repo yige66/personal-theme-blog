@@ -15,7 +15,7 @@ export default async function MomentsPage() {
 
   return (
     <main className="subpage moments-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Moments"
         title="生活动态"
@@ -40,7 +40,7 @@ export default async function MomentsPage() {
         <MomentsBoard comments={data.site.comments} notes={notes} />
       ) : (
         <section className="main-shell moment-waterfall">
-          <EmptyState title="暂无动态" description="在后台维护动态后，这里会形成轻量时间线。" />
+          <EmptyState title="暂无动态" description="在数据源维护动态后，这里会形成轻量时间线。" />
         </section>
       )}
     </main>

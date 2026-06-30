@@ -39,7 +39,7 @@ export default async function TagPage({ params }: TagPageProps) {
 
   return (
     <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Tag"
         title={`#${decodedTag}`}

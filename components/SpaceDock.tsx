@@ -42,7 +42,7 @@ export function SpaceDock({ data, stats }: SpaceDockProps) {
       <div className="xh-space-status" aria-label="站点状态">
         <span><strong>Online</strong><small>频道同步中</small></span>
         <span><strong>{data.site.streak} Days</strong><small>连续维护</small></span>
-        <span><strong>{data.site.assistantName}</strong><small>后台可改名</small></span>
+        <span><strong>{data.site.assistantName}</strong><small>数据源可改名</small></span>
         <span><strong>{routeCount} Routes</strong><small>全站星轨</small></span>
       </div>
 

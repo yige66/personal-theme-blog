@@ -7,7 +7,7 @@
 - `沉浸式前台`：玻璃拟态首页、个人名片、等级经验、音乐挂件、AI 助手卡、文章星图、动态、灵境照片墙、文章详情页、自定义 404 和 SEO metadata。
 - `站点型 IA`：归档、标签、项目、音乐、照片墙、动态/说说、友链、关于、发布工作流入口。
 - `内容数据源`：`data/blog.json` 承载文章、草稿、动态、友链、站点资料、歌单、相册和项目。
-- `发布方式`：本地控制台只作为写作辅助；线上交付以 GitHub 仓库、CI 质量门禁和 Vercel 部署为主。
+- `发布方式`：内容直接进入版本库；线上交付以 GitHub 仓库、CI 质量门禁和 Vercel 部署为主。
 
 ## 运行
 
@@ -21,12 +21,6 @@ npm install
 
 ```powershell
 npm run dev
-```
-
-启动本地写作控制台：
-
-```powershell
-npm run cms
 ```
 
 ## 部署
@@ -57,8 +51,6 @@ personal-theme-blog/
 ├─ components/             # 首页、文章和子页体验组件
 ├─ lib/blog.ts             # JSON 内容读取、统计和 Markdown 渲染
 ├─ public/assets/img/      # Next.js 静态资源
-├─ admin.html              # 本地写作控制台页面
-├─ server.js               # 本地 CMS/API 服务
 ├─ data/blog.json          # 内容与站点配置
 ├─ docs/deployment.md      # 部署工作流说明
 └─ .github/workflows/ci.yml # GitHub Actions 质量门禁
@@ -71,13 +63,12 @@ personal-theme-blog/
 - 文章归档、标签云、项目集、动态/说说
 - 音乐、灵境照片墙、友链、关于页
 - 评论系统配置占位和 AI 助手提示词配置占位
-- 本地写作辅助 + GitHub/Vercel 发布工作流
+- JSON 内容源 + GitHub/Vercel 发布工作流
 - GitHub Actions CI、Vercel 构建配置和部署文档
 
 ## 验证
 
 ```powershell
-node --check server.js
 node --test
 npx tsc --noEmit
 npm run build

@@ -14,7 +14,7 @@ export default async function PhotoWallPage() {
 
   return (
     <main className="subpage photowall-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <ChannelHeader
         eyebrow="Photo Wall"
         title="光影画廊"

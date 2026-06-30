@@ -7,15 +7,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "cms": "node start.mjs",
-    "dev:cms": "node start.mjs",
     "test": "node --test",
-    "check": "node --check server.js && node --test && next build"
+    "check": "npm run test && npx tsc --noEmit && next build"
   },
   "keywords": [
     "blog",
     "nextjs",
-    "admin",
+    "publishing",
     "personal-site",
     "xhblogs"
   ],

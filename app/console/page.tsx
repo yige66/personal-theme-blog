@@ -10,15 +10,15 @@ export default async function ConsolePage() {
 
   return (
     <main className="article-page console-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <section className="article-shell console-shell">
         <p className="eyebrow">Deploy Workflow</p>
         <h1>发布工作流控制台</h1>
         <p className="article-summary">
-          站点以前台可部署为第一目标：内容进入 data/blog.json，GitHub 保存版本，Vercel 负责预览与生产构建。本地写作后台保留为编辑辅助，线上访客只看到公开内容。
+          站点以前台可部署为第一目标：内容进入 data/blog.json，GitHub 保存版本，Vercel 负责预览与生产构建。线上访客只看到公开内容，发布链路保持轻量可回滚。
         </p>
         <div className="console-steps">
-          <span>1. 使用本地后台或直接编辑 data/blog.json，维护文章、动态、音乐、照片墙、友链和站点资料。</span>
+          <span>1. 直接编辑 data/blog.json，维护文章、动态、音乐、照片墙、友链和站点资料。</span>
           <span>2. 执行 npm run check，确认测试、构建和内容数据都能通过。</span>
           <span>3. 提交 data、public/assets 和源码变更，让每次发布都有可回滚版本。</span>
           <span>4. 推送到 GitHub 后，Vercel 自动生成 Preview；合入生产分支后发布正式站点。</span>

@@ -63,7 +63,7 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
 
   return (
     <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
-      <SiteNav title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} />
       <AboutRoom activeTab={activeTab} activities={activities} site={data.site} stats={stats} />
     </main>
   );

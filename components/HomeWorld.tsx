@@ -29,12 +29,47 @@ function getRoute(id: string) {
   return experienceRoutes.find((route) => route.id === id);
 }
 
+function getSpotlightColumns(data: BlogData) {
+  const byId = new Map(data.site.columns.map((column) => [column.id, column]));
+  const configured = data.site.columns
+    .filter((column) => column.visible && column.homeVisible)
+    .map((column) => {
+      const route = getRoute(column.id);
+      return {
+        id: column.id,
+        href: column.href || route?.href || '/',
+        title: column.title || column.label,
+        intro: column.intro,
+        coordinate: column.coordinate || route?.coordinate || '',
+        tone: (column.tone || route?.tone || column.id).toLowerCase()
+      };
+    });
+
+  if (configured.length > 0) {
+    return configured;
+  }
+
+  return routeSpotlight.map((item, index) => {
+    const route = getRoute(item.id);
+    const column = byId.get(item.id);
+    return {
+      id: item.id,
+      href: column?.href || route?.href || '/',
+      title: column?.title || item.title,
+      intro: column?.intro || item.intro,
+      coordinate: column?.coordinate || route?.coordinate || String(index + 1).padStart(2, '0'),
+      tone: (column?.tone || route?.tone || item.id).toLowerCase()
+    };
+  });
+}
+
 export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps) {
   const latestPosts = posts.slice(0, 5);
   const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
   const latestNote = data.notes[0];
   const latestChatter = data.chatters[0];
   const githubIsExternal = data.site.github.startsWith('http');
+  const spotlightColumns = getSpotlightColumns(data);
 
   return (
     <section className="main-shell xh-clean-home" aria-label="个人博客首页">
@@ -117,16 +152,15 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
         </section>
 
         <section className="xh-clean-routes" aria-label="站点核心入口">
-          {routeSpotlight.map((item, index) => {
-            const route = getRoute(item.id);
+          {spotlightColumns.map((item) => {
             return (
               <Link
-                className={`xh-clean-route tone-${route?.tone.toLowerCase() ?? item.id}`}
-                href={route?.href ?? '/'}
+                className={`xh-clean-route tone-${item.tone}`}
+                href={item.href}
                 data-motion="stack-card"
                 key={item.id}
               >
-                <span>{route?.coordinate ?? String(index + 1).padStart(2, '0')}</span>
+                <span>{item.coordinate}</span>
                 <strong>{item.title}</strong>
                 <small>{item.intro}</small>
               </Link>

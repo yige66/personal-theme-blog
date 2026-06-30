@@ -352,7 +352,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <aside className="xh-floating-player" aria-label="悬浮音乐状态">
           <span>Cloud Music</span>
           <strong>{activeTrack?.title || '歌单待补全'}</strong>
-          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '后台可维护音乐封面与音频地址'}</small>
+          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '数据源可维护音乐封面与音频地址'}</small>
         </aside>
       ) : null}
 

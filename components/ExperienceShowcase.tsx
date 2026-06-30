@@ -67,13 +67,13 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
           <article className="experience-panel">
             <span>精选项目</span>
             <strong>{featuredProject?.title || 'Personal Blog Console'}</strong>
-            <p>{featuredProject?.description || '在后台补充项目后，这里会自动成为作品入口。'}</p>
+            <p>{featuredProject?.description || '在数据源补充项目后，这里会自动成为作品入口。'}</p>
             <Link href="/projects">进入项目集</Link>
           </article>
 
           <article className="experience-panel">
             <span>正在播放</span>
-            <strong>{activeTrack?.title || '等待后台添加音乐'}</strong>
+            <strong>{activeTrack?.title || '等待数据源添加音乐'}</strong>
             <p>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood || '阅读背景'}` : '素材管理中可以维护音乐标题、作者与音频地址。'}</p>
             <Link href="/music">打开音乐页</Link>
           </article>

@@ -20,7 +20,7 @@ export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
   if (projects.length === 0) {
     return (
       <section className="main-shell project-world project-starport xh-reference-surface">
-        <EmptyState title="暂无项目" description="在后台新增项目后，这里会自动生成作品星港。" />
+        <EmptyState title="暂无项目" description="在数据源新增项目后，这里会自动生成作品星港。" />
       </section>
     );
   }

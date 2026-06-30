@@ -50,8 +50,8 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
       item.image,
       ...(item.items?.map((child) => child.image) ?? [])
     ]);
-    return uniqueImages([site.heroImage, ...galleryImages, site.avatar]);
-  }, [site.avatar, site.gallery, site.heroImage]);
+    return uniqueImages([site.heroImage, ...(site.backgroundImages ?? []), ...galleryImages, site.avatar]);
+  }, [site.avatar, site.backgroundImages, site.gallery, site.heroImage]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [themeMode, setThemeMode] = useState<ThemeMode>('day');

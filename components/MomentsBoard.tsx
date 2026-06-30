@@ -29,6 +29,10 @@ function formatDate(value: string): string {
 }
 
 function noteImages(note: BlogNote, index: number): string[] {
+  if (note.images?.length) {
+    return note.images.slice(0, 6);
+  }
+
   const pool = ['/assets/img/hero-mountain.svg', '/assets/img/desk-notes.svg', '/assets/img/admin-board.svg', '/assets/img/avatar-orbit.svg'];
   const tags = note.tags ?? [];
   const count = tags.length >= 3 ? 3 : tags.length >= 1 ? 2 : 0;
