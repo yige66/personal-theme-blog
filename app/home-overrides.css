@@ -2247,21 +2247,41 @@ body:has(.xh-clean-home) .ib-scene-night {
 .moment-comment-dock summary {
   display: inline-grid;
   place-items: center;
+  gap: 2px;
   width: 46px;
   height: 46px;
   overflow: hidden;
+  list-style: none;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 10px 24px rgba(54, 68, 111, 0.12);
-  color: transparent;
+  background: color-mix(in srgb, var(--theme) 82%, #6366f1 18%);
+  box-shadow: 0 12px 28px rgba(54, 68, 111, 0.22);
+  color: #fff !important;
   cursor: pointer;
+  font-size: 13px !important;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(37, 48, 74, 0.26);
+}
+
+.moment-comment-dock summary::-webkit-details-marker {
+  display: none;
+}
+
+.moment-comment-dock summary::marker {
+  content: "";
+}
+
+.moment-comment-dock summary:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.86);
+  outline-offset: 3px;
 }
 
 .moment-comment-dock summary::before {
   content: "";
   width: 16px;
   height: 12px;
-  border: 2px solid #6d7aa2;
+  border: 2px solid currentColor;
   border-radius: 5px;
 }
 
@@ -5533,4 +5553,57 @@ body:has(.tags-page) .tag-nebula-world.is-dense .tag-constellation-grid .tag-clo
   max-width: 100% !important;
   min-width: 0 !important;
   transform: none !important;
+}
+
+/* Keep ambient effects out of the hero text zone. */
+body:has(.xh-clean-home) .xh-danmaku-layer,
+body:has(.subpage) .xh-danmaku-layer {
+  display: none !important;
+}
+
+body:has(.xh-clean-home) #xh-app-root,
+body:has(.subpage) #xh-app-root {
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+}
+
+body:has(.xh-clean-home) .channel-hero,
+body:has(.xh-clean-home) .page-scene,
+body:has(.xh-clean-home) .xh-clean-home,
+body:has(.subpage) .channel-hero,
+body:has(.subpage) .page-scene,
+body:has(.subpage) .page-hero {
+  position: relative;
+  z-index: 21 !important;
+  isolation: isolate;
+}
+
+body:has(.xh-clean-home) .xh-firefly-layer,
+body:has(.xh-clean-home) .xh-kirakira-layer,
+body:has(.xh-clean-home) .xh-petal-layer,
+body:has(.xh-clean-home) .xh-space-rain,
+body:has(.subpage) .xh-firefly-layer,
+body:has(.subpage) .xh-kirakira-layer,
+body:has(.subpage) .xh-petal-layer,
+body:has(.subpage) .xh-space-rain {
+  z-index: 0 !important;
+  opacity: 0.3 !important;
+  -webkit-mask-image: radial-gradient(ellipse 46vw 28vh at 50% 34vh, transparent 0 72%, #000 100%);
+  mask-image: radial-gradient(ellipse 46vw 28vh at 50% 34vh, transparent 0 72%, #000 100%);
+}
+
+@media (max-width: 767px) {
+  body:has(.xh-clean-home) .xh-firefly-layer,
+  body:has(.xh-clean-home) .xh-kirakira-layer,
+  body:has(.xh-clean-home) .xh-petal-layer,
+  body:has(.xh-clean-home) .xh-space-rain,
+  body:has(.subpage) .xh-firefly-layer,
+  body:has(.subpage) .xh-kirakira-layer,
+  body:has(.subpage) .xh-petal-layer,
+  body:has(.subpage) .xh-space-rain {
+    opacity: 0.22 !important;
+    -webkit-mask-image: radial-gradient(ellipse 58vw 30vh at 50% 32vh, transparent 0 76%, #000 100%);
+    mask-image: radial-gradient(ellipse 58vw 30vh at 50% 32vh, transparent 0 76%, #000 100%);
+  }
 }
