@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { TagReadingDock } from '@/components/ChannelWorlds';
-import { PageScene } from '@/components/PageScene';
+import { ChannelHeader } from '@/components/ChannelHeader';
+import { TagReadingDock } from '@/components/channels/TagSurfaces';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData, getPostsByTag, getTagSummaries } from '@/lib/blog';
 import { createTagMetadata } from '@/lib/seo';
@@ -39,17 +39,14 @@ export default async function TagPage({ params }: TagPageProps) {
   return (
     <main className="subpage tag-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageScene
+      <ChannelHeader
         eyebrow="Tag"
         title={`#${decodedTag}`}
         description="同一标签下的文章集合，被收束到一个可继续漫游的阅读舱里。"
-        image={posts[0]?.cover || data.site.heroImage}
-        imageAlt={`${decodedTag} 标签文章封面`}
-        variant="tags"
         stats={[
-          { label: '文章', value: posts.length, caption: '当前标签内' },
-          { label: '标签', value: decodedTag, caption: '主题聚焦' },
-          { label: '阅读', value: 'Dock', caption: '阅读舱浏览' }
+          { label: '文章', value: posts.length },
+          { label: '标签', value: decodedTag },
+          { label: '阅读', value: 'Dock' }
         ]}
         actions={[
           { href: '/tags', label: '全部标签' },

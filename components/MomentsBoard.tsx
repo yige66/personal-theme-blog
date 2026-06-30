@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { GitHubComments } from '@/components/comments/GitHubComments';
+import { MomentComments } from '@/components/comments/MomentComments';
 import type { BlogNote, CommentConfig } from '@/lib/blog';
 
 function formatDate(value: string): string {
@@ -59,7 +59,7 @@ export function MomentsBoard({ comments, notes }: { comments: CommentConfig; not
               {note.mood ? <span>{note.mood}</span> : null}
               {(note.tags ?? []).slice(0, 4).map((tag) => <small key={tag}>#{tag}</small>)}
             </footer>
-            <GitHubComments compact config={comments} term={`/moments/${note.id}`} title={note.title || `日常碎片 ${index + 1}`} />
+            <MomentComments config={comments} term={`/moments/${note.id}`} title={note.title || `日常碎片 ${index + 1}`} />
           </article>
         ))}
       </div>

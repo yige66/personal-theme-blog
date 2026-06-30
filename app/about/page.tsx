@@ -1,5 +1,5 @@
-import { AboutRoom } from '@/components/ChannelWorlds';
-import { PageScene } from '@/components/PageScene';
+import { ChannelHeader } from '@/components/ChannelHeader';
+import { AboutRoom } from '@/components/channels/AboutRoom';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData, getBlogStats } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
@@ -12,17 +12,14 @@ export default async function AboutPage() {
   return (
     <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageScene
+      <ChannelHeader
         eyebrow="About"
         title={data.site.owner}
         description={data.site.bio}
-        image={data.site.avatar}
-        imageAlt={`${data.site.owner} 的头像`}
-        variant="about"
         stats={[
-          { label: '文章', value: stats.posts, caption: '公开记录' },
-          { label: '项目', value: stats.projects, caption: '长期维护' },
-          { label: '动态', value: stats.notes, caption: '日常片段' }
+          { label: '文章', value: stats.posts },
+          { label: '项目', value: stats.projects },
+          { label: '动态', value: stats.notes }
         ]}
         actions={[
           { href: `mailto:${data.site.email}`, label: '联系我' },

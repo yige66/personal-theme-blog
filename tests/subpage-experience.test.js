@@ -3,19 +3,19 @@ import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 
 describe('subpage experience surfaces', () => {
-  it('keeps index pages connected to page scenes and channel worlds', async () => {
+  it('keeps index pages connected to clean channel headers and page-specific surfaces', async () => {
     const pageExpectations = [
-      ['app/archive/page.tsx', /PageScene/, /ArchiveSwitchboard/],
-      ['app/projects/page.tsx', /PageScene/, /ProjectShowcase/],
-      ['app/gallery/page.tsx', /PageScene/, /GalleryWall|EmptyState/],
-      ['app/photowall/page.tsx', /metadata/, /gallery\/page/],
-      ['app/moments/page.tsx', /PageScene/, /MomentsBoard|EmptyState/],
-      ['app/chatter/page.tsx', /PageScene/, /ChatterMasonry/],
-      ['app/music/page.tsx', /PageScene/, /MusicStudio|EmptyState/],
-      ['app/links/page.tsx', /PageScene/, /LinkStarMap/],
-      ['app/friends/page.tsx', /PageScene/, /FriendsBoard/],
-      ['app/timeline/page.tsx', /PageScene/, /TimelineArchive/],
-      ['app/tags/page.tsx', /PageScene/, /TagNebula/]
+      ['app/archive/page.tsx', /ChannelHeader/, /ArchiveSwitchboard/],
+      ['app/projects/page.tsx', /ChannelHeader/, /ProjectShowcase/],
+      ['app/gallery/page.tsx', /ChannelHeader/, /GalleryWall|EmptyState/],
+      ['app/photowall/page.tsx', /ChannelHeader/, /PhotoWallClient/],
+      ['app/moments/page.tsx', /ChannelHeader/, /MomentsBoard|EmptyState/],
+      ['app/chatter/page.tsx', /ChannelHeader/, /ChatterMasonry/],
+      ['app/music/page.tsx', /ChannelHeader/, /MusicStudio|EmptyState/],
+      ['app/links/page.tsx', /ChannelHeader/, /LinkStarMap/],
+      ['app/friends/page.tsx', /ChannelHeader/, /FriendsBoardClient/],
+      ['app/timeline/page.tsx', /ChannelHeader/, /TimelineArchive/],
+      ['app/tags/page.tsx', /ChannelHeader/, /TagNebula/]
     ];
 
     for (const [file, insight, world] of pageExpectations) {
@@ -24,9 +24,30 @@ describe('subpage experience surfaces', () => {
       assert.match(source, world, file);
     }
 
-    const worlds = await readFile('components/ChannelWorlds.tsx', 'utf8');
-    const archiveSwitchboard = await readFile('components/ArchiveSwitchboard.tsx', 'utf8');
-    assert.match(worlds, /EmptyState/);
+    const [
+      worlds,
+      archiveSwitchboard,
+      channelHeader,
+      projectShowcase,
+      linkStarMap,
+      chatterMasonry,
+      timelineArchive,
+      tagSurfaces,
+      aboutRoom,
+      photoWallClient
+    ] = await Promise.all([
+      readFile('components/ChannelWorlds.tsx', 'utf8'),
+      readFile('components/ArchiveSwitchboard.tsx', 'utf8'),
+      readFile('components/ChannelHeader.tsx', 'utf8'),
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
+      readFile('components/channels/LinkStarMap.tsx', 'utf8'),
+      readFile('components/channels/ChatterMasonry.tsx', 'utf8'),
+      readFile('components/channels/TimelineArchive.tsx', 'utf8'),
+      readFile('components/channels/TagSurfaces.tsx', 'utf8'),
+      readFile('components/channels/AboutRoom.tsx', 'utf8'),
+      readFile('components/PhotoWallClient.tsx', 'utf8')
+    ]);
+    assert.match(channelHeader, /channel-hero/);
     assert.match(archiveSwitchboard, /archive-view-toggle/);
     assert.match(archiveSwitchboard, /archive-tag-rail/);
     assert.match(archiveSwitchboard, /selectedTag/);
@@ -38,27 +59,27 @@ describe('subpage experience surfaces', () => {
     assert.match(archiveSwitchboard, /archive-card-view/);
     assert.match(archiveSwitchboard, /archive-timeline-view/);
     assert.match(worlds, /ProjectShowcase/);
-    assert.match(worlds, /project-workshop-header/);
-    assert.match(worlds, /project-featured-console/);
-    assert.match(worlds, /project-exhibit-grid/);
-    assert.match(worlds, /project-status-rack/);
-    assert.match(worlds, /project-world-rail/);
     assert.match(worlds, /LinkStarMap/);
-    assert.match(worlds, /FriendsBoard/);
-    assert.match(worlds, /friend-node-card/);
     assert.match(worlds, /ChatterMasonry/);
-    assert.match(worlds, /chatter-masonry/);
     assert.match(worlds, /TimelineArchive/);
-    assert.match(worlds, /timeline-spine/);
-    assert.match(worlds, /link-map-stage/);
-    assert.match(worlds, /link-constellation-lines/);
     assert.match(worlds, /TagNebula/);
-    assert.match(worlds, /--tag-tilt/);
-    assert.match(worlds, /tag-nebula-orbit/);
     assert.match(worlds, /TagReadingDock/);
     assert.match(worlds, /AboutRoom/);
-    assert.match(worlds, /about-room-toolbar/);
-    assert.match(worlds, /about-room-activity/);
+    assert.match(projectShowcase, /project-workshop-header/);
+    assert.match(projectShowcase, /project-featured-console/);
+    assert.match(projectShowcase, /project-exhibit-grid/);
+    assert.match(projectShowcase, /project-status-rack/);
+    assert.match(linkStarMap, /link-map-stage/);
+    assert.match(chatterMasonry, /chatter-masonry/);
+    assert.match(timelineArchive, /timeline-spine/);
+    assert.match(tagSurfaces, /--tag-tilt/);
+    assert.match(tagSurfaces, /TagReadingDock/);
+    assert.match(aboutRoom, /about-room-toolbar/);
+    assert.match(aboutRoom, /about-room-activity/);
+    assert.match(photoWallClient, /photowall-album-grid/);
+    assert.match(photoWallClient, /photowall-masonry/);
+    assert.match(photoWallClient, /photowall-lightbox/);
+    assert.doesNotMatch(photoWallClient, /gallery\/page/);
   });
 
   it('keeps tag detail and article pages connected to richer reading surfaces', async () => {
@@ -67,7 +88,7 @@ describe('subpage experience surfaces', () => {
       readFile('app/posts/[slug]/page.tsx', 'utf8')
     ]);
 
-    assert.match(tagPage, /PageScene/);
+    assert.match(tagPage, /ChannelHeader/);
     assert.match(tagPage, /全部标签/);
     assert.match(tagPage, /TagReadingDock/);
     assert.match(postPage, /article-capsule/);
@@ -93,7 +114,7 @@ describe('subpage experience surfaces', () => {
   });
 
   it('defines responsive target-site inspired subpage styles', async () => {
-    const css = await readFile('app/globals.css', 'utf8');
+    const css = `${await readFile('app/globals.css', 'utf8')}\n${await readFile('app/home-overrides.css', 'utf8')}`;
     assert.match(css, /\.page-insight-bar/);
     assert.match(css, /\.page-insight-items/);
     assert.match(css, /\.rich-empty/);
@@ -118,6 +139,12 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.gallery-search-results/);
     assert.match(css, /\.gallery-search-strip/);
     assert.match(css, /\.gallery-polaroid-wall/);
+    assert.match(css, /\.channel-hero/);
+    assert.match(css, /\.channel-hero-stats/);
+    assert.match(css, /\.photowall-world/);
+    assert.match(css, /\.photowall-album-grid/);
+    assert.match(css, /\.photowall-masonry/);
+    assert.match(css, /\.photowall-lightbox/);
     assert.match(css, /\.music-studio/);
     assert.match(css, /\.music-status-row/);
     assert.match(css, /\.music-volume-cluster/);
@@ -134,38 +161,40 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.project-featured-console/);
     assert.match(css, /\.project-exhibit-grid/);
     assert.match(css, /\.project-status-rack/);
-    assert.match(css, /\.project-world-rail/);
     assert.match(css, /\.link-world/);
     assert.match(css, /\.link-map-stage/);
-    assert.match(css, /\.link-constellation-lines/);
     assert.match(css, /\.tag-world/);
-    assert.match(css, /\.tag-nebula-orbit/);
     assert.match(css, /\.tag-reading-dock/);
     assert.match(css, /\.about-room/);
-    assert.match(css, /\.about-room-lightmap/);
     assert.match(css, /\.about-room-toolbar/);
     assert.match(css, /\.about-room-activity/);
     assert.match(css, /\.article-kicker/);
   });
 
   it('uses client islands for target-like gallery, music, and moments channels', async () => {
-    const [galleryPage, musicPage, momentsPage, galleryWall, musicStudio, momentsBoard] = await Promise.all([
+    const [galleryPage, photowallPage, musicPage, momentsPage, galleryWall, photoWallClient, musicStudio, momentsBoard] = await Promise.all([
       readFile('app/gallery/page.tsx', 'utf8'),
+      readFile('app/photowall/page.tsx', 'utf8'),
       readFile('app/music/page.tsx', 'utf8'),
       readFile('app/moments/page.tsx', 'utf8'),
       readFile('components/GalleryWall.tsx', 'utf8'),
+      readFile('components/PhotoWallClient.tsx', 'utf8'),
       readFile('components/MusicStudio.tsx', 'utf8'),
       readFile('components/MomentsBoard.tsx', 'utf8')
     ]);
 
     assert.match(galleryPage, /GalleryWall/);
+    assert.match(photowallPage, /PhotoWallClient/);
     assert.match(musicPage, /MusicStudio/);
     assert.match(momentsPage, /MomentsBoard/);
     assert.match(galleryWall, /gallery-lightbox/);
     assert.match(galleryWall, /gallery-album-rail/);
+    assert.match(photoWallClient, /photowall-album-grid/);
+    assert.match(photoWallClient, /photowall-lightbox/);
     assert.match(musicStudio, /music-tabs/);
     assert.match(musicStudio, /music-playlist/);
     assert.match(momentsBoard, /moments-mood-filter/);
+    assert.match(momentsBoard, /MomentComments/);
     assert.match(momentsBoard, /moments-stream/);
   });
 });

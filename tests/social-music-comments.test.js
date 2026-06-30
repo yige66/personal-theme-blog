@@ -50,10 +50,11 @@ describe('target-style music, friends, and GitHub comments', () => {
   });
 
   it('adds target-style Gitalk comment surfaces and a secure GitHub OAuth proxy', async () => {
-    const [friendsPage, friendsClient, comments, githubApi, postPage, chatterPage, musicPage, momentsPage, momentsBoard, css] = await Promise.all([
+    const [friendsPage, friendsClient, comments, momentComments, githubApi, postPage, chatterPage, musicPage, momentsPage, momentsBoard, css] = await Promise.all([
       readFile('app/friends/page.tsx', 'utf8'),
       readFile('components/FriendsBoardClient.tsx', 'utf8'),
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
+      readFile('components/comments/MomentComments.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
       readFile('app/posts/[slug]/page.tsx', 'utf8'),
       readFile('app/chatter/[slug]/page.tsx', 'utf8'),
@@ -82,6 +83,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /GitHub Login Comments/);
     assert.match(comments, /custom-gitalk-glass/);
     assert.match(comments, /moment-gitalk/);
+    assert.match(momentComments, /moment-comments-shell/);
+    assert.match(momentComments, /GitHubComments/);
     assert.match(comments, /cleanOAuthCodeFromUrl/);
     assert.match(comments, /proxy: config\.proxy \|\| '\/api\/github'/);
     assert.doesNotMatch(comments, /clientSecret/);
@@ -95,7 +98,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(chatterPage, /GitHubComments/);
     assert.match(musicPage, /GitHubComments/);
     assert.match(momentsPage, /comments=\{data\.site\.comments\}/);
-    assert.match(momentsBoard, /compact config=\{comments\}/);
+    assert.match(momentsBoard, /MomentComments/);
     assert.match(css, /\.friends-command-panel/);
     assert.match(css, /\.friend-filter-rail/);
     assert.match(css, /\.friend-apply-console/);

@@ -1,5 +1,5 @@
+import { ChannelHeader } from '@/components/ChannelHeader';
 import { MomentsBoard } from '@/components/MomentsBoard';
-import { PageScene } from '@/components/PageScene';
 import { EmptyState } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
@@ -16,17 +16,14 @@ export default async function MomentsPage() {
   return (
     <main className="subpage moments-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageScene
+      <ChannelHeader
         eyebrow="Moments"
         title="说说动态流"
         description="轻量记录每天的进度、状态和灵感。不必等到完整文章，站点也能持续有呼吸感。"
-        image={data.site.avatar}
-        imageAlt={`${data.site.owner} 的头像`}
-        variant="moments"
         stats={[
-          { label: '动态', value: notes.length, caption: '状态记录' },
-          { label: '主题', value: tags.length || '-', caption: '轻标签' },
-          { label: '节奏', value: data.site.streak || 0, caption: '连续维护天数' }
+          { label: '动态', value: notes.length },
+          { label: '主题', value: tags.length || '-' },
+          { label: '节奏', value: data.site.streak || 0 }
         ]}
         actions={[
           { href: '/archive', label: '阅读文章' },

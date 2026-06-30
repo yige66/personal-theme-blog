@@ -1,6 +1,6 @@
 import { GitHubComments } from '@/components/comments/GitHubComments';
+import { ChannelHeader } from '@/components/ChannelHeader';
 import { MusicStudio } from '@/components/MusicStudio';
-import { PageScene } from '@/components/PageScene';
 import { EmptyState } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
 import { getBlogData } from '@/lib/blog';
@@ -11,22 +11,18 @@ export const metadata = staticPageMetadata.music;
 export default async function MusicPage() {
   const data = await getBlogData();
   const playableTracks = data.site.music.filter((track) => track.url);
-  const featuredTrack = data.site.music[0];
 
   return (
     <main className="subpage music-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav title={data.site.title} />
-      <PageScene
+      <ChannelHeader
         eyebrow="Music"
         title="星屿电台"
         description="写作、阅读和编码时的背景歌单。先维护封面、场景和说明，接入真实音频后即可变成完整电台。"
-        image={featuredTrack?.cover || data.site.heroImage}
-        imageAlt={featuredTrack ? `${featuredTrack.title} 封面` : `${data.site.title} 电台背景`}
-        variant="music"
         stats={[
-          { label: '曲目', value: data.site.music.length, caption: '歌单数量' },
-          { label: '可播', value: playableTracks.length, caption: '已配置音频地址' },
-          { label: '用途', value: 'Focus', caption: '阅读写作背景' }
+          { label: '曲目', value: data.site.music.length },
+          { label: '可播', value: playableTracks.length },
+          { label: '用途', value: 'Focus' }
         ]}
         actions={[
           { href: '/console', label: '管理歌单' },
