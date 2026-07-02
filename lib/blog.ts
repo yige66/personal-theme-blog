@@ -186,6 +186,7 @@ export type SiteColumn = {
 
 export type BlogSite = {
   title: string;
+  brandSuffix: string;
   subtitle: string;
   owner: string;
   role: string;
@@ -251,6 +252,7 @@ export type ArchiveGroup = {
 
 const fallbackSite: BlogSite = {
   title: '星屿手记',
+  brandSuffix: 'の 宝藏之地',
   subtitle: '写代码，也写生活里发光的片刻。',
   owner: 'Lu Longfei',
   role: '全栈练习生 / 博客系统维护者',
@@ -698,6 +700,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
   const site: BlogSite = {
     ...fallbackSite,
     ...siteInput,
+    brandSuffix: typeof siteInput.brandSuffix === 'string' ? siteInput.brandSuffix.trim() : fallbackSite.brandSuffix,
     comments: {
       ...fallbackSite.comments,
       ...(siteInput.comments ?? {})
@@ -707,7 +710,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     music: normalizeArray(siteInput.music, fallbackSite.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     avatar: siteInput.avatar || fallbackSite.avatar,
-    backgroundImages: normalizeAssetList(siteInput.backgroundImages, fallbackSite.backgroundImages, 12),
+    backgroundImages: normalizeAssetList(siteInput.backgroundImages, fallbackSite.backgroundImages),
     columns: normalizeColumns(siteInput.columns),
     role: siteInput.role || fallbackSite.role,
     motto: siteInput.motto || fallbackSite.motto,
@@ -739,7 +742,7 @@ function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
   return Array.isArray(value) && value.length > 0 ? (value as T[]) : fallback;
 }
 
-function normalizeAssetList(value: unknown, fallback: string[], limit: number): string[] {
+function normalizeAssetList(value: unknown, fallback: string[]): string[] {
   const source = Array.isArray(value) ? value : fallback;
   const seen = new Set<string>();
   const assets = source
@@ -751,10 +754,9 @@ function normalizeAssetList(value: unknown, fallback: string[], limit: number): 
       }
       seen.add(item);
       return true;
-    })
-    .slice(0, limit);
+    });
 
-  return assets.length > 0 ? assets : fallback;
+  return Array.isArray(value) ? assets : fallback;
 }
 
 function normalizeColumns(value: unknown): SiteColumn[] {

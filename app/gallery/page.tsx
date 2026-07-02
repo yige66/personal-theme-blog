@@ -14,7 +14,7 @@ export default async function GalleryPage() {
 
   return (
     <main className="subpage gallery-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav columns={data.site.columns} title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
         eyebrow="Gallery"
         title="灵感照片墙"

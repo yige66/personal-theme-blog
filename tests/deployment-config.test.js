@@ -27,15 +27,19 @@ describe('deployment workflow configuration', () => {
   });
 
   it('keeps the public publishing console deployment-first', async () => {
-    const [consolePage, seo] = await Promise.all([
+    const [consolePage, seo, homeCss] = await Promise.all([
       readFile('app/console/page.tsx', 'utf8'),
-      readFile('lib/seo.ts', 'utf8')
+      readFile('lib/seo.ts', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
 
     assert.doesNotMatch(consolePage, /localhost:4173/);
     assert.match(consolePage, /Deploy Workflow/);
     assert.match(consolePage, /GitHub/);
     assert.match(consolePage, /Vercel/);
+    assert.match(consolePage, /console-page/);
+    assert.match(homeCss, /Final home and publish tone guard/);
+    assert.match(homeCss, /body:has\(\.console-page\) \.console-shell/);
     assert.match(seo, /VERCEL_URL/);
   });
 });

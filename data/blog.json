@@ -1,19 +1,186 @@
 {
   "site": {
-    "title": "星屿手记",
+    "title": "Yuki",
+    "brandSuffix": "の Blog",
     "subtitle": "写代码，也写生活里发光的片刻。",
-    "owner": "Lu Longfei",
-    "role": "全栈练习生 / 博客系统维护者",
-    "motto": "把日常、代码和灵感整理成可以再次抵达的星图。",
+    "owner": "Yuki",
+    "role": "后端练习生",
+    "motto": "当你无法回头的时候，才是真正的旅途",
     "bio": "计算机学习者，喜欢把复杂问题拆成可以落地的小系统，也喜欢收集音乐、照片和日常碎片。",
-    "status": "正在向完整二次元个人博客站点靠齐：文章、项目、动态、音乐、照片墙、友链、评论和发布工作流会逐步连成一个完整系统。",
+    "status": "正在向完整个人博客站点靠齐：文章、项目、动态、音乐、照片墙、友链、评论和发布工作流会逐步连成一个完整系统。",
     "location": "Changsha, China",
-    "email": "hello@example.com",
+    "email": "1772365571@qq.com",
     "github": "https://github.com/yige66",
     "themeColor": "#ff8fc7",
     "accentColor": "#7cd9ff",
-    "heroImage": "/assets/img/hero-mountain.svg",
-    "avatar": "/assets/img/avatar-orbit.svg",
+    "heroImage": "/assets/uploads/2026-07-01-a610531ae7dcbf0c156cbf50fb0b76c42add3e46-jpg-119-aec6827a.png",
+    "avatar": "/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg",
+    "backgroundImages": [
+      "/assets/uploads/2026-07-01-preview-png-cropped-1ee97818.png",
+      "/assets/uploads/2026-07-01-1779428392859-cropped-0344d6bd.jpg",
+      "/assets/uploads/2026-07-01-1770464209477-cropped-0370ceb6.jpg",
+      "/assets/uploads/2026-07-01-c85928c5fe559e8a70f43ff8d80b5d47463ac9be-jpg-119-98d0dbb1.png",
+      "/assets/uploads/2026-07-01-piano-silhouette-space-156662-1280x720-cropped-15efb8ef.jpg",
+      "/assets/uploads/2026-07-01-6e3b2f5d78e2b7cbeb8c0806101f2342-cropped-876d453f.png",
+      "/assets/uploads/2026-07-01-55f355b7a8fbc04dbd83fa5d7d83feb0ca40fcee-cropped-70f09582.jpg",
+      "/assets/uploads/2026-07-01-a170c63500d796fddef623e38252389c3493077264108322-2687aea0.png"
+    ],
+    "columns": [
+      {
+        "id": "home",
+        "href": "/",
+        "label": "首页",
+        "title": "首页",
+        "intro": "站点总览入口",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": false,
+        "coordinate": "00",
+        "tone": "Home",
+        "room": "Lobby"
+      },
+      {
+        "id": "projects",
+        "href": "/projects",
+        "label": "项目",
+        "title": "项目陈列",
+        "intro": "项目、作品和系统实践入口。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": false,
+        "coordinate": "02",
+        "tone": "Work",
+        "room": "Workshop"
+      },
+      {
+        "id": "archive",
+        "href": "/archive",
+        "label": "文章",
+        "title": "文章归档",
+        "intro": "按年份、分类和标签回看长文记录。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": true,
+        "toolboxVisible": true,
+        "coordinate": "12",
+        "tone": "Posts",
+        "room": "Library"
+      },
+      {
+        "id": "photowall",
+        "href": "/photowall",
+        "label": "照片墙",
+        "title": "照片墙",
+        "intro": "头图、相册、截图和日常视觉素材。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": true,
+        "toolboxVisible": true,
+        "coordinate": "24",
+        "tone": "Photo",
+        "room": "Wardrobe"
+      },
+      {
+        "id": "music",
+        "href": "/music",
+        "label": "音乐",
+        "title": "夜航电台",
+        "intro": "背景音乐、歌词和播放列表。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": true,
+        "toolboxVisible": true,
+        "coordinate": "33",
+        "tone": "Radio",
+        "room": "Sleep"
+      },
+      {
+        "id": "moments",
+        "href": "/moments",
+        "label": "动态",
+        "title": "生活动态",
+        "intro": "轻量说说、心情和日常片段。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": true,
+        "coordinate": "41",
+        "tone": "Daily",
+        "room": "Tea"
+      },
+      {
+        "id": "chatter",
+        "href": "/chatter",
+        "label": "杂谈",
+        "title": "云端杂谈",
+        "intro": "文章之外的轻记录和碎片想法。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": true,
+        "toolboxVisible": true,
+        "coordinate": "45",
+        "tone": "Chatter",
+        "room": "Cloud"
+      },
+      {
+        "id": "tags",
+        "href": "/tags",
+        "label": "标签",
+        "title": "标签索引",
+        "intro": "从标签云进入主题阅读路径。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": false,
+        "coordinate": "57",
+        "tone": "Tags",
+        "room": "Tarot"
+      },
+      {
+        "id": "friends",
+        "href": "/friends",
+        "label": "友链",
+        "title": "友链星团",
+        "intro": "朋友站点和互访入口。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": true,
+        "toolboxVisible": true,
+        "coordinate": "68",
+        "tone": "Friends",
+        "room": "Friends"
+      },
+      {
+        "id": "about",
+        "href": "/about",
+        "label": "关于",
+        "title": "关于我",
+        "intro": "个人资料、时间线和联系方式。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": false,
+        "coordinate": "81",
+        "tone": "Profile",
+        "room": "Profile"
+      },
+      {
+        "id": "console",
+        "href": "/console",
+        "label": "发布",
+        "title": "发布工作流",
+        "intro": "内容版本、预览和生产发布入口。",
+        "visible": true,
+        "navVisible": true,
+        "homeVisible": false,
+        "toolboxVisible": false,
+        "coordinate": "99",
+        "tone": "Deploy",
+        "room": "Console"
+      }
+    ],
     "level": 12,
     "experience": 68,
     "streak": 27,
@@ -27,11 +194,11 @@
     "friendLinkApplyFormat": "名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg",
     "entry": {
       "ariaLabel": "Site entry",
-      "preloaderTitle": "InternalBeyond",
+      "preloaderTitle": "YukiのBlog",
       "preloaderSubtitle": "loading entry shell",
       "signaturePrefix": "Design by",
-      "signatureName": "Lu Longfei",
-      "signatureSuffix": "Codex",
+      "signatureName": "Yuki",
+      "signatureSuffix": "",
       "original": {
         "eyebrow": "Welcome to",
         "eyebrowHighlight": "星屿手记",
@@ -111,7 +278,7 @@
       ],
       "fireflies": true,
       "petals": true,
-      "grass": true,
+      "grass": false,
       "cursorTrail": false,
       "floatingCompanion": true,
       "intensity": 72
@@ -446,6 +613,40 @@
       "featured": false
     }
   ],
+  "projects": [
+    {
+      "id": "project-personal-blog",
+      "title": "个人博客发布流",
+      "description": "以 Next.js 前台、JSON 内容源、GitHub 版本库和 Vercel 发布流串联文章、动态、音乐、相册与项目的个人站点工程。",
+      "url": "/console",
+      "repo": "https://github.com/yige66/personal-theme-blog",
+      "cover": "/assets/img/admin-board.svg",
+      "tags": [
+        "Next.js",
+        "Deploy",
+        "内容系统"
+      ],
+      "status": "active",
+      "featured": true,
+      "startedAt": "2026-06-28"
+    },
+    {
+      "id": "project-study-map",
+      "title": "学习主题地图",
+      "description": "用归档、标签和项目卡片把学习记录整理成可检索、可复访的知识路径。",
+      "url": "/archive",
+      "repo": "https://github.com/yige66/personal-theme-blog",
+      "cover": "/assets/img/desk-notes.svg",
+      "tags": [
+        "知识管理",
+        "归档",
+        "标签"
+      ],
+      "status": "planning",
+      "featured": false,
+      "startedAt": "2026-06-20"
+    }
+  ],
   "posts": [
     {
       "id": "post-1",
@@ -498,40 +699,6 @@
       "featured": false,
       "createdAt": "2026-06-12T14:00:00.000Z",
       "updatedAt": "2026-06-18T14:00:00.000Z"
-    }
-  ],
-  "projects": [
-    {
-      "id": "project-personal-blog",
-      "title": "个人博客发布流",
-      "description": "以 Next.js 前台、JSON 内容源、GitHub 版本库和 Vercel 发布流串联文章、动态、音乐、相册与项目的个人站点工程。",
-      "url": "/console",
-      "repo": "https://github.com/yige66/personal-theme-blog",
-      "cover": "/assets/img/admin-board.svg",
-      "tags": [
-        "Next.js",
-        "Deploy",
-        "内容系统"
-      ],
-      "status": "active",
-      "featured": true,
-      "startedAt": "2026-06-28"
-    },
-    {
-      "id": "project-study-map",
-      "title": "学习主题地图",
-      "description": "用归档、标签和项目卡片把学习记录整理成可检索、可复访的知识路径。",
-      "url": "/archive",
-      "repo": "https://github.com/yige66/personal-theme-blog",
-      "cover": "/assets/img/desk-notes.svg",
-      "tags": [
-        "知识管理",
-        "归档",
-        "标签"
-      ],
-      "status": "planning",
-      "featured": false,
-      "startedAt": "2026-06-20"
     }
   ]
 }

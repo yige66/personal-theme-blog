@@ -29,18 +29,36 @@ function getRoute(id: string) {
   return experienceRoutes.find((route) => route.id === id);
 }
 
-function getSpotlightColumns(data: BlogData) {
+function getSpotlightCount(id: string, stats: BlogStats) {
+  const counts: Record<string, number> = {
+    archive: stats.posts,
+    posts: stats.posts,
+    photowall: stats.gallery,
+    gallery: stats.gallery,
+    music: stats.tracks,
+    moments: stats.notes,
+    chatter: stats.chatters,
+    friends: stats.links,
+    tags: stats.tags,
+    projects: stats.projects
+  };
+  const count = counts[id];
+  return typeof count === 'number' ? String(count).padStart(2, '0') : null;
+}
+
+function getSpotlightColumns(data: BlogData, stats: BlogStats) {
   const byId = new Map(data.site.columns.map((column) => [column.id, column]));
   const configured = data.site.columns
     .filter((column) => column.visible && column.homeVisible)
     .map((column) => {
       const route = getRoute(column.id);
+      const count = getSpotlightCount(column.id, stats);
       return {
         id: column.id,
         href: column.href || route?.href || '/',
         title: column.title || column.label,
         intro: column.intro,
-        coordinate: column.coordinate || route?.coordinate || '',
+        coordinate: count ?? column.coordinate ?? route?.coordinate ?? '',
         tone: (column.tone || route?.tone || column.id).toLowerCase()
       };
     });
@@ -52,12 +70,13 @@ function getSpotlightColumns(data: BlogData) {
   return routeSpotlight.map((item, index) => {
     const route = getRoute(item.id);
     const column = byId.get(item.id);
+    const count = getSpotlightCount(item.id, stats);
     return {
       id: item.id,
       href: column?.href || route?.href || '/',
       title: column?.title || item.title,
       intro: column?.intro || item.intro,
-      coordinate: column?.coordinate || route?.coordinate || String(index + 1).padStart(2, '0'),
+      coordinate: count ?? column?.coordinate ?? route?.coordinate ?? String(index + 1).padStart(2, '0'),
       tone: (column?.tone || route?.tone || item.id).toLowerCase()
     };
   });
@@ -69,7 +88,9 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
   const latestNote = data.notes[0];
   const latestChatter = data.chatters[0];
   const githubIsExternal = data.site.github.startsWith('http');
-  const spotlightColumns = getSpotlightColumns(data);
+  const spotlightColumns = getSpotlightColumns(data, stats);
+  const noteCover = latestNote?.images?.[0] || data.site.gallery[1]?.image || primaryGallery?.image || data.site.heroImage;
+  const chatterCover = latestChatter?.cover || data.site.gallery[2]?.image || primaryGallery?.image || data.site.heroImage;
 
   return (
     <section className="main-shell xh-clean-home" aria-label="个人博客首页">
@@ -98,8 +119,8 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
               <span><strong>{stats.gallery}</strong><small>相册</small></span>
             </div>
             <div className="xh-profile-actions">
-              <Link href="/about">关于我</Link>
-              <a href={data.site.github} target={githubIsExternal ? '_blank' : undefined} rel={githubIsExternal ? 'noreferrer' : undefined}>GitHub</a>
+              <Link href="/about"><span>关于我</span></Link>
+              <a href={data.site.github} target={githubIsExternal ? '_blank' : undefined} rel={githubIsExternal ? 'noreferrer' : undefined}><span>GitHub</span></a>
             </div>
           </article>
 
@@ -133,21 +154,40 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
 
             <div className="xh-clean-home__mini-grid">
               <Link className="xh-window-tile xh-record-card is-note" href="/moments" data-motion="stack-card">
-                <p className="eyebrow">Moments</p>
-                <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
-                <h2>{latestNote?.title || '近期动态'}</h2>
-                <p>{latestNote?.content || data.site.status}</p>
+                <Image
+                  className="xh-card-cover"
+                  src={noteCover}
+                  alt={latestNote?.title || '动态封面'}
+                  width={420}
+                  height={260}
+                  loading="lazy"
+                />
+                <div className="xh-card-copy">
+                  <p className="eyebrow">Moments</p>
+                  <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
+                  <h2>{latestNote?.title || '近期动态'}</h2>
+                  <p>{latestNote?.content || data.site.status}</p>
+                </div>
               </Link>
 
-              <ThemeSceneCard />
+              <Link className="xh-window-tile xh-mode-card is-chatter" href={latestChatter ? `/chatter/${latestChatter.slug}` : '/chatter'} data-motion="stack-card">
+                <Image
+                  className="xh-card-cover"
+                  src={chatterCover}
+                  alt={latestChatter?.title || '杂谈封面'}
+                  width={420}
+                  height={260}
+                  loading="lazy"
+                />
+                <div className="xh-card-copy">
+                  <p className="eyebrow">Chatter</p>
+                  <h2>{latestChatter?.title || '云端杂谈'}</h2>
+                  <p>{latestChatter?.summary || '把正式文章之外的研究片段和站点复盘记录单独收进轻文章频道。'}</p>
+                </div>
+              </Link>
             </div>
 
-            <Link className="xh-window-tile xh-mode-card is-chatter" href={latestChatter ? `/chatter/${latestChatter.slug}` : '/chatter'} data-motion="stack-card">
-              <span aria-hidden="true" />
-              <p className="eyebrow">Chatter</p>
-              <h2>{latestChatter?.title || '云端杂谈'}</h2>
-              <p>{latestChatter?.summary || '把正式文章之外的研究片段和站点复现记录单独收进轻文章频道。'}</p>
-            </Link>
+            <ThemeSceneCard />
           </div>
         </section>
 

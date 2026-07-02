@@ -234,9 +234,9 @@ export function createRoomModules(data: BlogData, stats: BlogStats, featuredPost
 
 export function createDashboardBadges(data: BlogData, stats: BlogStats): DashboardBadge[] {
   return [
-    { label: 'Posts', value: `${stats.posts}`, tone: 'pink' },
-    { label: 'Words', value: `${stats.words}`, tone: 'cyan' },
-    { label: 'Projects', value: `${stats.projects}`, tone: 'gold' },
-    { label: 'Radio', value: `${data.site.music.length}`, tone: 'violet' }
+    { label: '文章', value: `${stats.posts}`, tone: 'pink' },
+    { label: '字数', value: `${stats.words}`, tone: 'cyan' },
+    { label: '项目', value: `${stats.projects}`, tone: 'gold' },
+    { label: '电台', value: `${data.site.music.length}`, tone: 'violet' }
   ];
 }

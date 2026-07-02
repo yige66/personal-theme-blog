@@ -190,6 +190,23 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.about-room-toolbar/);
     assert.match(css, /\.about-room-activity/);
     assert.match(css, /\.article-kicker/);
+    assert.match(css, /body:has\(main\.article-page:not\(\.admin-os\):not\(\.console-page\)\) \.xh-background-image\.is-active/);
+    assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.xh-background-image\.is-active[\s\S]*opacity: 0\.68 !important/);
+    assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.xh-background-image\.is-active[\s\S]*brightness\(0\.68\)/);
+    assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.ib-scene-vignette[\s\S]*mix-blend-mode: multiply !important/);
+    assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.project-starport/);
+    assert.match(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*opacity: 0\.68 !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*brightness\(0\.68\)/);
+    assert.match(css, /body:has\(\.archive-page\) \.xh-background-slider \.ib-scene-vignette/);
+    assert.match(css, /body:has\(\.archive-page\) \.xh-background-slider \.ib-scene-vignette[\s\S]*mix-blend-mode: multiply !important/);
+    assert.doesNotMatch(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*blur\(12px\)/);
+    assert.doesNotMatch(css, /body:has\(\.archive-page\) \.archive-xh-timeline \.archive-timeline-view\s*\{[\s\S]*margin-top: clamp\(260px, 34vh, 390px\) !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-card-view\s*\{[\s\S]*margin: 0 auto 96px !important/);
+    assert.match(css, /Final archive toolbar sync/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*width: min\(760px, 100%\) !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*background: transparent !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*box-shadow: none !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console \.archive-view-toggle[\s\S]*justify-self: center !important/);
   });
 
   it('uses client islands for target-like gallery, music, and moments channels', async () => {

@@ -11,6 +11,8 @@ import './globals.css';
 import './home-overrides.css';
 import './entry-overrides.css';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getBlogData();
   return {
@@ -43,6 +45,21 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
+              try {
+                var savedMode = localStorage.getItem('xh-theme-mode');
+                var fallbackMode = new Date().getHours() >= 18 || new Date().getHours() < 6 ? 'night' : 'day';
+                var initialMode = savedMode === 'night' || savedMode === 'day' ? savedMode : fallbackMode;
+                document.documentElement.setAttribute('data-xh-theme', initialMode);
+                document.documentElement.setAttribute('data-xh-theme-next', initialMode);
+                document.documentElement.setAttribute('data-xh-theme-transition', 'idle');
+                document.documentElement.setAttribute('data-xh-theme-phase', initialMode);
+              } catch (error) {
+                document.documentElement.setAttribute('data-xh-theme', 'day');
+                document.documentElement.setAttribute('data-xh-theme-next', 'day');
+                document.documentElement.setAttribute('data-xh-theme-transition', 'idle');
+                document.documentElement.setAttribute('data-xh-theme-phase', 'day');
+              }
+
               try {
                 if (sessionStorage.getItem('personal-theme-blog:splash-seen') === 'true') {
                   document.documentElement.classList.add('xh-splash-seen');

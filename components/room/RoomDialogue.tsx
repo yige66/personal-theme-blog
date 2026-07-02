@@ -29,7 +29,6 @@ export function RoomDialogue({ activeIndex, activeModule, modules, onPreview, on
         <strong>{activeModule.title}</strong>
         <span>{activeModule.detail}</span>
         <em className="xh-room-typewriter">{typedTour}<i aria-hidden="true" /></em>
-        <b className="xh-room-coordinate">x{activeModule.routePoint.x} / y{activeModule.routePoint.y}</b>
       </div>
       <div className="xh-room-tour-nav" aria-label="房间导览控制">
         <button type="button" onClick={() => onStep(-1)}>Back</button>

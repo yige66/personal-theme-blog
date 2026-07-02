@@ -11,7 +11,7 @@ export default async function ProjectsPage() {
 
   return (
     <main className="subpage projects-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav columns={data.site.columns} title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
         eyebrow="Projects"
         title="项目星港"

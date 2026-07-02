@@ -14,7 +14,7 @@ export default async function MusicPage() {
 
   return (
     <main className="subpage music-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav columns={data.site.columns} title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
         eyebrow="Music"
         title="星屿电台"

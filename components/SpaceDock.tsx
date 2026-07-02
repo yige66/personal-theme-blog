@@ -30,7 +30,6 @@ export function SpaceDock({ data, stats }: SpaceDockProps) {
       <div className="xh-space-modules" aria-label="频道入口">
         {modules.map((module) => (
           <Link className="xh-space-module" href={module.href} key={module.href}>
-            <em>{module.coordinate}</em>
             <small>{module.label}</small>
             <strong>{module.title}</strong>
             <span>{module.detail}</span>

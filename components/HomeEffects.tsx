@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
 import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
@@ -21,21 +21,26 @@ type Ripple = {
 };
 
 const dailyDanmaku = [
-  '今天也有认真更新',
-  'BGM 正在循环中',
-  '把日常收进归档',
-  '照片墙适合慢慢逛',
-  '评论区可以留下脚印',
-  '夜间模式适合发呆',
-  '友链里住着有趣灵魂',
-  '项目页记录长期实验',
-  '灵感刚刚冒泡',
-  '写完这段就去听歌'
+  '\u4eca\u5929\u4e5f\u6709\u8ba4\u771f\u66f4\u65b0',
+  'BGM \u6b63\u5728\u5faa\u73af\u4e2d',
+  '\u628a\u65e5\u5e38\u6536\u8fdb\u5f52\u6863',
+  '\u7167\u7247\u5899\u9002\u5408\u6162\u6162\u901b',
+  '\u8bc4\u8bba\u533a\u53ef\u4ee5\u7559\u4e0b\u811a\u5370',
+  '\u591c\u95f4\u6a21\u5f0f\u9002\u5408\u53d1\u5446',
+  '\u53cb\u94fe\u91cc\u4f4f\u7740\u6709\u8da3\u7075\u9b42',
+  '\u9879\u76ee\u9875\u8bb0\u5f55\u957f\u671f\u5b9e\u9a8c',
+  '\u7075\u611f\u521a\u521a\u5192\u6ce1',
+  '\u5199\u5b8c\u8fd9\u6bb5\u5c31\u53bb\u542c\u6b4c'
 ];
 
 const xhThemeAttribute = 'data-xh-theme';
 const xhThemeNextAttribute = 'data-xh-theme-next';
 const xhThemeTransitionAttribute = 'data-xh-theme-transition';
+const xhThemePhaseAttribute = 'data-xh-theme-phase';
+
+type ThemeMode = 'day' | 'night';
+type ThemeTransition = 'active' | 'idle';
+type ThemePhase = 'day' | 'night' | 'dusk' | 'dawn';
 
 function uniqueMessages(values: string[]): string[] {
   const seen = new Set<string>();
@@ -55,10 +60,28 @@ function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-function setThemeAttributes(currentMode: 'day' | 'night', nextMode: 'day' | 'night', transition: 'active' | 'idle') {
-  document.documentElement.setAttribute(xhThemeAttribute, currentMode);
-  document.documentElement.setAttribute(xhThemeNextAttribute, nextMode);
-  document.documentElement.setAttribute(xhThemeTransitionAttribute, transition);
+function getThemePhase(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition): ThemePhase {
+  if (transition === 'idle') {
+    return currentMode;
+  }
+  return nextMode === 'night' ? 'dusk' : 'dawn';
+}
+
+function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition, phaseOverride?: ThemePhase) {
+  const phase = phaseOverride ?? getThemePhase(currentMode, nextMode, transition);
+  const root = document.documentElement;
+  const attributes = [
+    [xhThemeAttribute, currentMode],
+    [xhThemeNextAttribute, nextMode],
+    [xhThemeTransitionAttribute, transition],
+    [xhThemePhaseAttribute, phase]
+  ] as const;
+
+  attributes.forEach(([name, value]) => {
+    if (root.getAttribute(name) !== value) {
+      root.setAttribute(name, value);
+    }
+  });
 }
 
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
@@ -66,8 +89,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
+  const isTransitioningRef = useRef(false);
+  const hasSyncedThemeStateRef = useRef(false);
   const [nightMode, setNightMode] = useState(false);
-  const [nextMode, setNextMode] = useState<'day' | 'night'>('day');
+  const [nextMode, setNextMode] = useState<ThemeMode>('day');
+  const [themePhase, setThemePhase] = useState<ThemePhase>('day');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
@@ -75,25 +101,56 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   const messages = useMemo(() => {
     const configured = effects.danmaku && effects.danmaku.length > 0 ? effects.danmaku : dailyDanmaku;
-    const postTitles = posts.slice(0, 3).map((post) => `正在读：${post.title}`);
+    const postTitles = posts.slice(0, 3).map((post) => `\u6b63\u5728\u8bfb\uff1a${post.title}`);
     const noteLines = notes.slice(0, 2).map((note) => note.title || note.content);
     return uniqueMessages([...configured, ...dailyDanmaku, ...postTitles, ...noteLines, site.status]);
   }, [effects.danmaku, notes, posts, site.status]);
 
-  const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 9) }, (_item, index) => ({
-    id: `firefly-${index}`,
-    left: `${(index * 17 + 9) % 100}%`,
-    top: `${(index * 29 + 14) % 82}%`,
-    delay: `${(index % 8) * 0.62}s`,
-    duration: `${7 + (index % 6)}s`
-  })), [intensity]);
+  const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 3) }, (_item, index) => {
+    const driftX = ((index % 5) - 2) * 22;
+    const driftY = -28 - (index % 7) * 8;
+    const scale = 0.72 + (index % 4) * 0.16;
 
-  const petals = useMemo(() => Array.from({ length: Math.round(intensity / 10) }, (_item, index) => ({
-    id: `petal-${index}`,
-    left: `${(index * 23 + 4) % 100}%`,
-    delay: `${(index % 10) * 0.72}s`,
-    duration: `${10 + (index % 7)}s`
-  })), [intensity]);
+    return {
+      id: `firefly-${index}`,
+      left: `${(index * 17 + 9) % 100}%`,
+      top: `${(index * 29 + 14) % 82}%`,
+      delay: `${(index % 8) * 0.62}s`,
+      glowDelay: `${(index % 8) * -0.34}s`,
+      duration: `${7 + (index % 6)}s`,
+      driftX: `${driftX}px`,
+      driftY: `${driftY}px`,
+      driftXStart: `${driftX * -0.45}px`,
+      driftYStart: `${driftY * 0.42}px`,
+      driftXMid: `${driftX * 0.72}px`,
+      driftYMid: `${driftY * -0.18}px`,
+      scale: `${scale}`,
+      scaleBright: `${scale * 1.22}`,
+      scaleDim: `${scale * 0.92}`,
+      scaleEnd: `${scale * 1.28}`
+    };
+  }), [intensity]);
+
+  const petals = useMemo(() => Array.from({ length: Math.round(intensity / 2.75) }, (_item, index) => {
+    const drift = 36 + (index % 6) * 18;
+    const rotate = (index % 2 === 0 ? 1 : -1) * (220 + (index % 5) * 34);
+    const size = 18 + (index % 4) * 2;
+
+    return {
+      id: `petal-${index}`,
+      left: `${(index * 23 + 4) % 100}%`,
+      drift: `${drift}px`,
+      driftStart: `${drift * -0.42}px`,
+      driftMid: `${drift * 0.72}px`,
+      delay: `${(index % 10) * 0.72}s`,
+      duration: `${10 + (index % 7)}s`,
+      rotate: `${rotate}deg`,
+      rotateStart: `${rotate * 0.36}deg`,
+      rotateMid: `${rotate * 0.72}deg`,
+      size: `${size}px`,
+      height: `${size * 0.72}px`
+    };
+  }), [intensity]);
 
   const sparkles = useMemo(() => Array.from({ length: 10 }, (_item, index) => ({
     id: `sparkle-${index}`,
@@ -119,16 +176,42 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   }, []);
 
   useEffect(() => {
-    setThemeAttributes(nightMode ? 'night' : 'day', nextMode, isTransitioning ? 'active' : 'idle');
-    window.localStorage.setItem('xh-theme-mode', nightMode ? 'night' : 'day');
-  }, [isTransitioning, nextMode, nightMode]);
+    const root = document.documentElement;
+    const rootMode: ThemeMode = root.getAttribute(xhThemeAttribute) === 'night' ? 'night' : 'day';
+    const rootNextMode: ThemeMode = root.getAttribute(xhThemeNextAttribute) === 'night' ? 'night' : 'day';
+    const rootPhaseValue = root.getAttribute(xhThemePhaseAttribute);
+    const rootPhase: ThemePhase = rootPhaseValue === 'night' || rootPhaseValue === 'dusk' || rootPhaseValue === 'dawn' ? rootPhaseValue : 'day';
+    setNightMode(rootMode === 'night');
+    setNextMode(rootNextMode);
+    setThemePhase(rootPhase);
+  }, []);
+
+  useEffect(() => {
+    if (!hasSyncedThemeStateRef.current) {
+      hasSyncedThemeStateRef.current = true;
+      return;
+    }
+
+    isTransitioningRef.current = isTransitioning;
+
+    if (!isTransitioning) {
+      const idleMode: ThemeMode = nightMode ? 'night' : 'day';
+      setThemeAttributes(idleMode, idleMode, 'idle');
+      setNextMode(idleMode);
+      setThemePhase(idleMode);
+      window.localStorage.setItem('xh-theme-mode', idleMode);
+    }
+  }, [isTransitioning, nightMode]);
+
 
   useEffect(() => () => {
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
     }
     if (commitTimerRef.current) {
       window.clearTimeout(commitTimerRef.current);
+      commitTimerRef.current = null;
     }
   }, []);
 
@@ -215,30 +298,47 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
   }, [effects.enabled]);
 
-  const startThemeTransition = () => {
+  const startThemeTransition = useCallback(() => {
+    if (isTransitioningRef.current) {
+      return;
+    }
+
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
     }
     if (commitTimerRef.current) {
       window.clearTimeout(commitTimerRef.current);
+      commitTimerRef.current = null;
     }
 
-    const targetMode = nightMode ? 'day' : 'night';
+    const currentMode: ThemeMode = nightMode ? 'night' : 'day';
+    const targetMode: ThemeMode = nightMode ? 'day' : 'night';
+    isTransitioningRef.current = true;
+    setThemeAttributes(currentMode, targetMode, 'active', currentMode);
+    setThemePhase(currentMode);
+    const phaseCommitDelay = prefersReducedMotion() ? 0 : 80;
+    commitTimerRef.current = window.setTimeout(() => {
+      const activePhase = getThemePhase(currentMode, targetMode, 'active');
+      setThemeAttributes(currentMode, targetMode, 'active', activePhase);
+      setThemePhase(activePhase);
+      commitTimerRef.current = null;
+    }, phaseCommitDelay);
     setNextMode(targetMode);
     setIsTransitioning(true);
 
-    const commitDelay = prefersReducedMotion() ? 0 : 520;
-    const finishDelay = prefersReducedMotion() ? 160 : 1480;
-
-    commitTimerRef.current = window.setTimeout(() => {
-      setNightMode(targetMode === 'night');
-    }, commitDelay);
+    const finishDelay = prefersReducedMotion() ? 160 : 3400;
 
     transitionTimerRef.current = window.setTimeout(() => {
+      setThemeAttributes(targetMode, targetMode, 'idle');
+      setThemePhase(targetMode);
+      setNightMode(targetMode === 'night');
+      setNextMode(targetMode);
       setIsTransitioning(false);
-      document.documentElement.setAttribute(xhThemeTransitionAttribute, 'idle');
+      isTransitioningRef.current = false;
+      transitionTimerRef.current = null;
     }, finishDelay);
-  };
+  }, [nightMode]);
 
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -250,11 +350,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const handleExternalToggle = () => startThemeTransition();
     window.addEventListener('xh-toggle-theme', handleExternalToggle);
     return () => window.removeEventListener('xh-toggle-theme', handleExternalToggle);
-  }, [nightMode]);
+  }, [startThemeTransition]);
 
   if (!effects.enabled) {
     return null;
   }
+
+  const renderedMode: ThemeMode = nightMode ? 'night' : 'day';
+  const renderedPhase = themePhase;
 
   return (
     <>
@@ -271,7 +374,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       <div className="xh-room-vignette" aria-hidden="true" />
 
-      <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nextMode} aria-hidden="true">
+      <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nextMode} data-phase={renderedPhase} aria-hidden="true">
         <span />
         <span />
         <span />
@@ -292,7 +395,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       </div>
 
       {messages.length > 0 ? (
-        <div className="xh-danmaku-layer" aria-label="站点弹幕">
+        <div className="xh-danmaku-layer" aria-label={'\u7ad9\u70b9\u5f39\u5e55'}>
           {messages.map((message, index) => (
             <span
               className="xh-danmaku-item"
@@ -309,21 +412,51 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         </div>
       ) : null}
 
-      {effects.fireflies ? (
-        <div className="xh-firefly-layer" aria-hidden="true">
-          {fireflies.map((item) => (
-            <i key={item.id} style={{ left: item.left, top: item.top, animationDelay: item.delay, animationDuration: item.duration }} />
-          ))}
-        </div>
-      ) : null}
+      <div className="xh-firefly-layer" aria-hidden="true">
+        {fireflies.map((item) => (
+          <i
+            key={item.id}
+            style={{
+              left: item.left,
+              top: item.top,
+              '--firefly-delay': item.delay,
+              '--firefly-glow-delay': item.glowDelay,
+              '--firefly-duration': item.duration,
+              '--firefly-drift-x': item.driftX,
+              '--firefly-drift-y': item.driftY,
+              '--firefly-drift-x-start': item.driftXStart,
+              '--firefly-drift-y-start': item.driftYStart,
+              '--firefly-drift-x-mid': item.driftXMid,
+              '--firefly-drift-y-mid': item.driftYMid,
+              '--firefly-scale': item.scale,
+              '--firefly-scale-bright': item.scaleBright,
+              '--firefly-scale-dim': item.scaleDim,
+              '--firefly-scale-end': item.scaleEnd
+            } as CSSProperties}
+          />
+        ))}
+      </div>
 
-      {effects.petals ? (
-        <div className="xh-petal-layer" aria-hidden="true">
-          {petals.map((item) => (
-            <i key={item.id} style={{ left: item.left, animationDelay: item.delay, animationDuration: item.duration }} />
-          ))}
-        </div>
-      ) : null}
+      <div className="xh-petal-layer" aria-hidden="true">
+        {petals.map((item) => (
+          <i
+            key={item.id}
+            style={{
+              left: item.left,
+              '--petal-delay': item.delay,
+              '--petal-duration': item.duration,
+              '--petal-drift': item.drift,
+              '--petal-drift-start': item.driftStart,
+              '--petal-drift-mid': item.driftMid,
+              '--petal-rotate': item.rotate,
+              '--petal-rotate-start': item.rotateStart,
+              '--petal-rotate-mid': item.rotateMid,
+              '--petal-size': item.size,
+              '--petal-height': item.height
+            } as CSSProperties}
+          />
+        ))}
+      </div>
 
       {effects.grass ? <div className="xh-grass-layer" aria-hidden="true" /> : null}
 
@@ -335,29 +468,41 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       {!isHome ? (
         <button
-          className={`xh-theme-switch${isTransitioning ? ' is-transitioning' : ''}`}
+          className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
           type="button"
           aria-pressed={nightMode}
+          aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
           aria-live="polite"
+          data-next-mode={nextMode}
+          data-theme-phase={renderedPhase}
           data-transitioning={isTransitioning ? 'true' : 'false'}
           onClick={toggleTheme}
         >
-          <span>{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
-          <strong>{nightMode ? '夜色场景' : '晨光场景'}</strong>
-          <small>{isTransitioning ? '场景正在过渡' : nightMode ? '雨幕与微光' : '晴空与折光'}</small>
+          <span className="xh-theme-switch-orbit" aria-hidden="true">
+            <span className="xh-theme-switch-body is-sun">
+              <i />
+            </span>
+            <span className="xh-theme-switch-body is-moon">
+              <i />
+            </span>
+            <em />
+          </span>
+          <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
+          <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
+          <small>{isTransitioning ? '\u573a\u666f\u6b63\u5728\u8fc7\u6e21' : nightMode ? '\u96e8\u5e55\u4e0e\u5fae\u5149' : '\u6674\u7a7a\u4e0e\u6298\u5149'}</small>
         </button>
       ) : null}
 
       {!isHome ? (
-        <aside className="xh-floating-player" aria-label="悬浮音乐状态">
+        <aside className="xh-floating-player" aria-label={'\u60ac\u6d6e\u97f3\u4e50\u72b6\u6001'}>
           <span>Cloud Music</span>
-          <strong>{activeTrack?.title || '歌单待补全'}</strong>
-          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '数据源可维护音乐封面与音频地址'}</small>
+          <strong>{activeTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
+          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '\u6570\u636e\u6e90\u53ef\u7ef4\u62a4\u97f3\u4e50\u5c01\u9762\u4e0e\u97f3\u9891\u5730\u5740'}</small>
         </aside>
       ) : null}
 
       {!isHome && effects.floatingCompanion ? (
-        <div className="xh-floating-companion" aria-label={`${site.assistantName} 浮动状态`}>
+        <div className="xh-floating-companion" aria-label={`${site.assistantName} \u6d6e\u52a8\u72b6\u6001`}>
           <span>{site.assistantName.slice(0, 1)}</span>
           <strong>{site.assistantName}</strong>
         </div>

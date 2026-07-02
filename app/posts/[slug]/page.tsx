@@ -46,7 +46,7 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(articleJsonLd) }} />
-      <SiteNav columns={data.site.columns} title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <section className="main-shell article-layout">
         <article className="article-shell article-capsule">
           <div className="article-cover" data-motion="image-scale">

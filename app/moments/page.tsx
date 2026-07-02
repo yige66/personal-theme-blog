@@ -15,7 +15,7 @@ export default async function MomentsPage() {
 
   return (
     <main className="subpage moments-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <SiteNav columns={data.site.columns} title={data.site.title} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
         eyebrow="Moments"
         title="生活动态"

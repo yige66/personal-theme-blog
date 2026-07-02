@@ -32,6 +32,11 @@ function cleanTitle(title: string): string {
   return '星屿手记';
 }
 
+function cleanBrandSuffix(value?: string): string {
+  const suffix = String(value ?? '').trim();
+  return suffix ? ` ${suffix}` : '';
+}
+
 function labelFor(id: string, fallback: string): string {
   return routeLabels[id] ?? fallback;
 }
@@ -79,7 +84,7 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteNav({ columns = [], title }: { columns?: SiteColumn[]; title: string }) {
+export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteColumn[]; title: string; brandSuffix?: string }) {
   const pathname = usePathname();
   const ringRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ angle: number; rotation: number } | null>(null);
@@ -88,6 +93,7 @@ export function SiteNav({ columns = [], title }: { columns?: SiteColumn[]; title
   const [orbitRotation, setOrbitRotation] = useState(0);
   const [orbitDragging, setOrbitDragging] = useState(false);
   const brandTitle = cleanTitle(title);
+  const brandSuffixText = cleanBrandSuffix(brandSuffix);
   const routes = navRoutes(columns);
 
   useEffect(() => {
@@ -185,8 +191,8 @@ export function SiteNav({ columns = [], title }: { columns?: SiteColumn[]; title
   return (
     <>
       <nav className={`top-nav site-nav${hidden ? ' is-hidden' : ''}${menuOpen ? ' is-orbit-open' : ''}`} aria-label="主导航">
-        <Link className="brand" href="/" aria-label={`${brandTitle} 首页`}>
-          <span>{brandTitle}</span>
+        <Link className="brand" href="/" aria-label={`${brandTitle}${brandSuffixText} 首页`}>
+          <span data-brand-suffix={brandSuffixText}>{brandTitle}</span>
           <small>Personal Blog</small>
         </Link>
 
@@ -250,7 +256,7 @@ export function SiteNav({ columns = [], title }: { columns?: SiteColumn[]; title
                 style={style}
               >
                 <span>{item.label}</span>
-                <small>{item.tone} / {item.coordinate}</small>
+                <small>{item.tone}</small>
               </Link>
             );
           })}

@@ -1,66 +1,76 @@
 'use client';
 
-import Image from 'next/image';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { usePathname } from 'next/navigation';
 import type { BlogSite } from '@/lib/blog';
+import { startGlassCanvas, startRainCanvas, startRainRipple } from './splashEffects';
 
 type SplashScreenProps = {
   site: BlogSite;
 };
 
-type EntryMode = 'internal' | 'infernal';
+type StartPhase = 'loading' | 'ready' | 'leaving';
 
 const SESSION_KEY = 'personal-theme-blog:splash-seen';
 
-const entryHotspots = [
-  { id: 'archive', x: 19, y: 58 },
-  { id: 'music', x: 80, y: 59 },
-  { id: 'friends', x: 66, y: 31 },
-  { id: 'desk', x: 38, y: 73 },
-  { id: 'theme', x: 52, y: 24 }
-] as const;
+const splashLayoutArchitecture = {
+  shell: {
+    preloader: true,
+    splash: ['signature', 'welcome-copy', 'water-surface', 'glass-tools', 'enter-blog', 'dissolve'],
+    backgrounds: ['internal-background'],
+    ambience: ['rain-canvas', 'water-ripple', 'glass-fog']
+  },
+  sourceAnchors: ['rain-container', 'gw-slot', 'gw-pane', 'gw-ripple', 'gw-fogwipe', 'gw-draw'],
+  entryOnly: true
+} as const;
 
-const roomObjects = [
-  { id: 'bed', x: 14, y: 70, label: 'rest node' },
-  { id: 'desk', x: 35, y: 76, label: 'desk console' },
-  { id: 'crystal', x: 71, y: 28, label: 'light prism' },
-  { id: 'shelf', x: 84, y: 70, label: 'music shelf' },
-  { id: 'window', x: 51, y: 40, label: 'scene window' },
-  { id: 'plant', x: 58, y: 83, label: 'floor bloom' }
-] as const;
-
-const dustMotes = Array.from({ length: 26 }, (_item, index) => ({
-  id: `entry-mote-${index}`,
-  x: (index * 37 + 11) % 100,
-  y: (index * 23 + 17) % 86,
-  delay: `${(index % 9) * -0.42}s`,
-  size: `${2 + (index % 3)}px`
+const waterRipples = Array.from({ length: 16 }, (_item, index) => ({
+  id: `splash-water-ripple-${index}`,
+  x: `${(index * 19 + 9) % 100}%`,
+  y: `${50 + ((index * 17 + 7) % 44)}%`,
+  scale: (0.72 + (index % 5) * 0.16).toFixed(2),
+  delay: `${index * -0.32}s`
 }));
 
-const rainDrops = Array.from({ length: 28 }, (_item, index) => ({
-  id: `entry-rain-${index}`,
-  x: `${(index * 13 + 4) % 100}%`,
-  delay: `${(index % 14) * -0.16}s`,
-  duration: `${0.9 + (index % 6) * 0.07}s`,
-  length: `${42 + (index % 5) * 12}px`
+const glassScratches = Array.from({ length: 18 }, (_item, index) => ({
+  id: `splash-glass-scratch-${index}`,
+  x: `${(index * 23 + 5) % 100}%`,
+  y: `${(index * 29 + 11) % 92}%`,
+  length: `${18 + (index % 6) * 9}px`,
+  opacity: (0.12 + (index % 5) * 0.055).toFixed(3),
+  tilt: `${-32 + (index % 7) * 11}deg`,
+  delay: `${index * -0.24}s`
 }));
 
 export function SplashScreen({ site }: SplashScreenProps) {
+  const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const rainRef = useRef<HTMLDivElement | null>(null);
+  const waterSlotRef = useRef<HTMLDivElement | null>(null);
+  const waterPaneRef = useRef<HTMLDivElement | null>(null);
+  const waterCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const rippleBgRef = useRef<HTMLCanvasElement | null>(null);
+  const drawCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fogCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [mode, setMode] = useState<EntryMode>('internal');
+  const [phase, setPhase] = useState<StartPhase>('loading');
 
   const entry = site.entry;
-  const nextModeButton = mode === 'internal' ? entry.switchToBeyondButton : entry.switchToInternalButton;
-
+  const entryOriginal = entry.original;
+  const entryBeyond = entry.beyond;
+  const shouldSkipSplash = pathname.startsWith('/admin');
   const entryStyle = {
-    '--entry-hero-image': `url("${site.heroImage}")`
+    '--game-hero-image': `url("${site.heroImage}")`
   } as CSSProperties;
 
   useEffect(() => {
     setMounted(true);
+
+    if (shouldSkipSplash) {
+      document.documentElement.classList.add('xh-splash-seen');
+      return undefined;
+    }
 
     const hasSeen = window.sessionStorage.getItem(SESSION_KEY) === 'true';
     if (hasSeen) {
@@ -69,201 +79,199 @@ export function SplashScreen({ site }: SplashScreenProps) {
     }
 
     setVisible(true);
-    const loadingTimer = window.setTimeout(() => setLoaded(true), 1050);
+    const loadingTimer = window.setTimeout(() => setPhase('ready'), 1050);
     return () => window.clearTimeout(loadingTimer);
-  }, []);
+  }, [shouldSkipSplash]);
 
   useEffect(() => {
     if (!visible) {
-      return;
+      return undefined;
     }
 
-    document.documentElement.setAttribute('data-ib-entry-mode', mode);
-    return undefined;
-  }, [mode, visible]);
+    const cleanups = [
+      startRainCanvas(rainRef),
+      startGlassCanvas({
+        slot: waterSlotRef,
+        pane: waterPaneRef,
+        draw: drawCanvasRef,
+        fog: fogCanvasRef
+      }),
+      startRainRipple({
+        root: rootRef,
+        slot: waterSlotRef,
+        pane: waterPaneRef,
+        ripple: waterCanvasRef,
+        rippleBg: rippleBgRef,
+        draw: drawCanvasRef
+      }, site.heroImage)
+    ];
+
+    return () => {
+      for (const cleanup of cleanups) {
+        cleanup?.();
+      }
+    };
+  }, [site.heroImage, visible]);
 
   const enterBlog = () => {
-    if (leaving) {
+    if (phase === 'leaving') {
       return;
     }
 
-    setLeaving(true);
-    window.sessionStorage.setItem(SESSION_KEY, 'true');
+    setPhase('leaving');
     window.setTimeout(() => {
+      window.sessionStorage.setItem(SESSION_KEY, 'true');
       document.documentElement.classList.add('xh-splash-seen');
       setVisible(false);
-    }, 720);
+    }, 820);
   };
 
-  const toggleMode = () => {
-    setMode((currentMode) => currentMode === 'internal' ? 'infernal' : 'internal');
-  };
-
-  if (!mounted || !visible) {
+  if (shouldSkipSplash || !mounted || !visible) {
     return null;
   }
 
   return (
     <div
-      className={`ib-entry-splash is-${mode}${loaded ? ' is-loaded' : ' is-loading'}${leaving ? ' is-leaving' : ''}`}
+      ref={rootRef}
+      className={`ib-game-start is-${phase}${phase === 'leaving' ? ' is-dissolving' : ''}`}
       style={entryStyle}
       role="dialog"
       aria-modal="true"
       aria-label={entry.ariaLabel}
+      data-entry-only={splashLayoutArchitecture.entryOnly}
     >
-      <div className={`ib-entry-preloader${loaded ? ' fade-out' : ''}`} aria-hidden={loaded}>
+      <div className={`ib-game-preloader${phase !== 'loading' ? ' fade-out' : ''}`} aria-hidden={phase !== 'loading'}>
         <strong>{entry.preloaderTitle}</strong>
         <span>{entry.preloaderSubtitle}</span>
       </div>
 
-      <div className="ib-entry-bg ib-entry-bg-internal" aria-hidden="true" />
-      <div className="ib-entry-bg ib-entry-bg-infernal" aria-hidden="true" />
-      <div className="ib-entry-overlay" aria-hidden="true" />
+      <div className="ib-game-bg ib-game-bg-internal" aria-hidden="true" />
+      <div className="ib-game-overlay" aria-hidden="true" />
+      <div ref={rainRef} id="rain-container" className="ib-game-rain-canvas" aria-hidden="true" />
 
-      <div className="ib-entry-mist" aria-hidden="true">
-        <span />
-        <span />
-        <span />
+      <div ref={waterSlotRef} id="gw-slot" className="ib-game-welcome-window" aria-hidden="true">
+        <div ref={waterPaneRef} id="gw-pane" className="ib-game-art-pane">
+          <div className="ib-game-art-image gw-ly" />
+          <canvas ref={rippleBgRef} id="gw-ripple-bg" className="ib-game-ripple-bg" />
+          <canvas ref={waterCanvasRef} id="gw-ripple" className="ib-game-water-canvas" />
+          <div className="gw-grade-c gw-ly" />
+          <div className="gw-grade-s gw-ly" />
+          <div className="ib-game-water-surface">
+            {waterRipples.map((ripple) => (
+              <span
+                key={ripple.id}
+                style={{
+                  '--water-x': ripple.x,
+                  '--water-y': ripple.y,
+                  '--water-scale': ripple.scale,
+                  '--water-delay': ripple.delay
+                } as CSSProperties}
+              />
+            ))}
+          </div>
+          <div className="ib-game-glass-scratches gw-scratch">
+            {glassScratches.map((scratch) => (
+              <span
+                key={scratch.id}
+                style={{
+                  '--scratch-x': scratch.x,
+                  '--scratch-y': scratch.y,
+                  '--scratch-length': scratch.length,
+                  '--scratch-opacity': scratch.opacity,
+                  '--scratch-tilt': scratch.tilt,
+                  '--scratch-delay': scratch.delay
+                } as CSSProperties}
+              />
+            ))}
+          </div>
+          <div className="ib-game-mist-canvas" />
+          <canvas ref={fogCanvasRef} id="gw-fogwipe" className="ib-game-fog-wipe" />
+          <div className="ib-game-frost gw-frost" />
+          <div className="ib-game-depth" />
+          <canvas ref={drawCanvasRef} id="gw-draw" className="ib-game-draw" />
+        </div>
       </div>
-      <div className="ib-entry-glow" aria-hidden="true" />
 
-      <section className="ib-entry-stage" aria-label="Interactive entry scenery">
-        <div className="ib-entry-scanlines" aria-hidden="true" />
-        <div className="ib-entry-rain" aria-hidden="true">
-          {rainDrops.map((drop) => (
-            <i
-              key={drop.id}
-              style={{
-                '--rain-left': drop.x,
-                '--rain-delay': drop.delay,
-                '--rain-duration': drop.duration,
-                '--rain-height': drop.length
-              } as CSSProperties}
-            />
-          ))}
-        </div>
-        <div className="ib-entry-dust" aria-hidden="true">
-          {dustMotes.map((mote) => (
-            <i
-              key={mote.id}
-              style={{
-                left: `${mote.x}%`,
-                top: `${mote.y}%`,
-                width: mote.size,
-                height: mote.size,
-                animationDelay: mote.delay
-              }}
-            />
-          ))}
-        </div>
-        <div className="ib-entry-day-layer" aria-hidden="true">
-          <span className="ib-entry-sun" />
-        </div>
-        <div className="ib-entry-night-layer" aria-hidden="true">
-          <span className="ib-entry-moon" />
-          <span className="ib-entry-stars" />
-        </div>
-        <div className="ib-entry-window" aria-hidden="true">
-          {Array.from({ length: 8 }, (_item, index) => <span key={index} />)}
-        </div>
-        <div className="ib-entry-room-backdrop" aria-hidden="true">
-          <span className="is-left-shelf" />
-          <span className="is-center-window" />
-          <span className="is-right-terminal" />
-          <span className="is-floor-reflection" />
-        </div>
-        <div className="ib-entry-room-light" aria-hidden="true" />
-        <div className="ib-entry-orbit" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="ib-entry-room-floor" aria-hidden="true" />
-        {roomObjects.map((object) => (
-          <span
-            className={`ib-entry-object is-${object.id}`}
-            style={{ '--object-x': `${object.x}%`, '--object-y': `${object.y}%` } as CSSProperties}
-            aria-hidden="true"
-            key={object.id}
-          >
-            {object.label}
+      <div className="gw-ctrl" aria-label="Glass surface controls">
+        <button id="gw-tool-finger" className="gw-cbtn active" type="button" aria-label="Use wipe tool" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 11V5a2 2 0 0 1 4 0v5" />
+            <path d="M12 10V4a2 2 0 0 1 4 0v8" />
+            <path d="M16 11V7a2 2 0 0 1 4 0v7c0 4-3 7-7 7h-1c-3 0-5-2-6-5l-1-4a2 2 0 0 1 4-1l1 3" />
+          </svg>
+        </button>
+        <button id="gw-tool-pen" className="gw-cbtn" type="button" aria-label="Use pen tool" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m15 5 4 4" />
+            <path d="M13 7 4 16l-1 5 5-1 9-9" />
+            <path d="M14 6 18 2l4 4-4 4" />
+          </svg>
+        </button>
+        <button id="gw-clear" className="gw-cbtn" type="button" aria-label="Clear glass drawing">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18" />
+            <path d="M8 6V4h8v2" />
+            <path d="m9 11 6 6" />
+            <path d="m15 11-6 6" />
+            <path d="M6 6l1 15h10l1-15" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="gw-therms" aria-label="Glass surface tuning">
+        <div id="gw-therm-fog" className="gw-therm" role="slider" aria-label="Fog density" aria-valuemin={0} aria-valuemax={100} aria-valuenow={50}>
+          <span className="gw-therm-label">FOG</span>
+          <span className="gw-therm-body">
+            <span className="gw-therm-tube">
+              <span className="gw-therm-fill" />
+            </span>
+            <span className="gw-therm-bulb" />
           </span>
-        ))}
-        {entryHotspots.map((hotspot) => (
-          <button
-            className={`ib-entry-hotspot is-${hotspot.id}`}
-            type="button"
-            style={{ '--entry-x': `${hotspot.x}%`, '--entry-y': `${hotspot.y}%` } as CSSProperties}
-            onClick={hotspot.id === 'theme' ? toggleMode : enterBlog}
-            key={hotspot.id}
-          >
-            <span aria-hidden="true">{entry.hotspots[hotspot.id].target}</span>
-            <strong>{entry.hotspots[hotspot.id].label}</strong>
-            <small>{entry.hotspots[hotspot.id].hint}</small>
-          </button>
-        ))}
-        <aside className="ib-entry-dialogue" aria-label="Entry hint">
-          <small>{entry.dialogue.eyebrow}</small>
-          <strong>{entry.dialogue.title}</strong>
-          <span>{entry.dialogue.description}</span>
-        </aside>
-        <span className="ib-entry-character" aria-hidden="true">
-          <Image src={site.avatar} alt="" width={92} height={92} priority />
-        </span>
-      </section>
+          <span className="gw-therm-val" />
+        </div>
+        <div id="gw-therm-brush" className="gw-therm" role="slider" aria-label="Brush size" aria-valuemin={0} aria-valuemax={100} aria-valuenow={50}>
+          <span className="gw-therm-label">BRUSH</span>
+          <span className="gw-therm-body">
+            <span className="gw-therm-tube">
+              <span className="gw-therm-fill" />
+            </span>
+            <span className="gw-therm-bulb" />
+          </span>
+          <span className="gw-therm-val" />
+        </div>
+      </div>
 
-      <section className={`ib-entry-welcome${mode === 'infernal' ? ' ib-on' : ''}`} aria-label="Welcome">
-        <span className="ib-entry-rule" aria-hidden="true" />
-        <p className="ib-entry-sign">
+      <div className="ib-game-flow-veil" aria-hidden="true" />
+
+      <section className="ib-game-copy" aria-label="Game start copy">
+        <span className="ib-game-copy-rule" aria-hidden="true" />
+        <p className="ib-game-sign">
           {entry.signaturePrefix} <span>{entry.signatureName || site.owner || site.title}</span>
           <i aria-hidden="true"> | </i>
           <em>{entry.signatureSuffix}</em>
+          <button id="gw-toggle" className="gw-toggle" type="button" aria-label="Toggle glass surface" aria-pressed="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12c2.2-4 5.1-6 8-6s5.8 2 8 6c-2.2 4-5.1 6-8 6s-5.8-2-8-6Z" />
+              <path d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />
+            </svg>
+          </button>
         </p>
 
-        <div className={`ib-entry-swap${mode === 'infernal' ? ' ib-mode' : ''}`}>
-          <div className="ib-entry-original">
-            <p className="ib-entry-title">
-              {entry.original.eyebrow} <span>{entry.original.eyebrowHighlight}</span>
-            </p>
-            <h1>{entry.original.title}</h1>
-            <p className="ib-entry-desc">
-              {entry.original.description}
-            </p>
-          </div>
+        <p className="ib-game-title">
+          {entryOriginal.eyebrow} <span>{entryOriginal.eyebrowHighlight || site.title}</span>
+        </p>
+        <h1 className="ib-game-wordmark" aria-label={`${entryOriginal.title} ${entryBeyond.title}`}>
+          <small>{entryBeyond.eyebrow}</small>
+          <span>{entryOriginal.title}</span>
+          <span>{entryBeyond.eyebrowHighlight || entryBeyond.title}</span>
+        </h1>
+        <p className="ib-game-desc">{entryOriginal.description}</p>
+        <p className="ib-game-note">{entryBeyond.description}</p>
 
-          <div className="ib-entry-beyond">
-            <p className="ib-entry-title">
-              {entry.beyond.eyebrow} <span>{entry.beyond.eyebrowHighlight}</span>
-            </p>
-            <h1>{entry.beyond.title}</h1>
-            <p className="ib-entry-desc">
-              {entry.beyond.description}
-            </p>
-          </div>
-        </div>
-
-        <div className="ib-entry-actions">
-          <button className="ib-entry-action-btn" type="button" onClick={enterBlog}>
-            {entry.enterButton}
-          </button>
-          <button className="ib-entry-action-btn secondary" id="ib-mode-toggle" type="button" onClick={toggleMode}>
-            {nextModeButton}
-          </button>
-        </div>
-
-        <button className="ib-entry-skip" type="button" onClick={enterBlog}>
-          {entry.skipButton}
+        <button className="ib-game-action-btn" type="button" onClick={enterBlog} disabled={phase !== 'ready'}>
+          {entry.enterButton}
         </button>
-
-        <div className="ib-entry-status" aria-hidden="true">
-          {entry.statusLines.map((line) => <b key={line}>{line}</b>)}
-        </div>
       </section>
-
-      <aside className="ib-entry-console" aria-hidden="true">
-        <span>{entry.consoleTitle}</span>
-        {entry.bootLines.map((line) => <b key={line}>{line}</b>)}
-      </aside>
     </div>
   );
 }
