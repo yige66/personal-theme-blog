@@ -13738,3 +13738,39 @@ body:has(.archive-page) .archive-filter-console .archive-view-toggle button {
     margin-bottom: 34px !important;
   }
 }
+
+/* Final archive frame sync: the archive page must not draw its own page-sized panel. */
+body:has(.archive-page) .archive-world.archive-switchboard.archive-xh-timeline,
+body:has(.archive-page) .archive-world.archive-switchboard,
+body:has(.archive-page) .archive-xh-timeline {
+  width: min(1120px, calc(100% - 32px)) !important;
+  margin: 0 auto 120px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+body:has(.archive-page) .archive-world.archive-switchboard.archive-xh-timeline::before,
+body:has(.archive-page) .archive-world.archive-switchboard.archive-xh-timeline::after,
+body:has(.archive-page) .archive-world.archive-switchboard::before,
+body:has(.archive-page) .archive-world.archive-switchboard::after,
+body:has(.archive-page) .archive-xh-timeline::before,
+body:has(.archive-page) .archive-xh-timeline::after {
+  content: none !important;
+  display: none !important;
+}
+
+body:has(.archive-page) .archive-xh-timeline .archive-timeline-view,
+body:has(.archive-page) .archive-xh-timeline .archive-card-view {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}

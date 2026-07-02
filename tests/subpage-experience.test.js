@@ -207,6 +207,10 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*background: transparent !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*box-shadow: none !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console \.archive-view-toggle[\s\S]*justify-self: center !important/);
+    assert.match(css, /Final archive frame sync/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-world\.archive-switchboard\.archive-xh-timeline,[\s\S]*background: transparent !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-world\.archive-switchboard\.archive-xh-timeline,[\s\S]*box-shadow: none !important/);
+    assert.match(css, /body:has\(\.archive-page\) \.archive-xh-timeline \.archive-timeline-view,[\s\S]*background: transparent !important/);
   });
 
   it('uses client islands for target-like gallery, music, and moments channels', async () => {
