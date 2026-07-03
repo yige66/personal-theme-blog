@@ -23,17 +23,24 @@ describe('target-style music, friends, and GitHub comments', () => {
   });
 
   it('implements the XHBlogs-like cloud music architecture with safe input validation', async () => {
-    const [layout, provider, apiRoute, studio, cloudCard] = await Promise.all([
+    const [layout, blogLib, provider, apiRoute, studio, cloudCard, envExample] = await Promise.all([
       readFile('app/layout.tsx', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
       readFile('components/music/MusicProvider.tsx', 'utf8'),
       readFile('app/api/music/route.ts', 'utf8'),
       readFile('components/MusicStudio.tsx', 'utf8'),
-      readFile('components/music/CloudPlayerCard.tsx', 'utf8')
+      readFile('components/music/CloudPlayerCard.tsx', 'utf8'),
+      readFile('.env.example', 'utf8')
     ]);
 
     assert.match(layout, /cloudMusicIds=\{data\.site\.cloudMusicIds\}/);
+    assert.match(blogLib, /NEXT_PUBLIC_CLOUD_MUSIC_IDS/);
+    assert.match(blogLib, /normalizeMusicTracks/);
     assert.match(provider, /\/api\/music\?ids=/);
     assert.match(provider, /localStorage/);
+    assert.match(provider, /sessionStorage/);
+    assert.match(provider, /CLOUD_CACHE_KEY/);
+    assert.match(provider, /reloadCloudMusic/);
     assert.match(provider, /remoteTracks/);
     assert.match(provider, /mergePlaylist/);
     assert.match(provider, /isLoading/);
@@ -45,8 +52,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(apiRoute, /music\.163\.com/);
     assert.match(studio, /music-cloud-count/);
     assert.match(studio, /music-sync-note/);
+    assert.match(studio, /Sync Cloud/);
     assert.match(cloudCard, /formatTime/);
     assert.match(cloudCard, /progress/);
+    assert.match(envExample, /NEXT_PUBLIC_CLOUD_MUSIC_IDS/);
   });
 
   it('adds target-style Gitalk comment surfaces and a secure GitHub OAuth proxy', async () => {
@@ -56,6 +65,9 @@ describe('target-style music, friends, and GitHub comments', () => {
       comments,
       momentComments,
       githubApi,
+      blogLib,
+      adminLib,
+      envExample,
       postPage,
       chatterPage,
       musicPage,
@@ -69,6 +81,9 @@ describe('target-style music, friends, and GitHub comments', () => {
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
       readFile('components/comments/MomentComments.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('lib/blog-admin.ts', 'utf8'),
+      readFile('.env.example', 'utf8'),
       readFile('app/posts/[slug]/page.tsx', 'utf8'),
       readFile('app/chatter/[slug]/page.tsx', 'utf8'),
       readFile('app/music/page.tsx', 'utf8'),
@@ -108,8 +123,14 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /cleanOAuthCodeFromUrl/);
     assert.match(comments, /proxy: config\.proxy \|\| '\/api\/github'/);
     assert.doesNotMatch(comments, /clientSecret/);
+    assert.match(blogLib, /normalizeCommentConfig/);
+    assert.match(blogLib, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
+    assert.match(blogLib, /GITHUB_CLIENT_SECRET/);
+    assert.match(adminLib, /must not store OAuth secrets/);
+    assert.match(adminLib, /validateLinks/);
     assert.match(githubApi, /GITHUB_CLIENT_SECRET/);
     assert.match(githubApi, /GITALK_CLIENT_SECRET/);
+    assert.match(githubApi, /not configured/);
     assert.match(githubApi, /https:\/\/github\.com\/login\/oauth\/access_token/);
     assert.match(githubApi, /MAX_BODY_LENGTH/);
     assert.match(githubApi, /client_secret/);
@@ -133,5 +154,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /:is\(\.github-comments-shell, \.friends-comments, \.moment-comment-dock, \.moment-comments-shell\)::before/);
     assert.match(css, /body:has\(\.friends-page\) \.friends-comments \.github-comments-shell[\s\S]*width: 100% !important/);
     assert.match(css, /html\[data-xh-theme="night"\] \.custom-gitalk-glass/);
+    assert.match(envExample, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
+    assert.match(envExample, /GITHUB_CLIENT_SECRET/);
   });
 });

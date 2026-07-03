@@ -194,6 +194,20 @@ describe('blog administration operating system', () => {
     if (!invalid.ok) {
       assert.match(invalid.errors.join('\n'), /duplicates/);
     }
+
+    const invalidOperationalData = JSON.parse(JSON.stringify(blogData));
+    invalidOperationalData.links[0].url = 'javascript:alert(1)';
+    invalidOperationalData.site.cloudMusicIds = ['not-a-number'];
+    invalidOperationalData.site.comments.clientSecret = 'never-store-this';
+
+    const invalidOperational = validateBlogDataDraft(invalidOperationalData);
+    assert.equal(invalidOperational.ok, false);
+    if (!invalidOperational.ok) {
+      const errors = invalidOperational.errors.join('\n');
+      assert.match(errors, /links\[0\]\.url/);
+      assert.match(errors, /cloudMusicIds\[0\]/);
+      assert.match(errors, /must not store OAuth secrets/);
+    }
   });
 
   it('accepts only safe local image uploads for admin-managed assets', () => {

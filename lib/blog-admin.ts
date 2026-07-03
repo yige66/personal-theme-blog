@@ -45,6 +45,13 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
     validateOptionalArray(data.site.columns, 'site.columns', errors);
     validateOptionalArray(data.site.music, 'site.music', errors);
     validateOptionalArray(data.site.gallery, 'site.gallery', errors);
+    validateCloudMusicIds(data.site.cloudMusicIds, errors);
+    validateMusicTracks(data.site.music, errors);
+    validateCommentConfig(data.site.comments, errors);
+  }
+
+  if (Array.isArray(data.links)) {
+    validateLinks(data.links, errors);
   }
 
   if (Array.isArray(data.posts)) {
@@ -139,6 +146,120 @@ function validateOptionalArray(value: unknown, label: string, errors: string[]):
   }
 }
 
+function validateLinks(items: unknown[], errors: string[]): void {
+  const seenUrls = new Set<string>();
+
+  items.forEach((link, index) => {
+    if (!isRecord(link)) {
+      errors.push(`links[${index}] must be an object.`);
+      return;
+    }
+
+    validateRequiredString(link, `links[${index}].title`, errors, 'title');
+    validateRequiredString(link, `links[${index}].description`, errors, 'description');
+
+    const url = typeof link.url === 'string' ? link.url.trim() : '';
+    if (!isExternalUrl(url)) {
+      errors.push(`links[${index}].url must be an http or https URL.`);
+    } else if (seenUrls.has(url)) {
+      errors.push(`links[${index}].url duplicates "${url}".`);
+    } else {
+      seenUrls.add(url);
+    }
+
+    validateOptionalAssetPath(link.avatar, `links[${index}].avatar`, errors);
+  });
+}
+
+function validateCloudMusicIds(value: unknown, errors: string[]): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push('site.cloudMusicIds must be an array when provided.');
+    return;
+  }
+
+  value.forEach((id, index) => {
+    if (!/^\d{1,20}$/.test(String(id).trim())) {
+      errors.push(`site.cloudMusicIds[${index}] must be a numeric music id.`);
+    }
+  });
+}
+
+function validateMusicTracks(value: unknown, errors: string[]): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push('site.music must be an array when provided.');
+    return;
+  }
+
+  value.forEach((track, index) => {
+    if (!isRecord(track)) {
+      errors.push(`site.music[${index}] must be an object.`);
+      return;
+    }
+
+    validateRequiredString(track, `site.music[${index}].title`, errors, 'title');
+    validateRequiredString(track, `site.music[${index}].artist`, errors, 'artist');
+    validateOptionalPlayableUrl(track.url, `site.music[${index}].url`, errors);
+    validateOptionalAssetPath(track.cover, `site.music[${index}].cover`, errors);
+
+    if (track.id !== undefined && !/^[\w.-]{1,100}$/.test(String(track.id).trim())) {
+      errors.push(`site.music[${index}].id must contain only letters, numbers, dots, underscores, or hyphens.`);
+    }
+    if (track.duration !== undefined && (typeof track.duration !== 'number' || track.duration < 0)) {
+      errors.push(`site.music[${index}].duration must be a positive number when provided.`);
+    }
+  });
+}
+
+function validateCommentConfig(value: unknown, errors: string[]): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!isRecord(value)) {
+    errors.push('site.comments must be an object when provided.');
+    return;
+  }
+
+  if ('clientSecret' in value || 'secret' in value) {
+    errors.push('site.comments must not store OAuth secrets. Use GITHUB_CLIENT_SECRET or GITALK_CLIENT_SECRET.');
+  }
+
+  if (value.enabled !== undefined && typeof value.enabled !== 'boolean') {
+    errors.push('site.comments.enabled must be a boolean.');
+  }
+
+  for (const [key, label] of [['repo', 'site.comments.repo'], ['owner', 'site.comments.owner'], ['clientId', 'site.comments.clientId'], ['label', 'site.comments.label']] as const) {
+    const current = value[key];
+    if (current !== undefined && String(current).trim() && !/^[\w.-]{1,100}$/.test(String(current).trim())) {
+      errors.push(`${label} must contain only letters, numbers, dots, underscores, or hyphens.`);
+    }
+  }
+
+  if (value.admin !== undefined) {
+    if (!Array.isArray(value.admin)) {
+      errors.push('site.comments.admin must be an array when provided.');
+    } else {
+      value.admin.forEach((admin, index) => {
+        if (!/^[\w.-]{1,100}$/.test(String(admin).trim())) {
+          errors.push(`site.comments.admin[${index}] must be a valid GitHub username.`);
+        }
+      });
+    }
+  }
+
+  if (value.proxy !== undefined && !isLocalPath(String(value.proxy))) {
+    errors.push('site.comments.proxy must be a local API path such as /api/github.');
+  }
+}
+
 function validateUniqueField(items: unknown[], field: string, label: string, errors: string[]): void {
   const seen = new Set<string>();
 
@@ -163,4 +284,27 @@ function validateUniqueField(items: unknown[], field: string, label: string, err
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isExternalUrl(value: string): boolean {
+  return /^https?:\/\/[^\s]+$/i.test(value);
+}
+
+function isLocalPath(value: string): boolean {
+  return /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(value);
+}
+
+function validateOptionalPlayableUrl(value: unknown, label: string, errors: string[]): void {
+  if (value === undefined || value === null || value === '') {
+    return;
+  }
+
+  const url = String(value).trim();
+  if (!isExternalUrl(url) && !isLocalPath(url)) {
+    errors.push(`${label} must be an http(s) URL or a safe local path.`);
+  }
+}
+
+function validateOptionalAssetPath(value: unknown, label: string, errors: string[]): void {
+  validateOptionalPlayableUrl(value, label, errors);
 }

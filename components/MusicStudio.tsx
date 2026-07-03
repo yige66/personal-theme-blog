@@ -90,6 +90,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
     playMode,
     previousTrack,
     progress,
+    reloadCloudMusic,
     seekToProgress,
     selectTrack,
     setVolume,
@@ -177,6 +178,9 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           <span>{formatTrackSource(activeTrack)}</span>
           <button type="button" onClick={togglePlayMode} aria-label={`切换播放模式，当前${formatPlayModeLabel(playMode)}`}>
             {formatPlayModeLabel(playMode)}
+          </button>
+          <button type="button" onClick={reloadCloudMusic} disabled={isLoading}>
+            {isLoading ? 'Syncing' : 'Sync Cloud'}
           </button>
         </div>
         {loadError ? <p className="music-sync-note" role="status">{loadError}</p> : null}

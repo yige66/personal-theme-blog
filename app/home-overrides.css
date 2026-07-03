@@ -16321,3 +16321,170 @@ body:has(.friends-page) .friends-comments .github-comments-shell {
 body:has(.friends-page) .friends-comments .github-comments-card {
   margin-top: 0 !important;
 }
+
+/* Synchronized homepage radio player. */
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: clamp(78px, 9vw, 108px) minmax(0, 1fr) !important;
+  grid-template-areas:
+    "cover copy"
+    "note note"
+    "progress progress"
+    "controls sync" !important;
+  gap: 12px 18px !important;
+  align-content: center !important;
+  align-items: center !important;
+  min-height: 214px !important;
+  padding: clamp(16px, 2vw, 22px) !important;
+  overflow: hidden !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card > :not(.xh-cloud-player-open) {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-open {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  border-radius: inherit !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-disc-cover {
+  grid-area: cover !important;
+  width: clamp(78px, 9vw, 108px) !important;
+  height: clamp(78px, 9vw, 108px) !important;
+  justify-self: center !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-copy {
+  grid-area: copy !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+  text-align: left !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-copy h2 {
+  overflow: hidden !important;
+  margin: 5px 0 4px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-copy p:not(.eyebrow) {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-note {
+  grid-area: note !important;
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  color: var(--xh-reference-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  text-shadow: none !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-progress {
+  grid-area: progress !important;
+  grid-column: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  justify-self: stretch !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls {
+  grid-area: controls !important;
+  grid-column: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+  justify-content: start !important;
+  gap: 8px !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls button {
+  position: relative !important;
+  z-index: 3 !important;
+  width: 34px !important;
+  height: 34px !important;
+  border: 1px solid rgba(231, 238, 255, 0.22) !important;
+  cursor: pointer !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls .xh-player-play-toggle {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 14px !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-sync {
+  grid-area: sync !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  align-items: center !important;
+  justify-content: end !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  color: var(--xh-reference-muted) !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  text-align: right !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-sync span,
+body:has(.xh-clean-home) .xh-clean-home .xh-player-sync small {
+  display: inline-grid !important;
+  min-height: 24px !important;
+  place-items: center !important;
+  padding: 0 9px !important;
+  border: 1px solid rgba(231, 238, 255, 0.16) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  white-space: nowrap !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-player-bars {
+  z-index: 2 !important;
+}
+
+@media (max-width: 760px) {
+  body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card {
+    grid-template-columns: 74px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "cover copy"
+      "note note"
+      "progress progress"
+      "controls controls"
+      "sync sync" !important;
+    min-height: 0 !important;
+  }
+
+  body:has(.xh-clean-home) .xh-clean-home .xh-disc-cover {
+    width: 74px !important;
+    height: 74px !important;
+  }
+
+  body:has(.xh-clean-home) .xh-clean-home .xh-player-controls,
+  body:has(.xh-clean-home) .xh-clean-home .xh-player-sync {
+    justify-content: center !important;
+  }
+
+  body:has(.xh-clean-home) .xh-clean-home .xh-player-sync {
+    text-align: center !important;
+  }
+}

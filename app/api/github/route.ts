@@ -15,6 +15,13 @@ export async function POST(request: Request) {
     }
 
     const githubClientSecret = process.env.GITHUB_CLIENT_SECRET || process.env.GITALK_CLIENT_SECRET;
+    if (!githubClientSecret) {
+      return NextResponse.json(
+        { error: 'GitHub OAuth proxy is not configured. Set GITHUB_CLIENT_SECRET or GITALK_CLIENT_SECRET.' },
+        { status: 503 }
+      );
+    }
+
     const body = injectClientSecret(rawBody, contentType, githubClientSecret);
 
     const githubResponse = await fetch(TOKEN_ENDPOINT, {

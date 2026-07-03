@@ -30,6 +30,7 @@ type MusicContextValue = {
   togglePlayMode: () => void;
   nextTrack: () => void;
   previousTrack: () => void;
+  reloadCloudMusic: () => void;
   seekToProgress: (progress: number) => void;
   setVolume: (value: number) => void;
   toggleMute: () => void;
@@ -44,9 +45,11 @@ type StoredMusicState = {
 
 const MusicContext = createContext<MusicContextValue | null>(null);
 const STORAGE_KEY = 'personal-theme-blog:music-state';
+const CLOUD_CACHE_KEY = 'personal-theme-blog:cloud-music';
 
 export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { children: ReactNode; tracks: MusicTrack[]; cloudMusicIds?: string[] }) {
   const [remoteTracks, setRemoteTracks] = useState<MusicTrack[]>([]);
+  const [syncNonce, setSyncNonce] = useState(0);
   const [isLoading, setIsLoading] = useState(cloudMusicIds.length > 0);
   const [loadError, setLoadError] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -144,6 +147,11 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     setPlayMode((mode) => mode === 'list' ? 'loop' : mode === 'loop' ? 'shuffle' : 'list');
   };
 
+  const reloadCloudMusic = useCallback(() => {
+    setLoadError('');
+    setSyncNonce((value) => value + 1);
+  }, []);
+
   const seekToProgress = (nextProgress: number) => {
     const clamped = Math.min(100, Math.max(0, nextProgress));
     const nextTime = (clamped / 100) * activeDuration;
@@ -212,6 +220,19 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return undefined;
     }
 
+    const cacheKey = `${CLOUD_CACHE_KEY}:${cloudMusicIds.join(',')}`;
+    try {
+      const cached = window.sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const payload = JSON.parse(cached) as { tracks?: MusicTrack[] };
+        if (Array.isArray(payload.tracks)) {
+          setRemoteTracks(payload.tracks);
+        }
+      }
+    } catch {
+      window.sessionStorage.removeItem(cacheKey);
+    }
+
     const controller = new AbortController();
     setIsLoading(true);
     setLoadError('');
@@ -219,7 +240,9 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     fetch(`/api/music?ids=${encodeURIComponent(cloudMusicIds.join(','))}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error('music api failed')))
       .then((payload: { tracks?: MusicTrack[] }) => {
-        setRemoteTracks(Array.isArray(payload.tracks) ? payload.tracks : []);
+        const nextTracks = Array.isArray(payload.tracks) ? payload.tracks : [];
+        setRemoteTracks(nextTracks);
+        window.sessionStorage.setItem(cacheKey, JSON.stringify({ tracks: nextTracks, savedAt: Date.now() }));
       })
       .catch((error) => {
         if ((error as Error).name !== 'AbortError') {
@@ -233,7 +256,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       });
 
     return () => controller.abort();
-  }, [cloudMusicIds]);
+  }, [cloudMusicIds, syncNonce]);
 
   useEffect(() => {
     if (currentIndex >= playlist.length && playlist.length > 0) {
@@ -318,6 +341,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     togglePlayMode,
     nextTrack,
     previousTrack,
+    reloadCloudMusic,
     seekToProgress,
     setVolume,
     toggleMute: () => setIsMuted((muted) => !muted)

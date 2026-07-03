@@ -5,39 +5,70 @@ import Link from 'next/link';
 import { useMusic } from './MusicProvider';
 
 export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
-  const { currentTime, currentTrack, duration, isLoading, isPlaying, nextTrack, previousTrack, progress, togglePlaying } = useMusic();
+  const {
+    currentTime,
+    currentTrack,
+    duration,
+    isLoading,
+    isPlaying,
+    nextTrack,
+    playlist,
+    previousTrack,
+    progress,
+    togglePlaying
+  } = useMusic();
+  const hasTracks = playlist.length > 0;
+  const title = currentTrack?.title || '歌单待补全';
+  const artist = currentTrack?.artist || 'Local Playlist';
+  const note = currentTrack?.note || '和音乐电台同步，写作、阅读和编码时都能接着听。';
+  const cover = currentTrack?.cover || fallbackImage;
 
   return (
-    <Link className="xh-cloud-player-card" href="/music" data-motion="portal-card" aria-label="打开音乐页">
-      <div className="xh-disc-cover">
-        <Image src={currentTrack?.cover || fallbackImage} alt={`${currentTrack?.title || '音乐'} 封面`} width={220} height={220} priority />
+    <article
+      className="xh-cloud-player-card"
+      data-motion="portal-card"
+      data-playing={isPlaying ? 'true' : 'false'}
+      data-loading={isLoading ? 'true' : 'false'}
+      aria-label="音乐电台同步播放器"
+    >
+      <Link className="xh-cloud-player-open" href="/music" aria-label={`打开音乐电台：${title}`} />
+      <div className="xh-disc-cover" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
+        <Image src={cover} alt="" width={220} height={220} priority />
       </div>
       <div className="xh-cloud-copy">
         <p className="eyebrow">Cloud Music</p>
-        <h2>{currentTrack?.title || '歌单待补全'}</h2>
-        <p>{currentTrack?.artist || 'Local Playlist'}</p>
-        <strong>{currentTrack?.note || '把写作、阅读和编码时的背景音乐收进这里。'}</strong>
+        <h2>{title}</h2>
+        <p>{artist}</p>
       </div>
-      <div className="xh-player-progress" aria-hidden="true">
+      <p className="xh-cloud-note">{note}</p>
+      <div className="xh-player-progress" aria-label={`播放进度 ${formatTime(currentTime)} / ${formatTime(duration)}`}>
         <span>{formatTime(currentTime)}</span>
-        <i><b style={{ width: `${Math.max(2, progress)}%` }} /></i>
-        <span>{isLoading ? 'Sync' : currentTrack?.url ? formatTime(duration) : 'Draft'}</span>
+        <i aria-hidden="true"><b style={{ width: `${Math.max(2, progress)}%` }} /></i>
+        <span>{isLoading ? 'Sync' : currentTrack?.url ? formatTime(duration) : 'Radio'}</span>
       </div>
       <div className="xh-player-controls" aria-label="音乐控制">
-        <button type="button" aria-label="上一首" onClick={(event) => { event.preventDefault(); previousTrack(); }}>‹</button>
-        <button type="button" aria-label={isPlaying ? '暂停' : '播放'} onClick={(event) => { event.preventDefault(); togglePlaying(); }}>
-          {isPlaying ? 'Ⅱ' : '▶'}
+        <button type="button" aria-label="上一首" disabled={!hasTracks} onClick={previousTrack}>
+          <span aria-hidden="true">‹</span>
         </button>
-        <button type="button" aria-label="下一首" onClick={(event) => { event.preventDefault(); nextTrack(); }}>›</button>
+        <button className="xh-player-play-toggle" type="button" aria-label={isPlaying ? '暂停' : '播放'} disabled={!hasTracks} onClick={togglePlaying}>
+          <span aria-hidden="true">{isPlaying ? 'II' : '▶'}</span>
+        </button>
+        <button type="button" aria-label="下一首" disabled={!hasTracks} onClick={nextTrack}>
+          <span aria-hidden="true">›</span>
+        </button>
       </div>
-      <div className="xh-player-bars" aria-hidden="true" data-playing={isPlaying || undefined}>
+      <p className="xh-player-sync" aria-live="polite">
+        <span>{formatSyncState(isLoading, isPlaying, Boolean(currentTrack?.url))}</span>
+        <small>{hasTracks ? `${playlist.length} 首` : '待同步'}</small>
+      </p>
+      <div className="xh-player-bars" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
         <i />
         <i />
         <i />
         <i />
         <i />
       </div>
-    </Link>
+    </article>
   );
 }
 
@@ -49,4 +80,16 @@ function formatTime(time: number): string {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatSyncState(isLoading: boolean, isPlaying: boolean, hasAudio: boolean): string {
+  if (isLoading) {
+    return '电台同步中';
+  }
+
+  if (isPlaying) {
+    return hasAudio ? '播放中' : '站内电台播放中';
+  }
+
+  return hasAudio ? '已同步' : '电台待接入';
 }

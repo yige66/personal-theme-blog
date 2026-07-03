@@ -701,13 +701,10 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     ...fallbackSite,
     ...siteInput,
     brandSuffix: typeof siteInput.brandSuffix === 'string' ? siteInput.brandSuffix.trim() : fallbackSite.brandSuffix,
-    comments: {
-      ...fallbackSite.comments,
-      ...(siteInput.comments ?? {})
-    },
+    comments: normalizeCommentConfig(siteInput.comments),
     cloudMusicIds: normalizeCloudMusicIds(siteInput.cloudMusicIds),
     friendLinkApplyFormat: siteInput.friendLinkApplyFormat || fallbackSite.friendLinkApplyFormat,
-    music: normalizeArray(siteInput.music, fallbackSite.music),
+    music: normalizeMusicTracks(siteInput.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     avatar: siteInput.avatar || fallbackSite.avatar,
     backgroundImages: normalizeAssetList(siteInput.backgroundImages, fallbackSite.backgroundImages),
@@ -726,7 +723,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
 
   return {
     site,
-    links: Array.isArray(input.links) ? input.links : [],
+    links: normalizeLinks(input.links),
     notes: Array.isArray(input.notes) ? input.notes : [],
     chatters: Array.isArray(input.chatters) ? input.chatters : [],
     projects: normalizeArray(input.projects, fallbackProjects),
@@ -757,6 +754,88 @@ function normalizeAssetList(value: unknown, fallback: string[]): string[] {
     });
 
   return Array.isArray(value) ? assets : fallback;
+}
+
+function normalizeLinks(value: unknown): BlogLink[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const links: BlogLink[] = [];
+  value.filter(isRecord).forEach((link, index) => {
+    const title = textOrFallback(link.title, `Friend ${index + 1}`);
+    const url = normalizeExternalUrl(link.url);
+    if (!url) {
+      return;
+    }
+
+    links.push({
+      title,
+      url,
+      description: textOrFallback(link.description, url),
+      avatar: normalizeOptionalAsset(link.avatar),
+      themeColor: typeof link.themeColor === 'string' ? link.themeColor.trim() : undefined
+    });
+  });
+
+  return links;
+}
+
+function normalizeMusicTracks(value: unknown): MusicTrack[] {
+  const source = Array.isArray(value) && value.length > 0 ? value : fallbackSite.music;
+
+  return source
+    .filter(isRecord)
+    .map((track, index) => ({
+      id: typeof track.id === 'string' && track.id.trim() ? track.id.trim() : undefined,
+      title: textOrFallback(track.title, `Track ${index + 1}`),
+      artist: textOrFallback(track.artist, 'Local Playlist'),
+      mood: textOrFallback(track.mood, 'Focus'),
+      url: normalizePlayableUrl(track.url),
+      cover: normalizeOptionalAsset(track.cover) || fallbackSite.avatar,
+      source: textOrFallback(track.source, track.provider === 'netease' ? 'netease-cloud' : 'local'),
+      note: typeof track.note === 'string' ? track.note : undefined,
+      provider: typeof track.provider === 'string' && track.provider.trim() ? track.provider.trim() : 'local',
+      duration: toInteger(track.duration, 0) || undefined,
+      lrc: typeof track.lrc === 'string' ? track.lrc : undefined,
+      lyric: typeof track.lyric === 'string' ? track.lyric : undefined,
+      lyrics: Array.isArray(track.lyrics) || typeof track.lyrics === 'string' ? track.lyrics as MusicTrack['lyrics'] : undefined
+    }));
+}
+
+function normalizeCommentConfig(value: unknown): CommentConfig {
+  const source = isRecord(value) ? value as Partial<CommentConfig> : {};
+  const envRepo = readRuntimeEnv('NEXT_PUBLIC_GITALK_REPO', 'GITALK_REPO', 'GITHUB_COMMENTS_REPO');
+  const envOwner = readRuntimeEnv('NEXT_PUBLIC_GITALK_OWNER', 'GITALK_OWNER', 'GITHUB_COMMENTS_OWNER');
+  const envAdmin = readRuntimeEnv('NEXT_PUBLIC_GITALK_ADMIN', 'GITALK_ADMIN', 'GITHUB_COMMENTS_ADMIN');
+  const envClientId = readRuntimeEnv('NEXT_PUBLIC_GITALK_CLIENT_ID', 'GITALK_CLIENT_ID', 'GITHUB_CLIENT_ID');
+  const oauthSecretReady = Boolean(readRuntimeEnv('GITHUB_CLIENT_SECRET', 'GITALK_CLIENT_SECRET'));
+  const base = {
+    ...fallbackSite.comments,
+    ...source
+  };
+  const parsedRepo = parseGitHubRepo(envRepo || base.repo);
+  const repo = normalizeGitHubName(parsedRepo.repo || base.repo) || fallbackSite.comments.repo;
+  const owner = normalizeGitHubName(envOwner || parsedRepo.owner || base.owner) || fallbackSite.comments.owner || '';
+  const clientId = envClientId || (typeof base.clientId === 'string' ? base.clientId.trim() : '');
+  const admin = normalizeGitHubAdminList(base.admin, owner, envAdmin);
+  const provider = textOrFallback(base.provider, fallbackSite.comments.provider).toLowerCase();
+  const enabledByConfig = base.enabled !== false;
+  const gitalkReady = provider.includes('gitalk') && Boolean(repo && owner && clientId && oauthSecretReady);
+
+  return {
+    ...base,
+    enabled: enabledByConfig && gitalkReady,
+    provider,
+    repo,
+    owner,
+    admin,
+    clientId,
+    proxy: normalizeLocalPath(base.proxy, '/api/github'),
+    mapping: textOrFallback(base.mapping, 'pathname'),
+    label: normalizeGitHubName(base.label) || 'comment',
+    theme: textOrFallback(base.theme, 'auto')
+  };
 }
 
 function normalizeColumns(value: unknown): SiteColumn[] {
@@ -804,6 +883,78 @@ function validColumnId(value: unknown): string {
 function safeHref(value: unknown): string {
   const href = typeof value === 'string' ? value.trim() : '';
   return /^https?:\/\/[^\s]+$/i.test(href) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(href) || /^#[a-zA-Z0-9_-]+$/.test(href) ? href : '';
+}
+
+function normalizeExternalUrl(value: unknown): string {
+  const url = typeof value === 'string' ? value.trim() : '';
+  return /^https?:\/\/[^\s]+$/i.test(url) ? url : '';
+}
+
+function normalizePlayableUrl(value: unknown): string {
+  const url = typeof value === 'string' ? value.trim() : '';
+  return /^https?:\/\/[^\s]+$/i.test(url) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(url) ? url : '';
+}
+
+function normalizeOptionalAsset(value: unknown): string | undefined {
+  const asset = normalizePlayableUrl(value);
+  return asset || undefined;
+}
+
+function normalizeLocalPath(value: unknown, fallback: string): string {
+  const pathValue = typeof value === 'string' ? value.trim() : '';
+  return /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(pathValue) ? pathValue : fallback;
+}
+
+function readRuntimeEnv(...keys: string[]): string {
+  for (const key of keys) {
+    const value = process.env[key];
+    const trimmed = typeof value === 'string' ? value.trim() : '';
+    if (trimmed && !isPlaceholderEnvValue(trimmed)) {
+      return trimmed;
+    }
+  }
+  return '';
+}
+
+function isPlaceholderEnvValue(value: string): boolean {
+  return /^your[-_]/i.test(value) || /^change-this/i.test(value);
+}
+
+function parseGitHubRepo(value: unknown): { owner: string; repo: string } {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) {
+    return { owner: '', repo: '' };
+  }
+
+  const withoutProtocol = raw.replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '');
+  const [owner = '', repo = ''] = withoutProtocol.split('/').filter(Boolean);
+  return {
+    owner: normalizeGitHubName(owner),
+    repo: normalizeGitHubName(repo || withoutProtocol)
+  };
+}
+
+function normalizeGitHubName(value: unknown): string {
+  const name = typeof value === 'string' ? value.trim() : '';
+  return /^[\w.-]{1,100}$/.test(name) ? name : '';
+}
+
+function normalizeGitHubAdminList(value: unknown, fallback: string, envValue = ''): string[] {
+  const source = envValue
+    ? envValue.split(/[,\s]+/)
+    : Array.isArray(value)
+      ? value
+      : [fallback];
+  const admins = source
+    .map((item) => normalizeGitHubName(item))
+    .filter(Boolean);
+
+  const normalized = [...new Set(admins)].slice(0, 20);
+  return normalized.length > 0 ? normalized : [fallback].map((item) => normalizeGitHubName(item)).filter(Boolean);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function normalizeEffects(value: unknown): VisualEffectsConfig {
@@ -892,7 +1043,8 @@ function textOrFallback(value: unknown, fallback: string): string {
 }
 
 function normalizeCloudMusicIds(value: unknown): string[] {
-  const source = Array.isArray(value) ? value : fallbackSite.cloudMusicIds;
+  const envIds = readRuntimeEnv('NEXT_PUBLIC_CLOUD_MUSIC_IDS', 'CLOUD_MUSIC_IDS');
+  const source = envIds ? envIds.split(',') : Array.isArray(value) ? value : fallbackSite.cloudMusicIds;
   const ids = source
     .map((item) => String(item).trim())
     .filter((item) => /^\d{1,20}$/.test(item))
