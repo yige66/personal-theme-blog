@@ -6,7 +6,7 @@ describe('subpage experience surfaces', () => {
   it('keeps index pages connected to clean channel headers and page-specific surfaces', async () => {
     const pageExpectations = [
       ['app/archive/page.tsx', /ChannelHeader/, /ArchiveSwitchboard/],
-      ['app/projects/page.tsx', /ChannelHeader/, /ProjectShowcase/],
+      ['app/projects/page.tsx', /SiteNav/, /ProjectShowcase/],
       ['app/gallery/page.tsx', /ChannelHeader/, /GalleryWall|EmptyState/],
       ['app/photowall/page.tsx', /ChannelHeader/, /PhotoWallClient/],
       ['app/moments/page.tsx', /ChannelHeader/, /MomentsBoard|EmptyState/],
@@ -64,12 +64,15 @@ describe('subpage experience surfaces', () => {
     assert.match(worlds, /TagNebula/);
     assert.match(worlds, /TagReadingDock/);
     assert.match(worlds, /AboutRoom/);
-    assert.match(projectShowcase, /project-workshop-header/);
-    assert.match(projectShowcase, /project-starport/);
-    assert.match(projectShowcase, /project-orbit-layout/);
-    assert.match(projectShowcase, /project-featured-console/);
-    assert.match(projectShowcase, /project-exhibit-grid/);
-    assert.match(projectShowcase, /project-status-rack/);
+    assert.match(projectShowcase, /'use client'/);
+    assert.match(projectShowcase, /项目星港/);
+    assert.match(projectShowcase, /project-matrix-hero/);
+    assert.match(projectShowcase, /project-matrix-search/);
+    assert.match(projectShowcase, /filteredProjects/);
+    assert.match(projectShowcase, /setQuery/);
+    assert.match(projectShowcase, /project-matrix-grid/);
+    assert.match(projectShowcase, /project-matrix-card/);
+    assert.doesNotMatch(projectShowcase, /PROJECTS MATRIX|project-back-link|Project Starport|project-starport|project-orbit-layout|project-featured-console|project-status-rack/);
     assert.match(chatterMasonry, /chatter-masonry/);
     assert.match(chatterMasonry, /chatter-cover/);
     assert.match(chatterMasonry, /xh-reference-surface/);
@@ -121,6 +124,8 @@ describe('subpage experience surfaces', () => {
 
   it('defines responsive target-site inspired subpage styles', async () => {
     const css = `${await readFile('app/globals.css', 'utf8')}\n${await readFile('app/home-overrides.css', 'utf8')}`;
+    const outerFrameRemovalRule = css.match(/\/\* Final outer frame removal[\s\S]*?content: none !important;[\s\S]*?display: none !important;[\s\S]*?\}/)?.[0] ?? '';
+
     assert.match(css, /\.page-insight-bar/);
     assert.match(css, /\.page-insight-items/);
     assert.match(css, /\.rich-empty/);
@@ -162,6 +167,10 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.xh-reference-hero/);
     assert.match(css, /\.xh-reference-toolbar/);
     assert.match(css, /\.xh-reference-surface/);
+    assert.match(outerFrameRemovalRule, /\.channel-hero\.xh-reference-hero/);
+    assert.match(outerFrameRemovalRule, /\.xh-reference-surface/);
+    assert.match(outerFrameRemovalRule, /background: transparent !important/);
+    assert.doesNotMatch(outerFrameRemovalRule, /\.xh-site-dashboard|\.project-status-rack|\.project-featured-console|\.project-card/);
     assert.match(css, /\.photowall-album-stack img:nth-child\(2\)/);
     assert.match(css, /\.moments-stream[\s\S]*grid-template-columns: repeat\(2/);
     assert.match(css, /\.chatter-masonry[\s\S]*grid-template-columns: repeat\(3/);
@@ -174,12 +183,14 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.moments-stream/);
     assert.match(css, /\.archive-world/);
     assert.match(css, /\.project-world/);
-    assert.match(css, /\.project-starport/);
-    assert.match(css, /\.project-workshop-header/);
-    assert.match(css, /\.project-orbit-layout/);
-    assert.match(css, /\.project-featured-console/);
-    assert.match(css, /\.project-exhibit-grid/);
-    assert.match(css, /\.project-status-rack/);
+    assert.match(css, /\.project-matrix/);
+    assert.match(css, /\.project-matrix-hero/);
+    assert.match(css, /\.project-matrix-search/);
+    assert.match(css, /\.project-matrix-grid/);
+    assert.match(css, /\.project-matrix-card/);
+    assert.match(css, /Final projects hero wording sync/);
+    assert.match(css, /body:has\(\.projects-page\) \.project-matrix-hero h1,[\s\S]*font-size: clamp\(42px, 6\.6vw, 74px\) !important/);
+    assert.match(css, /body:has\(\.projects-page\) \.project-matrix-hero p,[\s\S]*font-size: clamp\(15px, 1vw, 16px\) !important/);
     assert.doesNotMatch(css, /\.link-world/);
     assert.doesNotMatch(css, /\.link-map-stage/);
     assert.match(css, /\.tag-world/);
@@ -194,7 +205,7 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.xh-background-image\.is-active[\s\S]*opacity: 0\.68 !important/);
     assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.xh-background-image\.is-active[\s\S]*brightness\(0\.68\)/);
     assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.xh-background-slider \.ib-scene-vignette[\s\S]*mix-blend-mode: multiply !important/);
-    assert.match(css, /body:has\(\.subpage:not\(\.archive-page\)\) \.project-starport/);
+    assert.match(css, /body:has\(\.projects-page\) \.project-matrix/);
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*opacity: 0\.68 !important/);
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*brightness\(0\.68\)/);
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-slider \.ib-scene-vignette/);

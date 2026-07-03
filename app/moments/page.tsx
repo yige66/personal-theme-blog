@@ -10,7 +10,6 @@ export const metadata = staticPageMetadata.moments;
 export default async function MomentsPage() {
   const data = await getBlogData();
   const notes = [...data.notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const moods = [...new Set(notes.map((note) => note.mood).filter(Boolean))];
   const tags = [...new Set(notes.flatMap((note) => note.tags ?? []))];
 
   return (
@@ -31,11 +30,6 @@ export default async function MomentsPage() {
         ]}
         signal="daily notes / mood filters / constellation stream"
       />
-      {moods.length ? (
-        <section className="main-shell moment-mood-rail" aria-label="动态心情">
-          {moods.map((mood) => <span key={mood}>{mood}</span>)}
-        </section>
-      ) : null}
       {notes.length ? (
         <MomentsBoard comments={data.site.comments} notes={notes} />
       ) : (

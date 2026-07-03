@@ -27,6 +27,51 @@ function formatTime(time: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
+function formatPlaybackState(isLoading: boolean, isPlaying: boolean, track: MusicTrack): string {
+  if (isLoading) {
+    return '同步中';
+  }
+
+  if (isPlaying) {
+    return '播放中';
+  }
+
+  return track.url ? '已就绪' : '待接入';
+}
+
+function formatPlayModeLabel(mode: string): string {
+  if (mode === 'loop') {
+    return '循环';
+  }
+
+  if (mode === 'shuffle') {
+    return '随机';
+  }
+
+  return '列表';
+}
+
+function formatTrackSource(track: MusicTrack): string {
+  if (track.provider === 'netease') {
+    return '网易云';
+  }
+
+  const source = (track.source || '').toLowerCase();
+  if (!source) {
+    return '本地';
+  }
+
+  if (source.includes('local')) {
+    return '本地';
+  }
+
+  if (source.includes('draft')) {
+    return '草稿';
+  }
+
+  return track.source || '本地';
+}
+
 export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
   const [tab, setTab] = useState<'lyrics' | 'playlist'>('lyrics');
   const [query, setQuery] = useState('');
@@ -128,9 +173,11 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           <span>{formatTime(duration)}</span>
         </div>
         <div className="music-status-row" aria-live="polite">
-          <span>{isLoading ? 'Syncing Cloud' : isPlaying ? 'Playing' : activeTrack.url ? 'Ready' : 'Draft'}</span>
-          <span>{activeTrack.provider === 'netease' ? 'Netease' : activeTrack.source || 'Local'}</span>
-          <button type="button" onClick={togglePlayMode}>{playMode}</button>
+          <span>{formatPlaybackState(isLoading, isPlaying, activeTrack)}</span>
+          <span>{formatTrackSource(activeTrack)}</span>
+          <button type="button" onClick={togglePlayMode} aria-label={`切换播放模式，当前${formatPlayModeLabel(playMode)}`}>
+            {formatPlayModeLabel(playMode)}
+          </button>
         </div>
         {loadError ? <p className="music-sync-note" role="status">{loadError}</p> : null}
         <div className="music-orbit-controls" aria-label="音乐播放控制">
@@ -148,13 +195,18 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
 
       <div className="music-panel">
         <div className="music-command-bar">
-          <label>
+          <label className="music-search-field">
             <span>搜索歌单</span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="歌曲、歌手、心情" />
           </label>
-          <span className="music-cloud-count">{playlist.length} tracks / {isLoading ? 'syncing' : 'ready'}</span>
+          <span className="music-cloud-count" aria-label={`${playlist.length} 首歌曲，${isLoading ? '同步中' : '已就绪'}`}>
+            <strong>{playlist.length}</strong>
+            <small>{isLoading ? '同步中' : '首'}</small>
+          </span>
           <div className="music-volume-cluster">
-            <button className="music-route-chip" type="button" onClick={toggleMute}>{isMuted ? 'muted' : 'volume'}</button>
+            <button className="music-route-chip" type="button" onClick={toggleMute} aria-label={isMuted ? '取消静音' : '静音'}>
+              <span aria-hidden="true">{isMuted ? '静' : '音'}</span>
+            </button>
             <label>
               <span className="visually-hidden">音量</span>
               <input
@@ -193,6 +245,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
             {displayTracks.map(({ track, index }) => (
               <button
                 className={index === currentIndex ? 'is-active' : ''}
+                data-playing={index === currentIndex && isPlaying ? 'true' : undefined}
                 type="button"
                 onClick={() => selectTrack(index)}
                 key={`${track.title}-${index}`}
@@ -201,7 +254,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
                 <img src={track.cover || '/assets/img/hero-mountain.svg'} alt="" />
                 <strong>{track.title}</strong>
                 <small>{track.artist}</small>
-                <em>{track.provider === 'netease' ? '云音乐' : track.source || '本地'}</em>
+                <em>{index === currentIndex ? (isPlaying ? '播放中' : '当前') : track.mood || formatTrackSource(track)}</em>
               </button>
             ))}
             {displayTracks.length === 0 ? <p className="music-playlist-empty">没有匹配的歌曲。</p> : null}

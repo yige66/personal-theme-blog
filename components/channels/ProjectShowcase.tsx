@@ -1,8 +1,8 @@
-import Image from 'next/image';
+'use client';
+
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { BlogProject } from '@/lib/blog';
-import { EmptyState } from '@/components/SectionBlocks';
 
 const projectStatusLabels: Record<string, string> = {
   active: '进行中',
@@ -16,88 +16,119 @@ function formatProjectStatus(status: string) {
   return projectStatusLabels[status.toLowerCase()] ?? status;
 }
 
-export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
-  if (projects.length === 0) {
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href);
+}
+
+function ProjectActionLink({ href, className, children, ariaLabel }: { href: string; className?: string; children: ReactNode; ariaLabel?: string }) {
+  if (isExternalHref(href)) {
     return (
-      <section className="main-shell project-world project-starport xh-reference-surface">
-        <EmptyState title="暂无项目" description="在数据源新增项目后，这里会自动生成作品星港。" />
-      </section>
+      <a className={className} href={href} target="_blank" rel="noreferrer" aria-label={ariaLabel}>
+        {children}
+      </a>
     );
   }
 
-  const statuses = Array.from(new Set(projects.map((project) => project.status)));
-  const featuredProject = projects.find((project) => project.featured) ?? projects[0];
-  const galleryProjects = projects.filter((project) => project.id !== featuredProject.id);
+  return (
+    <Link className={className} href={href || '#'} aria-label={ariaLabel}>
+      {children}
+    </Link>
+  );
+}
+
+function projectMatchesQuery(project: BlogProject, query: string) {
+  if (!query) {
+    return true;
+  }
+
+  const searchableText = [
+    project.title,
+    project.description,
+    project.status,
+    project.startedAt,
+    ...project.tags
+  ].join(' ').toLowerCase();
+
+  return searchableText.includes(query);
+}
+
+export function ProjectShowcase({ projects }: { projects: BlogProject[] }) {
+  const [query, setQuery] = useState('');
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredProjects = useMemo(
+    () => projects.filter((project) => projectMatchesQuery(project, normalizedQuery)),
+    [projects, normalizedQuery]
+  );
 
   return (
-    <section className="main-shell project-world project-starport xh-reference-surface" aria-label="项目星港与作品矩阵">
-      <header className="project-workshop-header">
-        <div>
-          <small>Project Starport</small>
-          <strong>项目星港</strong>
-          <span>把长期实验、部署链路和可维护作品分区停靠。</span>
-        </div>
-        <Link href={featuredProject.url || '#'}>进入精选</Link>
+    <section className="main-shell project-world project-matrix xh-reference-surface" aria-label="项目矩阵">
+      <header className="project-matrix-hero">
+        <h1>项目星港</h1>
+        <p>把练习、系统、文章工程和长期实验整理成可查看、可追踪的作品停靠区。</p>
       </header>
 
-      <div className="project-orbit-layout">
-        <article className="project-featured-console" data-motion="portal-card">
-          <Link className="project-featured-cover" href={featuredProject.url || '#'}>
-            <Image src={featuredProject.cover} alt={`${featuredProject.title} 主展示`} width={1180} height={720} priority />
-          </Link>
-          <div className="project-featured-copy">
-            <p className="eyebrow">Featured Build</p>
-            <h2>{featuredProject.title}</h2>
-            <p>{featuredProject.description}</p>
-            <div className="tag-row">
-              {featuredProject.tags.map((tag) => <span key={tag}>{tag}</span>)}
-            </div>
-            <div className="project-featured-meta">
-              <span>{formatProjectStatus(featuredProject.status)}</span>
-              <span>{featuredProject.startedAt || '长期维护'}</span>
-              {featuredProject.repo ? <span>Repository</span> : null}
-            </div>
-          </div>
-        </article>
+      <label className="project-matrix-search">
+        <span className="project-search-icon" aria-hidden="true" />
+        <span className="project-search-label">搜索项目</span>
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="搜索项目名称、描述或技术栈..."
+          aria-label="搜索项目名称、描述或技术栈"
+        />
+      </label>
 
-        <aside className="project-status-rack" aria-label="项目状态轨道">
-          <span>
-            <strong>{projects.length}</strong>
-            全部作品
-          </span>
-          {statuses.map((status, index) => (
-            <span key={status} style={{ '--status-index': index } as CSSProperties}>
-              <strong>{projects.filter((project) => project.status === status).length}</strong>
-              {formatProjectStatus(status)}
-            </span>
-          ))}
-        </aside>
-      </div>
+      {projects.length === 0 ? (
+        <div className="project-matrix-empty" role="status">
+          <strong>暂无项目</strong>
+          <span>在数据源新增项目后，这里会自动生成项目矩阵。</span>
+        </div>
+      ) : null}
 
-      <div className="project-exhibit-grid">
-        {(galleryProjects.length ? galleryProjects : projects).map((project, index) => (
-          <article className="project-card project-exhibit" key={project.id} data-motion="stack-card">
-            <Link className="project-cover" href={project.url || '#'} aria-label={`查看 ${project.title}`}>
-              <Image src={project.cover} alt={`${project.title} 封面`} width={860} height={560} />
-            </Link>
-            <div className="project-copy">
-              <div className="project-coordinate">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <small>{formatProjectStatus(project.status)}</small>
-              </div>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="tag-row">
-                {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
-              </div>
-              <div className="project-actions">
-                <Link href={project.url || '#'}>进入作品</Link>
-                {project.repo ? <a href={project.repo} target="_blank" rel="noreferrer">Repository</a> : null}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+      {projects.length > 0 && filteredProjects.length === 0 ? (
+        <div className="project-matrix-empty" role="status">
+          <strong>没有匹配项目</strong>
+          <span>换一个关键词试试，标题、描述、状态和标签都可以搜索。</span>
+        </div>
+      ) : null}
+
+      {filteredProjects.length > 0 ? (
+        <div className="project-matrix-grid" aria-live="polite">
+          {filteredProjects.map((project, index) => {
+            const primaryHref = project.url || project.repo || '#';
+
+            return (
+              <article className="project-matrix-card" key={project.id} data-motion="stack-card">
+                <div className="project-matrix-card-head">
+                  <span className="project-matrix-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <div className="project-matrix-title">
+                    <h2>{project.title}</h2>
+                    <span>{formatProjectStatus(project.status)}{project.startedAt ? ` / ${project.startedAt}` : ''}</span>
+                  </div>
+                  {project.repo ? (
+                    <a className="project-repo-link" href={project.repo} target="_blank" rel="noreferrer" aria-label={`${project.title} GitHub 仓库`}>
+                      GitHub
+                    </a>
+                  ) : null}
+                </div>
+
+                <p>{project.description}</p>
+
+                <div className="tag-row">
+                  {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                </div>
+
+                <div className="project-matrix-actions">
+                  <ProjectActionLink href={primaryHref} ariaLabel={`查看 ${project.title}`}>
+                    查看项目
+                  </ProjectActionLink>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -17,13 +17,21 @@
     "avatar": "/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg",
     "backgroundImages": [
       "/assets/uploads/2026-07-01-preview-png-cropped-1ee97818.png",
-      "/assets/uploads/2026-07-01-1779428392859-cropped-0344d6bd.jpg",
-      "/assets/uploads/2026-07-01-1770464209477-cropped-0370ceb6.jpg",
-      "/assets/uploads/2026-07-01-c85928c5fe559e8a70f43ff8d80b5d47463ac9be-jpg-119-98d0dbb1.png",
       "/assets/uploads/2026-07-01-piano-silhouette-space-156662-1280x720-cropped-15efb8ef.jpg",
+      "/assets/uploads/2026-07-01-1779428392859-cropped-0344d6bd.jpg",
       "/assets/uploads/2026-07-01-6e3b2f5d78e2b7cbeb8c0806101f2342-cropped-876d453f.png",
+      "/assets/uploads/2026-07-01-1770464209477-cropped-0370ceb6.jpg",
       "/assets/uploads/2026-07-01-55f355b7a8fbc04dbd83fa5d7d83feb0ca40fcee-cropped-70f09582.jpg",
-      "/assets/uploads/2026-07-01-a170c63500d796fddef623e38252389c3493077264108322-2687aea0.png"
+      "/assets/uploads/2026-07-02-e6c03024356ceea5a97ad9b6b170d76a48cced00-raw-cro-1d7c184b.jpg",
+      "/assets/uploads/2026-07-02-1783002682966-cropped-63933d86.jpg",
+      "/assets/uploads/2026-07-02-aa555ac52636de04a524a77bed9c4a3dde6c1eaa-raw-cro-3b6fa748.jpg",
+      "/assets/uploads/2026-07-02-image-1783002288161-407-cropped-e6442c62.jpg",
+      "/assets/uploads/2026-07-03-1783059236034-cropped-78d5b085.jpg",
+      "/assets/uploads/2026-07-02-image-1783002260794-230-cropped-595faf29.jpg",
+      "/assets/uploads/2026-07-03-1783059146428-cropped-9671ff0f.webp",
+      "/assets/uploads/2026-07-02-b057721f96323d8f49a9fa267f61b4cf9494edfa-raw-cro-56baaa5b.jpg",
+      "/assets/uploads/2026-07-02-1783003812261-cropped-589677b1.jpg",
+      "/assets/uploads/2026-07-03-1783042618039-cropped-50c0a5a5.png"
     ],
     "columns": [
       {
@@ -198,7 +206,7 @@
       "preloaderSubtitle": "loading entry shell",
       "signaturePrefix": "Design by",
       "signatureName": "Yuki",
-      "signatureSuffix": "",
+      "signatureSuffix": "Codex",
       "original": {
         "eyebrow": "Welcome to",
         "eyebrowHighlight": "星屿手记",
@@ -271,8 +279,6 @@
         "写完这篇就去听歌",
         "评论区先留个脚印",
         "灵感刚刚冒泡",
-        "夜间模式很适合发呆",
-        "把日常收进归档",
         "照片墙等你上传新图",
         "今天也要温柔一点"
       ],

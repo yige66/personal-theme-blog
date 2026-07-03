@@ -66,7 +66,7 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(blocks, /MomentTimelineCard/);
     assert.match(blocks, /MusicTrackCard/);
     assert.match(gallery, /GalleryWall/);
-    assert.match(moments, /moment-mood-rail/);
+    assert.doesNotMatch(moments, /moment-mood-rail/);
     assert.match(moments, /MomentsBoard/);
     assert.match(music, /MusicStudio/);
     assert.match(galleryWall, /gallery-lightbox/);
@@ -100,7 +100,6 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /\.gallery-album-stack/);
     assert.match(css, /\.gallery-light-table/);
     assert.match(css, /\.gallery-search-strip/);
-    assert.match(css, /\.moment-mood-rail/);
     assert.match(css, /\.moments-board/);
     assert.match(css, /\.moments-stream/);
     assert.match(css, /\.moment-image-grid/);
@@ -110,5 +109,10 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /\.music-orbit-controls/);
     assert.match(css, /\.music-status-row/);
     assert.match(css, /\.music-volume-cluster/);
+    assert.match(css, /Final music studio layout/);
+    assert.match(css, /body:has\(\.music-page\) \.music-studio:not\(#xh-music-layout\)/);
+    assert.match(css, /grid-template-columns: minmax\(300px, 420px\) minmax\(0, 1fr\)/);
+    assert.match(css, /body:has\(\.music-page\) \.music-lyrics:not\(#xh-music-layout\)/);
+    assert.match(css, /body:has\(\.music-page\) \.music-playlist:not\(#xh-music-layout\)/);
   });
 });

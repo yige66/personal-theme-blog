@@ -13,14 +13,8 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
     );
   }
 
-  const tags = Array.from(new Set(chatters.flatMap((chatter) => chatter.tags)));
-
   return (
     <section className="main-shell chatter-board xh-reference-surface" aria-label="云端杂谈图文流">
-      <div className="chatter-filter-rail">
-        <span>全部</span>
-        {tags.slice(0, 10).map((tag) => <span key={tag}># {tag}</span>)}
-      </div>
       <div className="chatter-masonry">
         {chatters.map((chatter, index) => (
           <Link className={`chatter-card chatter-${index % 5}`} href={`/chatter/${chatter.slug}`} key={chatter.id}>
