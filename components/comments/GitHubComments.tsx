@@ -112,8 +112,8 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     };
   }, [admin, commentId, compact, config.clientId, config.label, config.proxy, enabled, owner, repo, shouldLoad, term, title]);
 
-  return (
-    <section className={`github-comments-card${compact ? ' is-compact' : ' main-shell'}`} aria-label={`${title} 的 GitHub 评论`}>
+  const commentsContent = (
+    <>
       <header className="github-comments-head">
         <div>
           <span>GitHub Login Comments</span>
@@ -146,6 +146,22 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
           <code>{'comments: { provider: "gitalk", owner: "user", repo: "repo", clientId: "..." }'}</code>
         </div>
       )}
+    </>
+  );
+
+  if (compact) {
+    return (
+      <section className="github-comments-card is-compact" aria-label={`${title} 的 GitHub 评论`}>
+        {commentsContent}
+      </section>
+    );
+  }
+
+  return (
+    <section className="main-shell github-comments-shell" aria-label={`${title} 的 GitHub 评论`}>
+      <div className="github-comments-card">
+        {commentsContent}
+      </div>
     </section>
   );
 }

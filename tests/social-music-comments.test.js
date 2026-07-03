@@ -100,6 +100,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /substring\(0, 49\)/);
     assert.match(comments, /replace\(\/\\\/\$\/, ''\) \|\| '\/'/);
     assert.match(comments, /GitHub Login Comments/);
+    assert.match(comments, /github-comments-shell/);
     assert.match(comments, /custom-gitalk-glass/);
     assert.match(comments, /moment-gitalk/);
     assert.match(momentComments, /moment-comments-shell/);
@@ -127,6 +128,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /\.github-comments-loader/);
     assert.match(css, /\.custom-gitalk-glass/);
     assert.match(css, /\.moment-gitalk/);
+    assert.match(css, /Final comments shell frame removal/);
+    assert.match(css, /:is\(\.github-comments-shell, \.friends-comments\),[\s\S]*background: transparent !important/);
+    assert.match(css, /body:has\(\.friends-page\) \.friends-comments \.github-comments-shell[\s\S]*width: 100% !important/);
     assert.match(css, /html\[data-xh-theme="night"\] \.custom-gitalk-glass/);
   });
 });

@@ -16286,3 +16286,38 @@ body:has(.subpage) .xh-global-toolbox .xh-toolbox-trigger {
     display: none !important;
   }
 }
+
+/* Final comments shell frame removal: keep the inner comment card and Gitalk setup panel. */
+body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments),
+html[data-xh-theme] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments),
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::before,
+body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::after,
+html[data-xh-theme] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::before,
+html[data-xh-theme] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .article-page)) :is(.github-comments-shell, .friends-comments)::after {
+  content: none !important;
+  display: none !important;
+}
+
+body:has(.friends-page) .friends-comments .github-comments-shell {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+body:has(.friends-page) .friends-comments .github-comments-card {
+  margin-top: 0 !important;
+}
