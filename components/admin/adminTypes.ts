@@ -15,6 +15,7 @@ export type AdminSectionId =
   | 'gallery'
   | 'music'
   | 'links'
+  | 'ai-settings'
   | 'comments-effects';
 
 export type AdminSection = {

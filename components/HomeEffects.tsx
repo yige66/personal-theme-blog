@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
 import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
+import { useMusic } from '@/components/music/MusicProvider';
+import { PixelKurisuPet } from '@/components/PixelKurisuPet';
 
 type HomeEffectsProps = {
   site: BlogSite;
@@ -86,6 +88,7 @@ function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transit
 
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const pathname = usePathname();
+  const { currentTrack, isLoading, isPlaying, nextTrack, playlist, previousTrack, togglePlaying } = useMusic();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
@@ -358,6 +361,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   const renderedMode: ThemeMode = nightMode ? 'night' : 'day';
   const renderedPhase = themePhase;
+  const floatingTrack = currentTrack ?? activeTrack;
+  const hasMusicTracks = playlist.length > 0;
 
   return (
     <>
@@ -493,19 +498,30 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         </button>
       ) : null}
 
-      {!isHome ? (
-        <aside className="xh-floating-player" aria-label={'\u60ac\u6d6e\u97f3\u4e50\u72b6\u6001'}>
-          <span>Cloud Music</span>
-          <strong>{activeTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
-          <small>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood}` : '\u6570\u636e\u6e90\u53ef\u7ef4\u62a4\u97f3\u4e50\u5c01\u9762\u4e0e\u97f3\u9891\u5730\u5740'}</small>
-        </aside>
-      ) : null}
+      {effects.floatingCompanion ? <PixelKurisuPet /> : null}
 
-      {!isHome && effects.floatingCompanion ? (
-        <div className="xh-floating-companion" aria-label={`${site.assistantName} \u6d6e\u52a8\u72b6\u6001`}>
-          <span>{site.assistantName.slice(0, 1)}</span>
-          <strong>{site.assistantName}</strong>
-        </div>
+      {!isHome ? (
+        <aside
+          className="xh-floating-player"
+          aria-label="悬浮音乐播放器"
+          data-playing={isPlaying ? 'true' : 'false'}
+          data-loading={isLoading ? 'true' : 'false'}
+        >
+          <span>Cloud Music</span>
+          <strong>{floatingTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
+          <small>{isLoading ? '音乐电台同步中' : floatingTrack ? `${floatingTrack.artist} / ${floatingTrack.mood || 'Focus Radio'}` : '\u6570\u636e\u6e90\u53ef\u7ef4\u62a4\u97f3\u4e50\u5c01\u9762\u4e0e\u97f3\u9891\u5730\u5740'}</small>
+          <div className="xh-floating-player-controls" aria-label="音乐控制">
+            <button type="button" aria-label="上一首" disabled={!hasMusicTracks} onClick={previousTrack}>
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button className="xh-floating-player-toggle" type="button" aria-label={isPlaying ? '暂停' : '播放'} disabled={!hasMusicTracks} onClick={togglePlaying}>
+              <span aria-hidden="true">{isPlaying ? 'II' : '▶'}</span>
+            </button>
+            <button type="button" aria-label="下一首" disabled={!hasMusicTracks} onClick={nextTrack}>
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        </aside>
       ) : null}
 
       <canvas className="xh-click-canvas" ref={canvasRef} aria-hidden="true" />

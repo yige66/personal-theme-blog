@@ -109,6 +109,11 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /\.music-orbit-controls/);
     assert.match(css, /\.music-status-row/);
     assert.match(css, /\.music-volume-cluster/);
+    assert.match(css, /Music page control buttons: keep each control as one clean, centered circle\./);
+    assert.match(css, /body:has\(\.music-page\) \.music-orbit-controls :is\(\.music-skip-button, \.music-play-toggle\)::before/);
+    assert.match(css, /body:has\(\.music-page\) \.music-orbit-controls \.music-skip-button:not\(#xh-music-control-fix\)/);
+    assert.match(css, /width: 46px !important/);
+    assert.match(css, /width: 58px !important/);
     assert.match(css, /Final music studio layout/);
     assert.match(css, /body:has\(\.music-page\) \.music-studio:not\(#xh-music-layout\)/);
     assert.match(css, /grid-template-columns: minmax\(300px, 420px\) minmax\(0, 1fr\)/);

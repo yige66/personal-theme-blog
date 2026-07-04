@@ -35,6 +35,19 @@ import {
   withFreshIdentity
 } from '@/components/admin/adminUtils';
 
+type AiModelOption = {
+  label: string;
+  value: string;
+};
+
+type AiAdminConfigView = {
+  apiKeySource: 'backend' | 'env' | 'none';
+  hasApiKey: boolean;
+  model: string;
+  modelOptions: AiModelOption[];
+  updatedAt: string | null;
+};
+
 export function BlogAdminConsole({ initialData, initialStats }: BlogAdminConsoleProps) {
   const [draft, setDraft] = useState<BlogData | null>(() => initialData ? cloneData(initialData) : null);
   const [serverStats, setServerStats] = useState(initialStats);
@@ -42,6 +55,11 @@ export function BlogAdminConsole({ initialData, initialStats }: BlogAdminConsole
   const [saveState, setSaveState] = useState({ status: 'idle', message: '修改会先保存在当前页面里，点击“保存到博客”后才会生效。' });
   const [adminToken, setAdminToken] = useState('');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [aiConfig, setAiConfig] = useState<AiAdminConfigView | null>(null);
+  const [aiModel, setAiModel] = useState('');
+  const [aiApiKey, setAiApiKey] = useState('');
+  const [clearAiApiKey, setClearAiApiKey] = useState(false);
+  const [aiConfigState, setAiConfigState] = useState({ status: 'idle', message: 'AI 配置只保存在服务端后台，不会写入公开博客数据。' });
 
   const stats = useMemo(
     () => draft ? createDraftStats(draft, serverStats ?? createEmptyStats()) : createEmptyStats(),
@@ -56,6 +74,13 @@ export function BlogAdminConsole({ initialData, initialStats }: BlogAdminConsole
   const setValueAtPath = (path: PathSegment[], value: unknown) => {
     setDraft((current) => current ? setAtPath(current, path, value) : current);
     setSaveState({ status: 'idle', message: '内容已更新，记得点击“保存到博客”。' });
+  };
+
+  const replaceAiConfig = (nextConfig: AiAdminConfigView) => {
+    setAiConfig(nextConfig);
+    setAiModel(nextConfig.model);
+    setAiApiKey('');
+    setClearAiApiKey(false);
   };
 
   const handleExport = () => {
@@ -106,6 +131,59 @@ export function BlogAdminConsole({ initialData, initialStats }: BlogAdminConsole
       setSaveState({ status: 'success', message: '后台数据已加载。' });
     } catch (error) {
       setSaveState({ status: 'error', message: error instanceof Error ? error.message : '读取后台数据失败。' });
+    }
+  };
+
+  const handleLoadAiConfig = async () => {
+    setAiConfigState({ status: 'saving', message: '正在读取 AI 配置。' });
+    try {
+      const response = await fetch('/api/admin/ai', {
+        headers: adminToken ? { 'x-admin-token': adminToken } : {}
+      });
+      const payload = await response.json() as { error?: string; config?: AiAdminConfigView };
+
+      if (!response.ok || !payload.config) {
+        throw new Error(payload.error || '读取 AI 配置失败。');
+      }
+
+      replaceAiConfig(payload.config);
+      setAiConfigState({ status: 'success', message: 'AI 配置已加载。' });
+    } catch (error) {
+      setAiConfigState({ status: 'error', message: error instanceof Error ? error.message : '读取 AI 配置失败。' });
+    }
+  };
+
+  const handleSaveAiConfig = async () => {
+    const model = aiModel.trim();
+    if (!model) {
+      setAiConfigState({ status: 'error', message: '请选择或填写一个模型名称。' });
+      return;
+    }
+
+    setAiConfigState({ status: 'saving', message: '正在保存 AI 配置。' });
+    try {
+      const response = await fetch('/api/admin/ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'x-admin-token': adminToken } : {})
+        },
+        body: JSON.stringify({
+          apiKey: aiApiKey,
+          clearApiKey: clearAiApiKey,
+          model
+        })
+      });
+      const payload = await response.json() as { error?: string; config?: AiAdminConfigView; savedAt?: string };
+
+      if (!response.ok || !payload.config) {
+        throw new Error(payload.error || '保存 AI 配置失败。');
+      }
+
+      replaceAiConfig(payload.config);
+      setAiConfigState({ status: 'success', message: 'AI 配置已保存，红莉栖下一次回复会使用新模型。' });
+    } catch (error) {
+      setAiConfigState({ status: 'error', message: error instanceof Error ? error.message : '保存 AI 配置失败。' });
     }
   };
 
@@ -208,7 +286,22 @@ export function BlogAdminConsole({ initialData, initialStats }: BlogAdminConsole
           </aside>
 
           <div className="admin-workbench">
-            {renderSection({ activeSection, draft, setValueAtPath, uploadImage: handleImageUpload })}
+            {renderSection({
+              activeSection,
+              aiApiKey,
+              aiConfig,
+              aiConfigState,
+              aiModel,
+              clearAiApiKey,
+              draft,
+              setAiApiKey,
+              setAiModel,
+              setClearAiApiKey,
+              setValueAtPath,
+              uploadImage: handleImageUpload,
+              onLoadAiConfig: handleLoadAiConfig,
+              onSaveAiConfig: handleSaveAiConfig
+            })}
           </div>
         </div>
       ) : (
@@ -281,11 +374,21 @@ function AdminHero({
   );
 }
 
-function renderSection({ activeSection, draft, setValueAtPath, uploadImage }: {
+function renderSection({ activeSection, aiApiKey, aiConfig, aiConfigState, aiModel, clearAiApiKey, draft, setAiApiKey, setAiModel, setClearAiApiKey, setValueAtPath, uploadImage, onLoadAiConfig, onSaveAiConfig }: {
   activeSection: AdminSectionId;
+  aiApiKey: string;
+  aiConfig: AiAdminConfigView | null;
+  aiConfigState: { status: string; message: string };
+  aiModel: string;
+  clearAiApiKey: boolean;
   draft: BlogData;
+  setAiApiKey: (value: string) => void;
+  setAiModel: (value: string) => void;
+  setClearAiApiKey: (value: boolean) => void;
   setValueAtPath: (path: PathSegment[], value: unknown) => void;
   uploadImage: UploadImage;
+  onLoadAiConfig: () => void;
+  onSaveAiConfig: () => void;
 }) {
   switch (activeSection) {
     case 'site-profile':
@@ -318,6 +421,21 @@ function renderSection({ activeSection, draft, setValueAtPath, uploadImage }: {
       return <RecordListEditor title="音乐" description="维护本地歌单、封面、歌词、网易云补充字段和播放来源。" data={draft} path={['site', 'music']} fields={musicFields} recordKind="music" onChange={setValueAtPath} uploadImage={uploadImage} />;
     case 'links':
       return <RecordListEditor title="友链" description="维护朋友站点、头像、主题色和简介。" data={draft} path={['links']} fields={linkFields} recordKind="link" onChange={setValueAtPath} uploadImage={uploadImage} />;
+    case 'ai-settings':
+      return (
+        <AiSettingsPanel
+          apiKey={aiApiKey}
+          config={aiConfig}
+          clearApiKey={clearAiApiKey}
+          model={aiModel}
+          saveState={aiConfigState}
+          onApiKeyChange={setAiApiKey}
+          onClearApiKeyChange={setClearAiApiKey}
+          onLoad={onLoadAiConfig}
+          onModelChange={setAiModel}
+          onSave={onSaveAiConfig}
+        />
+      );
     case 'comments-effects':
       return <CommentsEffectsPanel data={draft} onChange={setValueAtPath} uploadImage={uploadImage} />;
   }
@@ -367,6 +485,100 @@ function CommentsEffectsPanel({ data, onChange, uploadImage }: { data: BlogData;
   ];
 
   return <PathPanel title="评论与特效" description="维护评论提供方、弹幕、场景开关和强度。" data={data} fields={fields} onChange={onChange} uploadImage={uploadImage} />;
+}
+
+function AiSettingsPanel({
+  apiKey,
+  clearApiKey,
+  config,
+  model,
+  saveState,
+  onApiKeyChange,
+  onClearApiKeyChange,
+  onLoad,
+  onModelChange,
+  onSave
+}: {
+  apiKey: string;
+  clearApiKey: boolean;
+  config: AiAdminConfigView | null;
+  model: string;
+  saveState: { status: string; message: string };
+  onApiKeyChange: (value: string) => void;
+  onClearApiKeyChange: (value: boolean) => void;
+  onLoad: () => void;
+  onModelChange: (value: string) => void;
+  onSave: () => void;
+}) {
+  const options = config?.modelOptions ?? [
+    { label: 'GPT-4.1 mini（轻量推荐）', value: 'gpt-4.1-mini' },
+    { label: 'GPT-4.1（更强理解）', value: 'gpt-4.1' }
+  ];
+  const optionValues = new Set(options.map((option) => option.value));
+  const selectedPreset = optionValues.has(model) ? model : 'custom';
+  const keySourceLabel = config?.apiKeySource === 'backend'
+    ? '后台密钥'
+    : config?.apiKeySource === 'env'
+      ? '环境变量密钥'
+      : '未配置';
+
+  return (
+    <AdminPanel title="AI 红莉栖配置" description="配置右下角牧濑红莉栖助手使用的 AI API 密钥和模型。密钥只保存在服务端后台。">
+      <div className="admin-ai-status" data-status={saveState.status}>
+        <span>{saveState.message}</span>
+        <small>
+          当前状态：{config?.hasApiKey ? `已配置（${keySourceLabel}）` : '未配置密钥'}
+          {config?.updatedAt ? ` / 更新时间：${new Date(config.updatedAt).toLocaleString('zh-CN')}` : ''}
+        </small>
+      </div>
+
+      <FieldGrid>
+        <label className="admin-field">
+          <span>模型预设</span>
+          <select value={selectedPreset} onChange={(event) => {
+            if (event.target.value !== 'custom') {
+              onModelChange(event.target.value);
+            }
+          }}>
+            {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            <option value="custom">自定义模型</option>
+          </select>
+          <small className="admin-field-help">字段说明：可以选择预设，也可以在下方填写其他兼容 Responses API 的模型名。</small>
+        </label>
+
+        <label className="admin-field">
+          <span>实际调用模型</span>
+          <input value={model} placeholder="gpt-4.1-mini" onChange={(event) => onModelChange(event.target.value)} />
+          <small className="admin-field-help">字段说明：保存后，红莉栖下一次问答会使用这个模型。</small>
+        </label>
+
+        <label className="admin-field admin-field-wide">
+          <span>AI API 密钥</span>
+          <input
+            type="password"
+            autoComplete="off"
+            value={apiKey}
+            placeholder={config?.hasApiKey ? '留空则保留当前密钥' : '粘贴 OpenAI API Key'}
+            onChange={(event) => onApiKeyChange(event.target.value)}
+          />
+          <small className="admin-field-help">字段说明：不会返回到前端；保存后写入 data/ai-config.json，本仓库已忽略该文件。</small>
+        </label>
+
+        <label className="admin-field admin-field-toggle">
+          <span>清空后台密钥</span>
+          <input checked={clearApiKey} type="checkbox" onChange={(event) => onClearApiKeyChange(event.target.checked)} />
+          <small className="admin-field-help">字段说明：只清空后台保存的密钥；如果服务器环境变量仍存在，会继续作为兜底。</small>
+        </label>
+      </FieldGrid>
+
+      <div className="admin-panel-actions">
+        <button className="button ghost" type="button" onClick={onLoad}>读取 AI 配置</button>
+        <button className="button primary" type="button" disabled={saveState.status === 'saving'} onClick={onSave}>
+          {saveState.status === 'saving' ? '正在保存' : '保存 AI 配置'}
+        </button>
+      </div>
+    </AdminPanel>
+  );
 }
 
 function AdminPanel({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {

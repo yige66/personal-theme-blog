@@ -177,6 +177,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /\.xh-portal-grid/);
     assert.match(css, /\.xh-space-dock/);
     assert.match(css, /\.xh-cloud-player-card/);
+    assert.match(css, /Card player icons are text glyphs, not nested circular controls\./);
+    assert.match(css, /\.xh-player-controls button > span/);
+    assert.match(css, /background: transparent !important/);
+    assert.match(css, /box-shadow: none !important/);
+    assert.match(css, /pointer-events: none !important/);
     assert.match(css, /\.xh-latest-carousel/);
     assert.match(css, /\.xh-dashboard-clock/);
     assert.match(css, /\.xh-clean-dashboard \.xh-clock-caption/);

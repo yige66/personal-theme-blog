@@ -17,6 +17,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { id: 'gallery', label: '照片墙', hint: '相册、主图、子图' },
   { id: 'music', label: '音乐', hint: '歌单、封面、歌词' },
   { id: 'links', label: '友链', hint: '朋友站点、头像、描述' },
+  { id: 'ai-settings', label: 'AI 红莉栖', hint: 'API 密钥、模型选择' },
   { id: 'comments-effects', label: '评论与特效', hint: '评论、弹幕、场景开关' }
 ];
 

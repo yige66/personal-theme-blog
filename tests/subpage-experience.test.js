@@ -218,6 +218,9 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*background: transparent !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console\.xh-reference-toolbar,[\s\S]*box-shadow: none !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-filter-console \.archive-view-toggle[\s\S]*justify-self: center !important/);
+    assert.match(css, /Archive active chips: keep the selected label bright and readable in every theme/);
+    assert.match(css, /#xh-app-root:has\(\.archive-page\) \.archive-filter-console \.archive-tag-rail button\.is-active[\s\S]*color: #fffaff !important/);
+    assert.match(css, /#xh-app-root:has\(\.archive-page\) \.archive-filter-console \.archive-tag-rail button\.is-active span[\s\S]*rgba\(255, 250, 255, 0\.86\) !important/);
     assert.match(css, /Final archive frame sync/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-world\.archive-switchboard\.archive-xh-timeline,[\s\S]*background: transparent !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-world\.archive-switchboard\.archive-xh-timeline,[\s\S]*box-shadow: none !important/);

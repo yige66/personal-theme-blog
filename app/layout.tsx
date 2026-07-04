@@ -73,11 +73,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <BackgroundSlider site={data.site} />
-        <HomeEffects site={data.site} posts={posts} notes={data.notes} activeTrack={activeTrack} />
-        <SplashScreen site={data.site} />
-        <TasteMotion />
-        <GlobalToolbox columns={data.site.columns} github={data.site.github} email={data.site.email} />
         <MusicProvider tracks={data.site.music} cloudMusicIds={data.site.cloudMusicIds}>
+          <HomeEffects site={data.site} posts={posts} notes={data.notes} activeTrack={activeTrack} />
+          <SplashScreen site={data.site} />
+          <TasteMotion />
+          <GlobalToolbox columns={data.site.columns} github={data.site.github} email={data.site.email} />
           <div id="xh-app-root">
             {children}
           </div>

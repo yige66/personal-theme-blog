@@ -8257,6 +8257,40 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
   color: #9d2f4e;
 }
 
+.admin-ai-status {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(133, 143, 180, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--admin-muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.admin-ai-status span {
+  color: var(--admin-ink);
+  font-weight: 950;
+}
+
+.admin-ai-status small {
+  line-height: 1.55;
+}
+
+.admin-ai-status[data-status="success"] {
+  border-color: rgba(60, 190, 132, 0.42);
+  background: rgba(229, 255, 241, 0.72);
+  color: #207049;
+}
+
+.admin-ai-status[data-status="error"] {
+  border-color: rgba(235, 83, 117, 0.4);
+  background: rgba(255, 236, 242, 0.78);
+  color: #9d2f4e;
+}
+
 .admin-os-metrics {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
