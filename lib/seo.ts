@@ -50,7 +50,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     path: '/photowall',
     title: '照片墙',
-    description: 'XHBlogs 风格的照片墙路由入口，按图集、焦点图和单张照片组织视觉内容。',
+    description: '照片墙路由入口，按图集、焦点图和单张照片组织视觉内容。',
     changeFrequency: 'weekly',
     priority: 0.73
   },

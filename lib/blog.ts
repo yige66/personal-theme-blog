@@ -23,6 +23,12 @@ export type BlogLink = {
   description: string;
   avatar?: string;
   themeColor?: string;
+  category?: string;
+  owner?: string;
+  status?: 'active' | 'pending' | 'paused';
+  addedAt?: string;
+  reciprocal?: boolean;
+  note?: string;
 };
 
 export type BlogNote = {
@@ -574,16 +580,16 @@ const fallbackPages: Record<string, PageContent> = {
 };
 
 const fallbackSite: BlogSite = {
-  title: '星屿手记',
-  brandSuffix: 'の 宝藏之地',
-  subtitle: '写代码，也写生活里发光的片刻。',
-  owner: 'Lu Longfei',
-  role: '全栈练习生 / 博客系统维护者',
-  motto: '把日常、代码和灵感整理成可以再次抵达的星图。',
-  bio: '计算机学习者，喜欢把复杂问题拆成可以落地的小系统。',
-  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙和友链会逐步连成一个完整系统。',
-  location: 'Changsha, China',
-  email: 'hello@example.com',
+  title: 'Yuki',
+  brandSuffix: 'の Blog',
+  subtitle: '记录 Java 后端、Next.js 个人站和一些真实项目练习。',
+  owner: 'Yuki',
+  role: 'Java / Spring Boot 与 Next.js 学习实践者',
+  motto: '先把能跑通的系统做好，再慢慢把体验和细节补上。',
+  bio: '围绕 Java、Spring Boot、MySQL、Redis、Next.js、TypeScript 和 AI 接口做项目练习。',
+  status: '正在整理公开项目、学习笔记和个人站内容，不公开个人联系方式。',
+  location: '不公开',
+  email: '不公开',
   github: 'https://github.com/yige66/personal-theme-blog',
   projectOrder: [],
   themeColor: '#6fb7a8',
@@ -611,10 +617,10 @@ const fallbackSite: BlogSite = {
   assistantName: '星屿助手',
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
   cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
-  friendLinkApplyFormat: '名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg',
+  friendLinkApplyFormat: '名称：Yuki の Blog\n简介：记录 Java/Spring Boot、Next.js、TypeScript 与个人项目实践的博客。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg',
   entry: {
     ariaLabel: 'Site entry',
-    preloaderTitle: 'InternalBeyond',
+    preloaderTitle: 'Yuki Blog',
     preloaderSubtitle: 'loading entry shell',
     signaturePrefix: 'Design by',
     signatureName: 'Lu Longfei',
@@ -668,7 +674,7 @@ const fallbackSite: BlogSite = {
       'Markdown 写作中',
       '照片墙素材补给完成',
       'GitHub / Vercel 发布流运行中',
-      '今天也在向目标站靠齐',
+      '今天也在把项目记录写清楚',
       '把日常写成可回看的星图',
       '评论与音乐入口待部署'
     ],
@@ -1147,11 +1153,30 @@ function normalizeLinks(value: unknown): BlogLink[] {
       url,
       description: textOrFallback(link.description, url),
       avatar: normalizeOptionalAsset(link.avatar),
-      themeColor: typeof link.themeColor === 'string' ? link.themeColor.trim() : undefined
+      themeColor: typeof link.themeColor === 'string' ? link.themeColor.trim() : undefined,
+      category: typeof link.category === 'string' ? link.category.trim() || undefined : undefined,
+      owner: typeof link.owner === 'string' ? link.owner.trim() || undefined : undefined,
+      status: normalizeLinkStatus(link.status),
+      addedAt: normalizeDateOnly(link.addedAt),
+      reciprocal: typeof link.reciprocal === 'boolean' ? link.reciprocal : undefined,
+      note: typeof link.note === 'string' ? link.note.trim() || undefined : undefined
     });
   });
 
   return links;
+}
+
+function normalizeLinkStatus(value: unknown): BlogLink['status'] | undefined {
+  if (value === 'active' || value === 'pending' || value === 'paused') {
+    return value;
+  }
+
+  return undefined;
+}
+
+function normalizeDateOnly(value: unknown): string | undefined {
+  const text = typeof value === 'string' ? value.trim() : '';
+  return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : undefined;
 }
 
 function normalizeMusicTracks(value: unknown): MusicTrack[] {

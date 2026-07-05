@@ -103,7 +103,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
         <PortalSearch entries={searchEntries} />
       </div>
 
-      <main className="xh-clean-home__grid" aria-label="XHBlogs 风格首页内容">
+      <main className="xh-clean-home__grid" aria-label="博客首页内容">
         <section className="xh-clean-home__identity" aria-label="个人资料与音乐">
           <article className="xh-clean-card xh-clean-profile xh-profile-window" data-motion="portal-card">
             <Link className="xh-profile-card-open" href="/about" aria-label="打开关于页面" />

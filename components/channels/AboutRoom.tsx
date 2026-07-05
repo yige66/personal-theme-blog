@@ -74,6 +74,7 @@ export function AboutRoom({ activeTab, activities, page, site, stats }: AboutRoo
   };
   const aboutHeroImage = site.aboutHeroImage || site.heroImage;
   const activityHref = page.primaryActionHref || '/about?tab=activity';
+  const publicEmail = site.email.includes('@') ? site.email : '';
 
   return (
     <section className="main-shell about-room about-profile-panel" aria-label={page.title}>
@@ -147,7 +148,7 @@ export function AboutRoom({ activeTab, activities, page, site, stats }: AboutRoo
               </div>
               <div>
                 <dt>邮箱</dt>
-                <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+                <dd>{publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : '通过 GitHub 或评论区联系'}</dd>
               </div>
               <div>
                 <dt>GitHub</dt>

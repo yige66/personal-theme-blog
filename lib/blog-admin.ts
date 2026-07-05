@@ -201,7 +201,37 @@ function validateLinks(items: unknown[], errors: string[]): void {
     }
 
     validateOptionalAssetPath(link.avatar, `links[${index}].avatar`, errors);
+
+    if (link.category !== undefined) {
+      validateBoundedOptionalString(link.category, `links[${index}].category`, errors, 40);
+    }
+    if (link.owner !== undefined) {
+      validateBoundedOptionalString(link.owner, `links[${index}].owner`, errors, 60);
+    }
+    if (link.note !== undefined) {
+      validateBoundedOptionalString(link.note, `links[${index}].note`, errors, 240);
+    }
+    if (link.status !== undefined && !['active', 'pending', 'paused'].includes(String(link.status))) {
+      errors.push(`links[${index}].status must be "active", "pending", or "paused".`);
+    }
+    if (link.addedAt !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(String(link.addedAt))) {
+      errors.push(`links[${index}].addedAt must be a YYYY-MM-DD date.`);
+    }
+    if (link.reciprocal !== undefined && typeof link.reciprocal !== 'boolean') {
+      errors.push(`links[${index}].reciprocal must be a boolean when provided.`);
+    }
   });
+}
+
+function validateBoundedOptionalString(value: unknown, label: string, errors: string[], maxLength: number): void {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (value !== undefined && typeof value !== 'string') {
+    errors.push(`${label} must be a string when provided.`);
+    return;
+  }
+  if (text.length > maxLength || /[\u0000-\u001f\u007f]/.test(text)) {
+    errors.push(`${label} must be shorter than ${maxLength} characters and contain no control characters.`);
+  }
 }
 
 function validateCloudMusicIds(value: unknown, errors: string[]): void {

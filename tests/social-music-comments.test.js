@@ -117,9 +117,13 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(aboutPage, /term="\/about"/);
     assert.match(friendsClient, /friends-board-grid/);
     assert.match(friendsClient, /friend-node-card/);
+    assert.match(friendsClient, /friend-link-search/);
+    assert.match(friendsClient, /friend-category-tabs/);
+    assert.match(friendsClient, /friend-apply-form/);
+    assert.match(friendsClient, /new URL\(form\.url\)/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /friend-apply-console/);
-    assert.match(friendsClient, /建立神经连接/);
+    assert.match(friendsClient, /申请友链/);
     assert.match(friendsClient, /#gitalk-container/);
     assert.doesNotMatch(friendsClient, /friends-command-panel|friend-filter-rail|friend-constellation-stage|friend-star-node|--node-inverse/);
     assert.match(comments, /gitalk@1\.8\.0/);
@@ -161,6 +165,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(momentsPage, /comments=\{data\.site\.comments\}/);
     assert.match(momentsBoard, /MomentComments/);
     assert.match(css, /\.friend-apply-console/);
+    assert.match(css, /\.friend-category-tabs/);
+    assert.match(css, /\.friend-apply-form/);
     assert.doesNotMatch(css, /\.friends-command-panel/);
     assert.doesNotMatch(css, /\.friend-filter-rail/);
     assert.doesNotMatch(css, /\.friend-constellation-stage/);

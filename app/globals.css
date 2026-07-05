@@ -10232,6 +10232,100 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.34fr);
 }
 
+.friends-main-column {
+  display: grid;
+  gap: 16px;
+}
+
+.friends-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.42fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.friend-link-search,
+.friend-apply-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--xh-muted);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.friend-link-search input,
+.friend-apply-form input,
+.friend-apply-form textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--xh-ink);
+  font: inherit;
+  font-weight: 850;
+  outline: none;
+  padding: 10px 12px;
+}
+
+.friend-apply-form textarea {
+  resize: vertical;
+}
+
+.friend-link-search input:focus,
+.friend-apply-form input:focus,
+.friend-apply-form textarea:focus {
+  border-color: color-mix(in srgb, var(--theme) 50%, white 50%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme) 14%, transparent);
+}
+
+.friend-category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.friend-category-tabs button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+  color: color-mix(in srgb, var(--theme) 72%, #4a2a4d 28%);
+  cursor: pointer;
+  font-weight: 950;
+}
+
+.friend-category-tabs button.is-active,
+.friend-category-tabs button:focus-visible {
+  background: linear-gradient(135deg, var(--theme), var(--accent));
+  color: #fff;
+}
+
+.friend-status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.friend-status-strip span {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.44);
+  color: var(--xh-muted);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.friend-status-strip strong {
+  color: color-mix(in srgb, var(--theme) 72%, #4a2a4d 28%);
+}
+
 .friend-apply-console button {
   min-height: 38px;
   padding: 0 13px;
@@ -10303,6 +10397,29 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.friend-card-meta,
+.friend-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+
+.friend-card-meta em,
+.friend-card-foot {
+  width: fit-content;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.friend-card-foot {
+  color: color-mix(in srgb, var(--theme) 70%, #4a2a4d 30%);
+  font-size: 11px;
+  font-weight: 950;
 }
 
 .friend-node-card strong,
@@ -10718,6 +10835,12 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   line-height: 1.75;
 }
 
+.friend-apply-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
 .friends-empty {
   margin: 0;
   padding: 22px;
@@ -10892,6 +11015,10 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 
   .friends-board-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .friends-toolbar {
+    grid-template-columns: 1fr;
   }
 
   .github-comments-head {

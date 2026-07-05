@@ -20,6 +20,32 @@ describe('published content quality', () => {
     assert.ok(data.links.every((link) => link.url.startsWith('http')));
   });
 
+  it('removes old test copy and keeps public profile content privacy-safe', async () => {
+    const data = await readBlogData();
+    const raw = await readFile('data/blog.json', 'utf8');
+
+    assert.doesNotMatch(raw, /XHBlogs Reference|InternalBeyond Reference|目标站|参考站|复刻|项目截图位|占位|后续项目上线后/);
+    assert.doesNotMatch(raw, /1772365571@qq\.com|Changsha, China/);
+    assert.doesNotMatch(data.site.email, /@/);
+    assert.match(data.site.bio, /Spring Boot|Next\.js|TypeScript|Java/);
+    assert.match(raw, /sky-take-out|anti-fraud|Isekai-LifeSim|personal-theme-blog/);
+  });
+
+  it('curates realistic articles, moments, chatters, photo wall, and tags from public project work', async () => {
+    const data = await readBlogData();
+    const publishedPosts = data.posts.filter((post) => post.status === 'published');
+    const allTags = new Set(publishedPosts.flatMap((post) => post.tags));
+
+    assert.ok(publishedPosts.length >= 3);
+    for (const expectedTag of ['Spring Boot', 'Next.js', 'TypeScript', 'Java', '项目复盘']) {
+      assert.ok(allTags.has(expectedTag), `missing grounded tag: ${expectedTag}`);
+    }
+    assert.ok(data.notes.some((note) => /sky-take-out|校园订餐/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.notes.some((note) => /Isekai-LifeSim|分支叙事/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.chatters.every((chatter) => !/XHBlogs|InternalBeyond|目标站|复刻/.test(`${chatter.title} ${chatter.summary} ${chatter.content}`)));
+    assert.ok(data.site.gallery.some((item) => /后端|Spring Boot|接口/.test(`${item.title} ${item.description} ${item.tags?.join(' ')}`)));
+  });
+
   it('keeps project cards complete enough for the homepage and projects page', async () => {
     const data = await readBlogData();
 

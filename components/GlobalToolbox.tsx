@@ -39,6 +39,7 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
   const isAdmin = pathname.startsWith('/admin');
   const [open, setOpen] = useState(false);
   const items = toolboxItems(columns);
+  const publicEmail = email.includes('@') ? email : '';
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -91,9 +92,15 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
         >
           Git
         </a>
-        <a href={`mailto:${email}`} aria-label="发送邮件" title="发送邮件">
-          Mail
-        </a>
+        {publicEmail ? (
+          <a href={`mailto:${publicEmail}`} aria-label="发送邮件" title="发送邮件">
+            Mail
+          </a>
+        ) : (
+          <Link href="/about" aria-label="联系信息" title="联系信息" onClick={() => setOpen(false)}>
+            About
+          </Link>
+        )}
       </div>
     </aside>
   );

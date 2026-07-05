@@ -5,6 +5,12 @@ const postStatusOptions = [
   { label: '草稿', value: 'draft' }
 ];
 
+const linkStatusOptions = [
+  { label: '已互链', value: 'active' },
+  { label: '申请中', value: 'pending' },
+  { label: '暂停展示', value: 'paused' }
+];
+
 const columnSectionTargets = [
   { id: 'home', label: '首页栏目', frontendLabel: '首页', href: '/', dataPath: 'site.columns[home] / site.pages.home' },
   { id: 'projects', label: '项目栏目', frontendLabel: '项目页', href: '/projects', dataPath: 'site.columns[projects] / site.pages.projects' },
@@ -359,8 +365,14 @@ export const musicFields: FieldConfig[] = [
 export const linkFields: FieldConfig[] = [
   { key: 'title', label: '名称' },
   { key: 'url', label: '链接' },
+  { key: 'category', label: '分类', placeholder: '个人站 / 技术博客 / 项目入口' },
+  { key: 'owner', label: '站长或署名', placeholder: '对方公开署名，可留空' },
+  { key: 'status', label: '状态', kind: 'select', options: linkStatusOptions },
   { key: 'description', label: '简介', kind: 'textarea', rows: 3 },
   { key: 'avatar', label: '头像', kind: 'image', cropAspect: 1 },
+  { key: 'reciprocal', label: '对方已回链', kind: 'boolean' },
+  { key: 'addedAt', label: '收录日期', kind: 'date', advanced: true },
+  { key: 'note', label: '维护备注', kind: 'textarea', rows: 3, advanced: true },
   { key: 'themeColor', label: '主题色', advanced: true }
 ];
 

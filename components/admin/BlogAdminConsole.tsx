@@ -1520,12 +1520,12 @@ function recordKindCopy(kind: RecordKind) {
     },
     link: {
       addLabel: '新增友链',
-      advancedHelp: '主题色只是卡片装饰，不知道对方主题色时可以不改。',
+      advancedHelp: '收录日期、维护备注和主题色用于长期维护；不确定时保持默认即可。',
       countLabel: '个友链',
       emptyAction: '新增第一个友链',
-      formHelp: '填写名称、链接、简介和头像。',
+      formHelp: '填写名称、链接、分类、站长署名、简介、头像和互链状态。',
       formLabel: '友链表单',
-      guideText: '友链只要名称、链接、简介、头像完整，前台卡片就能清楚展示。',
+      guideText: '添加别人友链时先填公开名称和站点地址，再补分类、头像、互链状态和备注；保存后前台会进入可搜索友链列表。',
       guideTitle: '友链收录'
     },
     column: {

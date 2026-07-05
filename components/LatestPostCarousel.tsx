@@ -43,7 +43,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
   if (!activePost) {
     return (
       <section className="xh-latest-card xh-latest-carousel is-empty" data-motion="stack-card" aria-label="最新文章">
-        <Image src={fallbackImage} alt="博客文章封面占位" width={960} height={720} loading="eager" data-motion="image-scale" />
+        <Image src={fallbackImage} alt="博客文章默认封面" width={960} height={720} loading="eager" data-motion="image-scale" />
         <div>
           <p className="eyebrow">Latest Post</p>
           <h2>第一篇文章正在准备中</h2>

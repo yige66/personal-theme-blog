@@ -8,7 +8,7 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
   if (chatters.length === 0) {
     return (
       <section className="main-shell chatter-board">
-        <EmptyState title="暂无杂谈" description="补充 chatter 内容后，这里会显示更接近目标站的轻文章图文流。" />
+        <EmptyState title="暂无杂谈" description="补充杂谈内容后，这里会显示学习记录、项目碎片和生活小记。" />
       </section>
     );
   }

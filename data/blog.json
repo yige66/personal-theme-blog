@@ -2,16 +2,18 @@
   "site": {
     "title": "Yuki",
     "brandSuffix": "の Blog",
-    "subtitle": "写代码，也写生活里发光的片刻。",
+    "subtitle": "记录 Java 后端、Next.js 个人站和一些真实项目练习。",
     "owner": "Yuki",
-    "role": "后端练习生",
-    "motto": "当你无法回头的时候，才是真正的旅途",
-    "bio": "计算机学习者，喜欢把复杂问题拆成可以落地的小系统，也喜欢收集音乐、照片和日常碎片。",
-    "status": "正在向完整个人博客站点靠齐：文章、项目、动态、音乐、照片墙、友链和评论会逐步连成一个完整系统。",
-    "location": "Changsha, China",
-    "email": "1772365571@qq.com",
+    "role": "Java / Spring Boot 与 Next.js 学习实践者",
+    "motto": "先把能跑通的系统做好，再慢慢把体验和细节补上。",
+    "bio": "目前主要围绕 Java、Spring Boot、MySQL、Redis、Next.js、TypeScript 和 AI 接口做项目练习。公开仓库里能看到校园订餐后端、教学管理系统、反诈科普平台、AI 分支叙事应用和这个个人博客；这里记录实现过程、踩坑和阶段性复盘。",
+    "status": "正在把公开项目、学习笔记和个人站内容整理成一个可以长期维护的作品集，不写夸张履历，也不公开个人联系方式。",
+    "location": "不公开",
+    "email": "不公开",
     "github": "https://github.com/yige66",
     "projectOrder": [
+      "https://github.com/yige66/sky-take-out.git",
+      "https://github.com/yige66/web-project.git",
       "https://github.com/yige66/anti-fraud.git",
       "https://github.com/yige66/Isekai-LifeSim.git",
       "https://github.com/yige66/personal-theme-blog.git"
@@ -130,8 +132,8 @@
       },
       "photowall": {
         "eyebrow": "Photo Wall",
-        "title": "光影画廊",
-        "description": "定格时间，封存每一次值得回看的心跳。",
+        "title": "照片墙",
+        "description": "把项目截图、站点视觉和日常素材按图集整理，后续有真实照片再逐步补充。",
         "signal": "album entry / stacked covers / fullscreen lightbox",
         "statLabels": [
           "图集",
@@ -158,8 +160,8 @@
       },
       "gallery": {
         "eyebrow": "Gallery",
-        "title": "灵感照片墙",
-        "description": "头像、头图、项目截图和日常视觉碎片按图集归档。",
+        "title": "照片墙",
+        "description": "这里不伪装成生活写真，主要整理站点头图、项目截图、后台界面和写作素材。",
         "signal": "photo wall / polaroid memories / visual archive",
         "statLabels": [
           "图片",
@@ -186,8 +188,8 @@
       },
       "moments": {
         "eyebrow": "Moments",
-        "title": "生活动态",
-        "description": "在代码之外捕捉瞬间的温度，用星图串起轻量的日常记录。",
+        "title": "项目动态",
+        "description": "短记录放这里：项目进展、调试结果、发布节点和一点日常想法。",
         "signal": "daily notes / mood filters / constellation stream",
         "statLabels": [
           "动态",
@@ -214,8 +216,8 @@
       },
       "chatter": {
         "eyebrow": "Chatter",
-        "title": "云端杂谈",
-        "description": "代码、学术、日常碎片与复盘想法的轻文章记录。",
+        "title": "开发杂谈",
+        "description": "比文章短一点，记录做项目时的取舍、边界和复盘。",
         "signal": "chatter / light essays / mood cards / masonry stream",
         "statLabels": [
           "杂谈",
@@ -270,17 +272,17 @@
       },
       "friends": {
         "eyebrow": "Friends",
-        "title": "友链星团",
-        "description": "那些散落在网络宇宙各处的有趣灵魂与站点节点。",
-        "signal": "friends / cards / apply / comments",
+        "title": "友链与互访",
+        "description": "这里收录公开站点、项目入口和确认过的互链。申请会先进入留言区，确认后再由后台添加。",
+        "signal": "friends / search / categories / apply",
         "statLabels": [
           "友链",
-          "申请",
+          "待确认",
           "留言"
         ],
         "emptyTitle": "暂无友链",
         "emptyDescription": "在后台新增友链后，这里会自动生成朋友站点卡片。",
-        "primaryActionLabel": "申请格式",
+        "primaryActionLabel": "申请友链",
         "primaryActionHref": "#gitalk-container",
         "secondaryActionLabel": "返回首页",
         "secondaryActionHref": "/",
@@ -289,17 +291,17 @@
         "searchEmptyDescription": "换一个名称或描述关键词试试。",
         "commentTitle": "友链",
         "detailLines": [],
-        "panelOneTitle": "建立神经连接",
-        "panelOneDescription": "欢迎交换友链，请复制下方格式，并在底部留言区申请。",
-        "panelTwoTitle": "",
-        "panelTwoDescription": "",
-        "panelThreeTitle": "",
-        "panelThreeDescription": ""
+        "panelOneTitle": "申请友链",
+        "panelOneDescription": "填写站点名称、链接、简介和头像地址，复制后发到评论区。确认可访问、内容健康后会收录。",
+        "panelTwoTitle": "收录原则",
+        "panelTwoDescription": "不收录违法、擦边、纯广告或无法访问的站点；个人博客、技术记录和作品集优先。",
+        "panelThreeTitle": "维护说明",
+        "panelThreeDescription": "后台可以添加、暂停、分类、备注和标记是否已回链。"
       },
       "tags": {
         "eyebrow": "Tags",
         "title": "标签星云",
-        "description": "用标签把文章、主题和学习线索连起来，快速进入同一类内容轨道。",
+        "description": "用标签把 Java 后端、Next.js、AI 应用、发布流程和项目复盘串起来。",
         "signal": "tag nebula / topic heat / reading paths",
         "statLabels": [
           "标签",
@@ -355,7 +357,7 @@
       "about": {
         "eyebrow": "About",
         "title": "关于我",
-        "description": "个人资料、创作时间线和联系方式。",
+        "description": "公开项目、学习方向和站点维护记录。",
         "signal": "profile / activity / contact",
         "statLabels": [
           "文章",
@@ -373,13 +375,18 @@
         "searchEmptyTitle": "",
         "searchEmptyDescription": "",
         "commentTitle": "",
-        "detailLines": [],
+        "detailLines": [
+          "后端练习：Spring Boot、MyBatis、MySQL、Redis、JWT、文件上传和统计接口。",
+          "前端练习：Next.js、React、TypeScript、响应式页面和内容型站点结构。",
+          "AI 应用：用 DeepSeek API 做分支叙事和站内助手，不把它包装成生产经验。",
+          "发布流程：GitHub 版本管理、Vercel 构建部署、测试与内容数据备份。"
+        ],
         "panelOneTitle": "自我介绍",
-        "panelOneDescription": "你好，我是 {owner}。",
+        "panelOneDescription": "你好，我是 {owner}。这里尽量只写公开项目能证明的经历。",
         "panelTwoTitle": "研究与创作方向",
-        "panelTwoDescription": "围绕工程实践、内容系统和长期写作组织个人站点。",
+        "panelTwoDescription": "阶段重点是 Java 后端接口、数据库与缓存、Next.js 前台、内容管理后台，以及 AI 接口在小型应用里的落地。",
         "panelThreeTitle": "联系信息",
-        "panelThreeDescription": "欢迎联系交流。"
+        "panelThreeDescription": "联系方式不直接公开，优先通过 GitHub 或评论区沟通。"
       }
     },
     "columns": [
@@ -530,7 +537,7 @@
     "assistantName": "星屿助手",
     "assistantPrompt": "根据文章、动态和作者资料，为访客推荐阅读路径。",
     "cloudMusicIds": [],
-    "friendLinkApplyFormat": "名称：星屿手记\n简介：写代码，也写生活里发光的片刻。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg",
+    "friendLinkApplyFormat": "名称：Yuki の Blog\n链接：https://github.com/yige66/personal-theme-blog\n简介：记录 Java/Spring Boot、Next.js、TypeScript 与个人项目实践的博客。\n头像：/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg\n分类建议：个人站 / 技术博客 / 项目记录\n回链：如果已添加本站，请附上页面链接。\n联系：GitHub 或站内评论区。",
     "entry": {
       "ariaLabel": "Site entry",
       "preloaderTitle": "YukiのBlog",
@@ -884,359 +891,496 @@
     ],
     "gallery": [
       {
-        "title": "站点视觉基调",
-        "description": "首页头图、头像轨道和夜间背景共同组成站点第一眼的视觉气质。",
-        "image": "/assets/img/hero-mountain.svg",
-        "alt": "山脊与夜色构成的博客首页头图",
-        "collection": "Hero set",
-        "location": "Homepage",
-        "date": "2026-06-28",
+        "title": "个人站首页头图",
+        "description": "用于首页和关于页的主视觉素材，承担站点第一屏的氛围。",
+        "image": "/assets/uploads/2026-07-01-a610531ae7dcbf0c156cbf50fb0b76c42add3e46-jpg-119-aec6827a.png",
+        "alt": "个人博客首页头图",
+        "collection": "站点视觉",
+        "location": "Home",
+        "date": "2026-07-05",
         "featured": true,
         "tags": [
-          "头图",
           "首页",
-          "视觉"
+          "视觉",
+          "Next.js"
         ],
         "items": [
           {
-            "title": "山脊头图",
-            "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脊与夜色构成的博客首页头图"
+            "title": "首页头图",
+            "image": "/assets/uploads/2026-07-01-a610531ae7dcbf0c156cbf50fb0b76c42add3e46-jpg-119-aec6827a.png",
+            "alt": "个人博客首页头图"
           },
           {
-            "title": "头像轨道",
-            "image": "/assets/img/avatar-orbit.svg",
-            "alt": "环形轨道头像插画"
+            "title": "关于页头图",
+            "image": "/assets/uploads/2026-07-04-68c8461c2619259f2cad67912841e507-cropped-4e3287a5.jpg",
+            "alt": "关于页头图素材"
           }
         ]
       },
       {
-        "title": "写作桌面",
-        "description": "学习笔记、文章草稿和项目拆解都从这组素材开始沉淀。",
-        "image": "/assets/img/desk-notes.svg",
-        "alt": "桌面笔记与写作工具插画",
-        "collection": "Writing set",
-        "location": "Archive",
-        "date": "2026-06-24",
-        "featured": true,
-        "tags": [
-          "写作",
-          "笔记",
-          "归档"
-        ],
-        "items": [
-          {
-            "title": "桌面笔记",
-            "image": "/assets/img/desk-notes.svg",
-            "alt": "桌面笔记与写作工具插画"
-          },
-          {
-            "title": "山脊头图",
-            "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脊与夜色构成的博客首页头图"
-          }
-        ]
-      },
-      {
-        "title": "发布工作台",
-        "description": "内容从草稿、检查、提交到 Vercel 预览，形成可回滚的发布链路。",
+        "title": "后台管理界面",
+        "description": "内容编辑、图片上传、友链维护和发布前检查都集中在后台页面。",
         "image": "/assets/img/admin-board.svg",
-        "alt": "内容发布工作台插画",
-        "collection": "Deploy set",
-        "location": "Console",
-        "date": "2026-06-28",
+        "alt": "后台管理界面插画",
+        "collection": "内容系统",
+        "location": "Admin",
+        "date": "2026-07-04",
         "featured": true,
         "tags": [
-          "发布",
-          "GitHub",
-          "Vercel"
+          "后台管理",
+          "内容系统",
+          "发布流程"
         ],
         "items": [
           {
-            "title": "发布面板",
+            "title": "后台入口",
             "image": "/assets/img/admin-board.svg",
-            "alt": "内容发布工作台插画"
+            "alt": "后台管理界面插画"
           },
           {
-            "title": "桌面笔记",
+            "title": "写作素材",
             "image": "/assets/img/desk-notes.svg",
-            "alt": "桌面笔记与写作工具插画"
-          },
-          {
-            "title": "山脊头图",
-            "image": "/assets/img/hero-mountain.svg",
-            "alt": "山脊与夜色构成的博客首页头图"
+            "alt": "写作与笔记素材"
           }
         ]
       },
       {
-        "title": "项目截图位",
-        "description": "后续项目上线后，这里用于替换真实截图和交互状态。",
-        "image": "/assets/img/admin-board.svg",
-        "alt": "项目截图占位插画",
-        "collection": "Project set",
+        "title": "后端项目图标组",
+        "description": "用一组简洁图标代表 Java、Spring Boot、接口和业务模块练习。",
+        "image": "/assets/project-icons/compass.svg",
+        "alt": "项目图标素材",
+        "collection": "项目记录",
         "location": "Projects",
-        "date": "2026-06-20",
+        "date": "2026-07-04",
+        "featured": true,
         "tags": [
-          "项目",
-          "截图"
+          "后端",
+          "Spring Boot",
+          "接口"
+        ],
+        "items": [
+          {
+            "title": "sky-take-out",
+            "image": "/assets/project-icons/compass.svg",
+            "alt": "sky-take-out 项目图标"
+          },
+          {
+            "title": "anti-fraud",
+            "image": "/assets/project-icons/crossed-sabres.svg",
+            "alt": "anti-fraud 项目图标"
+          },
+          {
+            "title": "web-project",
+            "image": "/assets/project-icons/lantern.svg",
+            "alt": "web-project 项目图标"
+          }
         ]
       },
       {
-        "title": "阅读背景位",
-        "description": "给文章详情和长文阅读保留的轻视觉素材。",
+        "title": "AI 分支叙事素材",
+        "description": "给 Isekai-LifeSim 和站内 AI 助手相关内容使用的夜色与轨道素材。",
+        "image": "/assets/project-icons/moon-orbit.svg",
+        "alt": "AI 分支叙事项目图标",
+        "collection": "AI 应用",
+        "location": "Isekai-LifeSim",
+        "date": "2026-07-02",
+        "featured": false,
+        "tags": [
+          "AI 应用",
+          "DeepSeek",
+          "TypeScript"
+        ],
+        "items": [
+          {
+            "title": "轨道图标",
+            "image": "/assets/project-icons/moon-orbit.svg",
+            "alt": "轨道图标素材"
+          },
+          {
+            "title": "首页山脊",
+            "image": "/assets/img/hero-mountain.svg",
+            "alt": "夜色山脊素材"
+          }
+        ]
+      },
+      {
+        "title": "写作与复盘桌面",
+        "description": "文章、杂谈和动态的配图位，主要服务项目复盘而不是伪造生活照片。",
         "image": "/assets/img/desk-notes.svg",
-        "alt": "阅读与笔记背景插画",
-        "collection": "Article set",
-        "location": "Posts",
-        "date": "2026-06-18",
+        "alt": "写作与笔记素材",
+        "collection": "写作记录",
+        "location": "Archive",
+        "date": "2026-07-01",
+        "featured": false,
         "tags": [
           "文章",
-          "阅读"
-        ]
-      },
-      {
-        "title": "关于页头像位",
-        "description": "头像、联系方式和个人简介区域的视觉素材入口。",
-        "image": "/assets/img/avatar-orbit.svg",
-        "alt": "环形轨道头像插画",
-        "collection": "Profile set",
-        "location": "About",
-        "date": "2026-06-16",
-        "tags": [
-          "头像",
-          "关于"
+          "项目复盘",
+          "笔记"
+        ],
+        "items": [
+          {
+            "title": "笔记素材",
+            "image": "/assets/img/desk-notes.svg",
+            "alt": "写作与笔记素材"
+          },
+          {
+            "title": "头像素材",
+            "image": "/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg",
+            "alt": "公开头像素材"
+          }
         ]
       }
     ]
   },
   "links": [
     {
-      "title": "GitHub",
+      "title": "Yuki on GitHub",
       "url": "https://github.com/yige66",
-      "description": "代码与项目记录。",
+      "description": "公开代码仓库与项目记录入口。这里能看到当前学习项目的真实提交和主题。",
+      "avatar": "/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg",
+      "themeColor": "rgba(124, 217, 255, 0.55)",
+      "category": "项目入口",
+      "owner": "Yuki",
+      "status": "active",
+      "addedAt": "2026-07-05",
+      "reciprocal": true,
+      "note": "公开主页，用作联系和项目核验入口。"
+    },
+    {
+      "title": "personal-theme-blog",
+      "url": "https://github.com/yige66/personal-theme-blog",
+      "description": "本站源码，包含个人博客、内容数据、后台管理、GitHub 项目同步和 Vercel 发布流程。",
       "avatar": "/assets/img/admin-board.svg",
-      "themeColor": "rgba(124, 217, 255, 0.55)"
+      "themeColor": "rgba(255, 143, 199, 0.5)",
+      "category": "作品集源码",
+      "owner": "Yuki",
+      "status": "active",
+      "addedAt": "2026-07-05",
+      "reciprocal": true,
+      "note": "本站对应仓库。"
     },
     {
-      "title": "XHBlogs Reference",
-      "url": "https://github.com/heiehiehi/XinghuisamaBlogs",
-      "description": "本次内容生态复现参考的开源个人站项目，学习其路由、内容目录和组件分层。",
+      "title": "Isekai-LifeSim",
+      "url": "https://github.com/yige66/Isekai-LifeSim",
+      "description": "Next.js、TypeScript 和 DeepSeek API 做的分支叙事小应用，适合查看 AI 交互项目练习。",
       "avatar": "/assets/img/hero-mountain.svg",
-      "themeColor": "rgba(167, 139, 250, 0.58)"
-    },
-    {
-      "title": "InternalBeyond Reference",
-      "url": "https://github.com/Sui-IB/InternalBeyond",
-      "description": "本项目背景氛围、热点和窗口感交互的开源视觉参考。",
-      "avatar": "/assets/img/avatar-orbit.svg",
-      "themeColor": "rgba(255, 143, 199, 0.5)"
+      "themeColor": "rgba(167, 139, 250, 0.58)",
+      "category": "项目入口",
+      "owner": "Yuki",
+      "status": "active",
+      "addedAt": "2026-07-05",
+      "reciprocal": true,
+      "note": "公开项目入口，不伪装成外部友链。"
     }
   ],
   "notes": [
     {
-      "id": "note-1",
-      "title": "发布流完成第一轮闭环",
-      "content": "今天把博客前台升级为可部署的 Next.js 站点，并把发布工作流整理进仓库。",
-      "date": "2026-06-28",
+      "id": "note-sky-take-out",
+      "title": "整理 sky-take-out 后端接口",
+      "content": "把员工、菜品、套餐、订单、购物车、地址簿和统计接口按业务模块拆开看，比只写 CRUD 更容易理解后端项目结构。",
+      "date": "2026-07-04",
+      "mood": "Backend",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "MySQL"
+      ]
+    },
+    {
+      "id": "note-blog-privacy",
+      "title": "关于页先做减法",
+      "content": "没有证据的经历不写，联系方式不直接公开；公开页面只保留 GitHub 能证明的项目线索。",
+      "date": "2026-07-03",
+      "mood": "Profile",
+      "tags": [
+        "关于我",
+        "隐私",
+        "内容整理"
+      ]
+    },
+    {
+      "id": "note-isekai-lifesim",
+      "title": "Isekai-LifeSim 的分支叙事边界",
+      "content": "AI 生成剧情很容易发散，实际开发时要把角色、选择、回合和失败兜底都收进可控状态里。",
+      "date": "2026-07-02",
+      "mood": "AI",
+      "tags": [
+        "Isekai-LifeSim",
+        "DeepSeek",
+        "TypeScript"
+      ]
+    },
+    {
+      "id": "note-admin-link-flow",
+      "title": "友链不能只是一排卡片",
+      "content": "真正可维护的友链至少要有分类、状态、回链标记、备注和申请格式，否则后面会分不清谁已收录、谁待确认。",
+      "date": "2026-07-01",
+      "mood": "Friends",
+      "tags": [
+        "友链",
+        "后台管理"
+      ]
+    },
+    {
+      "id": "note-anti-fraud-platform",
+      "title": "反诈科普平台更像综合练习",
+      "content": "anti-fraud 不是单页展示，而是把知识学习、活动报名、求助、论坛、题库和后台管理放到同一个业务里练习。",
+      "date": "2026-06-30",
+      "mood": "System",
+      "tags": [
+        "Vue2",
+        "Spring Boot",
+        "项目复盘"
+      ]
+    },
+    {
+      "id": "note-vercel-check",
+      "title": "每次推送前跑完整检查",
+      "content": "个人站看起来是内容项目，但只要有后台、API 和构建流程，就应该让测试、类型检查和构建先把低级错误拦住。",
+      "date": "2026-06-29",
       "mood": "Deploy",
       "tags": [
-        "Next.js",
-        "Vercel"
-      ]
-    },
-    {
-      "id": "note-2",
-      "title": "内容数据与线上发布分工",
-      "content": "内容数据直接进入版本库，正式发布交给 GitHub 与 Vercel，让每次变更都可以追踪和回滚。",
-      "date": "2026-06-24",
-      "mood": "Workflow",
-      "tags": [
         "GitHub",
-        "内容流"
-      ]
-    },
-    {
-      "id": "note-3",
-      "title": "下一批交互入口",
-      "content": "下一步可以接入 GitHub Issues 评论、正式域名和图床上传，让站点从展示页继续走向运营态。",
-      "date": "2026-06-20",
-      "mood": "Plan",
-      "tags": [
-        "评论",
-        "图床"
-      ]
-    },
-    {
-      "id": "note-4",
-      "title": "照片墙开始按图集整理",
-      "content": "把单张图片改成图集视角后，首页视觉、发布工作台和项目截图都能独立维护。",
-      "date": "2026-06-18",
-      "mood": "Gallery",
-      "tags": [
-        "照片墙",
-        "素材"
-      ]
-    },
-    {
-      "id": "note-5",
-      "title": "音乐页先做氛围层",
-      "content": "目前歌单先记录场景、封面和说明，等真实音频资源确定后再补充可播放地址。",
-      "date": "2026-06-14",
-      "mood": "Music",
-      "tags": [
-        "音乐",
-        "阅读"
-      ]
-    },
-    {
-      "id": "note-6",
-      "title": "文章归档保持轻量",
-      "content": "归档、标签和项目页先确保能扫描信息，后续再加搜索、评论和更多内容样本。",
-      "date": "2026-06-10",
-      "mood": "Writing",
-      "tags": [
-        "归档",
-        "文章"
+        "Vercel",
+        "测试"
       ]
     }
   ],
   "chatters": [
     {
-      "id": "chatter-xh-ecosystem",
-      "slug": "xh-ecosystem-rebuild",
-      "title": "为什么不能只做一个漂亮首页",
-      "summary": "复盘 XHBlogs 的站点内容生态：posts、moments、chatters、friends、archive 和 photowall 都是独立内容入口。",
-      "content": "## 问题不是玻璃拟态不够\n\n上一轮优化更像在现有页面上叠加 XHBlogs 的视觉语言，但目标站真正有识别度的地方，是它把很多个人内容拆成独立频道：文章负责长线记录，说说负责轻状态，杂谈承接不够正式但值得保存的想法，友链、归档和照片墙让站点像一个可游览的空间。\n\n## 这次要补什么\n\n- 补 `/chatter`，让轻文章和碎片想法有独立瀑布流。\n- 强化 `/archive`，把文章按年份、标签和检索入口组织成可回看的内容年表。\n- 补 `/friends` 与 `/photowall`，对齐目标站的显式路由。\n\n## 复现边界\n\n可以学习结构、组件关系、路由生态和审美节奏，但不直接搬目标站的私人身份、文章、图片和社交信息。这样当前项目才能既像目标站，又仍然是自己的博客。",
-      "date": "2026-06-29",
+      "id": "chatter-backend-module-split",
+      "slug": "backend-module-split",
+      "title": "后端项目先按业务拆，不急着炫技术栈",
+      "summary": "sky-take-out 这类练习项目的价值，不在于写了多少接口，而在于能不能把订单、商品、用户和统计拆清楚。",
+      "content": "## 先看业务边界\n\n校园订餐后端里，员工管理、菜品、套餐、购物车、订单、地址簿、支付回调和数据统计是不同的变化原因。把它们拆成模块，比把所有接口塞在一起更容易维护。\n\n## 技术只是服务边界\n\nSpring Boot、MyBatis、MySQL、Redis、JWT、OSS 这些东西都很重要，但它们不是简历形容词。真正要复盘的是：哪些数据需要校验，哪些接口需要鉴权，哪些状态不能乱改。",
+      "date": "2026-07-04",
       "tags": [
-        "XHBlogs",
-        "内容生态",
-        "复现"
+        "Java",
+        "Spring Boot",
+        "项目复盘"
       ],
-      "mood": "Refactor",
+      "mood": "Backend",
       "cover": "/assets/img/admin-board.svg",
       "featured": true
     },
     {
-      "id": "chatter-content-density",
-      "slug": "content-density-notes",
-      "title": "内容密度比单个组件更重要",
-      "summary": "一个个人站不像目标站，通常不是按钮样式的问题，而是页面缺少能被持续浏览的真实内容层。",
-      "content": "## 页面需要互相喂养\n\n首页应该能推到文章、杂谈、照片墙、音乐、友链和归档；文章页应该能回到目录、最近内容和评论；相册页不只是图片列表，还要有搜索、图集和焦点图。\n\n## 数据源要长出来\n\n这次把 `chatters` 和归档视图补进数据层，让页面从同一份内容源生成，而不是只写几个孤立卡片。后续如果迁移到 Markdown 目录，也可以沿着同样的模型拆分。",
-      "date": "2026-06-27",
+      "id": "chatter-ai-story-boundary",
+      "slug": "ai-story-boundary",
+      "title": "AI 分支叙事要先写边界",
+      "summary": "Isekai-LifeSim 的经验是：生成内容可以开放，状态机和失败兜底不能开放。",
+      "content": "## 生成不等于放飞\n\n让模型写 GalGame 风格分支很有意思，但如果没有固定角色、回合、选项和错误处理，体验会很快散掉。\n\n## 我现在更关注两件事\n\n第一是把提示词约束写清楚，第二是把前端状态处理稳定。模型负责文本，应用负责流程，这样才比较像一个能用的小项目。",
+      "date": "2026-07-02",
       "tags": [
-        "设计",
-        "信息架构",
-        "博客"
+        "Next.js",
+        "TypeScript",
+        "DeepSeek"
       ],
-      "mood": "Design",
+      "mood": "AI",
       "cover": "/assets/img/hero-mountain.svg",
       "featured": false
     },
     {
-      "id": "chatter-route-parity",
-      "slug": "route-parity-check",
-      "title": "路由名字本身也是体验",
-      "summary": "`/photowall`、`/friends`、`/archive` 这些名字让访客知道这里不是普通作品集，而是一个完整个人空间。",
-      "content": "## 为什么保留 `/gallery` 还要加 `/photowall`\n\n`gallery` 是通用英文路由，`photowall` 是目标站的语义入口。两者可以共存：旧路由保证兼容，新路由负责对齐目标站的内容心智。\n\n## 下一步\n\n继续把友链和归档做成可以从数据源维护的数据段，而不是写死在页面组件里。",
-      "date": "2026-06-25",
+      "id": "chatter-personal-site-honesty",
+      "slug": "personal-site-honesty",
+      "title": "个人站不是把自己写得很厉害",
+      "summary": "没有简历证据的东西不写，公开项目能证明什么就写什么，这样页面反而更耐看。",
+      "content": "## 关于页最怕空泛\n\n“热爱技术”“追求极致”这种话很容易写，但很难证明。现在这版关于页只保留公开项目能支撑的内容：Java 后端、Next.js 前台、AI 接口、小型后台和部署流程。\n\n## 隐私也要有边界\n\n邮箱、城市、学校、手机号这些信息如果不是必须公开，就不放到页面上。想联系可以走 GitHub 或评论区。",
+      "date": "2026-07-01",
       "tags": [
-        "路由",
-        "Next.js",
-        "复刻"
+        "关于我",
+        "隐私",
+        "个人站"
       ],
-      "mood": "Plan",
+      "mood": "Writing",
       "cover": "/assets/img/desk-notes.svg",
       "featured": false
+    },
+    {
+      "id": "chatter-friend-link-ops",
+      "slug": "friend-link-ops",
+      "title": "友链要能维护，而不是只能展示",
+      "summary": "真正会长期使用的友链功能，需要申请模板、状态、分类、回链确认和后台录入。",
+      "content": "## 一排卡片不够\n\n友链看起来只是链接列表，但维护久了会遇到很多小问题：对方站点是否还能访问、有没有回链、属于技术博客还是个人主页、是不是纯广告。\n\n## 这次怎么做\n\n前台给访客一个申请表单，生成标准留言；后台保留真正写入权限，可以新增、分类、标记状态和补充备注。这样既开放，又不把公开写入风险放出去。",
+      "date": "2026-06-30",
+      "tags": [
+        "友链",
+        "后台管理",
+        "Next.js"
+      ],
+      "mood": "Product",
+      "cover": "/assets/img/admin-board.svg",
+      "featured": true
     }
   ],
   "projects": [
     {
-      "id": "project-personal-blog",
-      "title": "个人博客发布流",
-      "description": "以 Next.js 前台、JSON 内容源和独立后台分区管理串联文章、动态、音乐、相册与项目的个人站点工程。",
-      "url": "/projects",
-      "repo": "https://github.com/yige66/personal-theme-blog",
-      "cover": "/assets/img/admin-board.svg",
+      "id": "project-sky-take-out",
+      "title": "sky-take-out",
+      "description": "校园订餐后端项目，覆盖员工、菜品、套餐、订单、购物车、地址簿、支付回调和数据统计等餐饮业务接口。",
+      "url": "https://github.com/yige66/sky-take-out",
+      "repo": "https://github.com/yige66/sky-take-out",
+      "cover": "/assets/project-icons/compass.svg",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "MyBatis",
+        "MySQL",
+        "Redis"
+      ],
+      "status": "active",
+      "featured": true,
+      "startedAt": "2026-07-02"
+    },
+    {
+      "id": "project-web-project",
+      "title": "web-project",
+      "description": "基于 Spring Boot 3 的 Tlias 教学管理系统，包含部门、员工、班级、学员、登录鉴权、文件上传、操作日志和统计报表。",
+      "url": "https://github.com/yige66/web-project",
+      "repo": "https://github.com/yige66/web-project",
+      "cover": "/assets/project-icons/lantern.svg",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "REST API",
+        "MySQL"
+      ],
+      "status": "active",
+      "featured": false,
+      "startedAt": "2026-07-02"
+    },
+    {
+      "id": "project-anti-fraud",
+      "title": "anti-fraud",
+      "description": "反诈科普平台练习，包含知识学习、活动报名、在线求助、论坛互动、考试题库和后台管理。",
+      "url": "https://github.com/yige66/anti-fraud",
+      "repo": "https://github.com/yige66/anti-fraud",
+      "cover": "/assets/project-icons/crossed-sabres.svg",
+      "tags": [
+        "Vue2",
+        "Spring Boot",
+        "MyBatis-Plus",
+        "MySQL"
+      ],
+      "status": "active",
+      "featured": true,
+      "startedAt": "2026-07-02"
+    },
+    {
+      "id": "project-isekai-lifesim",
+      "title": "Isekai-LifeSim",
+      "description": "异世界人生模拟器，用 Next.js、TypeScript、Tailwind CSS 和 DeepSeek API 生成 GalGame 风格分支叙事体验。",
+      "url": "https://github.com/yige66/Isekai-LifeSim",
+      "repo": "https://github.com/yige66/Isekai-LifeSim",
+      "cover": "/assets/project-icons/moon-orbit.svg",
       "tags": [
         "Next.js",
-        "Deploy",
+        "TypeScript",
+        "DeepSeek",
+        "AI 应用"
+      ],
+      "status": "active",
+      "featured": true,
+      "startedAt": "2026-05-17"
+    },
+    {
+      "id": "project-personal-theme-blog",
+      "title": "personal-theme-blog",
+      "description": "基于 Next.js 的个人博客与作品集站点，集成文章、相册、音乐、动态、后台管理、GitHub 项目同步和 Vercel 发布流程。",
+      "url": "https://github.com/yige66/personal-theme-blog",
+      "repo": "https://github.com/yige66/personal-theme-blog",
+      "cover": "/assets/project-icons/flower-emblem.svg",
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "React",
+        "Vercel",
         "内容系统"
       ],
       "status": "active",
       "featured": true,
       "startedAt": "2026-06-28"
-    },
-    {
-      "id": "project-study-map",
-      "title": "学习主题地图",
-      "description": "用归档、标签和项目卡片把学习记录整理成可检索、可复访的知识路径。",
-      "url": "/archive",
-      "repo": "https://github.com/yige66/personal-theme-blog",
-      "cover": "/assets/img/desk-notes.svg",
-      "tags": [
-        "知识管理",
-        "归档",
-        "标签"
-      ],
-      "status": "planning",
-      "featured": false,
-      "startedAt": "2026-06-20"
     }
   ],
   "posts": [
     {
-      "id": "post-1",
-      "title": "从零搭一个属于自己的博客",
-      "slug": "build-my-own-blog",
-      "summary": "记录个人主题博客的功能拆解：前台展示、内容数据、Markdown 写作、数据持久化与部署思路。",
-      "content": "## 为什么要做个人博客\n\n个人博客不是把文章摆上去就结束，它更像一个长期可维护的知识仓库。\n\n- 前台需要好看、清晰、响应式\n- 写作工具需要能存草稿、调整站点资料\n- 数据需要可导入导出，避免被某个平台锁住\n\n## 这套博客怎么组织\n\n本站采用 JSON 数据保存内容，Next.js 前台负责部署展示文章、归档、动态、音乐和作品集入口。内容变更进入 GitHub 后，由 CI 和 Vercel 把预览、构建和正式发布串起来。\n\n## 下一步\n\n可以继续接入数据库、评论系统、图片上传、图床或在线 CMS。",
+      "id": "post-sky-take-out-review",
+      "title": "复盘 sky-take-out：从接口清单到业务边界",
+      "slug": "sky-take-out-review",
+      "summary": "基于公开仓库 sky-take-out，整理校园订餐后端里员工、菜品、订单、地址簿、支付回调和统计接口的拆分思路。",
+      "content": "## 项目先解决什么\n\nsky-take-out 是一个校园订餐后端练习项目，公开描述里包含员工、菜品、套餐、订单、购物车、地址簿、支付回调和数据统计等业务接口。对我来说，它的价值不是“做过外卖系统”这种说法，而是把常见后端模块按边界拆开。\n\n## 我重点看的几块\n\n- 登录鉴权和员工后台操作\n- 菜品、套餐、分类这类基础资料维护\n- 购物车、订单、地址簿的用户侧流程\n- 支付回调和订单状态变化\n- 数据统计接口怎么服务后台看板\n\n## 下一步复盘\n\n后续会继续补接口校验、异常返回、权限边界和缓存策略。现在先把模块拆清楚，避免把 Spring Boot 项目写成一堆没有关系的控制器。",
       "tags": [
-        "博客",
-        "Next.js",
-        "项目实践"
+        "Spring Boot",
+        "Java",
+        "MySQL",
+        "Redis",
+        "项目复盘"
       ],
-      "category": "工程实践",
+      "category": "后端项目",
+      "cover": "/assets/img/admin-board.svg",
+      "status": "published",
+      "featured": true,
+      "createdAt": "2026-07-04T08:00:00.000Z",
+      "updatedAt": "2026-07-04T08:00:00.000Z"
+    },
+    {
+      "id": "post-personal-blog-admin-flow",
+      "title": "把个人博客做成可维护的内容系统",
+      "slug": "personal-blog-admin-flow",
+      "summary": "复盘 personal-theme-blog：Next.js 前台、JSON 内容源、后台管理、GitHub 项目同步和 Vercel 发布流程如何连起来。",
+      "content": "## 不是只做一个首页\n\n这个博客最开始容易变成视觉展示页，但真正长期能用的个人站，需要文章、项目、动态、照片墙、音乐、友链和关于页都能从同一份数据维护。\n\n## 现在的做法\n\n内容先放在 data/blog.json，后台负责编辑和校验，GitHub 保存版本，Vercel 负责构建部署。这样做不复杂，但每次改动都有记录，也能用测试和构建检查兜底。\n\n## 还需要补什么\n\n后续如果内容继续变多，可以把文章迁移到 Markdown 或数据库；但在此之前，先让 JSON 数据、后台录入、页面展示和测试都跑通更实际。",
+      "tags": [
+        "Next.js",
+        "TypeScript",
+        "Vercel",
+        "内容系统",
+        "项目复盘"
+      ],
+      "category": "前端项目",
       "cover": "/assets/img/hero-mountain.svg",
       "status": "published",
       "featured": true,
-      "createdAt": "2026-06-01T09:00:00.000Z",
-      "updatedAt": "2026-06-28T10:00:00.000Z"
+      "createdAt": "2026-07-03T09:00:00.000Z",
+      "updatedAt": "2026-07-05T08:00:00.000Z"
     },
     {
-      "id": "post-2",
-      "title": "把学习笔记写成可复用资产",
-      "slug": "turn-notes-into-assets",
-      "summary": "从零散笔记到专题知识库：用标签、摘要和归档把学习过程变成可以复盘的系统。",
-      "content": "## 学习笔记为什么容易失效\n\n很多笔记只记录了当下的结论，没有说明问题背景、踩坑过程和复盘入口。过一段时间再看，就很难继续使用。\n\n## 我的整理方式\n\n1. 先写一句摘要，确认这篇笔记解决什么问题。\n2. 用标签连接同类主题。\n3. 每篇保留一个可以继续扩展的后续问题。\n\n这样做的目标不是追求篇幅，而是让内容可以被未来的自己再次调用。",
+      "id": "post-isekai-lifesim-ai-flow",
+      "title": "Isekai-LifeSim：AI 分支叙事的小型实践",
+      "slug": "isekai-lifesim-ai-flow",
+      "summary": "记录用 Next.js、TypeScript 和 DeepSeek API 做 GalGame 风格分支叙事时，提示词、状态和失败兜底的取舍。",
+      "content": "## 项目是什么\n\nIsekai-LifeSim 是一个异世界人生模拟器，公开仓库描述里写到使用 Next.js、TypeScript、Tailwind CSS 和 DeepSeek API 生成 GalGame 风格的分支叙事体验。\n\n## AI 项目的关键不是只接接口\n\n接通模型 API 只是开始。真正影响体验的是：玩家每次选择后状态如何保存，模型返回异常时怎么兜底，剧情语气和世界观怎样保持一致。\n\n## 我的收获\n\n这类项目适合练习“模型负责生成，应用负责流程”的分工。提示词不能替代前端状态管理，也不能替代错误处理。",
       "tags": [
-        "学习方法",
-        "知识管理"
+        "Next.js",
+        "TypeScript",
+        "DeepSeek",
+        "AI 应用",
+        "项目复盘"
       ],
-      "category": "学习笔记",
+      "category": "AI 应用",
       "cover": "/assets/img/desk-notes.svg",
       "status": "published",
       "featured": false,
-      "createdAt": "2026-05-18T08:00:00.000Z",
-      "updatedAt": "2026-05-20T11:30:00.000Z"
+      "createdAt": "2026-07-02T10:00:00.000Z",
+      "updatedAt": "2026-07-02T10:00:00.000Z"
     },
     {
-      "id": "post-3",
-      "title": "后台系统设计清单",
-      "slug": "admin-system-checklist",
-      "summary": "一个个人博客后台至少应该具备的功能：文章 CRUD、草稿、站点资料、导入导出和基础安全。",
-      "content": "## 最小可用后台\n\n个人博客后台不必一开始就做得很重，但至少要覆盖这些操作：\n\n- 新增、编辑、删除文章\n- 发布与草稿状态切换\n- 修改站点资料和个人简介\n- 导入导出 JSON 备份\n- 登录保护和输入校验\n\n这套项目先把这些基础能力跑通，再为数据库、云存储、评论系统留扩展空间。",
+      "id": "post-from-crud-to-system",
+      "title": "从 CRUD 练习到系统意识",
+      "slug": "from-crud-to-system",
+      "summary": "结合 web-project 和 anti-fraud 两个公开项目，整理登录鉴权、文件上传、操作日志、题库、论坛和后台管理这些常见模块。",
+      "content": "## CRUD 是开始，不是结束\n\nweb-project 和 anti-fraud 都有明显的教学练习痕迹：部门、员工、班级、学员、登录鉴权、操作日志、文件上传、统计报表，或者知识学习、活动报名、在线求助、论坛互动、考试题库和后台管理。\n\n## 我现在更想补的能力\n\n- 输入校验和统一错误返回\n- 登录态、角色权限和操作日志\n- 文件上传的大小、类型和路径限制\n- 列表筛选、分页和统计接口\n- 前后端接口约定和测试数据\n\n## 现实一点的结论\n\n这些项目还谈不上复杂工程，但它们能把常见业务模块串起来。把每个模块写稳，比堆很多新名词更重要。",
       "tags": [
-        "后台",
-        "产品设计"
+        "Spring Boot",
+        "Java",
+        "Vue2",
+        "后台管理",
+        "项目复盘"
       ],
-      "category": "系统设计",
+      "category": "系统练习",
       "cover": "/assets/img/admin-board.svg",
-      "status": "draft",
+      "status": "published",
       "featured": false,
-      "createdAt": "2026-06-12T14:00:00.000Z",
-      "updatedAt": "2026-06-18T14:00:00.000Z"
+      "createdAt": "2026-07-01T11:00:00.000Z",
+      "updatedAt": "2026-07-01T11:00:00.000Z"
     }
   ]
 }

@@ -345,6 +345,44 @@ describe('blog administration operating system', () => {
     }
   });
 
+  it('supports richer friend-link records for adding other sites from the admin console', async () => {
+    const [blogLib, adminConfig, adminUtils, friendsClient] = await Promise.all([
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('components/admin/adminConfig.ts', 'utf8'),
+      readFile('components/admin/adminUtils.ts', 'utf8'),
+      readFile('components/FriendsBoardClient.tsx', 'utf8')
+    ]);
+
+    for (const field of ['category', 'owner', 'status', 'addedAt', 'reciprocal', 'note']) {
+      assert.match(adminConfig, new RegExp(`key: '${field}'`), `missing admin friend field ${field}`);
+      assert.match(blogLib, new RegExp(`${field}\\??:`), `missing BlogLink field ${field}`);
+    }
+    assert.match(adminUtils, /case 'link'/);
+    assert.match(adminUtils, /category: '个人站'/);
+    assert.match(adminUtils, /status: 'pending'/);
+    assert.match(adminUtils, /reciprocal: false/);
+    assert.match(friendsClient, /link\.category/);
+    assert.match(friendsClient, /link\.status/);
+    assert.match(friendsClient, /link\.reciprocal/);
+
+    const validFriendLinkData = JSON.parse(JSON.stringify(blogData));
+    validFriendLinkData.links.push({
+      title: 'Example Friend',
+      url: 'https://example.com',
+      description: '一个用于验证友链新增流程的外部站点。',
+      avatar: 'https://example.com/avatar.png',
+      themeColor: '#7cd9ff',
+      category: '个人站',
+      owner: 'Example',
+      status: 'pending',
+      addedAt: '2026-07-05',
+      reciprocal: false,
+      note: '通过后台新增，等待对方确认。'
+    });
+
+    assert.equal(validateBlogDataDraft(validFriendLinkData).ok, true);
+  });
+
   it('accepts only safe local image uploads for admin-managed assets', () => {
     const png = validateAdminImageFile({
       name: 'cover.png',

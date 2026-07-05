@@ -94,7 +94,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
         <div className="archive-control-title">
           <span>{filteredEntries.length} / {entries.length} 篇文章</span>
           <strong>{view === 'timeline' ? '归档时间线' : '卡片矩阵'}</strong>
-          <small>XHBlogs-style archive: search, tags, timeline, cards.</small>
+          <small>按搜索、标签、时间线和卡片浏览文章。</small>
         </div>
         <div className="archive-search" ref={searchContainerRef}>
           <label htmlFor="archive-search-input"><span>Search</span></label>
