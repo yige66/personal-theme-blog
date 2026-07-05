@@ -328,6 +328,12 @@ describe('blog administration operating system', () => {
     }
 
     const invalidOperationalData = JSON.parse(JSON.stringify(blogData));
+    invalidOperationalData.links = [{
+      title: 'Unsafe Friend',
+      url: 'https://example.com',
+      description: 'Used to verify friend-link URL validation.',
+      avatar: '/assets/img/avatar-orbit.svg'
+    }];
     invalidOperationalData.links[0].url = 'javascript:alert(1)';
     invalidOperationalData.site.cloudMusicIds = ['not-a-number'];
     invalidOperationalData.site.comments.clientSecret = 'never-store-this';
@@ -364,6 +370,7 @@ describe('blog administration operating system', () => {
     }
     assert.match(adminUtils, /case 'link'/);
     assert.match(adminUtils, /category: '个人站'/);
+    assert.match(adminUtils, /description: '待确认的友链申请。'/);
     assert.match(adminUtils, /status: 'pending'/);
     assert.match(adminUtils, /reciprocal: false/);
     assert.match(friendsClient, /link\.category/);
@@ -386,6 +393,11 @@ describe('blog administration operating system', () => {
     });
 
     assert.equal(validateBlogDataDraft(validFriendLinkData).ok, true);
+
+    const { createEmptyItem } = await import('../components/admin/adminUtils.ts');
+    const newFriendLinkData = JSON.parse(JSON.stringify(blogData));
+    newFriendLinkData.links.push(createEmptyItem('link'));
+    assert.equal(validateBlogDataDraft(newFriendLinkData).ok, true);
   });
 
   it('accepts only safe local image uploads for admin-managed assets', () => {

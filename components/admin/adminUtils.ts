@@ -119,7 +119,7 @@ export function createEmptyItem(kind: RecordKind): JsonRecord {
       return {
         title: '新友链',
         url: 'https://example.com',
-        description: '',
+        description: '待确认的友链申请。',
         avatar: '/assets/img/avatar-orbit.svg',
         category: '个人站',
         owner: '',
