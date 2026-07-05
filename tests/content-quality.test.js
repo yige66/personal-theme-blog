@@ -31,6 +31,22 @@ describe('published content quality', () => {
     assert.match(raw, /sky-take-out|anti-fraud|Isekai-LifeSim|personal-theme-blog/);
   });
 
+  it('keeps the profile and articles concise in the XinghuisamaBlogs reference style', async () => {
+    const data = await readBlogData();
+    const publishedPosts = data.posts.filter((post) => post.status === 'published');
+
+    assert.ok(data.site.bio.length <= 120, 'site bio should stay one compact paragraph');
+    assert.ok(data.site.status.length <= 90, 'site status should not become a long resume sentence');
+    for (const post of publishedPosts) {
+      const headingCount = (post.content.match(/^## /gm) || []).length;
+      const paragraphs = post.content.split(/\n{2,}/).filter(Boolean);
+      assert.ok(post.summary.length <= 72, `${post.slug} summary is too long`);
+      assert.ok(post.content.length <= 230, `${post.slug} article body is too long`);
+      assert.ok(headingCount <= 1, `${post.slug} should use at most one section heading`);
+      assert.ok(paragraphs.length <= 4, `${post.slug} should read like a short note`);
+    }
+  });
+
   it('curates realistic articles, moments, chatters, photo wall, and tags from public project work', async () => {
     const data = await readBlogData();
     const publishedPosts = data.posts.filter((post) => post.status === 'published');
