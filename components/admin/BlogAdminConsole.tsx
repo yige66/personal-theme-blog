@@ -234,9 +234,9 @@ const columnWorkspaces: AdminWorkspace[] = [
     group: '内容管理',
     route: '/tags',
     pageId: 'tags',
-    dataPath: 'posts[].tags / site.pages.tags',
-    purpose: '标签内容来自文章标签字段，这里维护标签页展示文案。',
-    support: ['标签页', '标签详情页', '文章标签'],
+    dataPath: 'posts[].tags / site.pages.tags / site.pages[tag-detail]',
+    purpose: '维护标签词库、标签页展示文案和标签详情页文案。',
+    support: ['标签词库', '标签页', '标签详情页'],
     content: {
       title: '文章标签来源',
       description: '要新增标签，请在文章内容里给文章添加标签。',
@@ -291,8 +291,17 @@ const columnTools: AdminTool[] = [
   { id: 'support', label: '辅助设置', hint: '评论、资料、头图和相关来源。' }
 ];
 
+const tagTools: AdminTool[] = columnTools.map((tool) => tool.id === 'records'
+  ? { ...tool, label: '标签词库', hint: '改名、删除、分配文章标签。' }
+  : tool
+);
+
 function getWorkspaceTools(workspace: AdminWorkspace): AdminTool[] {
-  return workspace.id === 'global' ? globalTools : columnTools;
+  if (workspace.id === 'global') {
+    return globalTools;
+  }
+
+  return workspace.id === 'tags' ? tagTools : columnTools;
 }
 
 function createFallbackOverview(data: BlogData | null): AdminManagementOverview {
@@ -827,6 +836,10 @@ function AdminToolPanel({
   }
 
   if (tool === 'page') {
+    if (workspace.id === 'tags') {
+      return <TagPageContentPanel data={data} uploadImage={uploadImage} onChange={onChange} />;
+    }
+
     return <PathFieldPanel data={data} description="这里控制栏目页头部文字、按钮、统计标签、空状态和说明区块。" fields={createPageContentFields(workspace.pageId)} title="页面展示" uploadImage={uploadImage} onChange={onChange} />;
   }
 
@@ -839,6 +852,10 @@ function AdminToolPanel({
   }
 
   if (tool === 'records') {
+    if (workspace.id === 'tags') {
+      return <TagLibraryPanel data={data} onChange={onChange} />;
+    }
+
     if (workspace.id === 'projects') {
       return <ProjectGitHubSourcePanel data={data} onChange={onChange} onWorkspaceJump={onWorkspaceJump} />;
     }
@@ -940,6 +957,305 @@ function SupportPanel({ data, module, uploadImage, workspace, onChange, onWorksp
       ) : null}
     </PanelFrame>
   );
+}
+
+function TagPageContentPanel({ data, uploadImage, onChange }: {
+  data: BlogData;
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  return (
+    <PanelFrame title="标签页面展示" description="这里同时维护标签索引页和单个标签详情页的头部文字、按钮、统计标签与空状态。">
+      <section className="admin-soft-section">
+        <h4>标签索引页</h4>
+        <p>控制 /tags 标签星云页面的标题、说明、按钮和统计文字。</p>
+        <PathFieldSections
+          data={data}
+          fields={createPageContentFields('tags')}
+          uploadImage={uploadImage}
+          onChange={onChange}
+        />
+      </section>
+
+      <section className="admin-soft-section">
+        <h4>标签详情页</h4>
+        <p>控制 /tags/某个标签 详情页的标题模板、说明、按钮和统计文字。可使用 {`{tag}`} 与 {`{postCount}`} 变量。</p>
+        <PathFieldSections
+          advancedLabel="标签详情页更多设置"
+          data={data}
+          fields={createPageContentFields('tag-detail')}
+          uploadImage={uploadImage}
+          onChange={onChange}
+        />
+      </section>
+    </PanelFrame>
+  );
+}
+
+function TagLibraryPanel({ data, onChange }: {
+  data: BlogData;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  const posts = data.posts;
+  const tagUsages = collectTagUsages(posts);
+  const [selectedTagName, setSelectedTagName] = useState('');
+  const [renameDraft, setRenameDraft] = useState<string | null>(null);
+  const [newTag, setNewTag] = useState('');
+  const [selectedPostIndexes, setSelectedPostIndexes] = useState<number[]>([]);
+  const selectedTag = tagUsages.find((tag) => tag.name === selectedTagName) ?? tagUsages[0] ?? null;
+  const renameValue = renameDraft ?? selectedTag?.name ?? '';
+  const selectedPostSet = new Set(selectedPostIndexes);
+
+  const selectTag = (name: string) => {
+    setSelectedTagName(name);
+    setRenameDraft(name);
+  };
+
+  const renameSelectedTag = () => {
+    if (!selectedTag) {
+      return;
+    }
+
+    const nextName = renameValue.trim();
+    if (!nextName || nextName === selectedTag.name) {
+      return;
+    }
+
+    onChange(['posts'], renameTagAcrossPosts(posts, selectedTag.name, nextName));
+    setSelectedTagName(nextName);
+    setRenameDraft(nextName);
+  };
+
+  const removeSelectedTag = () => {
+    if (!selectedTag || !window.confirm(`从所有文章移除「${selectedTag.name}」标签？保存前仍可刷新页面放弃本地草稿。`)) {
+      return;
+    }
+
+    onChange(['posts'], removeTagFromPosts(posts, selectedTag.name));
+    setSelectedTagName('');
+    setRenameDraft(null);
+  };
+
+  const togglePostSelection = (index: number) => {
+    setSelectedPostIndexes((current) => current.includes(index)
+      ? current.filter((item) => item !== index)
+      : [...current, index].sort((a, b) => a - b)
+    );
+  };
+
+  const assignTagToPosts = () => {
+    const cleanTag = newTag.trim();
+    if (!cleanTag || selectedPostIndexes.length === 0) {
+      return;
+    }
+
+    onChange(['posts'], addTagToPostIndexes(posts, cleanTag, selectedPostIndexes));
+    setSelectedTagName(cleanTag);
+    setRenameDraft(cleanTag);
+    setNewTag('');
+    setSelectedPostIndexes([]);
+  };
+
+  return (
+    <PanelFrame title="标签词库" description="这里管理文章标签本身：改名会同步到所有文章，删除会从所有文章移除，也可以把标签批量分配给选中的文章。">
+      <div className="admin-publish-guide">
+        <strong>标签不是文章正文</strong>
+        <span>前台标签页仍从文章标签生成，但这里的操作只改标签字段，不会打开文章发布表单。</span>
+      </div>
+
+      <div className="admin-record-list">
+        <div className="admin-record-index">
+          <div className="admin-record-index-head">
+            <div>
+              <strong>{tagUsages.length}</strong>
+              <span>个标签</span>
+            </div>
+          </div>
+          <div className="admin-record-buttons">
+            {tagUsages.map((tag) => (
+              <button className={tag.name === selectedTag?.name ? 'is-active' : ''} key={tag.name} type="button" onClick={() => selectTag(tag.name)}>
+                <span>#{tag.name}</span>
+                <small>{tag.count} 篇文章 / 已发布 {tag.publishedCount}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-record-editor">
+          {selectedTag ? (
+            <>
+              <div className="admin-record-edit-head">
+                <div>
+                  <span>当前标签</span>
+                  <strong>#{selectedTag.name}</strong>
+                  <small>{selectedTag.count} 篇文章使用，{selectedTag.draftCount} 篇草稿关联。</small>
+                </div>
+                <div className="admin-record-toolbar">
+                  <button className="button primary" type="button" onClick={renameSelectedTag}>应用改名</button>
+                  <button className="button danger" type="button" onClick={removeSelectedTag}>移除标签</button>
+                </div>
+              </div>
+
+              <FieldSectionLabel count={2} title="标签维护" />
+              <FieldGrid>
+                <label className="admin-field">
+                  <span>标签名称</span>
+                  <input value={renameValue} onChange={(event) => setRenameDraft(event.target.value)} />
+                  <small className="admin-field-help">字段说明：改名会同步替换所有文章里的这个标签。</small>
+                </label>
+                <label className="admin-field">
+                  <span>使用范围</span>
+                  <input readOnly value={`${selectedTag.count} 篇文章`} />
+                  <small className="admin-field-help">字段说明：标签云只展示已发布文章中的标签。</small>
+                </label>
+              </FieldGrid>
+
+              <div className="fraud-checklist">
+                {selectedTag.postTitles.map((title, index) => <span key={`${selectedTag.name}-${index}`}>{title}</span>)}
+              </div>
+            </>
+          ) : (
+            <div className="admin-empty-state">
+              <p>当前还没有文章标签。先在下方选择文章并分配一个标签。</p>
+            </div>
+          )}
+
+          <section className="admin-soft-section">
+            <h4>给文章分配标签</h4>
+            <p>新增标签必须至少分配给一篇文章；未关联文章的标签不会出现在前台标签页。</p>
+            <FieldGrid>
+              <label className="admin-field">
+                <span>标签名称</span>
+                <input value={newTag} placeholder="例如：Next.js" onChange={(event) => setNewTag(event.target.value)} />
+              </label>
+            </FieldGrid>
+            <div className="admin-row-actions">
+              <button className="button ghost" type="button" onClick={() => setSelectedPostIndexes(posts.map((_post, index) => index))}>全选文章</button>
+              <button className="button ghost" type="button" onClick={() => setSelectedPostIndexes([])}>清空选择</button>
+              <button className="button primary" type="button" disabled={!newTag.trim() || selectedPostIndexes.length === 0} onClick={assignTagToPosts}>分配标签</button>
+            </div>
+            <FieldGrid>
+              {posts.map((post, index) => (
+                <label className="admin-field admin-field-toggle" key={post.id || post.slug || index}>
+                  <span>{post.title}</span>
+                  <input checked={selectedPostSet.has(index)} type="checkbox" onChange={() => togglePostSelection(index)} />
+                  <small className="admin-field-help">当前标签：{normalizeTagList(post.tags).join('、') || '暂无'}</small>
+                </label>
+              ))}
+            </FieldGrid>
+          </section>
+        </div>
+      </div>
+    </PanelFrame>
+  );
+}
+
+type TagUsage = {
+  name: string;
+  count: number;
+  draftCount: number;
+  publishedCount: number;
+  postTitles: string[];
+};
+
+function collectTagUsages(posts: BlogData['posts']): TagUsage[] {
+  const tags = new Map<string, TagUsage>();
+
+  posts.forEach((post, index) => {
+    for (const tag of normalizeTagList(post.tags)) {
+      const key = tag.toLowerCase();
+      const current = tags.get(key);
+      const postTitle = post.title || `第 ${index + 1} 篇文章`;
+      const isPublished = post.status === 'published';
+
+      tags.set(key, current ? {
+        ...current,
+        count: current.count + 1,
+        draftCount: current.draftCount + (isPublished ? 0 : 1),
+        publishedCount: current.publishedCount + (isPublished ? 1 : 0),
+        postTitles: [...current.postTitles, postTitle]
+      } : {
+        name: tag,
+        count: 1,
+        draftCount: isPublished ? 0 : 1,
+        publishedCount: isPublished ? 1 : 0,
+        postTitles: [postTitle]
+      });
+    }
+  });
+
+  return [...tags.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+}
+
+function renameTagAcrossPosts(posts: BlogData['posts'], sourceTag: string, targetTag: string): BlogData['posts'] {
+  const sourceKey = sourceTag.trim().toLowerCase();
+  const cleanTarget = targetTag.trim();
+  if (!sourceKey || !cleanTarget) {
+    return posts;
+  }
+
+  return posts.map((post) => {
+    const currentTags = normalizeTagList(post.tags);
+    const nextTags = dedupeTags(currentTags.map((tag) => tag.toLowerCase() === sourceKey ? cleanTarget : tag));
+    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
+  });
+}
+
+function removeTagFromPosts(posts: BlogData['posts'], tagName: string): BlogData['posts'] {
+  const tagKey = tagName.trim().toLowerCase();
+  if (!tagKey) {
+    return posts;
+  }
+
+  return posts.map((post) => {
+    const currentTags = normalizeTagList(post.tags);
+    const nextTags = currentTags.filter((tag) => tag.toLowerCase() !== tagKey);
+    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
+  });
+}
+
+function addTagToPostIndexes(posts: BlogData['posts'], tagName: string, postIndexes: number[]): BlogData['posts'] {
+  const cleanTag = tagName.trim();
+  const indexSet = new Set(postIndexes);
+  if (!cleanTag || indexSet.size === 0) {
+    return posts;
+  }
+
+  return posts.map((post, index) => {
+    if (!indexSet.has(index)) {
+      return post;
+    }
+
+    const currentTags = normalizeTagList(post.tags);
+    const nextTags = dedupeTags([...currentTags, cleanTag]);
+    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
+  });
+}
+
+function normalizeTagList(value: unknown): string[] {
+  const rawItems = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(/[\n,，]/)
+      : [];
+
+  return dedupeTags(rawItems.map((item) => stringValue(item).trim()).filter(Boolean));
+}
+
+function dedupeTags(tags: string[]): string[] {
+  const result = new Map<string, string>();
+  for (const tag of tags) {
+    const cleanTag = tag.trim();
+    if (cleanTag && !result.has(cleanTag.toLowerCase())) {
+      result.set(cleanTag.toLowerCase(), cleanTag);
+    }
+  }
+
+  return [...result.values()];
+}
+
+function tagsAreEqual(left: string[], right: string[]): boolean {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
 }
 
 function PathFieldPanel({ children, data, description, fields, title, uploadImage, onChange }: {

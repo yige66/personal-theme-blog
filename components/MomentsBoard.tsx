@@ -1,22 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState } from 'react';
+import { PlanetaryOrbitMap, type PlanetaryOrbitItem } from '@/components/channels/PlanetaryOrbitMap';
 import { MomentComments } from '@/components/comments/MomentComments';
 import type { BlogNote, CommentConfig } from '@/lib/blog';
 
 const allMood = '全部';
-
-const momentSlots = [
-  { x: '50%', y: '18%' },
-  { x: '68%', y: '30%' },
-  { x: '75%', y: '55%' },
-  { x: '60%', y: '76%' },
-  { x: '39%', y: '76%' },
-  { x: '25%', y: '55%' },
-  { x: '32%', y: '30%' },
-  { x: '50%', y: '50%' }
-];
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat('zh-CN', {
@@ -68,6 +58,15 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
         return sortOrder === 'desc' ? right - left : left - right;
       });
   }, [activeMood, notes, query, sortOrder]);
+  const orbitItems = useMemo<PlanetaryOrbitItem[]>(() => filteredNotes.map((note, index) => ({
+    id: note.id,
+    eyebrow: String(index + 1).padStart(2, '0'),
+    label: note.title || note.mood || '日常碎片',
+    meta: formatDate(note.date).slice(0, 10),
+    detail: `${note.content}${note.tags?.length ? ` / ${(note.tags ?? []).map((tag) => `#${tag}`).join(' ')}` : ''}`,
+    href: `#moment-${note.id}`,
+    heat: Math.min(5, Math.max(1, (note.tags?.length ?? 0) + 1))
+  })), [filteredNotes]);
 
   return (
     <section className="main-shell moments-board moments-starchart xh-reference-surface" aria-label="说说动态频道">
@@ -89,42 +88,15 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
         </div>
       </div>
 
-      <div className="moment-constellation" aria-label="说说星图">
-        <span className="moment-constellation-core">
-          <strong>{filteredNotes.length}</strong>
-          <small>moments</small>
-        </span>
-        <div className="moment-orbit-paths" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-        {filteredNotes.slice(0, 12).map((note, index) => {
-          const slot = momentSlots[index % momentSlots.length];
-          const angle = -90 + (360 / Math.max(filteredNotes.length, 1)) * index;
-
-          return (
-            <a
-              className="moment-star"
-              href={`#moment-${note.id}`}
-              style={{
-                '--moment-angle': `${angle}deg`,
-                '--moment-inverse': `${-angle}deg`,
-                '--moment-radius': `${128 + (index % 3) * 26}px`,
-                '--moment-x': slot.x,
-                '--moment-y': slot.y,
-                '--moment-delay': `${index * 80}ms`
-              } as CSSProperties}
-              title={note.title || note.content}
-              key={`${note.id}-star`}
-            >
-              <small>{String(index + 1).padStart(2, '0')}</small>
-              <strong>{note.title || note.mood || '日常碎片'}</strong>
-              <span>{formatDate(note.date).slice(0, 10)}</span>
-            </a>
-          );
-        })}
-      </div>
+      <PlanetaryOrbitMap
+        className="moment-constellation"
+        count={filteredNotes.length}
+        countLabel="moments"
+        items={orbitItems}
+        subtitle="Moment Planet"
+        title="动态行星图"
+        variant="moments"
+      />
 
       <div className="moments-stream">
         {filteredNotes.map((note, index) => {

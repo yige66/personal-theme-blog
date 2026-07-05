@@ -181,6 +181,11 @@ describe('blog administration operating system', () => {
     assert.match(adminLib, /blog\.json/);
 
     assert.match(adminConsole, /getWorkspaceTools/);
+    assert.match(adminConsole, /createPageContentFields\('tag-detail'\)/);
+    assert.match(adminConsole, /TagLibraryPanel/);
+    assert.match(adminConsole, /renameTagAcrossPosts/);
+    assert.match(adminConsole, /removeTagFromPosts/);
+    assert.match(adminConsole, /addTagToPostIndexes/);
     assert.match(adminConsole, /标签详情页/);
     assert.doesNotMatch(adminConsole, /ColumnNavigator/);
     assert.doesNotMatch(adminConsole, /WorkspaceToolPanel/);

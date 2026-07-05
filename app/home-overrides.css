@@ -5406,8 +5406,8 @@ body:has(.tags-page) .tag-nebula-world.is-dense .tag-nebula-core {
 
 body:has(.tags-page) .tag-nebula-world.is-dense .tag-constellation-grid {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(min(172px, 100%), 1fr)) !important;
-  gap: 16px !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)) !important;
+  gap: 18px !important;
   height: auto !important;
   min-height: 0 !important;
 }
@@ -5421,7 +5421,7 @@ body:has(.tags-page) .tag-nebula-world.is-dense .tag-cloud-card {
   width: auto !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  min-height: 126px !important;
+  min-height: 116px !important;
   box-sizing: border-box !important;
   overflow: hidden !important;
 }
@@ -5449,6 +5449,11 @@ body:has(.tags-page) .tag-cloud-card span {
   max-width: 100% !important;
   overflow-wrap: anywhere !important;
   word-break: break-word !important;
+}
+
+body:has(.tags-page) .tag-nebula-world.is-dense .tag-cloud-card strong {
+  font-size: clamp(24px, 2vw, 34px) !important;
+  line-height: 1.08 !important;
 }
 
 .ib-entry-room-backdrop {
@@ -5705,8 +5710,8 @@ html[data-xh-theme="night"] body:has(.xh-clean-home) .xh-clean-home .xh-site-das
 
 body:has(.tags-page) .tag-nebula-world.is-dense .tag-constellation-grid {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(min(172px, 100%), 1fr)) !important;
-  gap: 16px !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)) !important;
+  gap: 18px !important;
   height: auto !important;
   min-height: 0 !important;
 }
@@ -18549,4 +18554,1002 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
     0 2px 6px rgba(21, 12, 35, 0.44) !important;
   text-wrap: balance !important;
   white-space: pre-line !important;
+}
+
+/* Planetary tag and moment charts: public NASA space assets, RPG-like planets, mode-aware details. */
+.planetary-orbit-map.tag-nebula-world,
+.moments-board .planetary-orbit-map.moment-constellation {
+  position: relative !important;
+  isolation: isolate !important;
+  width: min(1280px, 100%) !important;
+  min-height: calc(var(--planet-map-height, 650px) + 86px) !important;
+  margin-inline: auto !important;
+  padding: clamp(18px, 2.3vw, 30px) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(209, 224, 255, 0.34) !important;
+  border-radius: 34px !important;
+  background:
+    radial-gradient(circle at 52% 52%, rgba(255, 235, 197, 0.2), transparent 19%),
+    radial-gradient(circle at 18% 22%, rgba(130, 229, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(14, 12, 38, 0.28), rgba(12, 10, 30, 0.78)),
+    url("/assets/space/carina-nebula-webb.png") center / cover no-repeat !important;
+  box-shadow: 0 34px 110px rgba(4, 6, 22, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  color: rgba(249, 250, 255, 0.94) !important;
+  backdrop-filter: blur(18px) saturate(1.18) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.18) !important;
+}
+
+.planetary-orbit-map::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(180deg, rgba(7, 8, 24, 0.08), rgba(7, 8, 24, 0.42)),
+    url("/assets/space/carina-nebula-webb.png") center / cover no-repeat,
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.78) 0 1px, transparent 2px),
+    radial-gradient(circle at 28% 78%, rgba(255, 228, 171, 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 24%, rgba(158, 232, 255, 0.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 68%, rgba(255, 175, 216, 0.68) 0 1px, transparent 2px);
+  background-size: auto, cover, 180px 150px, 240px 210px, 210px 180px, 260px 230px !important;
+  box-shadow: none !important;
+  opacity: 0.72 !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+.planetary-orbit-map::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(110deg, transparent 0 30%, rgba(255, 255, 255, 0.07) 42%, transparent 56%),
+    linear-gradient(180deg, rgba(4, 6, 18, 0.12), rgba(5, 6, 20, 0.34)) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+.planetary-modebar {
+  position: relative !important;
+  z-index: 20 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: min(560px, 100%) !important;
+  margin: 0 auto clamp(14px, 2vw, 22px) !important;
+  padding: 8px !important;
+  border: 1px solid rgba(228, 237, 255, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(10, 12, 32, 0.54) !important;
+  box-shadow: 0 14px 36px rgba(2, 4, 18, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(18px) saturate(1.16) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.16) !important;
+}
+
+.planetary-modebar > span {
+  padding-left: 14px !important;
+  color: rgba(240, 246, 255, 0.78) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+.planetary-modebar div {
+  display: inline-flex !important;
+  gap: 6px !important;
+}
+
+.planetary-modebar button {
+  min-width: 84px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: rgba(239, 243, 255, 0.72) !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.planetary-modebar button:is(:hover, :focus-visible),
+.planetary-modebar button.is-active {
+  border-color: rgba(255, 255, 255, 0.46) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 189, 224, 0.76), rgba(128, 218, 255, 0.78)),
+    rgba(255, 255, 255, 0.16) !important;
+  color: #14162d !important;
+  box-shadow: 0 10px 24px rgba(119, 186, 255, 0.2) !important;
+}
+
+.planetary-spacefield {
+  position: relative !important;
+  z-index: 2 !important;
+  min-height: var(--planet-map-height, clamp(590px, 57vw, 760px)) !important;
+}
+
+.planetary-orbit-map .planetary-ring-set {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  opacity: 0.92 !important;
+  pointer-events: none !important;
+  transform: scale(var(--planet-camera-scale, 1)) !important;
+  transform-origin: center !important;
+  transition: transform 260ms ease !important;
+}
+
+.planetary-orbit-map .planetary-ring-set span {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: var(--planet-ring-width, 58%) !important;
+  height: var(--planet-ring-height, 38%) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: none !important;
+  background-size: 180% 100%, 100% 100% !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  transform: translate(-50%, -50%) rotate(var(--planet-ring-rotate, -10deg)) !important;
+  animation: planetaryRingTurn 8s ease-in-out infinite !important;
+  animation-delay: var(--planet-ring-delay, 0s) !important;
+}
+
+.planetary-orbit-map .planetary-core {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  z-index: 12 !important;
+  display: grid !important;
+  width: clamp(176px, 15.5vw, 236px) !important;
+  height: clamp(176px, 15.5vw, 236px) !important;
+  min-height: 0 !important;
+  place-items: center !important;
+  align-content: center !important;
+  gap: 4px !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 244, 211, 0.5) !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 36% 24%, rgba(255, 255, 255, 0.78), transparent 16%),
+    radial-gradient(circle at 67% 58%, rgba(142, 226, 255, 0.28), transparent 24%),
+    linear-gradient(135deg, rgba(255, 216, 167, 0.96), rgba(205, 119, 141, 0.96) 48%, rgba(76, 50, 117, 0.98)) !important;
+  box-shadow:
+    0 0 0 13px rgba(255, 232, 174, 0.06),
+    0 0 0 28px rgba(137, 215, 255, 0.035),
+    0 0 72px rgba(255, 214, 132, 0.42),
+    0 34px 86px rgba(4, 6, 20, 0.54),
+    inset -38px -34px 48px rgba(38, 18, 58, 0.56),
+    inset 24px 20px 36px rgba(255, 255, 255, 0.28) !important;
+  color: rgba(255, 252, 244, 0.96) !important;
+  text-align: center !important;
+  text-shadow: 0 2px 10px rgba(8, 6, 22, 0.62) !important;
+  transform: translate(-50%, -50%) scale(var(--planet-core-scale, 1)) !important;
+  transition: transform 260ms ease !important;
+}
+
+.planetary-core-texture {
+  position: absolute !important;
+  inset: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 31% 20%, rgba(255, 255, 255, 0.44), transparent 18%),
+    radial-gradient(circle at 50% 53%, rgba(8, 7, 30, 0.34), transparent 46%),
+    var(--planet-core-sprite) center / 116% 116% no-repeat !important;
+  background-size: 100% 100%, 100% 100%, 116% 116% !important;
+  filter: saturate(1.18) contrast(1.05) drop-shadow(0 0 16px rgba(255, 242, 219, 0.28)) !important;
+  transform: rotate(-4deg) scale(1.04) !important;
+  animation: planetaryCoreSurfaceSpin 24s linear infinite !important;
+}
+
+.planetary-core-texture::before,
+.planetary-core-texture::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+}
+
+.planetary-core-texture::before {
+  background:
+    radial-gradient(circle at 31% 22%, rgba(255, 255, 255, 0.9), transparent 13%),
+    radial-gradient(circle at 61% 35%, rgba(174, 236, 255, 0.36), transparent 15%),
+    linear-gradient(128deg, transparent 0 44%, rgba(255, 255, 255, 0.18) 45% 47%, transparent 49%),
+    radial-gradient(circle at 76% 76%, rgba(21, 10, 48, 0.6), transparent 48%) !important;
+  mix-blend-mode: screen !important;
+  animation: planetaryCoreGleam 6.5s ease-in-out infinite !important;
+}
+
+.planetary-core-texture::after {
+  background:
+    radial-gradient(circle at 50% 52%, rgba(4, 5, 22, 0.36) 0 24%, transparent 52%),
+    repeating-linear-gradient(174deg, rgba(255, 255, 255, 0.09) 0 2px, transparent 2px 12px),
+    radial-gradient(circle at 78% 82%, rgba(17, 8, 42, 0.72), transparent 50%) !important;
+  opacity: 0.82 !important;
+}
+
+.planetary-orbit-map .planetary-core::before,
+.planetary-orbit-map .planetary-core::after {
+  content: "" !important;
+  position: absolute !important;
+  left: -42% !important;
+  right: -42% !important;
+  top: 47% !important;
+  height: 18% !important;
+  z-index: 1 !important;
+  border: 1px solid rgba(255, 232, 176, 0.44) !important;
+  border-radius: 50% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 246, 214, 0.18), transparent) !important;
+  box-shadow: 0 0 28px rgba(255, 223, 170, 0.3), inset 0 0 18px rgba(255, 255, 255, 0.1) !important;
+  transform: rotate(-12deg) !important;
+  pointer-events: none !important;
+}
+
+.planetary-orbit-map .planetary-core::after {
+  left: -58% !important;
+  right: -58% !important;
+  top: 40% !important;
+  height: 30% !important;
+  border-color: rgba(151, 222, 255, 0.28) !important;
+  box-shadow: 0 0 38px rgba(137, 221, 255, 0.24), inset 0 0 16px rgba(255, 255, 255, 0.08) !important;
+  transform: rotate(17deg) !important;
+}
+
+.planetary-orbit-map .planetary-core small,
+.planetary-orbit-map .planetary-core span:not(.planetary-core-texture),
+.planetary-orbit-map .planetary-core strong {
+  position: relative !important;
+  z-index: 2 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.planetary-orbit-map .planetary-core small {
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.planetary-orbit-map .planetary-core strong {
+  font-size: clamp(30px, 3vw, 48px) !important;
+  line-height: 1 !important;
+}
+
+.planetary-orbit-map .planetary-core span:not(.planetary-core-texture) {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.planetary-orbit-map .planetary-node-layer {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 18 !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  transform: scale(var(--planet-camera-scale, 1)) !important;
+  transform-origin: center !important;
+  transition: transform 260ms ease !important;
+}
+
+.planetary-node {
+  position: absolute !important;
+  left: var(--planet-x) !important;
+  top: var(--planet-y) !important;
+  z-index: calc(8 + var(--planet-ring, 0)) !important;
+  display: grid !important;
+  grid-template-columns: var(--planet-size) minmax(150px, 216px) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  color: rgba(251, 252, 255, 0.96) !important;
+  text-decoration: none !important;
+  outline: none !important;
+  transform: translate(-50%, -50%) rotate(calc(var(--planet-angle) * 0.018)) !important;
+  transition: filter 180ms ease !important;
+  animation: planetaryNodeIn 620ms ease both !important;
+  animation-delay: var(--planet-delay) !important;
+}
+
+.planetary-node:is(:hover, :focus-visible),
+.planetary-node[data-active="true"] {
+  z-index: 68 !important;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--planet-glow) 48%, transparent)) !important;
+}
+
+.planetary-mini-planet {
+  position: relative !important;
+  display: block !important;
+  width: var(--planet-size) !important;
+  height: var(--planet-size) !important;
+  overflow: visible !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.34), transparent 20%),
+    radial-gradient(circle at 70% 76%, rgba(6, 7, 26, 0.36), transparent 50%),
+    var(--planet-sprite) center / 122% 122% no-repeat !important;
+  background-size: 100% 100%, 100% 100%, 122% 122% !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.36),
+    0 0 0 4px color-mix(in srgb, var(--planet-c) 48%, transparent),
+    0 0 28px color-mix(in srgb, var(--planet-glow) 52%, transparent),
+    0 14px 26px rgba(3, 5, 19, 0.28),
+    inset -16px -14px 24px rgba(3, 5, 19, 0.58),
+    inset 12px 10px 18px rgba(255, 255, 255, 0.3) !important;
+  filter: saturate(1.12) contrast(1.04) !important;
+  image-rendering: auto !important;
+  transform-style: preserve-3d !important;
+  transition: box-shadow 180ms ease, transform 180ms ease !important;
+}
+
+.planetary-node:is(:hover, :focus-visible, [data-active="true"]) .planetary-mini-planet {
+  transform: scale(1.14) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.46),
+    0 0 0 9px color-mix(in srgb, var(--planet-glow) 18%, transparent),
+    0 0 38px color-mix(in srgb, var(--planet-glow) 68%, transparent),
+    inset -14px -12px 22px rgba(3, 5, 19, 0.48),
+    inset 10px 8px 16px rgba(255, 255, 255, 0.28) !important;
+}
+
+.planetary-mini-planet::before,
+.planetary-mini-planet::after,
+.planetary-mini-planet b,
+.planetary-mini-planet i {
+  content: "" !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.planetary-mini-planet::before {
+  inset: 14% 10% !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(118deg, rgba(255, 255, 255, 0.38), transparent 21% 64%, rgba(255, 255, 255, 0.18)),
+    radial-gradient(circle at 65% 30%, rgba(255, 255, 255, 0.28), transparent 12%) !important;
+  background-size: 180% 180%, 100% 100% !important;
+  mix-blend-mode: screen !important;
+  opacity: 0.26 !important;
+  animation: planetaryMiniSurfaceSpin var(--planet-spin, 16s) linear infinite !important;
+}
+
+.planetary-mini-planet::after {
+  inset: 0 !important;
+  border-radius: inherit !important;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(255, 255, 255, 0.52), transparent 18%),
+    radial-gradient(circle at 70% 74%, rgba(0, 0, 0, 0.58), transparent 48%),
+    linear-gradient(128deg, transparent 0 57%, rgba(255, 255, 255, 0.16) 58% 61%, transparent 64%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.2), transparent 18% 64%, rgba(5, 7, 30, 0.34)) !important;
+}
+
+.planetary-mini-ring {
+  left: -24% !important;
+  right: -24% !important;
+  top: 44% !important;
+  height: 22% !important;
+  border: 1px solid color-mix(in srgb, var(--planet-glow) 56%, transparent) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--planet-glow) 30%, transparent) !important;
+  transform: rotate(var(--planet-ring-tilt, -10deg)) !important;
+  animation: planetaryMiniRingSpin var(--planet-spin, 16s) linear infinite !important;
+}
+
+.planetary-mini-atmosphere {
+  inset: -9% !important;
+  z-index: -1 !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--planet-glow) 32%, transparent), transparent 62%) !important;
+  filter: blur(3px) !important;
+  opacity: 0.9 !important;
+}
+
+.planetary-mini-terrain {
+  inset: 7% !important;
+  border-radius: inherit !important;
+  background:
+    radial-gradient(ellipse at 28% 38%, color-mix(in srgb, var(--planet-land) 82%, transparent) 0 10%, transparent 11%),
+    radial-gradient(ellipse at 62% 25%, color-mix(in srgb, var(--planet-land) 58%, transparent) 0 9%, transparent 10%),
+    radial-gradient(ellipse at 58% 69%, color-mix(in srgb, var(--planet-c) 50%, transparent) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 36% 72%, color-mix(in srgb, var(--planet-b) 52%, transparent) 0 8%, transparent 9%) !important;
+  filter: saturate(1.16) !important;
+  mix-blend-mode: screen !important;
+  opacity: 0.18 !important;
+  animation: planetaryMiniTerrainDrift calc(var(--planet-spin, 16s) * 1.34) linear infinite !important;
+}
+
+.planetary-mini-clouds {
+  inset: 12% 8% !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(18deg, transparent 0 18%, color-mix(in srgb, var(--planet-cloud) 46%, transparent) 19% 25%, transparent 27% 48%, color-mix(in srgb, var(--planet-cloud) 34%, transparent) 49% 55%, transparent 57%),
+    radial-gradient(ellipse at 44% 33%, color-mix(in srgb, var(--planet-cloud) 52%, transparent), transparent 20%) !important;
+  background-size: 170% 100%, 100% 100% !important;
+  mix-blend-mode: screen !important;
+  opacity: 0.22 !important;
+  animation: planetaryMiniCloudDrift calc(var(--planet-spin, 16s) * 0.72) linear infinite !important;
+}
+
+.planetary-mini-shine {
+  left: 14% !important;
+  top: 11% !important;
+  width: 34% !important;
+  height: 25% !important;
+  border-radius: 56% 44% 48% 52% / 54% 58% 42% 46% !important;
+  background:
+    radial-gradient(ellipse at 38% 38%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.22) 48%, transparent 70%) !important;
+  transform: rotate(-24deg) !important;
+  filter: blur(0.2px) !important;
+  opacity: 0.92 !important;
+}
+
+.planetary-node:nth-child(3n + 1) .planetary-mini-ring {
+  opacity: 0 !important;
+}
+
+.planetary-node:nth-child(4n + 2) .planetary-mini-planet {
+  border-radius: 46% 54% 49% 51% / 50% 46% 54% 50% !important;
+}
+
+.planetary-node:nth-child(5n + 4) .planetary-mini-planet::before {
+  background:
+    radial-gradient(circle at 38% 42%, rgba(255, 255, 255, 0.36), transparent 9%),
+    radial-gradient(circle at 66% 63%, rgba(255, 255, 255, 0.22), transparent 12%) !important;
+}
+
+.planetary-node:nth-child(4n + 1) .planetary-mini-terrain {
+  background:
+    radial-gradient(ellipse at 30% 34%, color-mix(in srgb, var(--planet-land) 86%, transparent) 0 16%, transparent 17%),
+    radial-gradient(ellipse at 62% 54%, color-mix(in srgb, var(--planet-c) 45%, transparent) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 46% 76%, color-mix(in srgb, var(--planet-land) 56%, transparent) 0 10%, transparent 11%) !important;
+}
+
+.planetary-node:nth-child(4n + 2) .planetary-mini-clouds {
+  inset: 17% 6% !important;
+  background:
+    repeating-linear-gradient(172deg, color-mix(in srgb, var(--planet-cloud) 48%, transparent) 0 5px, transparent 5px 14px),
+    linear-gradient(12deg, transparent 0 34%, color-mix(in srgb, var(--planet-land) 42%, transparent) 35% 43%, transparent 45%) !important;
+  opacity: 0.82 !important;
+}
+
+.planetary-node:nth-child(4n + 3) .planetary-mini-terrain {
+  inset: 10% !important;
+  background:
+    radial-gradient(circle at 33% 30%, color-mix(in srgb, var(--planet-cloud) 74%, transparent) 0 8%, transparent 9%),
+    radial-gradient(circle at 64% 57%, color-mix(in srgb, var(--planet-land) 68%, transparent) 0 7%, transparent 8%),
+    repeating-conic-gradient(from 20deg, transparent 0 20deg, color-mix(in srgb, var(--planet-land) 35%, transparent) 22deg 27deg, transparent 29deg 47deg) !important;
+}
+
+.planetary-node:nth-child(4n) .planetary-mini-terrain {
+  background:
+    linear-gradient(135deg, transparent 0 32%, color-mix(in srgb, var(--planet-land) 68%, transparent) 33% 38%, transparent 40%),
+    radial-gradient(ellipse at 68% 30%, color-mix(in srgb, var(--planet-cloud) 52%, transparent) 0 10%, transparent 11%),
+    radial-gradient(ellipse at 35% 70%, color-mix(in srgb, var(--planet-c) 50%, transparent) 0 13%, transparent 14%) !important;
+}
+
+.planetary-node .planetary-mini-terrain {
+  mix-blend-mode: screen !important;
+  opacity: 0.18 !important;
+}
+
+.planetary-node .planetary-mini-clouds {
+  mix-blend-mode: screen !important;
+  opacity: 0.22 !important;
+}
+
+.planetary-node-info {
+  display: grid !important;
+  gap: 2px !important;
+  width: clamp(158px, 15vw, 218px) !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(223, 235, 255, 0.24) !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg, rgba(8, 11, 30, 0.78), rgba(35, 25, 60, 0.56)) !important;
+  box-shadow: 0 14px 32px rgba(3, 4, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  text-shadow: 0 2px 8px rgba(3, 4, 16, 0.54) !important;
+  transform: translateY(4px) !important;
+  transition: border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease, transform 180ms ease !important;
+  backdrop-filter: blur(14px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.12) !important;
+  overflow-wrap: anywhere !important;
+}
+
+.planetary-node-info small,
+.planetary-node-info em,
+.planetary-node-info span {
+  color: rgba(228, 238, 255, 0.72) !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+
+.planetary-node-info strong {
+  color: rgba(255, 252, 255, 0.98) !important;
+  font-size: clamp(14px, 1.1vw, 17px) !important;
+  font-weight: 950 !important;
+  line-height: 1.12 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.planetary-node-info span {
+  display: block !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.planetary-orbit-map[data-mode="minimal"] .planetary-node-info {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(10px) scale(0.95) !important;
+}
+
+.planetary-orbit-map[data-mode="minimal"] .planetary-node:is(:hover, :focus-visible) .planetary-node-info,
+.planetary-orbit-map[data-mode="detail"] .planetary-node-info {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+.planetary-node:is(:hover, :focus-visible, [data-active="true"]) .planetary-node-info {
+  border-color: color-mix(in srgb, var(--planet-glow) 72%, rgba(255, 255, 255, 0.36)) !important;
+  background:
+    linear-gradient(145deg, rgba(11, 15, 38, 0.86), rgba(54, 39, 84, 0.72)),
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--planet-glow) 24%, transparent), transparent 46%) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--planet-glow) 34%, transparent),
+    0 18px 40px rgba(3, 4, 18, 0.38),
+    0 0 30px color-mix(in srgb, var(--planet-glow) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.planetary-orbit-map[data-variant="moments"] .planetary-core-texture {
+  filter: hue-rotate(12deg) saturate(1.12) contrast(1.04) drop-shadow(0 0 16px rgba(255, 212, 235, 0.26)) !important;
+}
+
+.planetary-orbit-map[data-variant="moments"] .planetary-mini-planet::before {
+  opacity: 0.72 !important;
+}
+
+.planetary-orbit-map[data-density="dense"] .planetary-node {
+  grid-template-columns: var(--planet-size) minmax(132px, 188px) !important;
+  gap: 8px !important;
+}
+
+.planetary-orbit-map[data-density="dense"] .planetary-node[data-side="left"] {
+  grid-template-columns: minmax(132px, 188px) var(--planet-size) !important;
+}
+
+.planetary-orbit-map[data-density="dense"] .planetary-node-info {
+  width: clamp(126px, 9.5vw, 170px) !important;
+  padding: 9px 10px !important;
+}
+
+.planetary-orbit-map[data-density="dense"] .planetary-node-info strong {
+  font-size: clamp(13px, 1vw, 15px) !important;
+}
+
+.planetary-orbit-map[data-density="dense"] .planetary-node-info small,
+.planetary-orbit-map[data-density="dense"] .planetary-node-info em,
+.planetary-orbit-map[data-density="dense"] .planetary-node-info span {
+  font-size: 10px !important;
+}
+
+.planetary-orbit-map[data-zoom="far"] .planetary-node-info,
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info {
+  width: clamp(122px, 9vw, 164px) !important;
+  padding: 8px 10px !important;
+}
+
+.planetary-orbit-map[data-zoom="deep"] .planetary-node {
+  gap: 7px !important;
+}
+
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info strong {
+  font-size: clamp(12px, 0.92vw, 14px) !important;
+}
+
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info small,
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info em,
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info span {
+  font-size: 9px !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] {
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-spacefield {
+  display: grid !important;
+  min-height: 0 !important;
+  padding-top: 320px !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-core {
+  top: 154px !important;
+  transform: translate(-50%, -50%) scale(var(--planet-core-scale, 0.86)) !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-ring-set {
+  inset: 0 0 auto !important;
+  height: 320px !important;
+  transform: none !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-ring-set span {
+  width: clamp(220px, var(--planet-ring-width, 58%), 92%) !important;
+  height: clamp(120px, var(--planet-ring-height, 38%), 270px) !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-node-layer {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)) !important;
+  gap: clamp(14px, 1.6vw, 22px) !important;
+  padding-top: 20px !important;
+  transform: none !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-node {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-height: 94px !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(226, 238, 255, 0.22) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(135deg, rgba(8, 12, 34, 0.68), rgba(72, 52, 93, 0.38)),
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--planet-glow) 16%, transparent), transparent 42%) !important;
+  box-shadow: 0 14px 30px rgba(4, 5, 18, 0.22) !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"] .planetary-node-info {
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info span,
+.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info em {
+  display: none !important;
+}
+
+.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info {
+  opacity: 1 !important;
+}
+
+body:has(.tags-page) .planetary-orbit-map.tag-nebula-world {
+  background:
+    radial-gradient(circle at 52% 52%, rgba(255, 235, 197, 0.2), transparent 19%),
+    radial-gradient(circle at 18% 22%, rgba(130, 229, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(14, 12, 38, 0.28), rgba(12, 10, 30, 0.78)),
+    url("/assets/space/carina-nebula-webb.png") center / cover no-repeat !important;
+}
+
+body:has(.tags-page) .planetary-orbit-map.tag-nebula-world:not(#xh-outer-frame-removal),
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.tags-page) .planetary-orbit-map.tag-nebula-world:not(#xh-outer-frame-removal) {
+  background:
+    radial-gradient(circle at 52% 52%, rgba(255, 235, 197, 0.2), transparent 19%),
+    radial-gradient(circle at 18% 22%, rgba(130, 229, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(14, 12, 38, 0.28), rgba(12, 10, 30, 0.78)),
+    url("/assets/space/carina-nebula-webb.png") center / cover no-repeat !important;
+  box-shadow: 0 34px 110px rgba(4, 6, 22, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+#xh-outer-frame-removal.planetary-orbit-map.tag-nebula-world,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.tags-page) #xh-outer-frame-removal.planetary-orbit-map.tag-nebula-world {
+  background:
+    radial-gradient(circle at 52% 52%, rgba(255, 235, 197, 0.2), transparent 19%),
+    radial-gradient(circle at 18% 22%, rgba(130, 229, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(14, 12, 38, 0.28), rgba(12, 10, 30, 0.78)),
+    url("/assets/space/carina-nebula-webb.png") center / cover no-repeat !important;
+  background-image:
+    radial-gradient(circle at 52% 52%, rgba(255, 235, 197, 0.2), transparent 19%),
+    radial-gradient(circle at 18% 22%, rgba(130, 229, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(14, 12, 38, 0.28), rgba(12, 10, 30, 0.78)),
+    url("/assets/space/carina-nebula-webb.png") !important;
+  background-position: center !important;
+  background-size: auto, auto, auto, cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.planetary-node[data-side="left"] {
+  grid-template-columns: minmax(150px, 216px) var(--planet-size) !important;
+}
+
+.planetary-node[data-side="right"] .planetary-node-info {
+  text-align: left !important;
+}
+
+.planetary-node[data-side="left"] .planetary-mini-planet {
+  grid-column: 2 !important;
+}
+
+.planetary-node[data-side="left"] .planetary-node-info {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  text-align: right !important;
+}
+
+.planetary-node[data-side="below"],
+.planetary-node[data-side="above"] {
+  grid-template-columns: minmax(148px, 206px) !important;
+  justify-items: center !important;
+}
+
+.planetary-node[data-side="below"] .planetary-node-info,
+.planetary-node[data-side="above"] .planetary-node-info {
+  text-align: center !important;
+}
+
+.planetary-node[data-side="below"] .planetary-mini-planet {
+  grid-row: 1 !important;
+}
+
+.planetary-node[data-side="below"] .planetary-node-info {
+  grid-row: 2 !important;
+}
+
+.planetary-node[data-side="above"] .planetary-node-info {
+  grid-row: 1 !important;
+}
+
+.planetary-node[data-side="above"] .planetary-mini-planet {
+  grid-row: 2 !important;
+}
+
+@keyframes planetaryNodeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -42%) scale(0.8) rotate(calc(var(--planet-angle) * 0.018));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(calc(var(--planet-angle) * 0.018));
+  }
+}
+
+@keyframes planetaryCoreSurfaceSpin {
+  0% {
+    background-position: 0% 50%, 50% 50%, 44% 50%;
+    transform: rotate(-4deg) scale(1.04);
+  }
+  100% {
+    background-position: 110% 50%, 50% 50%, 58% 50%;
+    transform: rotate(-4deg) scale(1.04);
+  }
+}
+
+@keyframes planetaryCoreGleam {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: translateX(-2%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(3%) scale(1.04);
+  }
+}
+
+@keyframes planetaryMiniSurfaceSpin {
+  0% {
+    background-position: 0% 48%, 0% 50%, 65% 30%;
+    transform: rotate(0deg) scale(1.02);
+  }
+  100% {
+    background-position: 180% 48%, 130% 50%, 34% 30%;
+    transform: rotate(360deg) scale(1.02);
+  }
+}
+
+@keyframes planetaryMiniTerrainDrift {
+  0% {
+    transform: translateX(-3%) rotate(-2deg);
+  }
+  50% {
+    transform: translateX(4%) rotate(2deg);
+  }
+  100% {
+    transform: translateX(-3%) rotate(-2deg);
+  }
+}
+
+@keyframes planetaryMiniCloudDrift {
+  from {
+    background-position: 0% 50%, 50% 50%;
+  }
+  to {
+    background-position: 170% 50%, 50% 50%;
+  }
+}
+
+@keyframes planetaryMiniRingSpin {
+  from {
+    transform: rotate(var(--planet-ring-tilt, -10deg));
+  }
+  to {
+    transform: rotate(calc(var(--planet-ring-tilt, -10deg) + 360deg));
+  }
+}
+
+@keyframes planetaryRingTurn {
+  0%,
+  100% {
+    background-position: 0% 50%, 50% 50%;
+    filter: drop-shadow(0 0 5px rgba(153, 205, 255, 0.16));
+  }
+
+  50% {
+    background-position: 100% 50%, 50% 50%;
+    filter: drop-shadow(0 0 13px rgba(239, 247, 255, 0.30));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planetary-orbit-map .planetary-ring-set span,
+  .planetary-core-texture,
+  .planetary-core-texture::before,
+  .planetary-mini-planet::before,
+  .planetary-mini-clouds,
+  .planetary-mini-terrain,
+  .planetary-mini-planet i {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .planetary-orbit-map.tag-nebula-world,
+  .moments-board .planetary-orbit-map.moment-constellation {
+    min-height: 0 !important;
+    padding: 16px !important;
+    border-radius: 28px !important;
+  }
+
+  .planetary-modebar {
+    align-items: stretch !important;
+    border-radius: 22px !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .planetary-modebar > span {
+    padding: 2px 8px 0 !important;
+  }
+
+  .planetary-modebar div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .planetary-modebar button {
+    width: 100% !important;
+  }
+
+  .planetary-spacefield {
+    display: grid !important;
+    min-height: 0 !important;
+    padding-top: 236px !important;
+  }
+
+  .planetary-orbit-map .planetary-core {
+    left: 50% !important;
+    top: 118px !important;
+    width: 148px !important;
+    height: 148px !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .planetary-orbit-map .planetary-ring-set {
+    inset: 0 0 auto !important;
+    height: 236px !important;
+    transform: none !important;
+  }
+
+  .planetary-orbit-map .planetary-ring-set span {
+    width: clamp(170px, var(--planet-ring-width, 72%), 88%) !important;
+    height: clamp(88px, var(--planet-ring-height, 42%), 210px) !important;
+  }
+
+  .planetary-orbit-map .planetary-node-layer {
+    position: relative !important;
+    display: grid !important;
+    gap: 12px !important;
+    padding-top: 12px !important;
+    transform: none !important;
+  }
+
+  .planetary-node {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: 76px !important;
+    padding: 10px 12px !important;
+    border: 1px solid rgba(226, 238, 255, 0.22) !important;
+    border-radius: 20px !important;
+    background: linear-gradient(135deg, rgba(8, 12, 34, 0.6), rgba(72, 52, 93, 0.34)) !important;
+    box-shadow: 0 14px 30px rgba(4, 5, 18, 0.22) !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .planetary-node:is(:hover, :focus-visible, [data-active="true"]) {
+    border-color: color-mix(in srgb, var(--planet-glow) 62%, rgba(255, 255, 255, 0.28)) !important;
+    background:
+      linear-gradient(135deg, rgba(12, 17, 42, 0.78), rgba(83, 62, 108, 0.48)),
+      radial-gradient(circle at 0 0, color-mix(in srgb, var(--planet-glow) 24%, transparent), transparent 42%) !important;
+    box-shadow: 0 18px 38px rgba(4, 5, 18, 0.28), 0 0 24px color-mix(in srgb, var(--planet-glow) 24%, transparent) !important;
+  }
+
+  .planetary-mini-planet {
+    --planet-size: 52px;
+  }
+
+  .planetary-node-info {
+    width: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info span,
+  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info em {
+    display: none !important;
+  }
+
+  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info {
+    opacity: 1 !important;
+  }
+
+  body:has(:is(.tags-page, .moments-page)) .xh-floating-player,
+  body:has(:is(.tags-page, .moments-page)) .xh-pixel-kurisu-pet {
+    display: none !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.tags-page, .moments-page)) .xh-floating-player,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.tags-page, .moments-page)) .xh-pixel-kurisu-pet {
+    display: none !important;
+  }
 }

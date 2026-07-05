@@ -29,8 +29,11 @@ describe('subpage experience surfaces', () => {
       projectShowcase,
       chatterMasonry,
       tagSurfaces,
+      momentsBoard,
+      planetaryOrbitMap,
       aboutRoom,
-      photoWallClient
+      photoWallClient,
+      spaceAttribution
     ] = await Promise.all([
       readFile('components/ChannelWorlds.tsx', 'utf8'),
       readFile('components/ArchiveSwitchboard.tsx', 'utf8'),
@@ -38,8 +41,11 @@ describe('subpage experience surfaces', () => {
       readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
       readFile('components/channels/ChatterMasonry.tsx', 'utf8'),
       readFile('components/channels/TagSurfaces.tsx', 'utf8'),
+      readFile('components/MomentsBoard.tsx', 'utf8'),
+      readFile('components/channels/PlanetaryOrbitMap.tsx', 'utf8'),
       readFile('components/channels/AboutRoom.tsx', 'utf8'),
-      readFile('components/PhotoWallClient.tsx', 'utf8')
+      readFile('components/PhotoWallClient.tsx', 'utf8'),
+      readFile('public/assets/space/ATTRIBUTION.md', 'utf8')
     ]);
 
     assert.match(channelHeader, /channel-hero/);
@@ -78,10 +84,53 @@ describe('subpage experience surfaces', () => {
     assert.match(chatterMasonry, /chatter-masonry/);
     assert.match(chatterMasonry, /chatter-cover/);
     assert.match(chatterMasonry, /xh-reference-surface/);
-    assert.match(tagSurfaces, /--tag-tilt/);
-    assert.match(tagSurfaces, /--tag-inverse/);
-    assert.match(tagSurfaces, /tag-nebula-core/);
-    assert.match(tagSurfaces, /tag-constellation-grid/);
+    assert.match(tagSurfaces, /PlanetaryOrbitMap/);
+    assert.match(tagSurfaces, /PlanetaryOrbitItem/);
+    assert.match(tagSurfaces, /标签行星图/);
+    assert.match(tagSurfaces, /const ORBIT_MODE_LIMIT = 8/);
+    assert.match(momentsBoard, /PlanetaryOrbitMap/);
+    assert.match(momentsBoard, /orbitItems/);
+    assert.doesNotMatch(momentsBoard, /filteredNotes\.slice\(0, 12\)/);
+    assert.match(planetaryOrbitMap, /'use client'/);
+    assert.match(planetaryOrbitMap, /planetary-modebar/);
+    assert.match(planetaryOrbitMap, /极简模式/);
+    assert.match(planetaryOrbitMap, /详细模式/);
+    assert.match(planetaryOrbitMap, /planetary-mini-planet/);
+    assert.match(planetaryOrbitMap, /planetary-node-info/);
+    assert.match(planetaryOrbitMap, /getCameraProfile/);
+    assert.match(planetaryOrbitMap, /getOrbitProfiles/);
+    assert.match(planetaryOrbitMap, /PLANETARY_ATLAS_THRESHOLD/);
+    assert.match(planetaryOrbitMap, /while \(start < total\)/);
+    assert.match(planetaryOrbitMap, /orbitCapacities/);
+    assert.match(planetaryOrbitMap, /orbitProfiles\.map/);
+    assert.match(planetaryOrbitMap, /planetSprites/);
+    assert.match(planetaryOrbitMap, /corePlanetSprites/);
+    assert.match(planetaryOrbitMap, /kenney-planets\/planet00\.png/);
+    assert.match(planetaryOrbitMap, /kenney-planets\/planet09\.png/);
+    assert.match(planetaryOrbitMap, /--planet-sprite/);
+    assert.match(planetaryOrbitMap, /--planet-core-sprite/);
+    assert.match(planetaryOrbitMap, /activeId/);
+    assert.match(planetaryOrbitMap, /data-active/);
+    assert.match(planetaryOrbitMap, /data-layout=\{layoutMode\}/);
+    assert.match(planetaryOrbitMap, /data-ring-count=\{orbitProfiles\.length\}/);
+    assert.match(planetaryOrbitMap, /data-zoom/);
+    assert.match(planetaryOrbitMap, /--planet-camera-scale/);
+    assert.match(planetaryOrbitMap, /--planet-core-scale/);
+    assert.match(planetaryOrbitMap, /--planet-map-height/);
+    assert.match(planetaryOrbitMap, /--planet-ring-width/);
+    assert.match(planetaryOrbitMap, /--planet-ring-height/);
+    assert.match(planetaryOrbitMap, /--planet-cloud/);
+    assert.match(planetaryOrbitMap, /--planet-land/);
+    assert.match(planetaryOrbitMap, /--planet-ring-tilt/);
+    assert.match(planetaryOrbitMap, /--planet-spin/);
+    assert.match(planetaryOrbitMap, /planetary-mini-atmosphere/);
+    assert.match(planetaryOrbitMap, /planetary-mini-terrain/);
+    assert.match(planetaryOrbitMap, /planetary-mini-clouds/);
+    assert.match(planetaryOrbitMap, /planetary-mini-shine/);
+    assert.match(planetaryOrbitMap, /\{item\.detail\}/);
+    assert.doesNotMatch(planetaryOrbitMap, /getPreviewText/);
+    assert.match(spaceAttribution, /Kenney Planets/);
+    assert.match(spaceAttribution, /Creative Commons CC0/);
     assert.match(tagSurfaces, /TagReadingDock/);
     assert.match(aboutRoom, /about-room-toolbar/);
     assert.match(aboutRoom, /about-room-activity/);
@@ -185,6 +234,45 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.moments-starchart/);
     assert.match(css, /\.moment-constellation/);
     assert.match(css, /\.moment-star/);
+    assert.match(css, /\.planetary-orbit-map/);
+    assert.match(css, /\.planetary-orbit-map::before[\s\S]*border: 0 !important/);
+    assert.match(css, /\.planetary-orbit-map::after[\s\S]*border: 0 !important/);
+    assert.doesNotMatch(css, /\.planetary-orbit-map::after[\s\S]*radial-gradient\(circle at 50% 50%/);
+    assert.match(css, /\.planetary-modebar/);
+    assert.match(css, /\.planetary-mini-planet/);
+    assert.match(css, /--planet-camera-scale/);
+    assert.match(css, /--planet-core-scale/);
+    assert.match(css, /--planet-map-height/);
+    assert.match(css, /--planet-sprite/);
+    assert.match(css, /var\(--planet-sprite\)/);
+    assert.match(css, /--planet-core-sprite/);
+    assert.match(css, /var\(--planet-core-sprite\)/);
+    assert.match(css, /--planet-ring-width/);
+    assert.match(css, /--planet-ring-height/);
+    assert.match(css, /\.planetary-orbit-map \.planetary-ring-set span[\s\S]*opacity: 0 !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\]/);
+    assert.match(css, /grid-template-columns: repeat\(auto-fit, minmax\(min\(230px, 100%\), 1fr\)\) !important/);
+    assert.doesNotMatch(css, /--planet-ring-step/);
+    assert.match(css, /\.planetary-core-texture::before/);
+    assert.match(css, /\.planetary-core-texture::after/);
+    assert.match(css, /\.planetary-orbit-map \.planetary-core[\s\S]*z-index: 12 !important/);
+    assert.match(css, /\.planetary-orbit-map \.planetary-node-layer[\s\S]*z-index: 18 !important/);
+    assert.match(css, /\.planetary-node\[data-active="true"\]/);
+    assert.match(css, /planetaryCoreSurfaceSpin/);
+    assert.match(css, /planetaryMiniSurfaceSpin/);
+    assert.match(css, /planetaryMiniTerrainDrift/);
+    assert.match(css, /planetaryMiniCloudDrift/);
+    assert.match(css, /planetaryMiniRingSpin/);
+    assert.match(css, /planetaryRingTurn/);
+    assert.match(css, /\.planetary-mini-atmosphere/);
+    assert.match(css, /\.planetary-mini-terrain/);
+    assert.match(css, /\.planetary-mini-clouds/);
+    assert.match(css, /\.planetary-mini-shine/);
+    assert.match(css, /prefers-reduced-motion: reduce/);
+    assert.match(css, /\.planetary-node-info span[\s\S]*display: block !important/);
+    assert.doesNotMatch(css, /\.planetary-node-info span\s*\{[\s\S]*-webkit-line-clamp: 2/);
+    assert.match(css, /carina-nebula-webb\.png/);
+    assert.doesNotMatch(css, /jupiter-texture-nasa\.jpg/);
     assert.match(css, /\.moments-stream/);
     assert.match(css, /\.archive-world/);
     assert.match(css, /\.project-world/);
@@ -257,8 +345,8 @@ describe('subpage experience surfaces', () => {
     assert.match(momentsBoard, /moments-mood-filter/);
     assert.match(momentsBoard, /moments-sort-toggle/);
     assert.match(momentsBoard, /moment-constellation/);
-    assert.match(momentsBoard, /moment-star/);
-    assert.match(momentsBoard, /--moment-inverse/);
+    assert.match(momentsBoard, /PlanetaryOrbitMap/);
+    assert.match(momentsBoard, /orbitItems/);
     assert.match(momentsBoard, /moment-image-grid/);
     assert.match(momentsBoard, /MomentComments/);
     assert.match(momentsBoard, /moments-stream/);
