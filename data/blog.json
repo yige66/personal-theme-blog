@@ -7,9 +7,9 @@
     "role": "Java / Spring Boot / Next.js",
     "motto": "先做能跑通的东西，再慢慢修细节。",
     "bio": "在 Java/Spring Boot 后端、Next.js 个人站和 AI 小应用之间做练习。这里记录公开项目、踩坑和一点日常。",
-    "status": "最近在整理 sky-take-out、Isekai-LifeSim 和这个博客，不公开私人联系方式。",
+    "status": "最近在整理 sky-take-out、Isekai-LifeSim 和这个博客，QQ 邮箱可联系。",
     "location": "不公开",
-    "email": "不公开",
+    "email": "1772365571@qq.com",
     "github": "https://github.com/yige66",
     "projectOrder": [
       "https://github.com/yige66/sky-take-out.git",
@@ -386,7 +386,7 @@
         "panelTwoTitle": "研究与创作方向",
         "panelTwoDescription": "最近在补后端接口、内容后台、友链维护和 AI 小应用。",
         "panelThreeTitle": "联系信息",
-        "panelThreeDescription": "联系方式不直接公开，优先通过 GitHub 或评论区沟通。"
+        "panelThreeDescription": ""
       }
     },
     "columns": [
@@ -1089,7 +1089,7 @@
     {
       "id": "note-blog-privacy",
       "title": "关于页先做减法",
-      "content": "没有证据的经历不写，联系方式不直接公开；公开页面只保留 GitHub 能证明的项目线索。",
+      "content": "没有证据的经历不写，公开页面只保留 GitHub 能证明的项目线索。QQ 邮箱可以用于联系。",
       "date": "2026-07-03",
       "mood": "Profile",
       "tags": [
@@ -1184,7 +1184,7 @@
       "slug": "personal-site-honesty",
       "title": "关于页先少写一点",
       "summary": "没有公开证据的经历不放，页面反而更轻。",
-      "content": "个人站很容易把自己写得很厉害。现在这版先保留公开仓库能证明的内容。\n\n邮箱和具体位置不公开，联系走 GitHub 或评论区。",
+      "content": "个人站很容易把自己写得很厉害。现在这版先保留公开仓库能证明的内容。\n\nQQ 邮箱可联系，具体位置不公开。",
       "date": "2026-07-01",
       "tags": [
         "关于我",

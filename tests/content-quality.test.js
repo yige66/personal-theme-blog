@@ -25,8 +25,9 @@ describe('published content quality', () => {
     const raw = await readFile('data/blog.json', 'utf8');
 
     assert.doesNotMatch(raw, /XHBlogs Reference|InternalBeyond Reference|目标站|参考站|复刻|项目截图位|占位|后续项目上线后/);
-    assert.doesNotMatch(raw, /1772365571@qq\.com|Changsha, China/);
-    assert.doesNotMatch(data.site.email, /@/);
+    assert.doesNotMatch(raw, /Changsha, China/);
+    assert.equal(data.site.email, '1772365571@qq.com');
+    assert.doesNotMatch(raw, /联系方式不直接公开，优先通过 GitHub 或评论区沟通/);
     assert.match(data.site.bio, /Spring Boot|Next\.js|TypeScript|Java/);
     assert.match(raw, /sky-take-out|anti-fraud|Isekai-LifeSim|personal-theme-blog/);
   });

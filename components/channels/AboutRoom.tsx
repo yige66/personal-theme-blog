@@ -135,17 +135,21 @@ export function AboutRoom({ activeTab, activities, page, site, stats }: AboutRoo
               </ul>
             ) : null}
 
-            <p className="about-room-welcome">{formatPageText(page.panelThreeDescription, pageVariables)}</p>
+            {page.panelThreeDescription ? (
+              <p className="about-room-welcome">{formatPageText(page.panelThreeDescription, pageVariables)}</p>
+            ) : null}
           </article>
 
           <aside className="about-contact-card" aria-label="联系信息">
             <p className="about-section-label">{page.panelThreeTitle}</p>
-            <h2>{page.panelThreeDescription}</h2>
+            {page.panelThreeDescription ? <h2>{page.panelThreeDescription}</h2> : null}
             <dl>
-              <div>
-                <dt>位置</dt>
-                <dd>{site.location}</dd>
-              </div>
+              {site.location && site.location !== '不公开' ? (
+                <div>
+                  <dt>位置</dt>
+                  <dd>{site.location}</dd>
+                </div>
+              ) : null}
               <div>
                 <dt>邮箱</dt>
                 <dd>{publicEmail ? <a href={`mailto:${publicEmail}`}>{publicEmail}</a> : '通过 GitHub 或评论区联系'}</dd>
