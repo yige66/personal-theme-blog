@@ -6,6 +6,7 @@ import { useMusic } from './MusicProvider';
 
 export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
   const {
+    currentLyric,
     currentTime,
     currentTrack,
     duration,
@@ -20,7 +21,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
   const hasTracks = playlist.length > 0;
   const title = currentTrack?.title || '歌单待补全';
   const artist = currentTrack?.artist || 'Local Playlist';
-  const note = currentTrack?.note || '和音乐电台同步，写作、阅读和编码时都能接着听。';
+  const lyricSubtitle = currentLyric || currentTrack?.note || '等待歌词';
   const cover = currentTrack?.cover || fallbackImage;
 
   return (
@@ -40,7 +41,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
         <h2>{title}</h2>
         <p>{artist}</p>
       </div>
-      <p className="xh-cloud-note">{note}</p>
+      <p className="xh-cloud-note xh-cloud-lyric-subtitle" data-lyric-subtitle="true">{lyricSubtitle}</p>
       <div className="xh-player-progress" aria-label={`播放进度 ${formatTime(currentTime)} / ${formatTime(duration)}`}>
         <span>{formatTime(currentTime)}</span>
         <i aria-hidden="true"><b style={{ width: `${Math.max(2, progress)}%` }} /></i>

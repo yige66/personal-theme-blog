@@ -50,7 +50,9 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(homeWorld, /SpaceDock/);
     assert.match(homeWorld, /CloudPlayerCard/);
     assert.match(homeWorld, /LyricStrip/);
-    assert.match(homeWorld, /<Link href="\/about"><span>关于我<\/span><\/Link>/);
+    assert.match(homeWorld, /getPageContent\(data\.site, 'home'\)/);
+    assert.match(homeWorld, /getPageActions\(homePage\)/);
+    assert.match(homeWorld, /getPageStatLabel\(homePage/);
     assert.match(homeWorld, /SiteDashboard/);
     assert.match(homeWorld, /LatestPostCarousel/);
     assert.match(homeWorld, /ThemeSceneCard/);
@@ -200,6 +202,112 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /@keyframes xh-dashboard-colon-pulse/);
     assert.match(brandAfterRule, /content: attr\(data-brand-suffix\)/);
     assert.doesNotMatch(brandAfterRule, /宝藏之地/);
+  });
+
+  it('loads project cards from GitHub and opens repository pages from project cards', async () => {
+    const [projectsPage, showcase, githubProjects, portalIndex, blog, homeCss, iconAttribution] = await Promise.all([
+      readFile('app/projects/page.tsx', 'utf8'),
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
+      readFile('lib/github-projects.ts', 'utf8'),
+      readFile('lib/portal-index.ts', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8'),
+      readFile('public/assets/project-icons/ATTRIBUTION.md', 'utf8')
+    ]);
+
+    assert.match(projectsPage, /getGithubProjects/);
+    assert.match(projectsPage, /githubProjects\.projects/);
+    assert.match(projectsPage, /source=\{githubProjects\}/);
+    assert.match(githubProjects, /api\.github\.com\/users\/\$\{username\}\/repos/);
+    assert.match(githubProjects, /GITHUB_PROJECTS_OWNER/);
+    assert.match(githubProjects, /GITHUB_PROJECTS_TOKEN/);
+    assert.match(githubProjects, /GITHUB_PROJECTS_CACHE_TAG/);
+    assert.match(githubProjects, /githubProjectOwnerCacheTag/);
+    assert.match(githubProjects, /tags: \[GITHUB_PROJECTS_CACHE_TAG, githubProjectOwnerCacheTag\(username\)\]/);
+    assert.match(githubProjects, /Pick<BlogSite, 'github' \| 'projectOrder'>/);
+    assert.match(githubProjects, /applyProjectOrder/);
+    assert.match(githubProjects, /normalizeProjectReference/);
+    assert.match(githubProjects, /html_url/);
+    assert.match(githubProjects, /url: repoUrl/);
+    assert.match(githubProjects, /repo: repoUrl/);
+    assert.match(githubProjects, /title: name/);
+    assert.doesNotMatch(githubProjects, /title: fallback\?\.title \|\| name/);
+    assert.match(githubProjects, /startedAt: updatedAt \|\| createdAt/);
+    assert.match(githubProjects, /source: 'fallback'/);
+    assert.match(showcase, /project\.repo \|\| project\.url \|\| '#'/);
+    assert.match(showcase, /className="project-matrix-card"/);
+    assert.match(showcase, /function GitHubGlyph/);
+    assert.match(showcase, /getProjectVisualIcon/);
+    assert.match(showcase, /pickProjectIcon/);
+    assert.match(showcase, /createProjectVisualMap/);
+    assert.match(showcase, /previousIcon/);
+    assert.match(showcase, /usage\.set/);
+    assert.match(showcase, /ProjectAnimeIcon/);
+    assert.match(showcase, /projectVisualIcons/);
+    assert.match(showcase, /const projectVisualIcons: ProjectVisualIcon\[\] = \['sabres', 'lantern', 'flower', 'moon', 'compass'\]/);
+    assert.match(showcase, /project-wax-seal/);
+    assert.match(showcase, /project-wax-seal-frame/);
+    assert.match(showcase, /project-rpg-glyph/);
+    assert.match(showcase, /project-wax-seal-sabres/);
+    assert.match(showcase, /project-wax-seal-moon/);
+    assert.match(showcase, /project-wax-seal-lantern/);
+    assert.match(showcase, /project-wax-seal-flower/);
+    assert.match(showcase, /project-wax-seal-compass/);
+    assert.doesNotMatch(showcase, /sabresAlt/);
+    assert.doesNotMatch(showcase, /project-wax-seal-sabres-alt/);
+    assert.doesNotMatch(showcase, /project-wax-seal-star/);
+    assert.doesNotMatch(showcase, /project-wax-seal-flower-star/);
+    assert.doesNotMatch(showcase, /project-wax-seal-sparkles/);
+    assert.doesNotMatch(showcase, /project-wax-seal-shield/);
+    assert.doesNotMatch(showcase, /project-wax-seal-ice/);
+    assert.doesNotMatch(showcase, /project-wax-seal-crystal/);
+    assert.doesNotMatch(showcase, /project-rpg-icon/);
+    assert.doesNotMatch(showcase, /ProjectCrestGlyph/);
+    assert.doesNotMatch(showcase, /project-wax-emblem/);
+    assert.doesNotMatch(showcase, /anime-badge-frame/);
+    assert.doesNotMatch(showcase, /snow-badge-field/);
+    assert.doesNotMatch(showcase, /sakura-badge-field/);
+    assert.doesNotMatch(showcase, /project-source-note/);
+    assert.doesNotMatch(showcase, /<p className="eyebrow">\{page\.eyebrow\}<\/p>/);
+    assert.match(showcase, /打开 GitHub/);
+    assert.doesNotMatch(showcase, /<article className="project-matrix-card"/);
+    assert.match(portalIndex, /href: project\.repo \|\| project\.url \|\| '\/projects'/);
+    assert.match(blog, /projectOrder: string\[\]/);
+    assert.match(blog, /projectOrder: normalizeProjectOrder\(siteInput\.projectOrder\)/);
+    assert.match(blog, /填写 GitHub 地址并保持仓库公开/);
+    assert.doesNotMatch(homeCss, /\.project-source-note/);
+    assert.match(homeCss, /\.project-anime-icon/);
+    assert.match(homeCss, /\.project-wax-seal/);
+    assert.match(homeCss, /\.project-wax-seal-frame/);
+    assert.match(homeCss, /\.project-wax-seal-frame::before/);
+    assert.match(homeCss, /repeating-conic-gradient/);
+    assert.match(homeCss, /\.project-rpg-glyph/);
+    assert.match(homeCss, /project-icons\/plain-circle\.svg/);
+    assert.match(homeCss, /project-icons\/crossed-sabres\.svg/);
+    assert.match(homeCss, /project-icons\/lantern\.svg/);
+    assert.match(homeCss, /project-icons\/flower-emblem\.svg/);
+    assert.match(homeCss, /project-icons\/moon-orbit\.svg/);
+    assert.match(homeCss, /project-icons\/compass\.svg/);
+    assert.doesNotMatch(homeCss, /\.project-wax-seal-sabres-alt/);
+    assert.match(iconAttribution, /plain-circle\.svg/);
+    assert.match(iconAttribution, /crossed-sabres\.svg/);
+    assert.match(iconAttribution, /Creative Commons Attribution 3\.0/);
+    assert.doesNotMatch(homeCss, /\.project-rpg-icon/);
+    assert.doesNotMatch(homeCss, /\.project-wax-emblem/);
+    assert.doesNotMatch(homeCss, /project-icons\/checked-shield\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/ice-spell\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/crystal-growth\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/flower-star\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/round-star\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/sparkles\.svg/);
+    assert.doesNotMatch(homeCss, /project-icons\/katana\.svg/);
+    assert.match(homeCss, /font-size: clamp\(12px, 0\.78vw, 14px\)/);
+    assert.match(homeCss, /width: min\(1280px, 100%\)/);
+    assert.match(homeCss, /width: min\(1608px, calc\(100% - 48px\)\)/);
+    assert.match(homeCss, /width: min\(1508px, 100%\)/);
+    assert.match(homeCss, /\.project-matrix-card::before/);
+    assert.match(homeCss, /\.project-repo-link svg/);
+    assert.match(homeCss, /\.project-matrix-actions span/);
   });
 
   it('implements a full source-level game start shell for the splash layer', async () => {

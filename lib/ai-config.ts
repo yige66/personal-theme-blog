@@ -36,26 +36,25 @@ type SaveAiConfigInput = {
 };
 
 const AI_CONFIG_FILE = path.join(process.cwd(), 'data', 'ai-config.json');
-const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
+const DEFAULT_DEEPSEEK_MODEL = 'deepseek-v4-flash';
 
 export const AI_MODEL_OPTIONS: AiModelOption[] = [
-  { label: 'GPT-4.1 mini（轻量推荐）', value: 'gpt-4.1-mini' },
-  { label: 'GPT-4.1（更强理解）', value: 'gpt-4.1' },
-  { label: 'GPT-4o mini（低成本）', value: 'gpt-4o-mini' },
-  { label: 'GPT-4o（多模态通用）', value: 'gpt-4o' }
+  { label: 'DeepSeek V4 Flash（轻量推荐）', value: 'deepseek-v4-flash' },
+  { label: 'DeepSeek V4 Pro（更强理解）', value: 'deepseek-v4-pro' }
 ];
 
 export async function getResolvedAiConfig(): Promise<ResolvedAiConfig> {
   const stored = await readStoredAiConfig();
-  const storedApiKey = normalizeApiKey(stored.apiKey);
-  const envApiKey = normalizeApiKey(process.env.OPENAI_API_KEY);
+  const storedConfigLooksLegacy = looksLikeLegacyStoredConfig(stored);
+  const storedApiKey = storedConfigLooksLegacy ? '' : normalizeApiKey(stored.apiKey);
+  const envApiKey = normalizeApiKey(process.env.DEEPSEEK_API_KEY);
   const storedModel = normalizeModel(stored.model);
-  const envModel = normalizeModel(process.env.OPENAI_PET_MODEL || process.env.OPENAI_SHEEP_MODEL || process.env.OPENAI_MODEL);
+  const envModel = normalizeModel(process.env.DEEPSEEK_PET_MODEL || process.env.DEEPSEEK_MODEL);
 
   return {
     apiKey: storedApiKey || envApiKey,
     apiKeySource: storedApiKey ? 'backend' : envApiKey ? 'env' : 'none',
-    model: storedModel || envModel || DEFAULT_OPENAI_MODEL
+    model: storedModel || envModel || DEFAULT_DEEPSEEK_MODEL
   };
 }
 
@@ -74,10 +73,11 @@ export async function getAiAdminConfigView(): Promise<AiAdminConfigView> {
 
 export async function saveAiConfig(input: SaveAiConfigInput): Promise<AiAdminConfigView> {
   const current = await readStoredAiConfig();
-  const model = normalizeModel(input.model) || normalizeModel(current.model) || DEFAULT_OPENAI_MODEL;
+  const model = normalizeModel(input.model) || normalizeModel(current.model) || DEFAULT_DEEPSEEK_MODEL;
+  const currentApiKey = looksLikeLegacyStoredConfig(current) ? '' : normalizeApiKey(current.apiKey);
   const nextApiKey = input.clearApiKey
     ? ''
-    : normalizeApiKey(input.apiKey) || normalizeApiKey(current.apiKey);
+    : normalizeApiKey(input.apiKey) || currentApiKey;
   const nextConfig: StoredAiConfig = {
     model,
     updatedAt: new Date().toISOString()
@@ -157,13 +157,17 @@ function normalizeApiKey(value: unknown): string {
   return trimmed;
 }
 
+function looksLikeLegacyStoredConfig(config: StoredAiConfig): boolean {
+  return Boolean(config.apiKey && config.model && !normalizeModel(config.model));
+}
+
 function normalizeModel(value: unknown): string {
   if (typeof value !== 'string') {
     return '';
   }
 
   const trimmed = value.trim();
-  if (!trimmed || trimmed.length > 100 || !/^[A-Za-z0-9._:-]+$/.test(trimmed)) {
+  if (!trimmed || trimmed.length > 100 || !/^deepseek-[A-Za-z0-9._:-]+$/.test(trimmed)) {
     return '';
   }
 

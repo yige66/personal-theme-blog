@@ -2,7 +2,7 @@ import { ChannelHeader } from '@/components/ChannelHeader';
 import { MomentsBoard } from '@/components/MomentsBoard';
 import { EmptyState } from '@/components/SectionBlocks';
 import { SiteNav } from '@/components/SiteNav';
-import { getBlogData } from '@/lib/blog';
+import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
 
 export const metadata = staticPageMetadata.moments;
@@ -11,30 +11,33 @@ export default async function MomentsPage() {
   const data = await getBlogData();
   const notes = [...data.notes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const tags = [...new Set(notes.flatMap((note) => note.tags ?? []))];
+  const page = getPageContent(data.site, 'moments');
 
   return (
     <main className="subpage moments-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
-        eyebrow="Moments"
-        title="生活动态"
-        description="在代码之外捕捉瞬间的温度，用星图串起轻量的日常记录。"
+        eyebrow={page.eyebrow}
+        title={page.title}
+        description={formatPageText(page.description, { noteCount: notes.length, tagCount: tags.length, streak: data.site.streak })}
         stats={[
-          { label: '动态', value: notes.length },
-          { label: '主题', value: tags.length || '-' },
-          { label: '节奏', value: data.site.streak || 0 }
+          { label: getPageStatLabel(page, 0, '动态'), value: notes.length },
+          { label: getPageStatLabel(page, 1, '主题'), value: tags.length || '-' },
+          { label: getPageStatLabel(page, 2, '节奏'), value: data.site.streak || 0 }
         ]}
-        actions={[
-          { href: '/archive', label: '阅读文章' },
-          { href: '/console', label: '管理动态' }
-        ]}
-        signal="daily notes / mood filters / constellation stream"
+        actions={getPageActions(page)}
+        signal={page.signal}
       />
       {notes.length ? (
-        <MomentsBoard comments={data.site.comments} notes={notes} />
+        <MomentsBoard
+          authorName={data.site.owner || data.site.title}
+          avatar={data.site.avatar}
+          comments={data.site.comments}
+          notes={notes}
+        />
       ) : (
         <section className="main-shell moment-waterfall">
-          <EmptyState title="暂无动态" description="在数据源维护动态后，这里会形成轻量时间线。" />
+          <EmptyState title={page.emptyTitle} description={page.emptyDescription} />
         </section>
       )}
     </main>

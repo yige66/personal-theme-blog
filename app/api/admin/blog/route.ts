@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { isAdminAuthorized } from '@/lib/admin-auth';
+import { buildAdminManagementOverview } from '@/lib/admin-management';
 import { getBlogData, getBlogStats } from '@/lib/blog';
 import { saveBlogData, validateBlogDataDraft } from '@/lib/blog-admin';
 
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
   }
 
   const [data, stats] = await Promise.all([getBlogData(), getBlogStats()]);
-  return NextResponse.json({ data, stats });
+  return NextResponse.json({ data, stats, management: buildAdminManagementOverview(data, stats) });
 }
 
 export async function POST(request: Request) {
@@ -35,9 +36,12 @@ export async function POST(request: Request) {
     }
 
     const result = await saveBlogData(validation.data);
+    const stats = await getBlogStats();
     revalidatePath('/', 'layout');
     return NextResponse.json({
       data: validation.data,
+      stats,
+      management: buildAdminManagementOverview(validation.data, stats),
       backupPath: result.backupPath,
       bytes: result.bytes,
       savedAt: new Date().toISOString()

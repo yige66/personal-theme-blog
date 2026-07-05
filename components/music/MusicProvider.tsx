@@ -8,7 +8,7 @@ type LyricLine = {
   text: string;
 };
 
-type PlayMode = 'list' | 'loop' | 'shuffle';
+type PlayMode = 'list' | 'repeat-one' | 'shuffle';
 
 type MusicContextValue = {
   playlist: MusicTrack[];
@@ -21,6 +21,7 @@ type MusicContextValue = {
   currentTime: number;
   duration: number;
   currentLyric: string;
+  isLyricPrelude: boolean;
   lyricLines: LyricLine[];
   playMode: PlayMode;
   volume: number;
@@ -31,6 +32,7 @@ type MusicContextValue = {
   nextTrack: () => void;
   previousTrack: () => void;
   reloadCloudMusic: () => void;
+  addLocalAudioFiles: (files: FileList | File[]) => void;
   seekToProgress: (progress: number) => void;
   setVolume: (value: number) => void;
   toggleMute: () => void;
@@ -38,17 +40,33 @@ type MusicContextValue = {
 
 type StoredMusicState = {
   currentIndex?: number;
-  playMode?: PlayMode;
+  playMode?: PlayMode | 'loop' | 'repeat-all';
   volume?: number;
   isMuted?: boolean;
+};
+
+type LocalFileTrack = MusicTrack & {
+  objectUrl: string;
 };
 
 const MusicContext = createContext<MusicContextValue | null>(null);
 const STORAGE_KEY = 'personal-theme-blog:music-state';
 const CLOUD_CACHE_KEY = 'personal-theme-blog:cloud-music';
+const LOCAL_FILE_LIMIT = 20;
+const AUDIO_FILE_NAME_PATTERN = /\.(?:aac|flac|m4a|mp3|oga|ogg|opus|wav|webm)$/i;
+const PLAY_MODE_SEQUENCE = ['list', 'repeat-one', 'shuffle'] satisfies PlayMode[];
+
+function normalizePlayMode(mode: unknown): PlayMode | null {
+  if (mode === 'loop' || mode === 'repeat-all') {
+    return 'shuffle';
+  }
+
+  return PLAY_MODE_SEQUENCE.includes(mode as PlayMode) ? mode as PlayMode : null;
+}
 
 export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { children: ReactNode; tracks: MusicTrack[]; cloudMusicIds?: string[] }) {
   const [remoteTracks, setRemoteTracks] = useState<MusicTrack[]>([]);
+  const [localFileTracks, setLocalFileTracks] = useState<LocalFileTrack[]>([]);
   const [syncNonce, setSyncNonce] = useState(0);
   const [isLoading, setIsLoading] = useState(cloudMusicIds.length > 0);
   const [loadError, setLoadError] = useState('');
@@ -62,13 +80,32 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   const [isMuted, setIsMuted] = useState(false);
   const [fallbackTrackKeys, setFallbackTrackKeys] = useState<Set<string>>(() => new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const localFileUrlsRef = useRef<Set<string>>(new Set());
 
-  const playlist = useMemo(() => mergePlaylist(tracks, remoteTracks), [tracks, remoteTracks]);
+  const playlist = useMemo(() => mergePlaylist(localFileTracks, remoteTracks, tracks), [localFileTracks, remoteTracks, tracks]);
   const currentTrack = playlist[currentIndex] ?? playlist[0] ?? null;
   const lyricLines = useMemo(() => parseTrackLyrics(currentTrack), [currentTrack]);
   const currentTrackKey = useMemo(() => currentTrack ? getTrackKey(currentTrack) : '', [currentTrack]);
   const canUseAudio = Boolean(currentTrack?.url && currentTrackKey && !fallbackTrackKeys.has(currentTrackKey));
   const activeDuration = duration || getDraftDuration(currentTrack, currentIndex);
+  const isLyricPrelude = lyricLines.length > 0 && currentTime < lyricLines[0].time;
+  const handleAudioPlaybackFailure = useCallback((error?: unknown) => {
+    const errorName = error instanceof Error ? error.name : '';
+    if (errorName === 'NotAllowedError') {
+      setIsPlaying(false);
+      setLoadError('浏览器需要你点击播放按钮后才能出声。');
+      return;
+    }
+
+    setFallbackTrackKeys((keys) => {
+      const nextKeys = new Set(keys);
+      if (currentTrackKey) {
+        nextKeys.add(currentTrackKey);
+      }
+      return nextKeys;
+    });
+    setLoadError('当前音频源暂时不可播放，已切换为站内电台降级状态。');
+  }, [currentTrackKey]);
   const currentLyric = useMemo(() => {
     if (!currentTrack) {
       return '歌单等待配置。';
@@ -78,6 +115,10 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       if (currentTime >= lyricLines[index].time) {
         return lyricLines[index].text;
       }
+    }
+
+    if (lyricLines.length > 0) {
+      return lyricLines[0].text;
     }
 
     return currentTrack.note || currentTrack.mood || '歌单等待配置。';
@@ -112,11 +153,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return;
     }
 
-    if (playMode === 'loop' && currentIndex === playlist.length - 1) {
-      selectTrack(0);
-      return;
-    }
-
     if (playMode === 'list' && currentIndex === playlist.length - 1) {
       setCurrentTime(0);
       setProgress(0);
@@ -126,6 +162,29 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
 
     selectTrack(currentIndex + 1);
   }, [currentIndex, playMode, playlist.length, selectTrack]);
+
+  const replayCurrentTrack = useCallback(() => {
+    setCurrentTime(0);
+    setProgress(0);
+    setIsPlaying(playlist.length > 0);
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+    }
+
+    if (canUseAudio) {
+      audioRef.current?.play().catch(handleAudioPlaybackFailure);
+    }
+  }, [canUseAudio, handleAudioPlaybackFailure, playlist.length]);
+
+  const handleTrackEnded = useCallback(() => {
+    if (playMode === 'repeat-one') {
+      replayCurrentTrack();
+      return;
+    }
+
+    nextTrack();
+  }, [nextTrack, playMode, replayCurrentTrack]);
 
   const previousTrack = useCallback(() => {
     if (playlist.length === 0) {
@@ -142,18 +201,78 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     selectTrack(currentIndex - 1);
   }, [currentIndex, playMode, playlist.length, selectTrack]);
 
-  const togglePlaying = () => {
-    setIsPlaying((playing) => playlist.length > 0 ? !playing : false);
-  };
+  const togglePlaying = useCallback(() => {
+    if (playlist.length === 0) {
+      setIsPlaying(false);
+      return;
+    }
 
-  const togglePlayMode = () => {
-    setPlayMode((mode) => mode === 'list' ? 'loop' : mode === 'loop' ? 'shuffle' : 'list');
-  };
+    setIsPlaying((playing) => {
+      const nextPlaying = !playing;
+      if (!nextPlaying) {
+        audioRef.current?.pause();
+        return false;
+      }
+
+      if (canUseAudio) {
+        audioRef.current?.play().catch(handleAudioPlaybackFailure);
+      }
+
+      return true;
+    });
+  }, [canUseAudio, handleAudioPlaybackFailure, playlist.length]);
+
+  const togglePlayMode = useCallback(() => {
+    setPlayMode((mode) => {
+      const index = PLAY_MODE_SEQUENCE.indexOf(mode);
+      return PLAY_MODE_SEQUENCE[(index + 1) % PLAY_MODE_SEQUENCE.length] ?? 'list';
+    });
+  }, []);
 
   const reloadCloudMusic = useCallback(() => {
     setLoadError('');
     setFallbackTrackKeys(new Set());
     setSyncNonce((value) => value + 1);
+  }, []);
+
+  const addLocalAudioFiles = useCallback((files: FileList | File[]) => {
+    const audioFiles = Array.from(files).filter((file) => file.type.startsWith('audio/') || AUDIO_FILE_NAME_PATTERN.test(file.name));
+    if (audioFiles.length === 0) {
+      setLoadError('请选择可播放的音频文件。');
+      return;
+    }
+
+    const createdAt = Date.now();
+    const nextTracks = audioFiles.map((file, index): LocalFileTrack => {
+      const objectUrl = URL.createObjectURL(file);
+      localFileUrlsRef.current.add(objectUrl);
+      return {
+        id: `local-file-${createdAt}-${index}-${file.name}`,
+        title: file.name.replace(/\.[^.]+$/, '') || `本地音乐 ${index + 1}`,
+        artist: '本地音频',
+        mood: '本地选择',
+        url: objectUrl,
+        cover: '/assets/img/desk-notes.svg',
+        source: 'local-file',
+        provider: 'local-file',
+        note: '来自你本机选择的音频文件，仅在当前浏览器会话中播放。',
+        objectUrl
+      };
+    });
+
+    setLocalFileTracks((previousTracks) => {
+      const mergedTracks = [...nextTracks, ...previousTracks];
+      const retainedTracks = mergedTracks.slice(0, LOCAL_FILE_LIMIT);
+      for (const track of mergedTracks.slice(LOCAL_FILE_LIMIT)) {
+        URL.revokeObjectURL(track.objectUrl);
+        localFileUrlsRef.current.delete(track.objectUrl);
+      }
+      return retainedTracks;
+    });
+    setFallbackTrackKeys(new Set());
+    setLoadError('');
+    setCurrentIndex(0);
+    setIsPlaying(true);
   }, []);
 
   const seekToProgress = (nextProgress: number) => {
@@ -196,8 +315,9 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       }
 
       const state = JSON.parse(stored) as StoredMusicState;
-      if (state.playMode === 'list' || state.playMode === 'loop' || state.playMode === 'shuffle') {
-        setPlayMode(state.playMode);
+      const storedPlayMode = normalizePlayMode(state.playMode);
+      if (storedPlayMode) {
+        setPlayMode(storedPlayMode);
       }
       if (typeof state.volume === 'number') {
         setVolumeState(Math.min(1, Math.max(0, state.volume)));
@@ -219,8 +339,19 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   }, [currentIndex, isMuted, playMode, volume]);
 
   useEffect(() => {
+    return () => {
+      for (const objectUrl of localFileUrlsRef.current) {
+        URL.revokeObjectURL(objectUrl);
+      }
+      localFileUrlsRef.current.clear();
+    };
+  }, []);
+
+  useEffect(() => {
     if (cloudMusicIds.length === 0) {
+      setRemoteTracks([]);
       setIsLoading(false);
+      setLoadError('');
       return undefined;
     }
 
@@ -296,18 +427,9 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return undefined;
     }
 
-    audio.play().catch(() => {
-      setFallbackTrackKeys((keys) => {
-        const nextKeys = new Set(keys);
-        if (currentTrackKey) {
-          nextKeys.add(currentTrackKey);
-        }
-        return nextKeys;
-      });
-      setLoadError('当前音频源暂时不可播放，已切换为站内电台降级状态。');
-    });
+    audio.play().catch(handleAudioPlaybackFailure);
     return undefined;
-  }, [canUseAudio, currentTrackKey, isPlaying]);
+  }, [canUseAudio, handleAudioPlaybackFailure, isPlaying]);
 
   useEffect(() => {
     if (!isPlaying || canUseAudio) {
@@ -319,7 +441,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
         const nextTime = Math.min(time + 1, activeDuration);
         if (nextTime >= activeDuration) {
           setProgress(0);
-          window.setTimeout(() => nextTrack(), 0);
+          window.setTimeout(() => handleTrackEnded(), 0);
           return 0;
         }
 
@@ -329,7 +451,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [activeDuration, canUseAudio, isPlaying, nextTrack]);
+  }, [activeDuration, canUseAudio, handleTrackEnded, isPlaying]);
 
   const value: MusicContextValue = {
     playlist,
@@ -342,6 +464,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     currentTime,
     duration: activeDuration,
     currentLyric,
+    isLyricPrelude,
     lyricLines,
     playMode,
     volume,
@@ -352,6 +475,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     nextTrack,
     previousTrack,
     reloadCloudMusic,
+    addLocalAudioFiles,
     seekToProgress,
     setVolume,
     toggleMute: () => setIsMuted((muted) => !muted)
@@ -367,7 +491,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
           preload="metadata"
           onLoadedMetadata={updateFromAudio}
           onTimeUpdate={updateFromAudio}
-          onEnded={nextTrack}
+          onEnded={handleTrackEnded}
           onError={() => {
             setFallbackTrackKeys((keys) => {
               const nextKeys = new Set(keys);
@@ -392,9 +516,10 @@ export function useMusic() {
   return context;
 }
 
-function mergePlaylist(localTracks: MusicTrack[], remoteTracks: MusicTrack[]): MusicTrack[] {
+function mergePlaylist(...trackGroups: MusicTrack[][]): MusicTrack[] {
   const seen = new Set<string>();
-  return [...remoteTracks, ...localTracks]
+  return trackGroups
+    .flat()
     .filter((track) => track.title)
     .filter((track) => {
       const key = getTrackKey(track);
@@ -409,6 +534,31 @@ function mergePlaylist(localTracks: MusicTrack[], remoteTracks: MusicTrack[]): M
 
 function getTrackKey(track: MusicTrack): string {
   return `${track.provider || track.source || 'local'}:${track.id || track.title}:${track.artist}`;
+}
+
+const LRC_TIMESTAMP_PATTERN = /\[(\d{2,}):(\d{2})(?:[.:](\d{2,3}))?\]/g;
+const LRC_TIMESTAMP_TEXT_PATTERN = /\[\d{2,}:\d{2}(?:[.:]\d{2,3})?\]/g;
+const LRC_METADATA_PATTERN = /^\[(?:ti|ar|al|au|by|offset|re|ve|length|tool|kana|language|trans|translation|roma|romanization):[^\]]*\]$/i;
+
+function isLrcMetadataLine(line: string): boolean {
+  return LRC_METADATA_PATTERN.test(line);
+}
+
+function mergeTimedLyricLines(lines: LyricLine[]): LyricLine[] {
+  const grouped = new Map<number, string[]>();
+
+  for (const line of lines.sort((a, b) => a.time - b.time)) {
+    const texts = grouped.get(line.time) ?? [];
+    if (!texts.includes(line.text)) {
+      texts.push(line.text);
+    }
+    grouped.set(line.time, texts);
+  }
+
+  return [...grouped.entries()].map(([time, texts]) => ({
+    time,
+    text: texts.join('\n')
+  }));
 }
 
 function parseTrackLyrics(track: MusicTrack | null): LyricLine[] {
@@ -434,9 +584,14 @@ function parseTrackLyrics(track: MusicTrack | null): LyricLine[] {
 
   const parsedLines: LyricLine[] = [];
   for (const line of rawLyrics.split(/\r?\n/)) {
-    const matches = [...line.matchAll(/\[(\d{2,}):(\d{2})(?:[.:](\d{2,3}))?\]/g)];
-    const text = line.replace(/\[\d{2,}:\d{2}(?:[.:]\d{2,3})?\]/g, '').trim();
-    if (!text) {
+    const normalizedLine = line.trim();
+    if (!normalizedLine || isLrcMetadataLine(normalizedLine)) {
+      continue;
+    }
+
+    const matches = [...normalizedLine.matchAll(LRC_TIMESTAMP_PATTERN)];
+    const text = normalizedLine.replace(LRC_TIMESTAMP_TEXT_PATTERN, '').trim();
+    if (!text || isLrcMetadataLine(text)) {
       continue;
     }
 
@@ -453,7 +608,7 @@ function parseTrackLyrics(track: MusicTrack | null): LyricLine[] {
     }
   }
 
-  return parsedLines.sort((a, b) => a.time - b.time);
+  return mergeTimedLyricLines(parsedLines);
 }
 
 function getDraftDuration(track: MusicTrack | null, index: number): number {

@@ -42,7 +42,7 @@ export function createPortalSearchEntries(data: BlogData, posts: BlogPost[]): Po
       type: '项目' as const,
       title: project.title,
       description: project.description,
-      href: project.url || '/projects',
+      href: project.repo || project.url || '/projects',
       keywords: [project.status, ...project.tags, project.repo].filter(Boolean),
       weight: project.featured ? 110 : 78
     })),

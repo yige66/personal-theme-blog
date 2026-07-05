@@ -4,6 +4,12 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/github/projects",
+      "schedule": "0 3 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -33,6 +33,8 @@ const quickActions: Array<{ action: Exclude<PetAction, 'ask' | 'pet'>; label: st
   { action: 'lab', label: '让红莉栖给一个实验建议', shortLabel: 'β' }
 ];
 
+const THINKING_REPLY = '等一下，我正在整理回答。';
+
 export function PixelKurisuPet() {
   const requestIdRef = useRef(0);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,7 +70,7 @@ export function PixelKurisuPet() {
     const userText = createUserText(action, cleanInput);
     const pendingId = `kurisu-pending-${requestId}`;
     const userMessage: PetMessage = { id: `user-${requestId}`, role: 'user', text: userText };
-    const pendingMessage: PetMessage = { id: pendingId, role: 'assistant', text: '等一下，我正在调用 AI API 整理假设。' };
+    const pendingMessage: PetMessage = { id: pendingId, role: 'assistant', text: THINKING_REPLY };
     const history = messages
       .slice(-6)
       .map((message) => ({ role: message.role, text: message.text }));
@@ -188,7 +190,7 @@ export function PixelKurisuPet() {
       {isToastVisible || isThinking ? (
         <div className="xh-kurisu-toast" role="status" aria-live="polite">
           <span>{moodLabel[mood]}</span>
-          <strong>{isThinking ? '等一下，我正在调用 AI API 整理假设。' : latestAssistantMessage}</strong>
+          <strong>{isThinking ? THINKING_REPLY : latestAssistantMessage}</strong>
         </div>
       ) : null}
 
@@ -236,9 +238,9 @@ function createAiErrorReply(code: string | undefined): string {
     return KURISU_NO_AIAPI_REPLY;
   }
   if (code === 'ai_empty_reply') {
-    return 'AI API 没有返回有效内容。这个结果不够严谨，先别当作回答。';
+    return '这次没有拿到有效内容。这个结果不够严谨，先别当作回答。';
   }
-  return 'AI API 暂时没有成功响应。等接口恢复后再问我，贸然给结论可不是实验精神。';
+  return '这次在线回答没有稳定返回。先换一个更具体的问题，我会用站内线索帮你缩小范围。';
 }
 
 function inferMood(action: PetAction): PetMood {

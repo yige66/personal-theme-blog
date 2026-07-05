@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { BlogSite, BlogStats } from '@/lib/blog';
+import { formatPageText, getPageStatLabel, type BlogSite, type BlogStats, type PageContent } from '@/lib/blog';
 
 type AboutActivity = {
   id: string;
@@ -13,15 +13,16 @@ type AboutActivity = {
 type AboutRoomProps = {
   activeTab: 'intro' | 'activity';
   activities: AboutActivity[];
+  page: PageContent;
   site: BlogSite;
   stats: BlogStats;
 };
 
 const aboutStats = [
-  ['posts', '文章'],
-  ['chatters', '杂谈'],
-  ['notes', '说说'],
-  ['gallery', '相册']
+  { key: 'posts', fallback: '文章' },
+  { key: 'chatters', fallback: '杂谈' },
+  { key: 'notes', fallback: '说说' },
+  { key: 'gallery', fallback: '相册' }
 ] as const;
 
 function formatActivityDate(value: string): string {
@@ -61,21 +62,30 @@ function createHeatmapCells(activities: AboutActivity[]) {
   });
 }
 
-export function AboutRoom({ activeTab, activities, site, stats }: AboutRoomProps) {
+export function AboutRoom({ activeTab, activities, page, site, stats }: AboutRoomProps) {
   const activityCells = createHeatmapCells(activities);
   const recentActivities = activities.slice(0, 8);
+  const pageVariables = {
+    owner: site.owner,
+    role: site.role,
+    status: site.status,
+    motto: site.motto,
+    activityCount: activities.length
+  };
+  const aboutHeroImage = site.aboutHeroImage || site.heroImage;
+  const activityHref = page.primaryActionHref || '/about?tab=activity';
 
   return (
-    <section className="main-shell about-room about-profile-panel" aria-label="关于我">
+    <section className="main-shell about-room about-profile-panel" aria-label={page.title}>
       <div className="about-room-toolbar" aria-hidden="true">
         <span />
         <span />
         <span />
-        <strong>Profile Room</strong>
+        <strong>{page.signal || 'Profile Room'}</strong>
       </div>
 
       <div className="about-room-cover">
-        <Image src={site.heroImage} alt={`${site.title} 头图`} width={1180} height={560} priority />
+        <Image src={aboutHeroImage} alt={`${site.title} 头图`} width={1180} height={560} priority />
       </div>
 
       <div className="about-room-avatar">
@@ -84,16 +94,16 @@ export function AboutRoom({ activeTab, activities, site, stats }: AboutRoomProps
 
       <div className="about-room-heading">
         <div className="about-room-copy">
-          <h1>关于我</h1>
-          <p>Hello World, I&apos;m {site.owner}</p>
+          <h1>{page.title}</h1>
+          <p>{formatPageText(page.description, pageVariables)}</p>
         </div>
 
         <nav className="about-room-tabs" aria-label="关于栏目切换">
           <Link aria-current={activeTab === 'intro' ? 'page' : undefined} className={activeTab === 'intro' ? 'is-active' : ''} href="/about?tab=intro">
-            自我介绍
+            {page.panelOneTitle || '自我介绍'}
           </Link>
-          <Link aria-current={activeTab === 'activity' ? 'page' : undefined} className={activeTab === 'activity' ? 'is-active' : ''} href="/about?tab=activity">
-            研究动态
+          <Link aria-current={activeTab === 'activity' ? 'page' : undefined} className={activeTab === 'activity' ? 'is-active' : ''} href={activityHref}>
+            {page.primaryActionLabel || '活动时间线'}
           </Link>
         </nav>
       </div>
@@ -101,10 +111,10 @@ export function AboutRoom({ activeTab, activities, site, stats }: AboutRoomProps
       <div className="about-room-rule" aria-hidden="true" />
 
       <div className="about-room-console" aria-label="站点统计">
-        {aboutStats.map(([key, label]) => (
-          <span key={key}>
-            <strong>{stats[key]}</strong>
-            {label}
+        {aboutStats.map((stat, index) => (
+          <span key={stat.key}>
+            <strong>{stats[stat.key]}</strong>
+            {getPageStatLabel(page, index, stat.fallback)}
           </span>
         ))}
       </div>
@@ -112,30 +122,24 @@ export function AboutRoom({ activeTab, activities, site, stats }: AboutRoomProps
       {activeTab === 'intro' ? (
         <div className="about-room-pane about-room-intro" id="about-intro">
           <article className="about-prose">
-            <p className="about-section-label">个人简介</p>
-            <p>你好，我是 {site.owner}。</p>
+            <p className="about-section-label">{page.panelOneTitle}</p>
+            <p>{formatPageText(page.panelOneDescription, pageVariables)}</p>
             <p>{site.bio}</p>
 
-            <h2>研究与创作方向</h2>
-            <ul>
-              <li><strong>系统工程：</strong>{site.role}</li>
-              <li><strong>内容生态：</strong>{site.status}</li>
-              <li><strong>长期目标：</strong>{site.motto}</li>
-            </ul>
+            {page.panelTwoTitle ? <h2>{page.panelTwoTitle}</h2> : null}
+            {page.panelTwoDescription ? <p>{formatPageText(page.panelTwoDescription, pageVariables)}</p> : null}
+            {page.detailLines.length ? (
+              <ul>
+                {page.detailLines.map((line) => <li key={line}>{formatPageText(line, pageVariables)}</li>)}
+              </ul>
+            ) : null}
 
-            <h2>软件工程能力</h2>
-            <ul>
-              <li><strong>前端体验：</strong>围绕 Next.js、React 与内容数据源，构建可持续维护的个人站点。</li>
-              <li><strong>发布工作流：</strong>使用 GitHub 与 Vercel 串联内容版本、预览、构建和正式发布。</li>
-              <li><strong>信息组织：</strong>把文章、杂谈、动态、音乐、照片墙和友链拆成不同的访问入口。</li>
-            </ul>
-
-            <p className="about-room-welcome">欢迎各位朋友联系交流~</p>
+            <p className="about-room-welcome">{formatPageText(page.panelThreeDescription, pageVariables)}</p>
           </article>
 
           <aside className="about-contact-card" aria-label="联系信息">
-            <p className="about-section-label">Contact</p>
-            <h2>找到我</h2>
+            <p className="about-section-label">{page.panelThreeTitle}</p>
+            <h2>{page.panelThreeDescription}</h2>
             <dl>
               <div>
                 <dt>位置</dt>

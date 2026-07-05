@@ -11,8 +11,7 @@ export type ExperienceRouteId =
   | 'chatter'
   | 'tags'
   | 'friends'
-  | 'about'
-  | 'console';
+  | 'about';
 
 export type ExperienceRoute = {
   id: ExperienceRouteId;
@@ -69,8 +68,7 @@ export const experienceRoutes: ExperienceRoute[] = [
   { id: 'chatter', href: '/chatter', label: '杂谈', tone: 'Chatter', coordinate: '45', room: 'Cloud' },
   { id: 'tags', href: '/tags', label: '标签', tone: 'Tags', coordinate: '57', room: 'Tarot' },
   { id: 'friends', href: '/friends', label: '友链', tone: 'Friends', coordinate: '68', room: 'Friends' },
-  { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Profile' },
-  { id: 'console', href: '/console', label: '发布', tone: 'Deploy', coordinate: '99', room: 'Console' }
+  { id: 'about', href: '/about', label: '关于', tone: 'Profile', coordinate: '81', room: 'Profile' }
 ];
 
 const spaceModuleBlueprints = [

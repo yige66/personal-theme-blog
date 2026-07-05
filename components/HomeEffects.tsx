@@ -88,7 +88,19 @@ function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transit
 
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const pathname = usePathname();
-  const { currentTrack, isLoading, isPlaying, nextTrack, playlist, previousTrack, togglePlaying } = useMusic();
+  const {
+    currentTrack,
+    isLoading,
+    isMuted,
+    isPlaying,
+    nextTrack,
+    playlist,
+    previousTrack,
+    setVolume,
+    toggleMute,
+    togglePlaying,
+    volume
+  } = useMusic();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
@@ -101,6 +113,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
   const isHome = pathname === '/';
+  const isAdmin = pathname.startsWith('/admin');
 
   const messages = useMemo(() => {
     const configured = effects.danmaku && effects.danmaku.length > 0 ? effects.danmaku : dailyDanmaku;
@@ -355,7 +368,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     return () => window.removeEventListener('xh-toggle-theme', handleExternalToggle);
   }, [startThemeTransition]);
 
-  if (!effects.enabled) {
+  if (isAdmin || !effects.enabled) {
     return null;
   }
 
@@ -363,6 +376,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const renderedPhase = themePhase;
   const floatingTrack = currentTrack ?? activeTrack;
   const hasMusicTracks = playlist.length > 0;
+  const floatingVolume = isMuted ? 0 : volume;
+  const floatingVolumePercent = Math.round(floatingVolume * 100);
 
   return (
     <>
@@ -520,6 +535,24 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
             <button type="button" aria-label="下一首" disabled={!hasMusicTracks} onClick={nextTrack}>
               <span aria-hidden="true">›</span>
             </button>
+          </div>
+          <div className="xh-floating-player-volume" aria-label={`音量 ${floatingVolumePercent}%`}>
+            <button type="button" aria-label={isMuted ? '取消静音' : '静音'} onClick={toggleMute}>
+              <span aria-hidden="true">{floatingVolume === 0 ? '静' : '音'}</span>
+            </button>
+            <label>
+              <span className="visually-hidden">音量</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={Number(floatingVolume.toFixed(2))}
+                onChange={(event) => setVolume(Number(event.currentTarget.value))}
+                aria-label="调整浮动播放器音量"
+                style={{ '--floating-volume': `${floatingVolumePercent}%` } as CSSProperties}
+              />
+            </label>
           </div>
         </aside>
       ) : null}

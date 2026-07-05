@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { validateBlogDataDraft } from '../lib/blog-admin.ts';
-import { validateAdminImageFile } from '../lib/admin-assets.ts';
+import { validateAdminAudioFile, validateAdminImageFile } from '../lib/admin-assets.ts';
 
 describe('blog administration operating system', () => {
   it('ships an admin surface that can edit and persist the full blog data model', async () => {
@@ -11,44 +11,68 @@ describe('blog administration operating system', () => {
       adminPage,
       appLayout,
       splashScreen,
+      homeEffects,
+      globalToolbox,
       adminConsole,
       adminFieldEditors,
       adminTypes,
       adminConfig,
       adminUtils,
       adminBlogApi,
+      adminManagement,
       adminAssetsApi,
       adminLib,
-      consolePage,
-      css
+      robots,
+      css,
+      homeCss
     ] = await Promise.all([
       readFile('app/admin/page.tsx', 'utf8'),
       readFile('app/layout.tsx', 'utf8'),
       readFile('components/SplashScreen.tsx', 'utf8'),
+      readFile('components/HomeEffects.tsx', 'utf8'),
+      readFile('components/GlobalToolbox.tsx', 'utf8'),
       readFile('components/admin/BlogAdminConsole.tsx', 'utf8'),
       readFile('components/admin/AdminFieldEditors.tsx', 'utf8'),
       readFile('components/admin/adminTypes.ts', 'utf8'),
       readFile('components/admin/adminConfig.ts', 'utf8'),
       readFile('components/admin/adminUtils.ts', 'utf8'),
       readFile('app/api/admin/blog/route.ts', 'utf8'),
+      readFile('lib/admin-management.ts', 'utf8'),
       readFile('app/api/admin/assets/route.ts', 'utf8'),
       readFile('lib/blog-admin.ts', 'utf8'),
-      readFile('app/console/page.tsx', 'utf8'),
-      readFile('app/globals.css', 'utf8')
+      readFile('app/robots.ts', 'utf8'),
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
     ]);
 
     assert.match(adminPage, /BlogAdminConsole/);
     assert.match(adminPage, /getBlogData/);
     assert.match(adminPage, /getBlogStats/);
+    assert.match(adminPage, /buildAdminManagementOverview/);
     assert.match(adminPage, /metadata/);
+    assert.match(adminPage, /robots/);
+    assert.match(adminPage, /admin-private-page/);
+    assert.doesNotMatch(adminPage, /SiteNav/);
     assert.doesNotMatch(adminPage, /NODE_ENV !== 'production'/);
     assert.match(adminPage, /initialData=\{data\}/);
+    assert.match(adminPage, /initialOverview=\{overview\}/);
     assert.match(appLayout, /<SplashScreen site=\{data\.site\}/);
     assert.match(splashScreen, /usePathname/);
     assert.match(splashScreen, /pathname\.startsWith\('\/admin'\)/);
     assert.match(splashScreen, /xh-splash-seen/);
+    assert.match(homeEffects, /const isAdmin = pathname\.startsWith\('\/admin'\)/);
+    assert.match(homeEffects, /if \(isAdmin \|\| !effects\.enabled\)/);
+    assert.match(globalToolbox, /const isAdmin = pathname\.startsWith\('\/admin'\)/);
+    assert.match(globalToolbox, /if \(isHome \|\| isAdmin\)/);
 
-    assert.match(adminConsole, /ADMIN_SECTIONS/);
+    assert.match(adminConsole, /columnWorkspaces/);
+    assert.match(adminConsole, /仅限本人使用/);
+    assert.match(adminConsole, /站点管理台/);
+    assert.match(adminConsole, /fraud-admin-shell/);
+    assert.doesNotMatch(adminConsole, /admin-plain-system/);
+    assert.doesNotMatch(adminConsole, /Content Control Center/);
+    assert.match(adminConsole, /AdminSidebar/);
+    assert.match(adminConsole, /AdminToolPanel/);
     assert.match(adminFieldEditors, /PlainTextEditor/);
     assert.match(adminFieldEditors, /ImageUploadField/);
     assert.match(adminFieldEditors, /ImageListEditor/);
@@ -66,12 +90,33 @@ describe('blog administration operating system', () => {
     assert.match(adminConsole, /handleSave/);
     assert.match(adminConsole, /handleExport/);
     assert.match(adminConsole, /handleImport/);
-    assert.match(adminConsole, /选择内容/);
-    assert.match(adminConsole, /填写修改/);
-    assert.match(adminConsole, /保存生效/);
+    assert.match(adminConsole, /管理分区/);
+    assert.match(adminConsole, /页面展示/);
+    assert.match(adminConsole, /内容管理/);
+    assert.match(adminConsole, /辅助设置/);
     assert.match(adminConsole, /后台密码/);
-    assert.match(adminConsole, /保存到博客/);
+    assert.match(adminConsole, /保存数据/);
+    assert.match(adminConsole, /PathFieldSections/);
+    assert.match(adminConsole, /FieldSectionLabel/);
+    assert.match(adminConsole, /常用字段/);
+    assert.match(adminConsole, /简单发布/);
+    assert.match(adminConsole, /写新文章/);
+    assert.match(adminConsole, /文章发布表单/);
     assert.match(adminConsole, /更多设置/);
+    assert.match(adminConsole, /ProjectGitHubSourcePanel/);
+    assert.match(adminConsole, /前台项目排序/);
+    assert.match(adminConsole, /前台展示顺序/);
+    assert.match(adminConsole, /site', 'projectOrder/);
+    assert.match(adminConsole, /parseProjectOrderText/);
+    assert.match(adminConsole, /每行一个 GitHub 仓库名/);
+    assert.match(adminConsole, /不用手写项目/);
+    assert.match(adminConsole, /项目更新后自动同步/);
+    assert.match(adminConsole, /新增仓库会被 Vercel Cron 每日巡检同步到项目页/);
+    assert.match(adminConsole, /\/api\/github\/projects/);
+    assert.match(adminConsole, /GITHUB_PROJECTS_WEBHOOK_SECRET/);
+    assert.match(adminConsole, /前台项目页会读取 GitHub 公开仓库/);
+    assert.doesNotMatch(adminConsole, /projectFields/);
+    assert.doesNotMatch(adminConsole, /path: \['projects'\]/);
     assert.match(adminFieldEditors, /字段说明/);
     assert.match(adminFieldEditors, /这个设置一般不用改/);
     assert.match(adminConsole, /recordSubtitle/);
@@ -84,25 +129,43 @@ describe('blog administration operating system', () => {
 
     assert.match(adminConfig, /site-profile/);
     assert.match(adminConfig, /site-visuals/);
+    assert.match(adminConfig, /site-backgrounds/);
     assert.match(adminConfig, /site-entry/);
     assert.match(adminConfig, /posts/);
     assert.match(adminConfig, /projects/);
+    assert.match(adminConfig, /GitHub 同步/);
+    assert.match(adminConfig, /site\.github \/ GitHub repositories \/ site\.pages\.projects/);
     assert.match(adminConfig, /gallery/);
     assert.match(adminConfig, /links/);
     assert.match(adminConfig, /advanced: true/);
     assert.match(adminConfig, /brandSuffix/);
+    assert.match(adminConfig, /createColumnFields/);
+    assert.match(adminConfig, /createPageContentFields/);
+    assert.match(adminConfig, /site', 'pages', pageId/);
+    assert.match(adminConfig, /brandSuffix'.*advanced: true/);
+    assert.match(adminConfig, /themeColor'.*advanced: true/);
+    assert.match(adminConfig, /signal'.*advanced: true/);
+    assert.match(adminConfig, /updatedAt'.*advanced: true/);
     assert.match(adminConfig, /cropAspect: 16 \/ 9/);
     assert.match(adminConfig, /cropAspect: 4 \/ 3/);
     assert.match(adminConfig, /cropAspect: 1/);
     assert.match(adminTypes, /cropAspect\?: number/);
+    assert.match(adminTypes, /AdminManagementOverview/);
+    assert.match(adminTypes, /AdminManagementModule/);
 
     assert.match(adminUtils, /updateAtPath/);
     assert.match(adminConsole, /createEmptyItem/);
+
+    assert.match(adminManagement, /buildAdminManagementOverview/);
+    assert.match(adminManagement, /moduleBlueprints/);
+    assert.match(adminManagement, /背景图独立分区/);
+    assert.match(adminManagement, /hasUnsafeSecret/);
 
     assert.match(adminBlogApi, /export async function GET/);
     assert.match(adminBlogApi, /export async function POST/);
     assert.match(adminBlogApi, /validateBlogDataDraft/);
     assert.match(adminBlogApi, /saveBlogData/);
+    assert.match(adminBlogApi, /management: buildAdminManagementOverview/);
     assert.match(adminBlogApi, /revalidatePath\('\/', 'layout'\)/);
     assert.match(adminBlogApi, /ADMIN_WRITE_TOKEN/);
 
@@ -117,9 +180,28 @@ describe('blog administration operating system', () => {
     assert.match(adminLib, /writeFile/);
     assert.match(adminLib, /blog\.json/);
 
-    assert.match(consolePage, /href="\/admin"/);
+    assert.match(adminConsole, /getWorkspaceTools/);
+    assert.match(adminConsole, /标签详情页/);
+    assert.doesNotMatch(adminConsole, /ColumnNavigator/);
+    assert.doesNotMatch(adminConsole, /WorkspaceToolPanel/);
+    assert.doesNotMatch(adminConsole, /route: '\/console'/);
+    assert.doesNotMatch(adminConfig, /column-console|发布栏目|\/console/);
+    assert.match(robots, /'\/admin'/);
     assert.match(css, /\.admin-os/);
-    assert.match(css, /\.admin-os-grid/);
+    assert.match(css, /\.admin-private-page/);
+    assert.match(css, /body:has\(\.admin-private-page\) \.xh-background-slider/);
+    assert.match(css, /body:has\(\.admin-private-page\) \.xh-floating-player/);
+    assert.match(css, /body:has\(\.admin-private-page\) \.xh-global-toolbox/);
+    assert.match(homeCss, /Admin readability lock/);
+    assert.match(homeCss, /#xh-app-root:has\(\.admin-private-page\)/);
+    assert.match(homeCss, /text-shadow: none !important/);
+    assert.match(css, /\.fraud-admin-shell/);
+    assert.match(css, /\.fraud-admin-layout/);
+    assert.match(css, /\.fraud-tool-tabs/);
+    assert.match(css, /\.fraud-admin-panel/);
+    assert.match(css, /\.admin-soft-section/);
+    assert.match(css, /\.admin-publish-guide/);
+    assert.match(css, /\.admin-field-section-label/);
     assert.match(css, /\.admin-field/);
     assert.match(css, /\.admin-record-list/);
     assert.match(css, /\.admin-image-uploader/);
@@ -148,9 +230,31 @@ describe('blog administration operating system', () => {
     assert.doesNotMatch(blog, /normalizeAssetList\(siteInput\.backgroundImages, fallbackSite\.backgroundImages,\s*\d+\)/);
     assert.match(blog, /function normalizeAssetList\(value: unknown, fallback: string\[\]\): string\[\]/);
     assert.match(blog, /return Array\.isArray\(value\) \? assets : fallback/);
-    assert.match(adminConsole, /collectBackgroundImagePaths/);
+    assert.match(adminConsole, /function AssetPreview/);
+    assert.match(adminConsole, /new Set\(data\.site\.backgroundImages\.filter\(Boolean\)\)/);
     assert.match(adminConsole, /aria-label="背景图预览"/);
     assert.doesNotMatch(adminConsole, /function collectImagePaths/);
+  });
+
+  it('lets the about page header image be managed independently from the homepage cover', async () => {
+    const [aboutRoom, adminConfig, blog, blogAdmin] = await Promise.all([
+      readFile('components/channels/AboutRoom.tsx', 'utf8'),
+      readFile('components/admin/adminConfig.ts', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('lib/blog-admin.ts', 'utf8')
+    ]);
+
+    assert.match(blog, /aboutHeroImage: string/);
+    assert.match(blog, /aboutHeroImage: '\/assets\/img\/hero-mountain\.svg'/);
+    assert.match(blog, /aboutHeroImage: normalizeOptionalAsset\(siteInput\.aboutHeroImage\) \|\| normalizeOptionalAsset\(siteInput\.heroImage\) \|\| fallbackSite\.aboutHeroImage/);
+    assert.match(adminConfig, /site', 'aboutHeroImage/);
+    assert.match(adminConfig, /aboutHeroImage', label: '关于页头图'/);
+    assert.match(blogAdmin, /validateOptionalAssetPath\(data\.site\.aboutHeroImage, 'site\.aboutHeroImage', errors\)/);
+    assert.match(aboutRoom, /const aboutHeroImage = site\.aboutHeroImage \|\| site\.heroImage/);
+    assert.match(aboutRoom, /src=\{aboutHeroImage\}/);
+    assert.doesNotMatch(aboutRoom, /src=\{site\.heroImage\}/);
+    assert.match(aboutRoom, /const activityHref = page\.primaryActionHref \|\| '\/about\?tab=activity'/);
+    assert.match(aboutRoom, /href=\{activityHref\}/);
   });
 
   it('keeps admin-managed entry copy as the source of truth for the splash screen', async () => {
@@ -181,6 +285,29 @@ describe('blog administration operating system', () => {
     const valid = validateBlogDataDraft(blogData);
     assert.equal(valid.ok, true);
 
+    const validPageActionData = JSON.parse(JSON.stringify(blogData));
+    validPageActionData.site.pages = {
+      projects: {
+        primaryActionHref: '/projects?filter=featured',
+        secondaryActionHref: '/projects#featured'
+      },
+      archive: {
+        primaryActionHref: '#archive-top',
+        secondaryActionHref: '/archive?tag=Next.js#results'
+      },
+      friends: {
+        primaryActionHref: '#gitalk-container',
+        secondaryActionHref: '/friends#gitalk-container'
+      },
+      about: {
+        primaryActionHref: '/about?tab=activity',
+        secondaryActionHref: '/friends'
+      }
+    };
+
+    const validPageActions = validateBlogDataDraft(validPageActionData);
+    assert.equal(validPageActions.ok, true);
+
     const duplicatePostData = {
       ...blogData,
       posts: [
@@ -199,6 +326,12 @@ describe('blog administration operating system', () => {
     invalidOperationalData.links[0].url = 'javascript:alert(1)';
     invalidOperationalData.site.cloudMusicIds = ['not-a-number'];
     invalidOperationalData.site.comments.clientSecret = 'never-store-this';
+    invalidOperationalData.site.projectOrder = ['personal-theme-blog', 'personal-theme-blog'];
+    invalidOperationalData.site.pages = {
+      about: {
+        primaryActionHref: 'javascript:alert(1)'
+      }
+    };
 
     const invalidOperational = validateBlogDataDraft(invalidOperationalData);
     assert.equal(invalidOperational.ok, false);
@@ -207,6 +340,8 @@ describe('blog administration operating system', () => {
       assert.match(errors, /links\[0\]\.url/);
       assert.match(errors, /cloudMusicIds\[0\]/);
       assert.match(errors, /must not store OAuth secrets/);
+      assert.match(errors, /site\.projectOrder\[1\]/);
+      assert.match(errors, /site\.pages\.about\.primaryActionHref/);
     }
   });
 
@@ -241,5 +376,29 @@ describe('blog administration operating system', () => {
     if (!huge.ok) {
       assert.match(huge.error, /25MB/);
     }
+  });
+
+  it('lets the admin upload specified audio files for music playback', async () => {
+    const [adminConfig, fieldEditors, assetsRoute, assetsLib] = await Promise.all([
+      readFile('components/admin/adminConfig.ts', 'utf8'),
+      readFile('components/admin/AdminFieldEditors.tsx', 'utf8'),
+      readFile('app/api/admin/assets/route.ts', 'utf8'),
+      readFile('lib/admin-assets.ts', 'utf8')
+    ]);
+
+    assert.match(adminConfig, /key: 'url', label: '音频地址', kind: 'audio'/);
+    assert.match(adminConfig, /\/assets\/audio\/your-song\.mp3/);
+    assert.match(fieldEditors, /AudioUploadField/);
+    assert.match(fieldEditors, /accept="audio\/mpeg,audio\/mp4,audio\/ogg,audio\/wav,audio\/webm,audio\/flac"/);
+    assert.match(fieldEditors, /uploadImage\(file, 'audio'\)/);
+    assert.match(assetsRoute, /kindParam/);
+    assert.match(assetsRoute, /validateAdminAudioFile/);
+    assert.match(assetsRoute, /saveAdminAudioFile/);
+    assert.match(assetsLib, /public', 'assets', 'audio'/);
+
+    assert.equal(validateAdminAudioFile({ name: 'my-song.mp3', type: 'audio/mpeg', size: 5 * 1024 * 1024 }).ok, true);
+    assert.equal(validateAdminAudioFile({ name: 'my-song.wav', type: 'audio/wav', size: 5 * 1024 * 1024 }).ok, true);
+    assert.equal(validateAdminAudioFile({ name: 'my-song.txt', type: 'text/plain', size: 100 }).ok, false);
+    assert.equal(validateAdminAudioFile({ name: 'huge-song.mp3', type: 'audio/mpeg', size: 101 * 1024 * 1024 }).ok, false);
   });
 });

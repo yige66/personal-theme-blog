@@ -16,8 +16,7 @@ const routeLabels: Record<string, string> = {
   chatter: '杂谈',
   tags: '标签',
   friends: '友链',
-  about: '关于',
-  console: '发布'
+  about: '关于'
 };
 
 function cleanTitle(title: string): string {

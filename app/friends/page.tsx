@@ -2,30 +2,33 @@ import { GitHubComments } from '@/components/comments/GitHubComments';
 import { ChannelHeader } from '@/components/ChannelHeader';
 import { FriendsBoardClient } from '@/components/FriendsBoardClient';
 import { SiteNav } from '@/components/SiteNav';
-import { getBlogData } from '@/lib/blog';
+import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
 
 export const metadata = staticPageMetadata.friends;
 
 export default async function FriendsPage() {
   const data = await getBlogData();
+  const page = getPageContent(data.site, 'friends');
 
   return (
     <main className="subpage friends-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
       <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
       <ChannelHeader
-        eyebrow="Friends"
-        title="云端引力"
-        description="那些散落在赛博宇宙各处的有趣灵魂与神经节点。"
+        eyebrow={page.eyebrow}
+        title={page.title}
+        description={formatPageText(page.description, { linkCount: data.links.length })}
         stats={[
-          { label: '友链', value: data.links.length },
-          { label: '申请', value: 'Apply' }
+          { label: getPageStatLabel(page, 0, '友链'), value: data.links.length },
+          { label: getPageStatLabel(page, 1, '申请'), value: 'Apply' },
+          { label: getPageStatLabel(page, 2, '留言'), value: data.site.comments.enabled ? 'On' : 'Off' }
         ]}
-        signal="friends / cards / apply / comments"
+        actions={getPageActions(page)}
+        signal={page.signal}
       />
       <FriendsBoardClient links={data.links} site={data.site} />
       <section id="gitalk-container" className="main-shell friends-comments">
-        <GitHubComments config={data.site.comments} term="/friends" title="友链" />
+        <GitHubComments config={data.site.comments} term="/friends" title={page.commentTitle || page.title} />
       </section>
     </main>
   );

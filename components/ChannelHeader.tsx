@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export type ChannelHeaderStat = {
   label: string;
   value: string | number;
@@ -17,13 +19,40 @@ type ChannelHeaderProps = {
   signal?: string;
 };
 
-export function ChannelHeader({ description, eyebrow, stats = [], title }: ChannelHeaderProps) {
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href);
+}
+
+function renderAction(action: ChannelHeaderAction, index: number) {
+  const className = index === 0 ? 'button primary' : 'button ghost';
+
+  if (isExternalHref(action.href)) {
+    return (
+      <a className={className} href={action.href} key={`${action.href}-${action.label}`} target="_blank" rel="noreferrer">
+        {action.label}
+      </a>
+    );
+  }
+
+  return (
+    <Link className={className} href={action.href || '#'} key={`${action.href}-${action.label}`}>
+      {action.label}
+    </Link>
+  );
+}
+
+export function ChannelHeader({ actions = [], description, eyebrow, signal = '', stats = [], title }: ChannelHeaderProps) {
   return (
     <header className="main-shell channel-hero xh-reference-hero" data-motion="portal-card">
       <div className="channel-hero-copy">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
         <p>{description}</p>
+        {actions.length ? (
+          <div className="channel-hero-actions">
+            {actions.slice(0, 3).map(renderAction)}
+          </div>
+        ) : null}
       </div>
 
       {stats.length ? (
@@ -36,6 +65,8 @@ export function ChannelHeader({ description, eyebrow, stats = [], title }: Chann
           ))}
         </div>
       ) : null}
+
+      {signal ? <p className="channel-hero-signal">{signal}</p> : null}
     </header>
   );
 }

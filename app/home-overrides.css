@@ -2268,7 +2268,6 @@ html[data-xh-theme="night"] body:has(main.article-page:not(.admin-os):not(.conso
   gap: 16px;
 }
 
-.moment-location,
 .moment-tags small {
   display: inline-flex;
   align-items: center;
@@ -6948,7 +6947,7 @@ html[data-xh-theme="night"] .xh-kirakira-layer {
   padding-top: 104px !important;
 }
 
-.about-page .about-profile-panel.about-room {
+.about-page .about-profile-panel {
   --about-ink: #111827;
   --about-muted: #526173;
   --about-indigo: #6366f1;
@@ -6972,7 +6971,35 @@ html[data-xh-theme="night"] .xh-kirakira-layer {
     0 2.5rem 6.25rem rgba(71, 85, 105, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
   overflow: hidden !important;
+  backdrop-filter: opacity(1) !important;
+  -webkit-backdrop-filter: opacity(1) !important;
+}
+
+.about-page .about-joined-panel {
+  width: min(67.5rem, calc(100% - 2rem)) !important;
+  margin-top: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.66) !important;
+  border-radius: 1.625rem !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(241, 245, 255, 0.6) 48%, rgba(255, 246, 252, 0.58)),
+    rgba(255, 255, 255, 0.46) !important;
+  box-shadow:
+    0 2.5rem 6.25rem rgba(71, 85, 105, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  overflow: hidden !important;
   backdrop-filter: blur(1.375rem) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(1.375rem) saturate(1.1) !important;
+}
+
+.about-page .about-joined-panel > .about-profile-panel.about-room {
+  width: 100% !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .about-page .about-room-toolbar {
@@ -7395,10 +7422,20 @@ html[data-xh-theme="night"] .xh-kirakira-layer {
   white-space: nowrap;
 }
 
-html[data-xh-theme="night"] .about-page .about-profile-panel.about-room {
+html[data-xh-theme="night"] .about-page .about-profile-panel {
   --about-ink: #f8fafc;
   --about-muted: #b9c3d1;
   --about-line: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.74), rgba(38, 37, 74, 0.58)),
+    rgba(15, 23, 42, 0.5) !important;
+  box-shadow:
+    0 2.5rem 6.25rem rgba(2, 6, 23, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-xh-theme="night"] .about-page .about-joined-panel {
   border-color: rgba(255, 255, 255, 0.14) !important;
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.74), rgba(38, 37, 74, 0.58)),
@@ -7425,7 +7462,7 @@ html[data-xh-theme="night"] .about-page .about-timeline-item {
 }
 
 @media (max-width: 980px) {
-  .about-page .about-profile-panel.about-room {
+  .about-page .about-profile-panel {
     grid-template-columns: 8.5rem minmax(0, 1fr) !important;
     grid-template-areas:
       "cover cover"
@@ -7502,7 +7539,7 @@ html[data-xh-theme="night"] .about-page .about-timeline-item {
     padding-top: 92px !important;
   }
 
-  .about-page .about-profile-panel.about-room {
+  .about-page .about-profile-panel {
     grid-template-columns: 1fr !important;
     grid-template-areas:
       "cover"
@@ -10240,12 +10277,13 @@ body:has(.xh-clean-home) .xh-clean-home .xh-lyric-caption {
   max-width: min(56vw, 720px) !important;
   overflow: hidden !important;
   text-align: center !important;
-  white-space: nowrap !important;
+  white-space: pre-line !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home .xh-lyric-text {
   display: inline-block !important;
   max-width: 100% !important;
+  white-space: pre-line !important;
   overflow: hidden !important;
   color: transparent !important;
   background:
@@ -13949,9 +13987,9 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.arc
 body:has(.projects-page) .project-matrix:not(#xh-project-matrix-layout),
 html[data-xh-theme] body:has(.projects-page) .project-matrix:not(#xh-project-matrix-layout),
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .project-matrix:not(#xh-project-matrix-layout) {
-  width: min(1240px, calc(100% - 48px)) !important;
-  max-width: 1240px !important;
-  margin: clamp(112px, 16vh, 184px) auto 112px !important;
+  width: min(1608px, calc(100% - 48px)) !important;
+  max-width: 1608px !important;
+  margin: clamp(96px, 13vh, 150px) auto 112px !important;
   padding: 0 !important;
   display: grid !important;
   grid-template-columns: 1fr !important;
@@ -14105,54 +14143,92 @@ body:has(.projects-page) .project-matrix-search input:focus-visible {
 }
 
 body:has(.projects-page) .project-matrix-grid {
-  width: min(1040px, 100%) !important;
+  width: min(1508px, 100%) !important;
   margin: 0 auto !important;
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: clamp(20px, 2.4vw, 32px) !important;
+  gap: clamp(24px, 2.2vw, 36px) !important;
   align-items: stretch !important;
 }
 
 body:has(.projects-page) .project-matrix-card {
-  min-height: 262px !important;
-  padding: clamp(24px, 2.4vw, 34px) !important;
+  position: relative !important;
+  min-height: clamp(250px, 24vw, 338px) !important;
+  padding: clamp(34px, 3.1vw, 56px) clamp(30px, 3.35vw, 58px) !important;
   display: grid !important;
-  grid-template-rows: auto 1fr auto auto !important;
-  gap: 20px !important;
-  border: 1px solid rgba(185, 206, 255, 0.16) !important;
-  border-radius: 26px !important;
+  grid-template-rows: auto 1fr auto !important;
+  gap: clamp(24px, 2.2vw, 34px) !important;
+  border: 1px solid rgba(153, 166, 218, 0.23) !important;
+  border-radius: clamp(26px, 2.2vw, 34px) !important;
   background:
-    radial-gradient(circle at 88% 12%, rgba(130, 204, 255, 0.13), transparent 34%),
-    linear-gradient(135deg, rgba(20, 39, 75, 0.7), rgba(54, 35, 82, 0.68)) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 24px 68px rgba(1, 7, 24, 0.28) !important;
-  backdrop-filter: blur(20px) saturate(1.12) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(1.12) !important;
+    radial-gradient(circle at 8% 4%, rgba(255, 172, 193, 0.1), transparent 38%),
+    radial-gradient(circle at 90% 12%, rgba(111, 133, 215, 0.12), transparent 36%),
+    linear-gradient(112deg, rgba(70, 51, 74, 0.78), rgba(32, 42, 75, 0.83) 52%, rgba(51, 31, 61, 0.78)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 80px rgba(18, 9, 35, 0.26),
+    0 0 0 1px rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(24px) saturate(1.16) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.16) !important;
   overflow: hidden !important;
+  color: inherit !important;
+  -webkit-text-fill-color: initial !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease !important;
+}
+
+body:has(.projects-page) .project-matrix-card:hover,
+body:has(.projects-page) .project-matrix-card:focus-visible {
+  transform: translateY(-6px) scale(1.006) !important;
+  border-color: rgba(178, 188, 255, 0.38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 40px 96px rgba(22, 8, 37, 0.34),
+    0 0 36px rgba(132, 143, 255, 0.12) !important;
+}
+
+body:has(.projects-page) .project-matrix-card::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 34%),
+    radial-gradient(circle at 16% 12%, rgba(255, 184, 177, 0.11), transparent 34%),
+    radial-gradient(circle at 82% 90%, rgba(150, 134, 255, 0.12), transparent 42%) !important;
+  opacity: 0.72 !important;
+  pointer-events: none !important;
+}
+
+body:has(.projects-page) .project-matrix-card > * {
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 body:has(.projects-page) .project-matrix-card-head {
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr) auto !important;
-  gap: 18px !important;
+  gap: clamp(18px, 2vw, 30px) !important;
   align-items: start !important;
 }
 
 body:has(.projects-page) .project-matrix-index {
-  width: 44px !important;
-  height: 44px !important;
+  width: clamp(54px, 4.8vw, 76px) !important;
+  height: clamp(54px, 4.8vw, 76px) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border: 1px solid rgba(149, 211, 255, 0.28) !important;
-  border-radius: 14px !important;
-  background: rgba(78, 111, 194, 0.24) !important;
-  color: rgba(177, 220, 255, 0.96) !important;
-  -webkit-text-fill-color: currentColor !important;
-  font-size: 15px !important;
-  font-weight: 900 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: rgba(255, 242, 226, 0.98) !important;
+  -webkit-text-fill-color: initial !important;
+  font-size: clamp(38px, 3.7vw, 56px) !important;
+  font-weight: 400 !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
-  text-shadow: none !important;
+  text-shadow: 0 10px 24px rgba(28, 17, 40, 0.34) !important;
 }
 
 body:has(.projects-page) .project-matrix-title {
@@ -14166,55 +14242,52 @@ body:has(.projects-page) .project-matrix-title h2 {
   color: rgba(255, 255, 255, 0.98) !important;
   -webkit-text-fill-color: currentColor !important;
   font-family: Georgia, "Times New Roman", serif !important;
-  font-size: clamp(27px, 2.45vw, 38px) !important;
+  font-size: clamp(30px, 2.75vw, 48px) !important;
   font-weight: 900 !important;
-  line-height: 1.08 !important;
+  line-height: 1.12 !important;
   letter-spacing: 0 !important;
-  text-shadow: 0 5px 18px rgba(2, 5, 18, 0.36) !important;
+  text-shadow: 0 8px 22px rgba(2, 5, 18, 0.36) !important;
 }
 
 body:has(.projects-page) .project-matrix-title span {
-  color: rgba(220, 231, 255, 0.66) !important;
-  -webkit-text-fill-color: currentColor !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  line-height: 1.4 !important;
-  letter-spacing: 0 !important;
-  text-transform: uppercase !important;
-  text-shadow: none !important;
+  display: none !important;
 }
 
 body:has(.projects-page) .project-repo-link {
-  min-width: 76px !important;
-  min-height: 38px !important;
-  padding: 0 14px !important;
+  width: clamp(42px, 3.8vw, 56px) !important;
+  height: clamp(42px, 3.8vw, 56px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border: 1px solid rgba(194, 209, 255, 0.24) !important;
+  border: 0 !important;
   border-radius: 999px !important;
-  background: rgba(16, 27, 55, 0.4) !important;
-  color: rgba(232, 239, 255, 0.84) !important;
+  background: transparent !important;
+  color: rgba(174, 190, 224, 0.88) !important;
   -webkit-text-fill-color: currentColor !important;
-  text-decoration: none !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  text-shadow: none !important;
+  filter: drop-shadow(0 10px 18px rgba(4, 9, 26, 0.32)) !important;
+}
+
+body:has(.projects-page) .project-repo-link svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  fill: currentColor !important;
 }
 
 body:has(.projects-page) .project-matrix-card > p {
   margin: 0 !important;
-  color: rgba(224, 233, 255, 0.74) !important;
+  color: rgba(225, 226, 237, 0.78) !important;
   -webkit-text-fill-color: currentColor !important;
   display: -webkit-box !important;
   -webkit-box-orient: vertical !important;
   -webkit-line-clamp: 3 !important;
   overflow: hidden !important;
-  font-size: clamp(15px, 1.2vw, 17px) !important;
+  font-size: clamp(17px, 1.5vw, 22px) !important;
   font-weight: 650 !important;
-  line-height: 1.72 !important;
+  line-height: 1.58 !important;
   letter-spacing: 0 !important;
   text-shadow: 0 2px 10px rgba(2, 5, 18, 0.28) !important;
 }
@@ -14228,16 +14301,16 @@ body:has(.projects-page) .project-matrix-card .tag-row {
 }
 
 body:has(.projects-page) .project-matrix-card .tag-row span {
-  min-height: 34px !important;
-  padding: 0 16px !important;
+  min-height: clamp(34px, 2.9vw, 40px) !important;
+  padding: 0 clamp(16px, 1.45vw, 22px) !important;
   display: inline-flex !important;
   align-items: center !important;
-  border: 1px solid rgba(145, 150, 255, 0.32) !important;
-  border-radius: 9px !important;
-  background: rgba(84, 80, 179, 0.26) !important;
-  color: rgba(209, 214, 255, 0.9) !important;
+  border: 1px solid rgba(126, 121, 247, 0.42) !important;
+  border-radius: 10px !important;
+  background: rgba(75, 67, 143, 0.42) !important;
+  color: rgba(139, 148, 255, 0.96) !important;
   -webkit-text-fill-color: currentColor !important;
-  font-size: 12px !important;
+  font-size: clamp(12px, 1vw, 15px) !important;
   font-weight: 900 !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
@@ -14246,12 +14319,12 @@ body:has(.projects-page) .project-matrix-card .tag-row span {
 }
 
 body:has(.projects-page) .project-matrix-actions {
-  display: flex !important;
+  display: none !important;
   justify-content: flex-start !important;
   align-items: center !important;
 }
 
-body:has(.projects-page) .project-matrix-actions a {
+body:has(.projects-page) .project-matrix-actions span {
   min-height: 40px !important;
   padding: 0 18px !important;
   display: inline-flex !important;
@@ -14338,15 +14411,27 @@ body:has(.projects-page) .project-matrix-empty span {
   body:has(.projects-page) .project-matrix-card {
     min-height: 0 !important;
     border-radius: 22px !important;
+    padding: 28px 24px !important;
+    gap: 22px !important;
   }
 
   body:has(.projects-page) .project-matrix-card-head {
-    grid-template-columns: auto minmax(0, 1fr) !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    gap: 14px !important;
   }
 
   body:has(.projects-page) .project-repo-link {
-    grid-column: 2 !important;
-    justify-self: start !important;
+    grid-column: auto !important;
+    justify-self: end !important;
+  }
+
+  body:has(.projects-page) .project-matrix-title h2 {
+    font-size: clamp(25px, 9vw, 34px) !important;
+  }
+
+  body:has(.projects-page) .project-matrix-card > p {
+    font-size: 15px !important;
+    line-height: 1.64 !important;
   }
 }
 
@@ -14410,6 +14495,290 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.pro
   html[data-xh-theme] body:has(.projects-page) .project-matrix-hero p,
   html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .project-matrix-hero p {
     font-size: 15px !important;
+  }
+}
+
+/* Project page compact anime-card refinements. */
+body:has(.projects-page) .project-matrix-hero .channel-hero-signal,
+html[data-xh-theme] body:has(.projects-page) .project-matrix-hero .channel-hero-signal,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .project-matrix-hero .channel-hero-signal {
+  width: min(34rem, 100%) !important;
+  font-size: clamp(12px, 0.78vw, 14px) !important;
+  font-weight: 780 !important;
+  line-height: 1.45 !important;
+  opacity: 0.82 !important;
+}
+
+body:has(.projects-page) .project-matrix-grid {
+  width: min(1280px, 100%) !important;
+  gap: clamp(16px, 1.6vw, 24px) !important;
+}
+
+body:has(.projects-page) .project-matrix-card {
+  min-height: clamp(178px, 18vw, 246px) !important;
+  padding: clamp(22px, 2vw, 34px) clamp(22px, 2.35vw, 38px) !important;
+  gap: clamp(14px, 1.45vw, 22px) !important;
+  border-radius: clamp(18px, 1.65vw, 26px) !important;
+}
+
+body:has(.projects-page) .project-matrix-card-head {
+  gap: clamp(12px, 1.35vw, 20px) !important;
+}
+
+body:has(.projects-page) .project-matrix-index {
+  width: clamp(58px, 4.8vw, 76px) !important;
+  height: clamp(58px, 4.8vw, 76px) !important;
+  filter: drop-shadow(0 16px 24px rgba(20, 11, 32, 0.34)) !important;
+}
+
+body:has(.projects-page) .project-anime-icon {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  overflow: visible !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  transform: rotate(-4deg) !important;
+  transition: transform 180ms ease, filter 180ms ease !important;
+}
+
+body:has(.projects-page) .project-matrix-card:hover .project-anime-icon,
+body:has(.projects-page) .project-matrix-card:focus-visible .project-anime-icon {
+  transform: rotate(0deg) scale(1.05) !important;
+  filter: saturate(1.14) brightness(1.04) !important;
+}
+
+/* Project wax-seal RPG icons: library wax frame outside, RPG icon material inside. */
+body:has(.projects-page) .project-wax-seal {
+  position: relative !important;
+  isolation: isolate !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+  transform: rotate(var(--project-wax-tilt, -5deg)) !important;
+  --project-wax-frame-mask: url("/assets/project-icons/plain-circle.svg");
+  --project-rpg-mask: url("/assets/project-icons/crossed-sabres.svg");
+  --project-wax-aura: rgba(214, 57, 91, 0.42);
+  --project-wax-dark: #691d32;
+  --project-wax-mid: #b7354f;
+  --project-wax-light: #e9727e;
+  --project-wax-cream: #ffe9c7;
+  --project-wax-shadow: rgba(58, 14, 32, 0.46);
+}
+
+body:has(.projects-page) .project-wax-seal-aura,
+body:has(.projects-page) .project-wax-seal-frame,
+body:has(.projects-page) .project-wax-seal-core,
+body:has(.projects-page) .project-wax-seal-gloss,
+body:has(.projects-page) .project-rpg-glyph {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+body:has(.projects-page) .project-wax-seal-aura {
+  inset: -19% !important;
+  z-index: 0 !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle, var(--project-wax-aura), transparent 66%) !important;
+  filter: blur(10px) saturate(1.18) !important;
+  opacity: 0.96 !important;
+}
+
+body:has(.projects-page) .project-wax-seal-frame {
+  inset: -8% !important;
+  z-index: 1 !important;
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.28), transparent 18%),
+    radial-gradient(circle at 70% 80%, rgba(56, 7, 24, 0.28), transparent 26%),
+    conic-gradient(from 22deg, var(--project-wax-light), var(--project-wax-mid) 22%, var(--project-wax-dark) 43%, var(--project-wax-light) 61%, var(--project-wax-mid) 82%, var(--project-wax-dark)) !important;
+  -webkit-mask-image: var(--project-wax-frame-mask) !important;
+  mask-image: var(--project-wax-frame-mask) !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  filter:
+    drop-shadow(0 11px 16px var(--project-wax-shadow))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--project-wax-aura) 70%, transparent)) !important;
+}
+
+body:has(.projects-page) .project-wax-seal-frame::before,
+body:has(.projects-page) .project-wax-seal-frame::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+}
+
+body:has(.projects-page) .project-wax-seal-frame::before {
+  background:
+    repeating-conic-gradient(
+      from 6deg,
+      rgba(255, 232, 201, 0.48) 0deg 5deg,
+      rgba(88, 13, 34, 0.32) 5deg 10deg,
+      rgba(255, 232, 201, 0.16) 10deg 15deg
+    ) !important;
+  -webkit-mask-image: radial-gradient(circle, transparent 0 61%, #000 62% 76%, transparent 77%) !important;
+  mask-image: radial-gradient(circle, transparent 0 61%, #000 62% 76%, transparent 77%) !important;
+  mix-blend-mode: screen !important;
+  opacity: 0.82 !important;
+}
+
+body:has(.projects-page) .project-wax-seal-frame::after {
+  inset: 12% !important;
+  border: 2px solid rgba(255, 229, 197, 0.24) !important;
+  box-shadow:
+    0 0 0 5px rgba(79, 10, 31, 0.2),
+    inset 0 0 0 3px rgba(255, 221, 187, 0.1) !important;
+}
+
+body:has(.projects-page) .project-wax-seal-core {
+  inset: 26% !important;
+  z-index: 2 !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 35% 24%, rgba(255, 247, 218, 0.16), transparent 28%),
+    radial-gradient(circle at 55% 58%, rgba(73, 11, 30, 0.28), rgba(40, 6, 20, 0.34)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 225, 191, 0.22),
+    inset 0 0 0 7px rgba(255, 212, 172, 0.06),
+    inset 0 11px 18px rgba(255, 210, 174, 0.08),
+    inset 0 -12px 16px rgba(32, 4, 15, 0.32) !important;
+}
+
+body:has(.projects-page) .project-rpg-glyph {
+  width: 50% !important;
+  height: 50% !important;
+  z-index: 4 !important;
+  background: linear-gradient(145deg, #fff9e6, var(--project-wax-cream) 42%, rgba(255, 184, 166, 0.92)) !important;
+  -webkit-mask-image: var(--project-rpg-mask) !important;
+  mask-image: var(--project-rpg-mask) !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  filter:
+    drop-shadow(0 2px 0 rgba(52, 9, 24, 0.2))
+    drop-shadow(0 0 7px rgba(255, 220, 177, 0.2)) !important;
+  transform: rotate(var(--project-glyph-tilt, 0deg)) scale(var(--project-glyph-scale, 1)) !important;
+}
+
+body:has(.projects-page) .project-wax-seal-gloss {
+  inset: 13% 20% auto 20% !important;
+  z-index: 5 !important;
+  height: 21% !important;
+  border-radius: 999px 999px 48% 48% !important;
+  background: linear-gradient(140deg, rgba(255, 236, 218, 0.36), rgba(255, 255, 255, 0.04)) !important;
+  transform: rotate(-18deg) !important;
+  opacity: 0.76 !important;
+}
+
+body:has(.projects-page) .project-matrix-card:hover .project-wax-seal,
+body:has(.projects-page) .project-matrix-card:focus-visible .project-wax-seal {
+  transform: rotate(0deg) scale(1.08) !important;
+}
+
+body:has(.projects-page) .project-matrix-card:hover .project-rpg-glyph,
+body:has(.projects-page) .project-matrix-card:focus-visible .project-rpg-glyph {
+  transform: rotate(var(--project-glyph-tilt, 0deg)) scale(calc(var(--project-glyph-scale, 1) + 0.06)) !important;
+}
+
+body:has(.projects-page) .project-wax-seal-sabres {
+  --project-rpg-mask: url("/assets/project-icons/crossed-sabres.svg");
+  --project-wax-tilt: -7deg;
+  --project-glyph-tilt: -4deg;
+  --project-glyph-scale: 0.96;
+  --project-wax-aura: rgba(255, 112, 163, 0.48);
+  --project-wax-dark: #711f43;
+  --project-wax-mid: #bd3f65;
+  --project-wax-light: #f0869a;
+  --project-wax-cream: #ffe5bf;
+}
+
+body:has(.projects-page) .project-wax-seal-lantern {
+  --project-rpg-mask: url("/assets/project-icons/lantern.svg");
+  --project-wax-tilt: 4deg;
+  --project-glyph-scale: 0.95;
+  --project-wax-aura: rgba(255, 190, 82, 0.5);
+  --project-wax-dark: #6e2838;
+  --project-wax-mid: #b85050;
+  --project-wax-light: #ef8b65;
+  --project-wax-cream: #fff0c2;
+}
+
+body:has(.projects-page) .project-wax-seal-flower {
+  --project-rpg-mask: url("/assets/project-icons/flower-emblem.svg");
+  --project-wax-tilt: -6deg;
+  --project-glyph-scale: 0.94;
+  --project-wax-aura: rgba(255, 149, 204, 0.48);
+  --project-wax-dark: #6c244b;
+  --project-wax-mid: #b94169;
+  --project-wax-light: #ee8496;
+  --project-wax-cream: #ffe5bf;
+}
+
+body:has(.projects-page) .project-wax-seal-moon {
+  --project-rpg-mask: url("/assets/project-icons/moon-orbit.svg");
+  --project-wax-tilt: -3deg;
+  --project-glyph-scale: 0.96;
+  --project-wax-aura: rgba(196, 173, 255, 0.45);
+  --project-wax-dark: #35245f;
+  --project-wax-mid: #6b4a91;
+  --project-wax-light: #a88bcc;
+  --project-wax-cream: #f4ebff;
+}
+
+body:has(.projects-page) .project-wax-seal-compass {
+  --project-rpg-mask: url("/assets/project-icons/compass.svg");
+  --project-wax-tilt: -4deg;
+  --project-glyph-scale: 0.94;
+  --project-wax-aura: rgba(139, 219, 205, 0.43);
+  --project-wax-dark: #315f5d;
+  --project-wax-mid: #4f8b86;
+  --project-wax-light: #91c8ba;
+  --project-wax-cream: #effff5;
+}
+
+body:has(.projects-page) .project-matrix-title h2 {
+  font-size: clamp(23px, 2.1vw, 34px) !important;
+  line-height: 1.14 !important;
+}
+
+body:has(.projects-page) .project-repo-link {
+  width: clamp(34px, 3vw, 44px) !important;
+  height: clamp(34px, 3vw, 44px) !important;
+}
+
+body:has(.projects-page) .project-matrix-card > p {
+  -webkit-line-clamp: 2 !important;
+  font-size: clamp(14px, 1.12vw, 17px) !important;
+  line-height: 1.55 !important;
+}
+
+body:has(.projects-page) .project-matrix-card .tag-row {
+  gap: 8px !important;
+}
+
+body:has(.projects-page) .project-matrix-card .tag-row span {
+  min-height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 8px !important;
+  font-size: clamp(11px, 0.82vw, 13px) !important;
+}
+
+@media (max-width: 640px) {
+  body:has(.projects-page) .project-matrix-card {
+    padding: 22px 20px !important;
+    gap: 16px !important;
+  }
+
+  body:has(.projects-page) .project-matrix-title h2 {
+    font-size: clamp(22px, 7.4vw, 30px) !important;
   }
 }
 
@@ -15544,12 +15913,12 @@ body:has(.music-page) .music-playlist button[data-playing="true"] em:not(#xh-mus
 /* Music layout reset: refined player + queue, no full-width table feel. */
 body:has(.music-page) .music-studio:not(#xh-music-final-layout) {
   --music-edge: clamp(16px, 1.6vw, 24px);
-  --music-card-height: clamp(640px, calc(100vh - 250px), 730px);
-  grid-template-columns: minmax(300px, 370px) minmax(0, 750px) !important;
+  --music-card-height: clamp(620px, calc(100vh - 230px), 720px);
+  grid-template-columns: minmax(340px, 460px) minmax(0, 790px) !important;
   justify-content: center !important;
   align-items: stretch !important;
   gap: var(--music-edge) !important;
-  width: min(1160px, calc(100% - clamp(32px, 14vw, 300px))) !important;
+  width: min(1280px, calc(100% - clamp(24px, 7vw, 140px))) !important;
   min-height: 0 !important;
   margin: clamp(18px, 2.4vw, 30px) auto clamp(48px, 5vw, 76px) !important;
 }
@@ -15565,7 +15934,7 @@ body:has(.music-page) .music-stage:not(#xh-music-final-layout) {
   position: sticky !important;
   top: 104px !important;
   align-content: start !important;
-  gap: 12px !important;
+  gap: 14px !important;
   padding: clamp(20px, 2vw, 26px) !important;
 }
 
@@ -15588,8 +15957,8 @@ body:has(.music-page) .music-stage:not(#xh-music-final-layout)::after {
 }
 
 body:has(.music-page) .music-vinyl:not(#xh-music-final-layout) {
-  width: clamp(224px, 18.8vw, 286px) !important;
-  margin-block: 2px 8px !important;
+  width: clamp(236px, 20vw, 306px) !important;
+  margin-block: 2px 10px !important;
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 244, 250, 0.92) 0 4.6%, rgba(255, 219, 242, 0.88) 4.8% 9.2%, transparent 9.4%),
     radial-gradient(circle at 36% 28%, rgba(255, 255, 255, 0.11), transparent 24%),
@@ -15639,9 +16008,33 @@ body:has(.music-page) .music-current:not(#xh-music-final-layout) {
 }
 
 body:has(.music-page) .music-current h2:not(#xh-music-final-layout) {
-  max-width: 9ch !important;
+  max-width: 14ch !important;
   margin: 2px auto !important;
-  font-size: clamp(38px, 3.2vw, 52px) !important;
+  font-size: 42px !important;
+}
+
+body:has(.music-page) .music-current h2:not(#xh-music-title-lock) {
+  display: -webkit-box !important;
+  width: min(100%, 15ch) !important;
+  max-width: min(100%, 15ch) !important;
+  max-height: 2.2em !important;
+  overflow: hidden !important;
+  line-height: 1.1 !important;
+  overflow-wrap: anywhere !important;
+  text-overflow: ellipsis !important;
+  text-wrap: balance !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+body:has(.music-page) .music-current[data-long-title="true"] h2:not(#xh-music-title-lock) {
+  width: min(100%, 18ch) !important;
+  max-width: min(100%, 18ch) !important;
+  max-height: 2.24em !important;
+  font-size: 34px !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
 }
 
 body:has(.music-page) .music-current span:not(#xh-music-final-layout),
@@ -15653,7 +16046,7 @@ body:has(.music-page) .music-current small:not(#xh-music-final-layout) {
   white-space: nowrap !important;
 }
 
-body:has(.music-page) :is(.music-progress, .music-status-row, .music-sync-note, .music-orbit-controls):not(#xh-music-final-layout) {
+body:has(.music-page) :is(.music-progress, .music-player-dock):not(#xh-music-final-layout) {
   width: 100% !important;
 }
 
@@ -15662,6 +16055,48 @@ body:has(.music-page) .music-sync-note:not(#xh-music-final-layout) {
   overflow: auto !important;
   padding: 10px 12px !important;
   font-size: 12px !important;
+}
+
+body:has(.music-page) .music-stage-volume:not(#xh-music-final-layout) {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) 42px !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: 36px !important;
+  margin: -2px 0 0 !important;
+  padding: 0 2px !important;
+  justify-self: stretch !important;
+}
+
+body:has(.music-page) .music-stage-volume .music-route-chip:not(#xh-music-final-layout) {
+  min-height: 34px !important;
+  width: 34px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+}
+
+body:has(.music-page) .music-stage-volume label:not(#xh-music-final-layout) {
+  display: grid !important;
+  min-width: 0 !important;
+}
+
+body:has(.music-page) .music-stage-volume input:not(#xh-music-final-layout) {
+  width: 100% !important;
+  height: 8px !important;
+  min-height: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background:
+    linear-gradient(90deg, #7fd7ff 0 var(--volume, 84%), rgba(255, 238, 249, 0.32) var(--volume, 84%) 100%) !important;
+}
+
+body:has(.music-page) .music-stage-volume-value:not(#xh-music-final-layout) {
+  color: rgba(247, 250, 255, 0.76) !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
 }
 
 body:has(.music-page) .music-orbit-controls:not(#xh-music-final-layout) {
@@ -15683,10 +16118,10 @@ body:has(.music-page) .music-panel:not(#xh-music-final-layout) {
 }
 
 body:has(.music-page) .music-command-bar:not(#xh-music-final-layout) {
-  width: min(520px, 100%) !important;
+  width: min(620px, 100%) !important;
   height: 44px !important;
   min-height: 44px !important;
-  grid-template-columns: minmax(190px, 1fr) 50px minmax(98px, 118px) !important;
+  grid-template-columns: minmax(180px, 1fr) 86px 50px minmax(98px, 118px) !important;
   justify-self: center !important;
   padding: 4px !important;
   border-radius: 999px !important;
@@ -15695,6 +16130,31 @@ body:has(.music-page) .music-command-bar:not(#xh-music-final-layout) {
 body:has(.music-page) .music-command-bar input:not(#xh-music-final-layout) {
   min-height: 32px !important;
   font-size: 12px !important;
+}
+
+body:has(.music-page) .music-file-picker:not(#xh-music-final-layout) {
+  min-width: 0 !important;
+  gap: 0 !important;
+}
+
+body:has(.music-page) .music-file-picker span:not(#xh-music-final-layout) {
+  width: 100% !important;
+  min-height: 32px !important;
+  padding: 0 11px !important;
+  border-color: rgba(255, 238, 249, 0.2) !important;
+  background: rgba(255, 255, 255, 0.13) !important;
+  color: rgba(255, 248, 254, 0.88) !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+body:has(.music-page) .music-file-picker input:not(#xh-music-final-layout) {
+  position: absolute !important;
+  inset: 0 !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
 }
 
 body:has(.music-page) .music-cloud-count:not(#xh-music-final-layout),
@@ -15807,8 +16267,8 @@ body:has(.music-page) .music-lyrics p.is-active:not(#xh-music-final-layout) {
 
 @media (max-width: 1180px) {
   body:has(.music-page) .music-studio:not(#xh-music-final-layout) {
-    width: min(1040px, calc(100% - 32px)) !important;
-    grid-template-columns: minmax(280px, 348px) minmax(0, 1fr) !important;
+    width: min(1160px, calc(100% - 32px)) !important;
+    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr) !important;
   }
 }
 
@@ -15826,6 +16286,10 @@ body:has(.music-page) .music-lyrics p.is-active:not(#xh-music-final-layout) {
     min-height: 0 !important;
   }
 
+  body:has(.music-page) .music-player-dock:not(#xh-music-control-fix) {
+    width: min(440px, 100%) !important;
+  }
+
   body:has(.music-page) .music-panel:not(#xh-music-final-layout) {
     height: clamp(520px, 70vh, 640px) !important;
     min-height: 520px !important;
@@ -15837,11 +16301,63 @@ body:has(.music-page) .music-lyrics p.is-active:not(#xh-music-final-layout) {
     width: calc(100% - 18px) !important;
   }
 
+  body:has(.music-page) .music-stage:not(#xh-music-final-layout) {
+    gap: 12px !important;
+    padding: 18px !important;
+  }
+
+  body:has(.music-page) .music-vinyl:not(#xh-music-final-layout) {
+    width: min(262px, 64vw) !important;
+    margin-block: 0 8px !important;
+  }
+
+  body:has(.music-page) .music-current h2:not(#xh-music-final-layout) {
+    font-size: 36px !important;
+  }
+
+  body:has(.music-page) .music-current[data-long-title="true"] h2:not(#xh-music-title-lock) {
+    width: min(100%, 16ch) !important;
+    max-width: min(100%, 16ch) !important;
+    font-size: 32px !important;
+    line-height: 1.08 !important;
+  }
+
+  body:has(.music-page) .music-player-dock:not(#xh-music-control-fix) {
+    width: min(420px, 100%) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  body:has(.music-page) .music-player-dock .music-skip-button:not(#xh-music-control-fix),
+  body:has(.music-page) .music-player-dock .music-mode-button:not(#xh-music-control-fix),
+  body:has(.music-page) .music-player-dock .music-dock-volume:not(#xh-music-control-fix) {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  body:has(.music-page) .music-player-dock .music-play-toggle:not(#xh-music-control-fix) {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    min-height: 72px !important;
+  }
+
+  body:has(.music-page) .music-player-dock .music-dock-volume label:not(#xh-music-control-fix) {
+    width: 112px !important;
+    min-width: 112px !important;
+  }
+
   body:has(.music-page) .music-command-bar:not(#xh-music-final-layout) {
     height: auto !important;
     min-height: 0 !important;
     grid-template-columns: 1fr 50px !important;
     border-radius: 20px !important;
+  }
+
+  body:has(.music-page) .music-file-picker:not(#xh-music-final-layout) {
+    grid-column: 1 / -1 !important;
   }
 
   body:has(.music-page) .music-volume-cluster:not(#xh-music-final-layout) {
@@ -15977,6 +16493,160 @@ body:has(.music-page) .music-orbit-controls .music-play-toggle > span:not(#xh-mu
 }
 
 body:has(.music-page) .music-orbit-controls :is(.music-skip-button, .music-play-toggle):is(:hover, :focus-visible):not(#xh-music-control-fix) {
+  transform: translateY(-1px) !important;
+}
+
+body:has(.music-page) .music-player-dock:not(#xh-music-control-fix) {
+  display: grid !important;
+  width: min(560px, 100%) !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: clamp(8px, 1.2vw, 14px) !important;
+  margin-top: auto !important;
+  justify-self: center !important;
+}
+
+body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-dock-volume):not(#xh-music-control-fix) {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  position: relative !important;
+  display: grid !important;
+  box-sizing: border-box !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-dock-volume)::before,
+body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-dock-volume)::after {
+  content: none !important;
+  display: none !important;
+}
+
+body:has(.music-page) .music-player-dock .music-skip-button:not(#xh-music-control-fix),
+body:has(.music-page) .music-player-dock .music-mode-button:not(#xh-music-control-fix) {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px !important;
+  min-height: 54px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgba(221, 236, 255, 0.86) !important;
+}
+
+body:has(.music-page) .music-player-dock .music-dock-volume:not(#xh-music-control-fix) {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px !important;
+  min-height: 54px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgba(221, 236, 255, 0.86) !important;
+}
+
+body:has(.music-page) .music-player-dock .music-play-toggle:not(#xh-music-control-fix) {
+  width: 78px !important;
+  height: 78px !important;
+  min-width: 78px !important;
+  min-height: 78px !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  background:
+    radial-gradient(circle at 36% 26%, rgba(255, 255, 255, 0.44), transparent 34%),
+    linear-gradient(135deg, #6a61ff, #66d9ff) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 22px 42px rgba(100, 104, 255, 0.34) !important;
+  color: #ffffff !important;
+}
+
+body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-volume-button) > span:not(#xh-music-control-fix) {
+  position: relative !important;
+  z-index: 2 !important;
+  display: grid !important;
+  width: 100% !important;
+  height: 100% !important;
+  place-items: center !important;
+  color: currentColor !important;
+  -webkit-text-fill-color: currentColor !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-shadow: 0 1px 8px rgba(12, 8, 22, 0.28) !important;
+  transform: none !important;
+}
+
+body:has(.music-page) .music-player-dock .music-skip-button > span:not(#xh-music-control-fix) {
+  font-size: 34px !important;
+}
+
+body:has(.music-page) .music-player-dock .music-mode-button > span:not(#xh-music-control-fix),
+body:has(.music-page) .music-player-dock .music-volume-button > span:not(#xh-music-control-fix) {
+  font-size: 23px !important;
+}
+
+body:has(.music-page) .music-player-dock .music-play-toggle > span:not(#xh-music-control-fix) {
+  font-size: 28px !important;
+}
+
+body:has(.music-page) .music-player-dock .music-volume-button:not(#xh-music-control-fix) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  cursor: pointer !important;
+}
+
+body:has(.music-page) .music-player-dock .music-dock-volume label:not(#xh-music-control-fix) {
+  position: absolute !important;
+  left: 50% !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: calc(100% + 12px) !important;
+  display: grid !important;
+  width: 128px !important;
+  min-width: 128px !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  border-radius: 999px !important;
+  background: rgba(67, 62, 86, 0.82) !important;
+  box-shadow: 0 18px 42px rgba(7, 6, 18, 0.28) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, 6px) !important;
+  transition: opacity 180ms ease, transform 180ms ease !important;
+}
+
+body:has(.music-page) .music-player-dock .music-dock-volume:is(:hover, :focus-within) label:not(#xh-music-control-fix) {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translate(-50%, 0) !important;
+}
+
+body:has(.music-page) .music-player-dock .music-dock-volume input:not(#xh-music-control-fix) {
+  width: 100% !important;
+  height: 8px !important;
+  min-height: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  appearance: none !important;
+  background:
+    linear-gradient(90deg, #79dcff 0 var(--volume, 84%), rgba(255, 255, 255, 0.28) var(--volume, 84%) 100%) !important;
+}
+
+body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-volume-button):is(:hover, :focus-visible):not(#xh-music-control-fix) {
   transform: translateY(-1px) !important;
 }
 
@@ -16416,12 +17086,53 @@ body:has(.friends-page) .friends-comments .github-comments-card {
   margin-top: 0 !important;
 }
 
+/* About comments panel connection: keep comments as the lower half of the joined panel. */
+.about-page .about-joined-panel > .github-comments-shell {
+  width: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.about-page .about-joined-panel > .github-comments-shell .github-comments-card {
+  margin-top: 0 !important;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 4.75rem 4.75rem !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.26) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  overflow: visible !important;
+}
+
+html[data-xh-theme="night"] .about-page .about-joined-panel > .github-comments-shell .github-comments-card {
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+@media (max-width: 980px) {
+  .about-page .about-joined-panel > .github-comments-shell .github-comments-card {
+    padding: 1.5rem 2rem 3rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-page .about-joined-panel {
+    width: calc(100% - 1rem) !important;
+    border-radius: 1.25rem !important;
+  }
+
+  .about-page .about-joined-panel > .github-comments-shell .github-comments-card {
+    padding: 1.25rem 1rem 2rem !important;
+  }
+}
+
 /* Non-home synchronized floating radio player. */
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player,
 body:has(.subpage) .xh-floating-player {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-rows: auto auto auto !important;
+  grid-template-rows: auto auto auto auto !important;
   right: clamp(88px, 7.5vw, 104px) !important;
   bottom: clamp(14px, 1.8vw, 22px) !important;
   gap: 2px !important;
@@ -16511,6 +17222,79 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.sub
 body:has(.subpage) .xh-floating-player-controls button:disabled {
   cursor: not-allowed !important;
   opacity: 0.45 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume,
+body:has(.subpage) .xh-floating-player-volume {
+  position: relative !important;
+  z-index: 3 !important;
+  display: grid !important;
+  grid-template-columns: 22px minmax(0, 1fr) !important;
+  gap: 6px !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 2px !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume button,
+body:has(.subpage) .xh-floating-player-volume button {
+  display: grid !important;
+  width: 21px !important;
+  height: 21px !important;
+  min-width: 21px !important;
+  min-height: 21px !important;
+  place-items: center !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: currentColor !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume label,
+body:has(.subpage) .xh-floating-player-volume label {
+  display: grid !important;
+  min-width: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume input,
+body:has(.subpage) .xh-floating-player-volume input {
+  width: 100% !important;
+  height: 6px !important;
+  min-height: 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  appearance: none !important;
+  background:
+    linear-gradient(90deg, #8edcff 0 var(--floating-volume, 84%), rgba(255, 255, 255, 0.22) var(--floating-volume, 84%) 100%) !important;
+  cursor: pointer !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume input::-webkit-slider-thumb,
+body:has(.subpage) .xh-floating-player-volume input::-webkit-slider-thumb {
+  width: 13px !important;
+  height: 13px !important;
+  border: 2px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 999px !important;
+  appearance: none !important;
+  background: #ff9ad0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-floating-player-volume input::-moz-range-thumb,
+body:has(.subpage) .xh-floating-player-volume input::-moz-range-thumb {
+  width: 13px !important;
+  height: 13px !important;
+  border: 2px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 999px !important;
+  background: #ff9ad0 !important;
 }
 
 @media (max-width: 720px) {
@@ -16879,7 +17663,7 @@ body:has(.subpage) .xh-floating-player {
   left: auto !important;
   right: clamp(14px, 1.8vw, 22px) !important;
   bottom: clamp(14px, 1.8vw, 22px) !important;
-  width: min(178px, calc(100vw - 28px)) !important;
+  width: min(208px, calc(100vw - 28px)) !important;
 }
 
 /* Non-home vertical stack: day/night switch, Kurisu, then synchronized radio player. */
@@ -17007,7 +17791,7 @@ body:has(.subpage) .xh-pixel-kurisu-pet[data-toast="true"] {
     left: auto !important;
     right: 10px !important;
     bottom: 10px !important;
-    width: min(170px, calc(100vw - 20px)) !important;
+    width: min(194px, calc(100vw - 20px)) !important;
   }
 
   html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-pixel-kurisu-pet,
@@ -17169,6 +17953,30 @@ body:has(.xh-clean-home) .xh-clean-home .xh-cloud-note {
   -webkit-line-clamp: 2 !important;
 }
 
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-lyric-subtitle:not(#xh-home-cloud-lyric-subtitle) {
+  min-height: 2.9em !important;
+  color: rgba(248, 255, 255, 0.94) !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-stroke: 0.18px rgba(255, 247, 191, 0.42) !important;
+  filter: none !important;
+  font-size: clamp(12px, 1.05vw, 15px) !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0 !important;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.34),
+    0 0 6px rgba(255, 247, 191, 0.42),
+    0 0 14px rgba(127, 247, 255, 0.38),
+    0 0 26px rgba(255, 183, 216, 0.18),
+    0 2px 6px rgba(21, 12, 35, 0.44) !important;
+  text-wrap: balance !important;
+  white-space: pre-line !important;
+}
+
 body:has(.xh-clean-home) .xh-clean-home .xh-player-progress {
   grid-area: progress !important;
   grid-column: 1 / -1 !important;
@@ -17325,4 +18133,420 @@ body:has(.xh-clean-home) .xh-clean-home .xh-player-bars {
   color: rgba(255, 250, 255, 0.86) !important;
   -webkit-text-fill-color: currentColor !important;
   text-shadow: inherit !important;
+}
+
+/* Admin readability lock: the private console must stay plain and high contrast. */
+#xh-app-root:has(.admin-private-page),
+#xh-app-root:has(.admin-private-page) .admin-private-page,
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(h1, h2, h3, h4, h5, h6, p, li, dd, figcaption, blockquote, span, small, time, label, input, textarea, select, option, button, a, strong, b, em, dt, th) {
+  color: #1e293b !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(h1, h2, h3, h4, h5, h6, strong, .fraud-admin-summary strong, .fraud-workspace-meta strong, .fraud-module-table strong) {
+  color: #10233f !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(p, small, figcaption, .fraud-admin-summary span, .fraud-admin-summary small, .fraud-tool-tabs small, .fraud-admin-sidebar small, .fraud-workspace-meta small, .fraud-module-table span, .fraud-module-table small) {
+  color: #526173 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(.admin-kicker, .fraud-admin-sidebar [data-risk="需处理"], .fraud-workspace-meta [data-risk="需处理"], .fraud-module-table [data-risk="需处理"]) {
+  color: #b42318 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(.fraud-admin-sidebar [data-risk="注意"], .fraud-workspace-meta [data-risk="注意"], .fraud-module-table [data-risk="注意"]) {
+  color: #a15c00 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(.button.primary) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(input::placeholder, textarea::placeholder) {
+  color: #64748b !important;
+  -webkit-text-fill-color: currentColor !important;
+  opacity: 1 !important;
+}
+
+/* Home card routing affordances */
+body:has(.xh-clean-home) .xh-clean-card.xh-clean-profile,
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card {
+  position: relative;
+  cursor: pointer;
+  isolation: isolate;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease !important;
+}
+
+body:has(.xh-clean-home) .xh-profile-card-open,
+body:has(.xh-clean-home) .xh-cloud-player-open {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 3 !important;
+  border-radius: inherit !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  outline: none !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-open {
+  z-index: 3 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+body:has(.xh-clean-home) .xh-profile-card-open::after,
+body:has(.xh-clean-home) .xh-cloud-player-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(143, 165, 255, 0.54);
+  background:
+    linear-gradient(135deg, rgba(143, 165, 255, 0.16), rgba(127, 215, 255, 0.08)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+    0 0 0 0 rgba(127, 215, 255, 0);
+  opacity: 0;
+  transition:
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+  pointer-events: none;
+}
+
+body:has(.xh-clean-home) .xh-clean-card.xh-clean-profile > :not(.xh-profile-card-open),
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card > :not(.xh-cloud-player-open) {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-profile .xh-profile-window-bar {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  margin: 0 0 10px !important;
+  z-index: 1 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-profile .xh-profile-actions,
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls {
+  position: relative;
+  z-index: 4 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-profile .xh-profile-actions a,
+body:has(.xh-clean-home) .xh-clean-home .xh-player-controls button {
+  position: relative;
+  z-index: 5 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card .xh-player-controls {
+  position: relative !important;
+  z-index: 4 !important;
+  pointer-events: auto !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card .xh-player-controls button {
+  position: relative !important;
+  z-index: 5 !important;
+  pointer-events: auto !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-card.xh-clean-profile:has(.xh-profile-card-open:hover),
+body:has(.xh-clean-home) .xh-clean-card.xh-clean-profile:has(.xh-profile-card-open:focus-visible),
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card:has(.xh-cloud-player-open:hover),
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card:has(.xh-cloud-player-open:focus-visible) {
+  transform: translateY(-3px) !important;
+  border-color: rgba(143, 165, 255, 0.62) !important;
+  box-shadow:
+    0 28px 76px rgba(36, 48, 96, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+body:has(.xh-clean-home) .xh-profile-card-open:hover::after,
+body:has(.xh-clean-home) .xh-profile-card-open:focus-visible::after,
+body:has(.xh-clean-home) .xh-cloud-player-open:hover::after,
+body:has(.xh-clean-home) .xh-cloud-player-open:focus-visible::after {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 0 0 3px rgba(127, 215, 255, 0.1);
+}
+
+body:has(.xh-clean-home) .xh-clean-card.xh-clean-profile:has(.xh-profile-card-open:active),
+body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card:has(.xh-cloud-player-open:active) {
+  transform: translateY(1px) scale(0.992) !important;
+}
+
+body:has(.xh-clean-home) .xh-profile-card-open:active::after,
+body:has(.xh-clean-home) .xh-cloud-player-open:active::after {
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 2px rgba(127, 215, 255, 0.4),
+    inset 0 24px 80px rgba(143, 165, 255, 0.18),
+    0 0 0 4px rgba(127, 215, 255, 0.14);
+}
+
+/* Chatter detail typography: keep long Chinese titles readable and aligned. */
+body:has(.chatter-detail-page) .chatter-detail-page .article-capsule {
+  display: grid !important;
+  align-items: start !important;
+  gap: clamp(12px, 1.8vw, 18px) !important;
+  padding-top: clamp(4px, 1.4vw, 14px) !important;
+}
+
+body:has(.chatter-detail-page) .chatter-detail-page .article-kicker {
+  margin-bottom: 0 !important;
+}
+
+body:has(.chatter-detail-page) .chatter-detail-page .article-capsule h1 {
+  width: min(760px, calc(100% - clamp(48px, 10vw, 116px))) !important;
+  max-width: 760px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  color: var(--xh-readable-heading) !important;
+  font-family: "Noto Serif SC", "Songti SC", "Microsoft YaHei", serif !important;
+  font-size: clamp(42px, 5.4vw, 76px) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.08 !important;
+  overflow-wrap: anywhere !important;
+  text-wrap: balance !important;
+}
+
+body:has(.chatter-detail-page) .chatter-detail-page .article-summary {
+  width: min(780px, calc(100% - clamp(48px, 10vw, 116px))) !important;
+  max-width: 780px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  color: var(--xh-readable-muted) !important;
+  font-size: clamp(16px, 1.25vw, 19px) !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.85 !important;
+}
+
+body:has(.chatter-detail-page) .chatter-detail-page .article-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 9px !important;
+  width: min(780px, calc(100% - clamp(48px, 10vw, 116px))) !important;
+  margin: 2px clamp(24px, 5vw, 58px) 0 !important;
+}
+
+body:has(.chatter-detail-page) .chatter-detail-page .article-tags span {
+  display: inline-flex !important;
+  min-height: 32px !important;
+  align-items: center !important;
+  border: 1px solid rgba(255, 238, 249, 0.36) !important;
+  border-radius: 999px !important;
+  padding: 0 11px !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: var(--xh-readable-muted) !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+@media (max-width: 760px) {
+  body:has(.chatter-detail-page) .chatter-detail-page .article-capsule h1 {
+    width: calc(100% - 48px) !important;
+    font-size: clamp(32px, 9.6vw, 38px) !important;
+    line-height: 1.14 !important;
+    text-wrap: wrap !important;
+  }
+
+  body:has(.chatter-detail-page) .chatter-detail-page .article-summary,
+  body:has(.chatter-detail-page) .chatter-detail-page .article-tags {
+    width: calc(100% - 48px) !important;
+  }
+}
+
+/* Final About joined panel cleanup: children share the parent surface. */
+body:has(.about-page) .about-page .about-joined-panel > .about-profile-panel,
+html[data-xh-theme] body:has(.about-page) .about-page .about-joined-panel > .about-profile-panel,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.about-page) .about-page .about-joined-panel > .about-profile-panel,
+body:has(.about-page) .about-page .about-joined-panel > .github-comments-shell .github-comments-card,
+html[data-xh-theme] body:has(.about-page) .about-page .about-joined-panel > .github-comments-shell .github-comments-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.about-page) .about-page .about-joined-panel > .github-comments-shell .github-comments-card {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Music lyric bright subtitles: moonlit gold and cyan karaoke glow. */
+body:has(.music-page) .music-lyrics:not(#xh-music-bright-subtitles) {
+  border-color: rgba(255, 247, 191, 0.24) !important;
+  background:
+    radial-gradient(circle at 50% 44%, rgba(127, 247, 255, 0.16), transparent 19rem),
+    radial-gradient(circle at 50% 56%, rgba(255, 247, 191, 0.15), transparent 16rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)) !important;
+}
+
+body:has(.music-page) .music-lyrics p:not(#xh-music-bright-subtitles) {
+  color: rgba(232, 250, 255, 0.5) !important;
+  text-shadow: 0 0 12px rgba(127, 247, 255, 0.13) !important;
+}
+
+body:has(.music-page) .music-lyrics p.is-active:not(#xh-music-bright-subtitles) {
+  color: transparent !important;
+  background:
+    linear-gradient(100deg, #ffffff 0%, #fff7bf 28%, #7ff7ff 54%, #ffb7d8 76%, #ffffff 100%) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 255, 255, 0.44))
+    drop-shadow(0 0 22px rgba(127, 247, 255, 0.42))
+    drop-shadow(0 0 34px rgba(255, 247, 191, 0.24)) !important;
+  text-shadow: none !important;
+}
+
+body:has(.music-page) .music-lyrics p.is-active:not(#xh-music-bright-subtitles)::after {
+  background: linear-gradient(90deg, transparent, #fff7bf 26%, #7ff7ff 58%, transparent) !important;
+  box-shadow:
+    0 0 12px rgba(255, 247, 191, 0.52),
+    0 0 24px rgba(127, 247, 255, 0.36) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-text:not(#xh-music-bright-subtitles) {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fff7bf 36%, #7ff7ff 68%, #ffb7d8 100%),
+    linear-gradient(90deg, transparent, rgba(255, 247, 191, 0.56), rgba(127, 247, 255, 0.48), transparent) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 0.28px rgba(255, 255, 255, 0.62) !important;
+  filter:
+    drop-shadow(0 0 9px rgba(255, 255, 255, 0.5))
+    drop-shadow(0 0 18px rgba(127, 247, 255, 0.46))
+    drop-shadow(0 0 30px rgba(255, 247, 191, 0.25)) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-strip[data-prelude="true"] .xh-lyric-text:not(#xh-music-bright-subtitles) {
+  font-size: clamp(13px, 1.12vw, 17px) !important;
+  font-weight: 850 !important;
+  line-height: 1.35 !important;
+  opacity: 0.92 !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fff9d8 44%, #9ffaff 100%),
+    linear-gradient(90deg, transparent, rgba(127, 247, 255, 0.42), transparent) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter:
+    drop-shadow(0 0 7px rgba(255, 255, 255, 0.42))
+    drop-shadow(0 0 16px rgba(127, 247, 255, 0.32)) !important;
+}
+
+/* Music lyric strip integration: glow belongs to the bar, not a text box. */
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-strip:not(#xh-music-lyric-strip-integrated) {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(127, 247, 255, 0.14) 0%, rgba(127, 247, 255, 0.06) 28%, transparent 48%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 247, 191, 0.12) 0%, transparent 42%),
+    linear-gradient(180deg, rgba(23, 24, 43, 0.96), rgba(15, 15, 31, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 36px rgba(127, 247, 255, 0.08),
+    0 18px 42px rgba(12, 13, 30, 0.28) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-strip:not(#xh-music-lyric-strip-integrated)::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: 12px clamp(120px, 34vw, 620px) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent),
+    radial-gradient(ellipse at 50% 50%, rgba(127, 247, 255, 0.2), transparent 68%) !important;
+  filter: blur(10px) !important;
+  opacity: 0.78 !important;
+  pointer-events: none !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-caption:not(#xh-music-lyric-strip-integrated) {
+  z-index: 1 !important;
+  overflow: visible !important;
+  padding: 0 clamp(10px, 2vw, 28px) !important;
+  background: transparent !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-text:not(#xh-music-lyric-strip-integrated) {
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  color: rgba(250, 255, 255, 0.94) !important;
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-stroke: 0.32px rgba(255, 247, 191, 0.48) !important;
+  filter: none !important;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 6px rgba(255, 247, 191, 0.5),
+    0 0 14px rgba(127, 247, 255, 0.42),
+    0 0 28px rgba(127, 247, 255, 0.22),
+    0 2px 5px rgba(0, 0, 0, 0.52) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home .xh-lyric-strip[data-prelude="true"] .xh-lyric-text:not(#xh-music-lyric-strip-integrated) {
+  color: rgba(236, 255, 255, 0.88) !important;
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-stroke: 0.22px rgba(255, 247, 191, 0.42) !important;
+  text-shadow:
+    0 0 5px rgba(255, 247, 191, 0.35),
+    0 0 13px rgba(127, 247, 255, 0.36),
+    0 2px 5px rgba(0, 0, 0, 0.48) !important;
+}
+
+/* Music player card lyric subtitle: a small caption that belongs to the glass panel. */
+body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-lyric-subtitle) {
+  display: -webkit-box !important;
+  width: min(100%, 38ch) !important;
+  max-width: min(100%, 38ch) !important;
+  min-height: 2.72em !important;
+  margin-top: 10px !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  color: rgba(248, 255, 255, 0.93) !important;
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-stroke: 0.18px rgba(255, 247, 191, 0.42) !important;
+  filter: none !important;
+  font-size: clamp(13px, 1.18vw, 16px) !important;
+  font-weight: 850 !important;
+  line-height: 1.36 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+  text-overflow: clip !important;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.34),
+    0 0 6px rgba(255, 247, 191, 0.42),
+    0 0 14px rgba(127, 247, 255, 0.38),
+    0 0 26px rgba(255, 183, 216, 0.18),
+    0 2px 6px rgba(21, 12, 35, 0.44) !important;
+  text-wrap: balance !important;
+  white-space: pre-line !important;
 }

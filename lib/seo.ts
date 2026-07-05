@@ -88,13 +88,6 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     description: '了解作者、站点状态和联系方式。',
     changeFrequency: 'monthly',
     priority: 0.68
-  },
-  {
-    path: '/console',
-    title: '发布工作流',
-    description: '查看 GitHub、Vercel 和内容数据同步的博客发布方式。',
-    changeFrequency: 'monthly',
-    priority: 0.42
   }
 ];
 

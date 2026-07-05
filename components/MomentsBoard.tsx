@@ -39,10 +39,19 @@ function noteImages(note: BlogNote, index: number): string[] {
   return Array.from({ length: count }, (_item, imageIndex) => pool[(index + imageIndex) % pool.length]);
 }
 
-export function MomentsBoard({ comments, notes }: { comments: CommentConfig; notes: BlogNote[] }) {
+type MomentsBoardProps = {
+  authorName: string;
+  avatar?: string;
+  comments: CommentConfig;
+  notes: BlogNote[];
+};
+
+export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoardProps) {
   const [query, setQuery] = useState('');
   const [activeMood, setActiveMood] = useState(allMood);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const displayName = authorName.trim() || '博客作者';
+  const displayAvatar = avatar || '/assets/img/avatar-orbit.svg';
 
   const moods = useMemo(() => [allMood, ...Array.from(new Set(notes.map((note) => note.mood).filter(Boolean))) as string[]], [notes]);
   const filteredNotes = useMemo(() => {
@@ -124,10 +133,10 @@ export function MomentsBoard({ comments, notes }: { comments: CommentConfig; not
             <article className="moment-post" id={`moment-${note.id}`} key={note.id}>
               <header>
                 <span className="moment-avatar">
-                  <Image src="/assets/img/avatar-orbit.svg" alt="" width={64} height={64} />
+                  <Image src={displayAvatar} alt="" width={64} height={64} />
                 </span>
                 <span>
-                  <strong>星屿手记</strong>
+                  <strong>{displayName}</strong>
                   <time>{formatDate(note.date)}</time>
                 </span>
               </header>
@@ -142,7 +151,6 @@ export function MomentsBoard({ comments, notes }: { comments: CommentConfig; not
                 </div>
               ) : null}
               <footer>
-                <span className="moment-location">长沙 / Changsha</span>
                 <span className="moment-tags">
                   {note.mood ? <small>{note.mood}</small> : null}
                   {(note.tags ?? []).slice(0, 4).map((tag) => <small key={tag}>#{tag}</small>)}

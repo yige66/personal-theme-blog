@@ -28,7 +28,7 @@ export default async function ChatterDetailPage({ params }: { params: Promise<{ 
         <header className="article-capsule">
           <p className="article-kicker">Chatter / {chatter.mood || 'Notebook'}</p>
           <h1>{chatter.title}</h1>
-          <p>{chatter.summary}</p>
+          <p className="article-summary">{chatter.summary}</p>
           <div className="article-tags">
             {chatter.tags.map((tag) => <span key={tag}>{tag}</span>)}
           </div>

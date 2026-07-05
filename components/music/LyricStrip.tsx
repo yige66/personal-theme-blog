@@ -3,7 +3,7 @@
 import { useMusic } from './MusicProvider';
 
 export function LyricStrip() {
-  const { currentLyric, isPlaying } = useMusic();
+  const { currentLyric, isPlaying, isLyricPrelude } = useMusic();
   const caption = currentLyric || '\u7b49\u5f85\u6b4c\u8bcd';
 
   return (
@@ -12,6 +12,7 @@ export function LyricStrip() {
       data-motion="portal-card"
       aria-label={'\u5f53\u524d\u6b4c\u8bcd'}
       data-playing={isPlaying ? 'true' : 'false'}
+      data-prelude={isLyricPrelude ? 'true' : 'false'}
     >
       <span className="xh-lyric-dots" aria-hidden="true">
         <i />

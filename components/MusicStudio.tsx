@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import type { MusicTrack } from '@/lib/blog';
 import { useMusic } from './music/MusicProvider';
 
@@ -27,21 +27,9 @@ function formatTime(time: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
-function formatPlaybackState(isLoading: boolean, isPlaying: boolean, track: MusicTrack): string {
-  if (isLoading) {
-    return '同步中';
-  }
-
-  if (isPlaying) {
-    return '播放中';
-  }
-
-  return track.url ? '已就绪' : '待接入';
-}
-
 function formatPlayModeLabel(mode: string): string {
-  if (mode === 'loop') {
-    return '循环';
+  if (mode === 'repeat-one') {
+    return '单曲循环';
   }
 
   if (mode === 'shuffle') {
@@ -59,6 +47,14 @@ function formatTrackSource(track: MusicTrack): string {
   const source = (track.source || '').toLowerCase();
   if (!source) {
     return '本地';
+  }
+
+  if (source.includes('file')) {
+    return '本地文件';
+  }
+
+  if (source.includes('synth')) {
+    return '站内音频';
   }
 
   if (source.includes('local')) {
@@ -79,18 +75,18 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
     currentIndex,
     currentTrack,
     currentTime,
+    currentLyric,
     duration,
     isPlaying,
     isLoading,
     isMuted,
-    loadError,
     lyricLines,
     nextTrack,
     playlist,
     playMode,
     previousTrack,
     progress,
-    reloadCloudMusic,
+    addLocalAudioFiles,
     seekToProgress,
     selectTrack,
     setVolume,
@@ -102,6 +98,10 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
   const lyricContainerRef = useRef<HTMLDivElement | null>(null);
   const activeLyricRef = useRef<HTMLParagraphElement | null>(null);
   const activeTrack = currentTrack ?? tracks[0];
+  const effectiveVolume = isMuted ? 0 : volume;
+  const volumePercent = Math.round(effectiveVolume * 100);
+  const titleLength = Array.from(activeTrack?.title ?? '').length;
+  const titleDensity = titleLength > 12 ? 'compact' : titleLength > 8 ? 'balanced' : 'normal';
   const sourceTracks = playlist.length > 0 ? playlist : tracks;
   const displayTracks = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -124,6 +124,16 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
     const nextIndex = lyrics.findIndex((line) => line.time > currentTime);
     return nextIndex === -1 ? lyrics.length - 1 : Math.max(0, nextIndex - 1);
   }, [currentTime, lyrics]);
+  const heroLyricSubtitle = currentLyric || lyrics[Math.max(activeLyricIndex, 0)]?.text || activeTrack?.mood || '';
+
+  const handleLocalAudioChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.currentTarget.files;
+    if (files && files.length > 0) {
+      addLocalAudioFiles(files);
+      setTab('playlist');
+    }
+    event.currentTarget.value = '';
+  };
 
   useEffect(() => {
     if (tab !== 'lyrics' || !activeLyricRef.current || !lyricContainerRef.current) {
@@ -150,11 +160,15 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
         <div className="music-vinyl" aria-hidden="true" data-playing={isPlaying || undefined}>
           <img src={activeTrack.cover || '/assets/img/hero-mountain.svg'} alt="" />
         </div>
-        <div className="music-current">
+        <div
+          className="music-current"
+          data-long-title={titleDensity !== 'normal' ? 'true' : undefined}
+          data-title-density={titleDensity}
+        >
           <p className="eyebrow">Cloud Music</p>
           <h2>{activeTrack.title}</h2>
           <span>{activeTrack.artist}</span>
-          <small>{activeTrack.mood}</small>
+          <small className="music-player-subtitle" data-lyric-subtitle="true">{heroLyricSubtitle}</small>
         </div>
         <div className="music-progress">
           <span>{formatTime(currentTime)}</span>
@@ -173,18 +187,16 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           </label>
           <span>{formatTime(duration)}</span>
         </div>
-        <div className="music-status-row" aria-live="polite">
-          <span>{formatPlaybackState(isLoading, isPlaying, activeTrack)}</span>
-          <span>{formatTrackSource(activeTrack)}</span>
-          <button type="button" onClick={togglePlayMode} aria-label={`切换播放模式，当前${formatPlayModeLabel(playMode)}`}>
-            {formatPlayModeLabel(playMode)}
+        <div className="music-player-dock" aria-label="音乐播放控制">
+          <button
+            className="music-mode-button"
+            type="button"
+            onClick={togglePlayMode}
+            aria-label={`切换播放模式，当前${formatPlayModeLabel(playMode)}`}
+            title={formatPlayModeLabel(playMode)}
+          >
+            <span aria-hidden="true">{playMode === 'shuffle' ? '↯' : playMode === 'repeat-one' ? '↻1' : '↻'}</span>
           </button>
-          <button type="button" onClick={reloadCloudMusic} disabled={isLoading}>
-            {isLoading ? 'Syncing' : 'Sync Cloud'}
-          </button>
-        </div>
-        {loadError ? <p className="music-sync-note" role="status">{loadError}</p> : null}
-        <div className="music-orbit-controls" aria-label="音乐播放控制">
           <button className="music-skip-button" type="button" onClick={previousTrack} aria-label="上一首">
             <span aria-hidden="true">‹</span>
           </button>
@@ -194,6 +206,24 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           <button className="music-skip-button" type="button" onClick={nextTrack} aria-label="下一首">
             <span aria-hidden="true">›</span>
           </button>
+          <div className="music-dock-volume" role="group" aria-label={`音量 ${volumePercent}%`}>
+            <button className="music-volume-button" type="button" onClick={toggleMute} aria-label={isMuted ? '取消静音' : '静音'}>
+              <span aria-hidden="true">{effectiveVolume === 0 ? '静' : '音'}</span>
+            </button>
+            <label>
+              <span className="visually-hidden">音量</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={Number(effectiveVolume.toFixed(2))}
+                onChange={(event) => setVolume(Number(event.currentTarget.value))}
+                aria-label="调整音量"
+                style={{ '--volume': `${volumePercent}%` } as React.CSSProperties}
+              />
+            </label>
+          </div>
         </div>
       </div>
 
@@ -202,6 +232,10 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           <label className="music-search-field">
             <span>搜索歌单</span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="歌曲、歌手、心情" />
+          </label>
+          <label className="music-file-picker">
+            <span>选择音乐</span>
+            <input type="file" accept="audio/*" multiple onChange={handleLocalAudioChange} aria-label="选择本地音乐文件" />
           </label>
           <span className="music-cloud-count" aria-label={`${playlist.length} 首歌曲，${isLoading ? '同步中' : '已就绪'}`}>
             <strong>{playlist.length}</strong>

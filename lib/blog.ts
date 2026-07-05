@@ -184,6 +184,31 @@ export type SiteColumn = {
   room: string;
 };
 
+export type PageContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  signal: string;
+  statLabels: string[];
+  emptyTitle: string;
+  emptyDescription: string;
+  primaryActionLabel: string;
+  primaryActionHref: string;
+  secondaryActionLabel: string;
+  secondaryActionHref: string;
+  searchPlaceholder: string;
+  searchEmptyTitle: string;
+  searchEmptyDescription: string;
+  commentTitle: string;
+  detailLines: string[];
+  panelOneTitle: string;
+  panelOneDescription: string;
+  panelTwoTitle: string;
+  panelTwoDescription: string;
+  panelThreeTitle: string;
+  panelThreeDescription: string;
+};
+
 export type BlogSite = {
   title: string;
   brandSuffix: string;
@@ -196,12 +221,15 @@ export type BlogSite = {
   location: string;
   email: string;
   github: string;
+  projectOrder: string[];
   themeColor: string;
   accentColor: string;
   heroImage: string;
+  aboutHeroImage: string;
   avatar: string;
   backgroundImages: string[];
   columns: SiteColumn[];
+  pages: Record<string, PageContent>;
   level: number;
   experience: number;
   streak: number;
@@ -250,6 +278,301 @@ export type ArchiveGroup = {
   posts: BlogPost[];
 };
 
+const fallbackPages: Record<string, PageContent> = {
+  home: {
+    eyebrow: 'Home',
+    title: '星屿手记',
+    description: '文章、项目、动态、音乐、照片墙和友链共同组成这个个人站点。',
+    signal: 'home / portal / content system',
+    statLabels: ['文章', '动态', '相册'],
+    emptyTitle: '等待内容',
+    emptyDescription: '在后台补充内容后，首页会自动形成入口。',
+    primaryActionLabel: '关于我',
+    primaryActionHref: '/about',
+    secondaryActionLabel: '文章归档',
+    secondaryActionHref: '/archive',
+    searchPlaceholder: '搜索文章、项目、动态和栏目',
+    searchEmptyTitle: '暂时没有命中',
+    searchEmptyDescription: '换一个关键词试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '照片墙',
+    panelOneDescription: '头像、相册和日常素材归档。',
+    panelTwoTitle: '近期动态',
+    panelTwoDescription: '记录日常片段和轻量状态。',
+    panelThreeTitle: '云端杂谈',
+    panelThreeDescription: '文章之外的轻记录与复盘。'
+  },
+  projects: {
+    eyebrow: 'Projects',
+    title: '项目星港',
+    description: '把练习、系统、文章工程和长期实验整理成可查看、可追踪的作品停靠区。',
+    signal: 'projects / works / system practice',
+    statLabels: ['项目', '精选', '状态'],
+    emptyTitle: '暂无项目',
+    emptyDescription: '填写 GitHub 地址并保持仓库公开后，这里会自动生成项目矩阵。',
+    primaryActionLabel: '返回首页',
+    primaryActionHref: '/',
+    secondaryActionLabel: '文章归档',
+    secondaryActionHref: '/archive',
+    searchPlaceholder: '搜索项目名称、描述或技术栈...',
+    searchEmptyTitle: '没有匹配项目',
+    searchEmptyDescription: '换一个关键词试试，标题、描述、状态和标签都可以搜索。',
+    commentTitle: '',
+    detailLines: [
+      '系统工程：{role}',
+      '内容生态：{status}',
+      '长期目标：{motto}'
+    ],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  archive: {
+    eyebrow: 'Archive',
+    title: '归档与探索',
+    description: '总计 {postCount} 篇研究记录。',
+    signal: 'archive / timeline / tags',
+    statLabels: ['文章', '年份', '标签'],
+    emptyTitle: '暂无已发布文章',
+    emptyDescription: '在后台发布文章后，归档时间线会自动生成。',
+    primaryActionLabel: '全部标签',
+    primaryActionHref: '/tags',
+    secondaryActionLabel: '返回首页',
+    secondaryActionHref: '/',
+    searchPlaceholder: '搜索文章',
+    searchEmptyTitle: '没有匹配的文章',
+    searchEmptyDescription: '换一个关键词或标签试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  photowall: {
+    eyebrow: 'Photo Wall',
+    title: '光影画廊',
+    description: '定格时间，封存每一次值得回看的心跳。',
+    signal: 'album entry / stacked covers / fullscreen lightbox',
+    statLabels: ['图集', '照片', '浏览'],
+    emptyTitle: '暂无相册素材',
+    emptyDescription: '上传图片并加入相册后，照片墙会在这里展开。',
+    primaryActionLabel: '通用画廊',
+    primaryActionHref: '/gallery',
+    secondaryActionLabel: '动态记录',
+    secondaryActionHref: '/moments',
+    searchPlaceholder: '搜索相册 / 照片',
+    searchEmptyTitle: '没有找到相关的记忆',
+    searchEmptyDescription: '换一个关键词试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  gallery: {
+    eyebrow: 'Gallery',
+    title: '灵感照片墙',
+    description: '头像、头图、项目截图和日常视觉碎片按图集归档。',
+    signal: 'photo wall / polaroid memories / visual archive',
+    statLabels: ['图片', '图集', '展示'],
+    emptyTitle: '暂无相册素材',
+    emptyDescription: '上传图片并加入相册后，画廊会在这里展开。',
+    primaryActionLabel: '照片墙',
+    primaryActionHref: '/photowall',
+    secondaryActionLabel: '个人资料',
+    secondaryActionHref: '/about',
+    searchPlaceholder: '搜索相册 / 照片',
+    searchEmptyTitle: '没有找到匹配的照片',
+    searchEmptyDescription: '换一个关键词试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  moments: {
+    eyebrow: 'Moments',
+    title: '生活动态',
+    description: '在代码之外捕捉瞬间的温度，用星图串起轻量的日常记录。',
+    signal: 'daily notes / mood filters / constellation stream',
+    statLabels: ['动态', '主题', '节奏'],
+    emptyTitle: '暂无动态',
+    emptyDescription: '在后台维护动态后，这里会形成轻量时间线。',
+    primaryActionLabel: '阅读文章',
+    primaryActionHref: '/archive',
+    secondaryActionLabel: '云端杂谈',
+    secondaryActionHref: '/chatter',
+    searchPlaceholder: '搜索动态',
+    searchEmptyTitle: '没有找到这类动态',
+    searchEmptyDescription: '换一个心情或标签试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  chatter: {
+    eyebrow: 'Chatter',
+    title: '云端杂谈',
+    description: '代码、学术、日常碎片与复盘想法的轻文章记录。',
+    signal: 'chatter / light essays / mood cards / masonry stream',
+    statLabels: ['杂谈', '标签', '形式'],
+    emptyTitle: '暂无杂谈',
+    emptyDescription: '在后台新增杂谈后，这里会自动形成瀑布流。',
+    primaryActionLabel: '生活动态',
+    primaryActionHref: '/moments',
+    secondaryActionLabel: '文章归档',
+    secondaryActionHref: '/archive',
+    searchPlaceholder: '搜索杂谈',
+    searchEmptyTitle: '没有匹配杂谈',
+    searchEmptyDescription: '换一个关键词试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  music: {
+    eyebrow: 'Music',
+    title: '星屿电台',
+    description: '写作、阅读和编码时的背景歌单。',
+    signal: 'cloud music / focus radio / writing ambience',
+    statLabels: ['曲目', '可播', '用途'],
+    emptyTitle: '暂无音乐',
+    emptyDescription: '在后台添加曲目后，这里会成为站点电台。',
+    primaryActionLabel: '文章归档',
+    primaryActionHref: '/archive',
+    secondaryActionLabel: '边听边读',
+    secondaryActionHref: '/archive',
+    searchPlaceholder: '搜索歌单',
+    searchEmptyTitle: '没有匹配的歌曲',
+    searchEmptyDescription: '换一个歌曲、歌手或场景关键词试试。',
+    commentTitle: '星屿电台',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  friends: {
+    eyebrow: 'Friends',
+    title: '友链星团',
+    description: '那些散落在网络宇宙各处的有趣灵魂与站点节点。',
+    signal: 'friends / cards / apply / comments',
+    statLabels: ['友链', '申请', '留言'],
+    emptyTitle: '暂无友链',
+    emptyDescription: '在后台新增友链后，这里会自动生成朋友站点卡片。',
+    primaryActionLabel: '申请格式',
+    primaryActionHref: '#gitalk-container',
+    secondaryActionLabel: '返回首页',
+    secondaryActionHref: '/',
+    searchPlaceholder: '搜索友链',
+    searchEmptyTitle: '没有匹配友链',
+    searchEmptyDescription: '换一个名称或描述关键词试试。',
+    commentTitle: '友链',
+    detailLines: [],
+    panelOneTitle: '建立神经连接',
+    panelOneDescription: '欢迎交换友链，请复制下方格式，并在底部留言区申请。',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  tags: {
+    eyebrow: 'Tags',
+    title: '标签星云',
+    description: '用标签把文章、主题和学习线索连起来，快速进入同一类内容轨道。',
+    signal: 'tag nebula / topic heat / reading paths',
+    statLabels: ['标签', '文章', '排序'],
+    emptyTitle: '暂无标签',
+    emptyDescription: '发布带标签的文章后，这里会形成标签星云。',
+    primaryActionLabel: '回到归档',
+    primaryActionHref: '/archive',
+    secondaryActionLabel: '项目索引',
+    secondaryActionHref: '/projects',
+    searchPlaceholder: '搜索标签',
+    searchEmptyTitle: '没有匹配标签',
+    searchEmptyDescription: '换一个关键词试试。',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  'tag-detail': {
+    eyebrow: 'Tag',
+    title: '#{tag}',
+    description: '同一标签下的文章集合，被收束到一条可以继续漫游的阅读轨道里。',
+    signal: '#{tag} / {postCount} posts / reading dock',
+    statLabels: ['文章', '标签', '阅读'],
+    emptyTitle: '暂无文章',
+    emptyDescription: '这个标签下暂时没有文章。',
+    primaryActionLabel: '全部标签',
+    primaryActionHref: '/tags',
+    secondaryActionLabel: '时间归档',
+    secondaryActionHref: '/archive',
+    searchPlaceholder: '',
+    searchEmptyTitle: '',
+    searchEmptyDescription: '',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  },
+  about: {
+    eyebrow: 'About',
+    title: '关于我',
+    description: '个人资料、创作时间线和联系方式。',
+    signal: 'profile / activity / contact',
+    statLabels: ['文章', '杂谈', '说说', '相册'],
+    emptyTitle: '暂无活动',
+    emptyDescription: '新增文章、动态或杂谈后，这里会形成活动时间线。',
+    primaryActionLabel: '活动时间线',
+    primaryActionHref: '/about?tab=activity',
+    secondaryActionLabel: '友链',
+    secondaryActionHref: '/friends',
+    searchPlaceholder: '',
+    searchEmptyTitle: '',
+    searchEmptyDescription: '',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '自我介绍',
+    panelOneDescription: '你好，我是 {owner}。',
+    panelTwoTitle: '研究与创作方向',
+    panelTwoDescription: '围绕工程实践、内容系统和长期写作组织个人站点。',
+    panelThreeTitle: '联系信息',
+    panelThreeDescription: '欢迎联系交流。'
+  }
+};
+
 const fallbackSite: BlogSite = {
   title: '星屿手记',
   brandSuffix: 'の 宝藏之地',
@@ -258,15 +581,18 @@ const fallbackSite: BlogSite = {
   role: '全栈练习生 / 博客系统维护者',
   motto: '把日常、代码和灵感整理成可以再次抵达的星图。',
   bio: '计算机学习者，喜欢把复杂问题拆成可以落地的小系统。',
-  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙、友链和 GitHub/Vercel 发布流。',
+  status: '正在重构为完整站点型个人博客：文章、项目、动态、音乐、照片墙和友链会逐步连成一个完整系统。',
   location: 'Changsha, China',
   email: 'hello@example.com',
   github: 'https://github.com/yige66/personal-theme-blog',
+  projectOrder: [],
   themeColor: '#6fb7a8',
   accentColor: '#f0c36a',
   heroImage: '/assets/img/hero-mountain.svg',
+  aboutHeroImage: '/assets/img/hero-mountain.svg',
   avatar: '/assets/img/avatar-orbit.svg',
   backgroundImages: ['/assets/img/hero-mountain.svg', '/assets/img/desk-notes.svg', '/assets/img/admin-board.svg'],
+  pages: fallbackPages,
   columns: [
     { id: 'home', href: '/', label: '首页', title: '首页', intro: '站点总览入口', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '00', tone: 'Home', room: 'Lobby' },
     { id: 'projects', href: '/projects', label: '项目', title: '项目陈列', intro: '项目、作品和系统实践入口。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '02', tone: 'Work', room: 'Workshop' },
@@ -277,8 +603,7 @@ const fallbackSite: BlogSite = {
     { id: 'chatter', href: '/chatter', label: '杂谈', title: '云端杂谈', intro: '文章之外的轻记录和碎片想法。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '45', tone: 'Chatter', room: 'Cloud' },
     { id: 'tags', href: '/tags', label: '标签', title: '标签索引', intro: '从标签云进入主题阅读路径。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '57', tone: 'Tags', room: 'Tarot' },
     { id: 'friends', href: '/friends', label: '友链', title: '友链星团', intro: '朋友站点和互访入口。', visible: true, navVisible: true, homeVisible: true, toolboxVisible: true, coordinate: '68', tone: 'Friends', room: 'Friends' },
-    { id: 'about', href: '/about', label: '关于', title: '关于我', intro: '个人资料、时间线和联系方式。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '81', tone: 'Profile', room: 'Profile' },
-    { id: 'console', href: '/console', label: '发布', title: '发布工作流', intro: '内容版本、预览和生产发布入口。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '99', tone: 'Deploy', room: 'Console' }
+    { id: 'about', href: '/about', label: '关于', title: '关于我', intro: '个人资料、时间线和联系方式。', visible: true, navVisible: true, homeVisible: false, toolboxVisible: false, coordinate: '81', tone: 'Profile', room: 'Profile' }
   ],
   level: 12,
   experience: 68,
@@ -398,10 +723,10 @@ const fallbackSite: BlogSite = {
       alt: '桌面笔记插画'
     },
     {
-      title: '发布面板',
-      description: '发布工作流承载内容版本、预览和备份。',
+      title: '后台表单',
+      description: '内容、图片和栏目配置都可以在后台分区维护。',
       image: '/assets/img/admin-board.svg',
-      alt: '发布面板插画'
+      alt: '后台表单插画'
     }
   ]
 };
@@ -409,9 +734,9 @@ const fallbackSite: BlogSite = {
 const fallbackProjects: BlogProject[] = [
   {
     id: 'project-console',
-    title: 'Personal Blog Console',
-    description: '一个可部署的个人博客内容系统，用 JSON、GitHub 和 Vercel 串联文章、动态、音乐、相册、友链和部署流程。',
-    url: '/console',
+    title: 'Personal Blog Admin',
+    description: '一个可维护的个人博客内容系统，用 JSON 数据源串联文章、动态、音乐、相册、友链和后台分区管理。',
+    url: '/projects',
     repo: 'https://github.com/yige66/personal-theme-blog',
     cover: '/assets/img/admin-board.svg',
     tags: ['Next.js', 'Deploy', 'JSON'],
@@ -523,6 +848,28 @@ export async function getBlogStats(): Promise<BlogStats> {
     tracks: data.site.music.length,
     links: data.links.length
   };
+}
+
+export function getPageContent(site: BlogSite, id: string): PageContent {
+  return site.pages[id] ?? fallbackPages[id] ?? createFallbackPageContent(id);
+}
+
+export function getPageActions(page: PageContent): Array<{ href: string; label: string }> {
+  return [
+    { href: page.primaryActionHref, label: page.primaryActionLabel },
+    { href: page.secondaryActionHref, label: page.secondaryActionLabel }
+  ].filter((action) => Boolean(action.href && action.label));
+}
+
+export function getPageStatLabel(page: PageContent, index: number, fallback: string): string {
+  return page.statLabels[index] || fallback;
+}
+
+export function formatPageText(value: string, variables: Record<string, string | number>): string {
+  return value.replace(/\{([a-zA-Z0-9_-]+)\}/g, (match, key: string) => {
+    const replacement = variables[key];
+    return replacement === undefined ? match : String(replacement);
+  });
 }
 
 export function estimateReadingMinutes(content: string): number {
@@ -703,12 +1050,16 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     brandSuffix: typeof siteInput.brandSuffix === 'string' ? siteInput.brandSuffix.trim() : fallbackSite.brandSuffix,
     comments: normalizeCommentConfig(siteInput.comments),
     cloudMusicIds: normalizeCloudMusicIds(siteInput.cloudMusicIds),
+    projectOrder: normalizeProjectOrder(siteInput.projectOrder),
     friendLinkApplyFormat: siteInput.friendLinkApplyFormat || fallbackSite.friendLinkApplyFormat,
     music: normalizeMusicTracks(siteInput.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
+    heroImage: normalizeOptionalAsset(siteInput.heroImage) || fallbackSite.heroImage,
+    aboutHeroImage: normalizeOptionalAsset(siteInput.aboutHeroImage) || normalizeOptionalAsset(siteInput.heroImage) || fallbackSite.aboutHeroImage,
     avatar: siteInput.avatar || fallbackSite.avatar,
     backgroundImages: normalizeAssetList(siteInput.backgroundImages, fallbackSite.backgroundImages),
     columns: normalizeColumns(siteInput.columns),
+    pages: normalizePages(siteInput.pages),
     role: siteInput.role || fallbackSite.role,
     motto: siteInput.motto || fallbackSite.motto,
     status: siteInput.status || fallbackSite.status,
@@ -737,6 +1088,28 @@ function compareByDateDesc(a: { date: string }, b: { date: string }): number {
 
 function normalizeArray<T>(value: unknown, fallback: T[]): T[] {
   return Array.isArray(value) && value.length > 0 ? (value as T[]) : fallback;
+}
+
+function normalizeProjectOrder(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  return value
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter((item) => {
+      if (!item || item.length > 200 || /[\u0000-\u001f\u007f]/.test(item)) {
+        return false;
+      }
+      const key = item.toLowerCase();
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 100);
 }
 
 function normalizeAssetList(value: unknown, fallback: string[]): string[] {
@@ -782,7 +1155,7 @@ function normalizeLinks(value: unknown): BlogLink[] {
 }
 
 function normalizeMusicTracks(value: unknown): MusicTrack[] {
-  const source = Array.isArray(value) && value.length > 0 ? value : fallbackSite.music;
+  const source = Array.isArray(value) ? value : fallbackSite.music;
 
   return source
     .filter(isRecord)
@@ -809,7 +1182,7 @@ function normalizeCommentConfig(value: unknown): CommentConfig {
   const envOwner = readRuntimeEnv('NEXT_PUBLIC_GITALK_OWNER', 'GITALK_OWNER', 'GITHUB_COMMENTS_OWNER');
   const envAdmin = readRuntimeEnv('NEXT_PUBLIC_GITALK_ADMIN', 'GITALK_ADMIN', 'GITHUB_COMMENTS_ADMIN');
   const envClientId = readRuntimeEnv('NEXT_PUBLIC_GITALK_CLIENT_ID', 'GITALK_CLIENT_ID', 'GITHUB_CLIENT_ID');
-  const oauthSecretReady = Boolean(readRuntimeEnv('GITHUB_CLIENT_SECRET', 'GITALK_CLIENT_SECRET'));
+  const envProxy = readRuntimeEnv('GITALK_PROXY_PATH', 'GITHUB_COMMENTS_PROXY');
   const base = {
     ...fallbackSite.comments,
     ...source
@@ -821,22 +1194,24 @@ function normalizeCommentConfig(value: unknown): CommentConfig {
   const admin = normalizeGitHubAdminList(base.admin, owner, envAdmin);
   const provider = textOrFallback(base.provider, fallbackSite.comments.provider).toLowerCase();
   const enabledByConfig = base.enabled !== false;
-  const gitalkReady = provider.includes('gitalk') && Boolean(repo && owner && clientId && oauthSecretReady);
+  const gitalkConfigured = provider.includes('gitalk') && Boolean(repo && owner);
 
   return {
     ...base,
-    enabled: enabledByConfig && gitalkReady,
+    enabled: enabledByConfig && gitalkConfigured,
     provider,
     repo,
     owner,
     admin,
     clientId,
-    proxy: normalizeLocalPath(base.proxy, '/api/github'),
-    mapping: textOrFallback(base.mapping, 'pathname'),
-    label: normalizeGitHubName(base.label) || 'comment',
-    theme: textOrFallback(base.theme, 'auto')
+    proxy: normalizeLocalPath(envProxy || base.proxy, '/api/github'),
+    mapping: normalizeCommentMapping(base.mapping),
+    label: normalizeGitHubLabel(base.label),
+    theme: normalizeCommentTheme(base.theme)
   };
 }
+
+const removedPublicPageIds = new Set(['console']);
 
 function normalizeColumns(value: unknown): SiteColumn[] {
   const input = Array.isArray(value) ? value : [];
@@ -844,13 +1219,13 @@ function normalizeColumns(value: unknown): SiteColumn[] {
     input
       .filter((item): item is Partial<SiteColumn> => typeof item === 'object' && item !== null)
       .map((item) => [typeof item.id === 'string' ? item.id.trim() : '', item] as const)
-      .filter(([id]) => Boolean(id))
+      .filter(([id]) => Boolean(id) && !removedPublicPageIds.has(id))
   );
 
   const columns = fallbackSite.columns.map((fallback) => normalizeColumn(byId.get(fallback.id), fallback));
   const customColumns = input
     .filter((item): item is Partial<SiteColumn> => typeof item === 'object' && item !== null)
-    .filter((item) => typeof item.id === 'string' && !fallbackSite.columns.some((fallback) => fallback.id === item.id))
+    .filter((item) => typeof item.id === 'string' && !removedPublicPageIds.has(item.id) && !fallbackSite.columns.some((fallback) => fallback.id === item.id))
     .slice(0, 6)
     .map((item) => normalizeColumn(item, null));
 
@@ -875,6 +1250,86 @@ function normalizeColumn(value: Partial<SiteColumn> | undefined, fallback: SiteC
   };
 }
 
+function normalizePages(value: unknown): Record<string, PageContent> {
+  const source = isRecord(value) ? value : {};
+  const pageIds = new Set([
+    ...Object.keys(fallbackPages),
+    ...fallbackSite.columns.map((column) => column.id),
+    ...Object.keys(source)
+  ]);
+  const pages: Record<string, PageContent> = {};
+
+  for (const id of pageIds) {
+    if (removedPublicPageIds.has(id)) {
+      continue;
+    }
+
+    if (!validColumnId(id) && id !== 'tag-detail') {
+      continue;
+    }
+    const fallback = fallbackPages[id] ?? createFallbackPageContent(id);
+    const pageInput = isRecord(source[id]) ? source[id] : {};
+    pages[id] = normalizePageContent(pageInput, fallback);
+  }
+
+  return pages;
+}
+
+function normalizePageContent(value: Record<string, unknown>, fallback: PageContent): PageContent {
+  return {
+    eyebrow: textOrFallback(value.eyebrow, fallback.eyebrow),
+    title: textOrFallback(value.title, fallback.title),
+    description: textOrFallback(value.description, fallback.description),
+    signal: textOrFallback(value.signal, fallback.signal),
+    statLabels: normalizeTextList(value.statLabels, fallback.statLabels, 6),
+    emptyTitle: textOrFallback(value.emptyTitle, fallback.emptyTitle),
+    emptyDescription: textOrFallback(value.emptyDescription, fallback.emptyDescription),
+    primaryActionLabel: textOrFallback(value.primaryActionLabel, fallback.primaryActionLabel),
+    primaryActionHref: safeHref(value.primaryActionHref) || fallback.primaryActionHref,
+    secondaryActionLabel: textOrFallback(value.secondaryActionLabel, fallback.secondaryActionLabel),
+    secondaryActionHref: safeHref(value.secondaryActionHref) || fallback.secondaryActionHref,
+    searchPlaceholder: textOrFallback(value.searchPlaceholder, fallback.searchPlaceholder),
+    searchEmptyTitle: textOrFallback(value.searchEmptyTitle, fallback.searchEmptyTitle),
+    searchEmptyDescription: textOrFallback(value.searchEmptyDescription, fallback.searchEmptyDescription),
+    commentTitle: textOrFallback(value.commentTitle, fallback.commentTitle),
+    detailLines: normalizeTextList(value.detailLines, fallback.detailLines, 8),
+    panelOneTitle: textOrFallback(value.panelOneTitle, fallback.panelOneTitle),
+    panelOneDescription: textOrFallback(value.panelOneDescription, fallback.panelOneDescription),
+    panelTwoTitle: textOrFallback(value.panelTwoTitle, fallback.panelTwoTitle),
+    panelTwoDescription: textOrFallback(value.panelTwoDescription, fallback.panelTwoDescription),
+    panelThreeTitle: textOrFallback(value.panelThreeTitle, fallback.panelThreeTitle),
+    panelThreeDescription: textOrFallback(value.panelThreeDescription, fallback.panelThreeDescription)
+  };
+}
+
+function createFallbackPageContent(id: string): PageContent {
+  const title = id.replace(/-/g, ' ');
+  return {
+    eyebrow: id,
+    title,
+    description: '',
+    signal: '',
+    statLabels: [],
+    emptyTitle: '暂无内容',
+    emptyDescription: '在后台补充内容后，这里会自动更新。',
+    primaryActionLabel: '',
+    primaryActionHref: '',
+    secondaryActionLabel: '',
+    secondaryActionHref: '',
+    searchPlaceholder: '',
+    searchEmptyTitle: '',
+    searchEmptyDescription: '',
+    commentTitle: '',
+    detailLines: [],
+    panelOneTitle: '',
+    panelOneDescription: '',
+    panelTwoTitle: '',
+    panelTwoDescription: '',
+    panelThreeTitle: '',
+    panelThreeDescription: ''
+  };
+}
+
 function validColumnId(value: unknown): string {
   const id = typeof value === 'string' ? value.trim() : '';
   return /^[a-z][a-z0-9-]{1,39}$/.test(id) ? id : '';
@@ -882,7 +1337,7 @@ function validColumnId(value: unknown): string {
 
 function safeHref(value: unknown): string {
   const href = typeof value === 'string' ? value.trim() : '';
-  return /^https?:\/\/[^\s]+$/i.test(href) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(href) || /^#[a-zA-Z0-9_-]+$/.test(href) ? href : '';
+  return isSafeHrefValue(href) ? href : '';
 }
 
 function normalizeExternalUrl(value: unknown): string {
@@ -927,7 +1382,8 @@ function parseGitHubRepo(value: unknown): { owner: string; repo: string } {
   }
 
   const withoutProtocol = raw.replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '');
-  const [owner = '', repo = ''] = withoutProtocol.split('/').filter(Boolean);
+  const parts = withoutProtocol.split('/').filter(Boolean);
+  const [owner = '', repo = ''] = parts.length > 1 ? parts : ['', withoutProtocol];
   return {
     owner: normalizeGitHubName(owner),
     repo: normalizeGitHubName(repo || withoutProtocol)
@@ -937,6 +1393,11 @@ function parseGitHubRepo(value: unknown): { owner: string; repo: string } {
 function normalizeGitHubName(value: unknown): string {
   const name = typeof value === 'string' ? value.trim() : '';
   return /^[\w.-]{1,100}$/.test(name) ? name : '';
+}
+
+function normalizeGitHubLabel(value: unknown): string {
+  const label = typeof value === 'string' ? value.trim() : '';
+  return /^[\w .:-]{1,50}$/.test(label) ? label : 'comment';
 }
 
 function normalizeGitHubAdminList(value: unknown, fallback: string, envValue = ''): string[] {
@@ -951,6 +1412,16 @@ function normalizeGitHubAdminList(value: unknown, fallback: string, envValue = '
 
   const normalized = [...new Set(admins)].slice(0, 20);
   return normalized.length > 0 ? normalized : [fallback].map((item) => normalizeGitHubName(item)).filter(Boolean);
+}
+
+function normalizeCommentMapping(value: unknown): string {
+  const mapping = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return ['pathname', 'url', 'title', 'og:title'].includes(mapping) ? mapping : 'pathname';
+}
+
+function normalizeCommentTheme(value: unknown): string {
+  const theme = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return ['auto', 'light', 'dark'].includes(theme) ? theme : 'auto';
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1045,12 +1516,10 @@ function textOrFallback(value: unknown, fallback: string): string {
 function normalizeCloudMusicIds(value: unknown): string[] {
   const envIds = readRuntimeEnv('NEXT_PUBLIC_CLOUD_MUSIC_IDS', 'CLOUD_MUSIC_IDS');
   const source = envIds ? envIds.split(',') : Array.isArray(value) ? value : fallbackSite.cloudMusicIds;
-  const ids = source
+  return source
     .map((item) => String(item).trim())
     .filter((item) => /^\d{1,20}$/.test(item))
     .slice(0, 20);
-
-  return ids.length > 0 ? ids : fallbackSite.cloudMusicIds;
 }
 
 function comparePosts(a: BlogPost, b: BlogPost): number {
@@ -1105,10 +1574,29 @@ function renderInlineLinks(value: string): string {
 
 function sanitizeHref(value: string): string {
   const href = String(value || '').trim();
-  if (/^https?:\/\/[^\s]+$/i.test(href) || /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(href) || /^#[a-zA-Z0-9_-]+$/.test(href)) {
-    return href;
+  return isSafeHrefValue(href) ? href : '';
+}
+
+function isSafeHrefValue(value: string): boolean {
+  return /^https?:\/\/[^\s\\]+$/i.test(value) || isLocalHref(value) || isHashHref(value);
+}
+
+function isLocalHref(value: string): boolean {
+  const href = value.trim();
+  if (!href.startsWith('/') || href.startsWith('//') || /[\s\\]/.test(href)) {
+    return false;
   }
-  return '';
+
+  try {
+    const url = new URL(href, 'https://local.invalid');
+    return url.origin === 'https://local.invalid' && url.pathname.startsWith('/');
+  } catch {
+    return false;
+  }
+}
+
+function isHashHref(value: string): boolean {
+  return /^#[A-Za-z0-9%._~!$&'()*+,;=:@/?-]*$/.test(value);
 }
 
 function isExternalHref(value: string): boolean {

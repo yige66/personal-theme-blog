@@ -1,6 +1,7 @@
 import { AboutRoom } from '@/components/channels/AboutRoom';
+import { GitHubComments } from '@/components/comments/GitHubComments';
 import { SiteNav } from '@/components/SiteNav';
-import { getBlogData, getBlogStats, type BlogData } from '@/lib/blog';
+import { getBlogData, getBlogStats, getPageContent, type BlogData } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
 import type { CSSProperties } from 'react';
 
@@ -60,11 +61,15 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
   const params = await searchParams;
   const activeTab = normalizeTab(params?.tab);
   const activities = createAboutActivities(data);
+  const page = getPageContent(data.site, 'about');
 
   return (
     <main className="subpage about-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
       <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
-      <AboutRoom activeTab={activeTab} activities={activities} site={data.site} stats={stats} />
+      <section className="main-shell about-joined-panel" aria-label={`${page.title} 与评论`}>
+        <AboutRoom activeTab={activeTab} activities={activities} page={page} site={data.site} stats={stats} />
+        <GitHubComments config={data.site.comments} term="/about" title={page.commentTitle || page.title} />
+      </section>
     </main>
   );
 }

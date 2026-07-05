@@ -49,13 +49,14 @@ export function TasteMotion() {
       });
 
       gsap.utils.toArray<HTMLElement>('[data-motion="stack-card"]').forEach((element, index) => {
+        gsap.set(element, { visibility: 'visible' });
         gsap.fromTo(
           element,
-          { y: 42 + index * 8, scale: 0.96, autoAlpha: 0.84 },
+          { y: 42 + index * 8, scale: 0.96, opacity: 0.84 },
           {
             y: 0,
             scale: 1,
-            autoAlpha: 1,
+            opacity: 1,
             ease: 'none',
             scrollTrigger: {
               trigger: element,

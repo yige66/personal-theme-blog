@@ -61,6 +61,10 @@ export function FieldEditor({ field, value, onChange, uploadImage }: {
     return <GalleryItemsEditor label={field.label} value={value} onChange={onChange} uploadImage={uploadImage} cropAspect={field.cropAspect} />;
   }
 
+  if (kind === 'audio') {
+    return <AudioUploadField label={field.label} value={value} onChange={onChange} uploadImage={uploadImage} placeholder={field.placeholder} />;
+  }
+
   if (kind === 'select') {
     return (
       <label className="admin-field">
@@ -104,6 +108,52 @@ export function FieldEditor({ field, value, onChange, uploadImage }: {
       />
       <FieldHelp text={field.help} fallback={field.advanced ? '这个设置一般不用改。' : ''} />
     </label>
+  );
+}
+
+function AudioUploadField({ label, placeholder, value, onChange, uploadImage }: {
+  label: string;
+  placeholder?: string;
+  value: unknown;
+  onChange: (value: string) => void;
+  uploadImage: UploadImage;
+}) {
+  const currentPath = stringValue(value);
+  const [uploading, setUploading] = useState(false);
+
+  const handleAudioFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) {
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const savedPath = await uploadImage(file, 'audio');
+      onChange(savedPath);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="admin-field admin-field-wide admin-audio-uploader">
+      <span>{label}</span>
+      <div className="admin-audio-field">
+        <input value={currentPath} placeholder={placeholder || '/assets/audio/your-song.mp3'} onChange={(event) => onChange(event.target.value)} />
+        <label className="button ghost admin-file-button">
+          {uploading ? '上传中' : '上传本地音乐'}
+          <input type="file" accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,audio/flac" onChange={handleAudioFile} />
+        </label>
+      </div>
+      {currentPath ? (
+        <audio className="admin-audio-preview" src={currentPath} controls preload="metadata">
+          你的浏览器暂不支持音频预览。
+        </audio>
+      ) : null}
+      <FieldHelp text="可以填写 https 音频直链，也可以上传本地 MP3、M4A、OGG、WAV、WebM 或 FLAC 文件。保存数据后前台音乐页会播放这个地址。" />
+    </div>
   );
 }
 

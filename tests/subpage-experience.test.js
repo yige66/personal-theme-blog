@@ -65,7 +65,9 @@ describe('subpage experience surfaces', () => {
     assert.match(worlds, /TagReadingDock/);
     assert.match(worlds, /AboutRoom/);
     assert.match(projectShowcase, /'use client'/);
-    assert.match(projectShowcase, /项目星港/);
+    assert.match(projectShowcase, /PageContent/);
+    assert.match(projectShowcase, /page\.title/);
+    assert.match(projectShowcase, /page\.searchPlaceholder/);
     assert.match(projectShowcase, /project-matrix-hero/);
     assert.match(projectShowcase, /project-matrix-search/);
     assert.match(projectShowcase, /filteredProjects/);
@@ -98,7 +100,9 @@ describe('subpage experience surfaces', () => {
     ]);
 
     assert.match(tagPage, /ChannelHeader/);
-    assert.match(tagPage, /全部标签/);
+    assert.match(tagPage, /getPageContent\(data\.site, 'tag-detail'\)/);
+    assert.match(tagPage, /getPageActions\(page\)/);
+    assert.match(tagPage, /formatPageText\(page\.title/);
     assert.match(tagPage, /TagReadingDock/);
     assert.match(postPage, /article-capsule/);
     assert.match(postPage, /article-dock/);
@@ -158,7 +162,8 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.photowall-masonry/);
     assert.match(css, /\.photowall-lightbox/);
     assert.match(css, /\.music-studio/);
-    assert.match(css, /\.music-status-row/);
+    assert.match(css, /\.music-player-dock/);
+    assert.match(css, /\.music-dock-volume/);
     assert.match(css, /\.music-volume-cluster/);
     assert.match(css, /\.music-lyrics/);
     assert.match(css, /\.article-radio-card/);
@@ -257,5 +262,11 @@ describe('subpage experience surfaces', () => {
     assert.match(momentsBoard, /moment-image-grid/);
     assert.match(momentsBoard, /MomentComments/);
     assert.match(momentsBoard, /moments-stream/);
+    assert.match(momentsPage, /authorName=\{data\.site\.owner \|\| data\.site\.title\}/);
+    assert.match(momentsPage, /avatar=\{data\.site\.avatar\}/);
+    assert.match(momentsBoard, /displayName/);
+    assert.match(momentsBoard, /displayAvatar/);
+    assert.doesNotMatch(momentsBoard, /星屿手记/);
+    assert.doesNotMatch(momentsBoard, /长沙 \/ Changsha|moment-location/);
   });
 });

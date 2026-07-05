@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { BlogAdminConsole } from '@/components/admin/BlogAdminConsole';
-import { SiteNav } from '@/components/SiteNav';
+import { buildAdminManagementOverview } from '@/lib/admin-management';
 import { getBlogData, getBlogStats } from '@/lib/blog';
 
 export const metadata: Metadata = {
-  title: '博客后台操作系统',
-  description: '维护个人博客内容、图片、文章、项目、栏目和后台数据。',
+  title: '站点后台',
+  description: '仅限本人使用的站点内容维护后台。',
   robots: {
     index: false,
     follow: false
@@ -18,11 +18,11 @@ export default async function AdminPage() {
   const [data, stats] = await Promise.all([getBlogData(), getBlogStats()]);
   const themeColor = data.site.themeColor;
   const accentColor = data.site.accentColor;
+  const overview = buildAdminManagementOverview(data, stats);
 
   return (
-    <main className="admin-os article-page" style={{ '--theme': themeColor, '--accent': accentColor } as React.CSSProperties}>
-      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
-      <BlogAdminConsole initialData={data} initialStats={stats} />
+    <main className="admin-os admin-private-page article-page" style={{ '--theme': themeColor, '--accent': accentColor } as React.CSSProperties}>
+      <BlogAdminConsole initialData={data} initialStats={stats} initialOverview={overview} />
     </main>
   );
 }

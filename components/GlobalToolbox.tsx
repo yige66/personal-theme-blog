@@ -36,6 +36,7 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
   const pathname = usePathname();
   const githubIsExternal = github.startsWith('http');
   const isHome = pathname === '/';
+  const isAdmin = pathname.startsWith('/admin');
   const [open, setOpen] = useState(false);
   const items = toolboxItems(columns);
 
@@ -44,7 +45,7 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
     setOpen(false);
   };
 
-  if (isHome) {
+  if (isHome || isAdmin) {
     return null;
   }
 

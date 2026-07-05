@@ -6,7 +6,6 @@ const curatedFiles = [
   'app/page.tsx',
   'app/about/page.tsx',
   'app/archive/page.tsx',
-  'app/console/page.tsx',
   'app/gallery/page.tsx',
   'app/photowall/page.tsx',
   'app/friends/page.tsx',

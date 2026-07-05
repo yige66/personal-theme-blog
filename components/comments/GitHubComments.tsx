@@ -46,7 +46,6 @@ let gitalkLoader: Promise<GitalkConstructor> | null = null;
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [shouldLoad, setShouldLoad] = useState(true);
   const [loadState, setLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const provider = (config.provider || 'gitalk').toLowerCase();
   const owner = config.owner || parseOwnerFromRepo(config.repo);
@@ -59,46 +58,34 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
   }, [config.admin, owner]);
   const repoIsValid = VALID_NAME.test(repo) && Boolean(owner && VALID_NAME.test(owner));
   const clientIsConfigured = Boolean(config.clientId?.trim());
-  const enabled = Boolean(config.enabled && repoIsValid && clientIsConfigured && provider.includes('gitalk'));
+  const commentsEnabled = Boolean(config.enabled && repoIsValid && provider.includes('gitalk'));
+  const canLoadGitalk = commentsEnabled && clientIsConfigured;
   const commentId = useMemo(() => createGitalkId(config.mapping, term, title), [config.mapping, term, title]);
-  const issueUrl = repoIsValid ? `https://github.com/${owner}/${repo}/issues` : 'https://github.com';
-  const loginUrl = repoIsValid ? `https://github.com/${owner}/${repo}/issues?q=${encodeURIComponent(commentId)}` : 'https://github.com/login';
 
   useEffect(() => {
-    if (!shouldLoad || !enabled || !containerRef.current) {
+    if (!canLoadGitalk || !containerRef.current) {
       return undefined;
     }
 
     let canceled = false;
     const container = containerRef.current;
-    container.innerHTML = '';
     setLoadState('loading');
 
-    loadGitalk()
-      .then((Gitalk) => {
-        if (canceled) {
-          return;
+    renderGitalk({
+      admin,
+      commentId,
+      compact,
+      config,
+      container,
+      owner,
+      repo,
+      term,
+      title
+    })
+      .then(() => {
+        if (!canceled) {
+          setLoadState('ready');
         }
-
-        const gitalk = new Gitalk({
-          clientID: config.clientId || '',
-          repo,
-          owner: owner || '',
-          admin,
-          id: commentId,
-          title: title.slice(0, 80),
-          body: `评论来源：${typeof window === 'undefined' ? term : window.location.href}`,
-          labels: [config.label || 'comment'],
-          distractionFreeMode: compact,
-          pagerDirection: 'last',
-          proxy: config.proxy || '/api/github',
-          [GITALK_SECRET_OPTION]: 'server-side-oauth-proxy'
-        });
-
-        gitalk.render(container);
-        syncGitalkTheme(container);
-        cleanOAuthCodeFromUrl();
-        setLoadState('ready');
       })
       .catch(() => {
         if (!canceled) {
@@ -110,60 +97,113 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
       canceled = true;
       container.innerHTML = '';
     };
-  }, [admin, commentId, compact, config.clientId, config.label, config.proxy, enabled, owner, repo, shouldLoad, term, title]);
+  }, [admin, canLoadGitalk, commentId, compact, config, owner, repo, term, title]);
 
-  const commentsContent = (
-    <>
-      <header className="github-comments-head">
-        <div>
-          <span>GitHub Login Comments</span>
-          <strong>{compact ? '评论' : title}</strong>
-          <small>使用 GitHub 账号登录，评论会同步到仓库 Issues。</small>
-        </div>
-        <div className="github-comments-actions">
-          <a href={issueUrl} target="_blank" rel="noreferrer">Issues</a>
-          <a href={loginUrl} target="_blank" rel="noreferrer">GitHub</a>
-        </div>
-      </header>
-
-      {enabled ? (
-        <>
-          <div className="github-comments-loader" data-state={loadState}>
-            <div>
-              <strong>{loadState === 'ready' ? '评论区已连接' : '目标站同款 Gitalk 评论'}</strong>
-              <p>点击后加载 Gitalk。登录 GitHub 后即可在当前页面对应的 Issue 下发表评论。</p>
-            </div>
-            <button type="button" onClick={() => setShouldLoad(true)} disabled={shouldLoad && loadState !== 'error'}>
-              {loadState === 'loading' ? '正在连接 GitHub' : loadState === 'error' ? '重新连接' : '评论区自动加载中'}
-            </button>
-          </div>
-          <div className={`github-comments-frame ${compact ? 'moment-gitalk' : 'custom-gitalk-glass'}`} ref={containerRef} data-term={commentId} data-provider="gitalk" />
-        </>
-      ) : (
-        <div className="github-comments-setup">
-          <strong>Gitalk 评论入口已预留</strong>
-          <p>需要在 GitHub OAuth App 中配置 Client ID，并在部署环境设置服务端 OAuth 密钥。密钥只会在 `/api/github` 代理中读取。</p>
-          <code>{'comments: { provider: "gitalk", owner: "user", repo: "repo", clientId: "..." }'}</code>
-        </div>
-      )}
-    </>
-  );
-
-  if (compact) {
+  if (!canLoadGitalk) {
     return (
-      <section className="github-comments-card is-compact" aria-label={`${title} 的 GitHub 评论`}>
-        {commentsContent}
+      <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+        <div className="github-comments-card github-comments-setup-card">
+          <div className="github-comments-setup" aria-live="polite">
+            <strong>{repoIsValid ? 'Gitalk OAuth 尚未配置' : '评论仓库配置无效'}</strong>
+            <p>
+              要和 XingHuiSama 参考页一样显示 Gitalk 评论框，需要配置你自己的 GitHub OAuth App：
+              `NEXT_PUBLIC_GITALK_CLIENT_ID` 和服务端 `GITHUB_CLIENT_SECRET`。
+            </p>
+            <code>{'comments: { provider: "gitalk", owner: "user", repo: "repo", clientId: "..." }'}</code>
+          </div>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="main-shell github-comments-shell" aria-label={`${title} 的 GitHub 评论`}>
-      <div className="github-comments-card">
-        {commentsContent}
+    <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+      <div
+        className={`github-comments-frame ${compact ? 'moment-gitalk' : 'custom-gitalk-glass'}`}
+        ref={containerRef}
+        data-provider="gitalk"
+        data-state={loadState}
+        data-term={commentId}
+        data-comment-id={commentId}
+      >
+        {loadState === 'error' ? (
+          <div className="github-comments-setup github-comments-error" aria-live="polite">
+            <strong>Gitalk 加载失败</strong>
+            <p>请确认 Gitalk 脚本可以访问，并且 GitHub OAuth App 的 Client ID 与回调地址已经配置正确。</p>
+          </div>
+        ) : null}
+        {loadState === 'idle' || loadState === 'loading' ? <GitalkLoadingShell /> : null}
       </div>
     </section>
   );
+}
+
+function GitalkLoadingShell() {
+  return (
+    <div className="gt-container github-comments-loading" aria-hidden="true">
+      <div className="gt-meta">
+        <span className="gt-counts">0 条评论</span>
+        <span className="gt-user">未登录用户</span>
+      </div>
+      <div className="gt-header">
+        <span className="gt-avatar github-comments-loading-avatar" />
+        <textarea className="gt-header-textarea" disabled placeholder="说点什么" />
+        <div className="gt-header-controls">
+          <span className="gt-header-controls-tip">支持 Markdown 语法 · Gitalk 加载中 ...</span>
+          <button className="gt-btn gt-btn-preview" type="button" disabled>
+            预览
+          </button>
+          <button className="gt-btn gt-btn-login" type="button" disabled>
+            使用 GitHub 登录
+          </button>
+        </div>
+      </div>
+      <div className="gt-comments" />
+    </div>
+  );
+}
+
+async function renderGitalk({
+  admin,
+  commentId,
+  compact,
+  config,
+  container,
+  owner,
+  repo,
+  term,
+  title
+}: {
+  admin: string[];
+  commentId: string;
+  compact: boolean;
+  config: CommentConfig;
+  container: HTMLElement;
+  owner: string;
+  repo: string;
+  term: string;
+  title: string;
+}) {
+  const Gitalk = await loadGitalk();
+  const gitalk = new Gitalk({
+    clientID: config.clientId || '',
+    repo,
+    owner,
+    admin,
+    id: commentId,
+    title: title.slice(0, 80),
+    body: `评论来源：${typeof window === 'undefined' ? term : window.location.href}`,
+    labels: [config.label || 'comment'],
+    distractionFreeMode: compact,
+    pagerDirection: 'last',
+    proxy: config.proxy || '/api/github',
+    [GITALK_SECRET_OPTION]: 'server-side-oauth-proxy'
+  });
+
+  container.innerHTML = '';
+  gitalk.render(container);
+  syncGitalkTheme(container);
+  cleanOAuthCodeFromUrl();
 }
 
 function loadGitalk(): Promise<GitalkConstructor> {

@@ -40,11 +40,14 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
     validateRequiredString(data.site, 'site.title', errors);
     validateRequiredString(data.site, 'site.owner', errors);
     validateRequiredString(data.site, 'site.heroImage', errors);
+    validateOptionalAssetPath(data.site.aboutHeroImage, 'site.aboutHeroImage', errors);
     validateRequiredString(data.site, 'site.avatar', errors);
     validateOptionalArray(data.site.backgroundImages, 'site.backgroundImages', errors);
     validateOptionalArray(data.site.columns, 'site.columns', errors);
+    validateProjectOrder(data.site.projectOrder, errors);
     validateOptionalArray(data.site.music, 'site.music', errors);
     validateOptionalArray(data.site.gallery, 'site.gallery', errors);
+    validatePageContentMap(data.site.pages, errors);
     validateCloudMusicIds(data.site.cloudMusicIds, errors);
     validateMusicTracks(data.site.music, errors);
     validateCommentConfig(data.site.comments, errors);
@@ -144,6 +147,36 @@ function validateOptionalArray(value: unknown, label: string, errors: string[]):
   if (value !== undefined && !Array.isArray(value)) {
     errors.push(`${label} must be an array when provided.`);
   }
+}
+
+function validateProjectOrder(value: unknown, errors: string[]): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push('site.projectOrder must be an array when provided.');
+    return;
+  }
+
+  const seen = new Set<string>();
+  value.forEach((entry, index) => {
+    const text = typeof entry === 'string' ? entry.trim() : '';
+    if (!text) {
+      errors.push(`site.projectOrder[${index}] must be a non-empty project name or GitHub URL.`);
+      return;
+    }
+    if (text.length > 200 || /[\u0000-\u001f\u007f]/.test(text)) {
+      errors.push(`site.projectOrder[${index}] must be shorter than 200 characters and contain no control characters.`);
+      return;
+    }
+    const key = text.toLowerCase();
+    if (seen.has(key)) {
+      errors.push(`site.projectOrder[${index}] duplicates "${text}".`);
+      return;
+    }
+    seen.add(key);
+  });
 }
 
 function validateLinks(items: unknown[], errors: string[]): void {
@@ -260,6 +293,47 @@ function validateCommentConfig(value: unknown, errors: string[]): void {
   }
 }
 
+function validatePageContentMap(value: unknown, errors: string[]): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (!isRecord(value)) {
+    errors.push('site.pages must be an object when provided.');
+    return;
+  }
+
+  Object.entries(value).forEach(([pageId, page]) => {
+    if (!/^[a-z][a-z0-9-]{1,39}$/.test(pageId)) {
+      errors.push(`site.pages key "${pageId}" must be a safe page id.`);
+      return;
+    }
+    if (!isRecord(page)) {
+      errors.push(`site.pages.${pageId} must be an object.`);
+      return;
+    }
+
+    for (const field of ['eyebrow', 'title', 'description'] as const) {
+      if (page[field] !== undefined && typeof page[field] !== 'string') {
+        errors.push(`site.pages.${pageId}.${field} must be a string when provided.`);
+      }
+    }
+
+    for (const field of ['primaryActionHref', 'secondaryActionHref'] as const) {
+      const href = typeof page[field] === 'string' ? page[field].trim() : '';
+      if (href && !isSafeHref(href)) {
+        errors.push(`site.pages.${pageId}.${field} must be an http(s), local, or hash URL.`);
+      }
+    }
+
+    for (const field of ['statLabels', 'detailLines'] as const) {
+      if (page[field] !== undefined && !Array.isArray(page[field])) {
+        errors.push(`site.pages.${pageId}.${field} must be an array when provided.`);
+      }
+    }
+  });
+}
+
 function validateUniqueField(items: unknown[], field: string, label: string, errors: string[]): void {
   const seen = new Set<string>();
 
@@ -292,6 +366,28 @@ function isExternalUrl(value: string): boolean {
 
 function isLocalPath(value: string): boolean {
   return /^\/(?!\/)[a-zA-Z0-9/_:.-]+$/.test(value);
+}
+
+function isLocalHref(value: string): boolean {
+  const href = value.trim();
+  if (!href.startsWith('/') || href.startsWith('//') || /[\s\\]/.test(href)) {
+    return false;
+  }
+
+  try {
+    const url = new URL(href, 'https://local.invalid');
+    return url.origin === 'https://local.invalid' && url.pathname.startsWith('/');
+  } catch {
+    return false;
+  }
+}
+
+function isHashHref(value: string): boolean {
+  return /^#[A-Za-z0-9%._~!$&'()*+,;=:@/?-]*$/.test(value);
+}
+
+function isSafeHref(value: string): boolean {
+  return isExternalUrl(value) || isLocalHref(value) || isHashHref(value);
 }
 
 function validateOptionalPlayableUrl(value: unknown, label: string, errors: string[]): void {

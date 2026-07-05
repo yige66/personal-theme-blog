@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { saveAdminImageFile, validateAdminImageFile } from '@/lib/admin-assets';
+import { saveAdminAudioFile, saveAdminImageFile, validateAdminAudioFile, validateAdminImageFile } from '@/lib/admin-assets';
 import { isAdminAuthorized } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
@@ -13,27 +13,31 @@ export async function POST(request: Request) {
   }
 
   try {
+    const url = new URL(request.url);
+    const kindParam = url.searchParams.get('kind');
+    const kind = kindParam === 'audio' ? 'audio' : 'image';
     const formData = await request.formData();
     const file = formData.get('file');
 
     if (!isUploadFile(file)) {
-      return NextResponse.json({ error: '请选择一张图片再上传。' }, { status: 400 });
+      return NextResponse.json({ error: kind === 'audio' ? '请选择一个音乐文件再上传。' : '请选择一张图片再上传。' }, { status: 400 });
     }
 
-    const validation = validateAdminImageFile(file);
+    const validation = kind === 'audio' ? validateAdminAudioFile(file) : validateAdminImageFile(file);
     if (!validation.ok) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const saved = await saveAdminImageFile(file);
+    const saved = kind === 'audio' ? await saveAdminAudioFile(file) : await saveAdminImageFile(file);
     return NextResponse.json({
       path: saved.publicPath,
       fileName: saved.fileName,
       originalName: saved.originalName,
-      bytes: saved.bytes
+      bytes: saved.bytes,
+      kind
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : '图片上传失败。';
+    const message = error instanceof Error ? error.message : '文件上传失败。';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

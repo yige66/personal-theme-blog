@@ -7,7 +7,7 @@ import { PortalSearch } from '@/components/PortalSearch';
 import { SiteDashboard } from '@/components/SiteDashboard';
 import { ThemeSceneCard } from '@/components/ThemeSceneCard';
 import { experienceRoutes } from '@/lib/experience';
-import { formatDate, type BlogData, type BlogPost, type BlogStats } from '@/lib/blog';
+import { formatDate, getPageActions, getPageContent, getPageStatLabel, type BlogData, type BlogPost, type BlogStats } from '@/lib/blog';
 import type { PortalSearchEntry } from '@/lib/portal-index';
 
 type HomeWorldProps = {
@@ -82,18 +82,23 @@ function getSpotlightColumns(data: BlogData, stats: BlogStats) {
   });
 }
 
+function isExternalHref(href: string) {
+  return /^https?:\/\//i.test(href);
+}
+
 export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps) {
+  const homePage = getPageContent(data.site, 'home');
+  const homeActions = getPageActions(homePage);
   const latestPosts = posts.slice(0, 5);
   const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
   const latestNote = data.notes[0];
   const latestChatter = data.chatters[0];
-  const githubIsExternal = data.site.github.startsWith('http');
   const spotlightColumns = getSpotlightColumns(data, stats);
   const noteCover = latestNote?.images?.[0] || data.site.gallery[1]?.image || primaryGallery?.image || data.site.heroImage;
   const chatterCover = latestChatter?.cover || data.site.gallery[2]?.image || primaryGallery?.image || data.site.heroImage;
 
   return (
-    <section className="main-shell xh-clean-home" aria-label="个人博客首页">
+    <section className="main-shell xh-clean-home" aria-label={homePage.title}>
       <div className="xh-clean-home__search">
         <PortalSearch entries={searchEntries} />
       </div>
@@ -101,6 +106,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
       <main className="xh-clean-home__grid" aria-label="XHBlogs 风格首页内容">
         <section className="xh-clean-home__identity" aria-label="个人资料与音乐">
           <article className="xh-clean-card xh-clean-profile xh-profile-window" data-motion="portal-card">
+            <Link className="xh-profile-card-open" href="/about" aria-label="打开关于页面" />
             <div className="xh-profile-window-bar" aria-hidden="true">
               <span />
               <span />
@@ -109,18 +115,23 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
             <div className="xh-avatar-shell">
               <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={120} height={120} priority />
             </div>
-            <p className="eyebrow">Profile</p>
+            <p className="eyebrow">{homePage.eyebrow}</p>
             <h1>{data.site.owner || data.site.title}</h1>
             <p className="xh-role">{data.site.role}</p>
             <p className="xh-motto">{data.site.bio || data.site.motto}</p>
             <div className="xh-profile-stats" aria-label="站点数据">
-              <span><strong>{stats.posts}</strong><small>文章</small></span>
-              <span><strong>{stats.notes}</strong><small>动态</small></span>
-              <span><strong>{stats.gallery}</strong><small>相册</small></span>
+              <span><strong>{stats.posts}</strong><small>{getPageStatLabel(homePage, 0, '文章')}</small></span>
+              <span><strong>{stats.notes}</strong><small>{getPageStatLabel(homePage, 1, '动态')}</small></span>
+              <span><strong>{stats.gallery}</strong><small>{getPageStatLabel(homePage, 2, '相册')}</small></span>
             </div>
             <div className="xh-profile-actions">
-              <Link href="/about"><span>关于我</span></Link>
-              <a href={data.site.github} target={githubIsExternal ? '_blank' : undefined} rel={githubIsExternal ? 'noreferrer' : undefined}><span>GitHub</span></a>
+              {homeActions.map((action) => (
+                isExternalHref(action.href) ? (
+                  <a href={action.href} key={`${action.href}-${action.label}`} target="_blank" rel="noreferrer"><span>{action.label}</span></a>
+                ) : (
+                  <Link href={action.href} key={`${action.href}-${action.label}`}><span>{action.label}</span></Link>
+                )
+              ))}
             </div>
           </article>
 
@@ -147,8 +158,8 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
               />
               <div>
                 <p className="eyebrow">Photo Wall</p>
-                <h2>{primaryGallery?.title || '照片墙'}</h2>
-                <span>{primaryGallery?.description || '头像、相册和日常素材归档。'}</span>
+                <h2>{primaryGallery?.title || homePage.panelOneTitle}</h2>
+                <span>{primaryGallery?.description || homePage.panelOneDescription}</span>
               </div>
             </Link>
 
@@ -165,7 +176,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                 <div className="xh-card-copy">
                   <p className="eyebrow">Moments</p>
                   <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
-                  <h2>{latestNote?.title || '近期动态'}</h2>
+                  <h2>{latestNote?.title || homePage.panelTwoTitle}</h2>
                   <p>{latestNote?.content || data.site.status}</p>
                 </div>
               </Link>
@@ -181,8 +192,8 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                 />
                 <div className="xh-card-copy">
                   <p className="eyebrow">Chatter</p>
-                  <h2>{latestChatter?.title || '云端杂谈'}</h2>
-                  <p>{latestChatter?.summary || '把正式文章之外的研究片段和站点复盘记录单独收进轻文章频道。'}</p>
+                  <h2>{latestChatter?.title || homePage.panelThreeTitle}</h2>
+                  <p>{latestChatter?.summary || homePage.panelThreeDescription}</p>
                 </div>
               </Link>
             </div>
