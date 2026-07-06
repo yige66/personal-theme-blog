@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
-      { error: 'Admin read access is locked. Configure ADMIN_WRITE_TOKEN and send it with the request.' },
+      { error: '后台读取已锁定，请配置 ADMIN_WRITE_TOKEN 并在请求中携带。' },
       { status: 401 }
     );
   }
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
-      { error: 'Admin write access is locked. Configure ADMIN_WRITE_TOKEN and send it with the request.' },
+      { error: '后台写入已锁定，请配置 ADMIN_WRITE_TOKEN 并在请求中携带。' },
       { status: 401 }
     );
   }
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const validation = validateBlogDataDraft(body.data);
 
     if (!validation.ok) {
-      return NextResponse.json({ error: 'Blog data failed validation.', details: validation.errors }, { status: 400 });
+      return NextResponse.json({ error: '博客数据校验未通过。', details: validation.errors }, { status: 400 });
     }
 
     const result = await saveBlogData(validation.data);
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       savedAt: new Date().toISOString()
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to save blog data.';
+    const message = error instanceof Error ? error.message : '无法保存博客数据。';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

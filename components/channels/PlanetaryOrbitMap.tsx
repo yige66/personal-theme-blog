@@ -11,6 +11,7 @@ export type PlanetaryOrbitItem = {
   href: string;
   eyebrow?: string;
   heat?: number;
+  tags?: string[];
 };
 
 type PlanetaryOrbitMapProps = {
@@ -67,6 +68,10 @@ const orbitRingColors = [
   'rgba(255, 245, 184, 0.22)'
 ];
 const PLANETARY_ATLAS_THRESHOLD = 54;
+const ORBIT_BASE_RADIUS_X = 28;
+const ORBIT_BASE_RADIUS_Y = 18.5;
+const ORBIT_RING_GAP_X = 10.4;
+const ORBIT_RING_GAP_Y = 7.8;
 
 type PlanetaryLayoutMode = 'orbit' | 'atlas';
 
@@ -99,8 +104,8 @@ function getOrbitProfiles(total: number): OrbitProfile[] {
 
     profiles.push({
       capacity,
-      radiusX: 32 + ring * 11.6,
-      radiusY: 22 + ring * 8.8,
+      radiusX: ORBIT_BASE_RADIUS_X + ring * ORBIT_RING_GAP_X,
+      radiusY: ORBIT_BASE_RADIUS_Y + ring * ORBIT_RING_GAP_Y,
       ring,
       size,
       start
@@ -116,15 +121,16 @@ function getOrbitProfiles(total: number): OrbitProfile[] {
 function getCameraProfile(total: number, profiles = getOrbitProfiles(total), layoutMode = getLayoutMode(total)) {
   const outer = profiles[profiles.length - 1];
   const fitScale = outer
-    ? Math.min(1, 42 / (outer.radiusX + 10), 38 / (outer.radiusY + 8))
+    ? Math.min(1, 39 / (outer.radiusX + 10), 34 / (outer.radiusY + 8))
     : 1;
-  const cameraScale = layoutMode === 'atlas' ? 1 : clamp(fitScale, 0.46, 1);
+  const cameraScale = layoutMode === 'atlas' ? 1 : clamp(fitScale, 0.56, 1);
   const coreScale = layoutMode === 'atlas'
     ? 0.86
     : clamp(1 - Math.max(0, profiles.length - 1) * 0.045, 0.72, 1);
+  const atlasRows = Math.max(1, Math.ceil(total / 3));
   const mapHeight = layoutMode === 'atlas'
-    ? 360
-    : Math.min(1680, 650 + Math.max(1, profiles.length) * 118 + Math.max(0, total - 12) * 8);
+    ? Math.min(1800, 360 + atlasRows * 132)
+    : Math.min(1900, 690 + Math.max(1, profiles.length) * 130 + Math.max(0, total - 12) * 8);
 
   return {
     cameraScale,
@@ -193,9 +199,10 @@ function getNodeSide(x: number, y: number) {
 }
 
 export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orbit', items, subtitle, title, variant }: PlanetaryOrbitMapProps) {
-  const [mode, setMode] = useState<'minimal' | 'detail'>('detail');
+  const [mode, setMode] = useState<'minimal' | 'detail'>('minimal');
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
-  const layoutMode = getLayoutMode(items.length);
+  const shouldUseReadableAtlas = mode === 'detail' && (density === 'dense' || items.length > 5);
+  const layoutMode = shouldUseReadableAtlas ? 'atlas' : getLayoutMode(items.length);
   const orbitProfiles = useMemo(() => getOrbitProfiles(items.length), [items.length]);
   const nodes = useMemo(() => items.map((item, index) => ({
     ...item,
@@ -206,10 +213,12 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
   const activeNodeId = nodes.some((item) => item.id === activeId) ? activeId : nodes[0]?.id ?? null;
   const resolvedDensity = layoutMode === 'atlas' || density === 'dense' || items.length > 18 ? 'dense' : 'orbit';
   const camera = getCameraProfile(items.length, orbitProfiles, layoutMode);
+  const readableScale = layoutMode === 'atlas' ? 1 : clamp(1 / camera.cameraScale, 1, 1.32);
   const mapStyle = {
     '--planet-camera-scale': camera.cameraScale.toFixed(3),
     '--planet-core-scale': camera.coreScale.toFixed(3),
     '--planet-core-sprite': `url("${corePlanetSprites[variant]}")`,
+    '--planet-info-scale': readableScale.toFixed(3),
     '--planet-map-height': `${camera.mapHeight}px`
   } as CSSProperties;
 
@@ -299,6 +308,13 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
                   <strong>{item.label}</strong>
                   <em>{item.meta}</em>
                   <span>{item.detail}</span>
+                  {item.tags?.length ? (
+                    <span className="planetary-node-tags" aria-label="动态标签">
+                      {item.tags.map((tag) => (
+                        <span className="planetary-node-tag" key={tag}>#{tag}</span>
+                      ))}
+                    </span>
+                  ) : null}
                 </span>
               </>
             );

@@ -18,15 +18,12 @@ function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
-function noteImages(note: BlogNote, index: number): string[] {
+function noteImages(note: BlogNote): string[] {
   if (note.images?.length) {
     return note.images.slice(0, 6);
   }
 
-  const pool = ['/assets/img/hero-mountain.svg', '/assets/img/desk-notes.svg', '/assets/img/admin-board.svg', '/assets/img/avatar-orbit.svg'];
-  const tags = note.tags ?? [];
-  const count = tags.length >= 3 ? 3 : tags.length >= 1 ? 2 : 0;
-  return Array.from({ length: count }, (_item, imageIndex) => pool[(index + imageIndex) % pool.length]);
+  return [];
 }
 
 type MomentsBoardProps = {
@@ -43,13 +40,17 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
   const displayName = authorName.trim() || '博客作者';
   const displayAvatar = avatar || '/assets/img/avatar-orbit.svg';
 
-  const moods = useMemo(() => [allMood, ...Array.from(new Set(notes.map((note) => note.mood).filter(Boolean))) as string[]], [notes]);
+  const moods = useMemo(
+    () => [allMood, ...Array.from(new Set(notes.map((note) => note.mood).filter(Boolean))) as string[]],
+    [notes]
+  );
   const filteredNotes = useMemo(() => {
     const keyword = query.trim().toLowerCase();
     return notes
       .filter((note) => {
         const matchesMood = activeMood === allMood || note.mood === activeMood;
-        const matchesQuery = !keyword || `${note.title || ''} ${note.content} ${(note.tags ?? []).join(' ')}`.toLowerCase().includes(keyword);
+        const searchable = `${note.title || ''} ${note.content} ${note.mood ?? ''}`.toLowerCase();
+        const matchesQuery = !keyword || searchable.includes(keyword);
         return matchesMood && matchesQuery;
       })
       .sort((a, b) => {
@@ -63,9 +64,9 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
     eyebrow: String(index + 1).padStart(2, '0'),
     label: note.title || note.mood || '日常碎片',
     meta: formatDate(note.date).slice(0, 10),
-    detail: `${note.content}${note.tags?.length ? ` / ${(note.tags ?? []).map((tag) => `#${tag}`).join(' ')}` : ''}`,
+    detail: note.content,
     href: `#moment-${note.id}`,
-    heat: Math.min(5, Math.max(1, (note.tags?.length ?? 0) + 1))
+    heat: note.mood ? 2 : 1
   })), [filteredNotes]);
 
   return (
@@ -73,7 +74,7 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
       <div className="moments-board-toolbar xh-reference-toolbar">
         <label>
           <span>Search</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索被遗忘的记忆..." />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索动态..." />
         </label>
         <div className="moments-mood-filter" aria-label="心情筛选">
           {moods.map((mood) => (
@@ -94,13 +95,13 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
         countLabel="moments"
         items={orbitItems}
         subtitle="Moment Planet"
-        title="动态行星图"
+        title="动态星图"
         variant="moments"
       />
 
       <div className="moments-stream">
         {filteredNotes.map((note, index) => {
-          const images = noteImages(note, index);
+          const images = noteImages(note);
           return (
             <article className="moment-post" id={`moment-${note.id}`} key={note.id}>
               <header>
@@ -122,12 +123,6 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
                   ))}
                 </div>
               ) : null}
-              <footer>
-                <span className="moment-tags">
-                  {note.mood ? <small>{note.mood}</small> : null}
-                  {(note.tags ?? []).slice(0, 4).map((tag) => <small key={tag}>#{tag}</small>)}
-                </span>
-              </footer>
               <details className="moment-comment-dock">
                 <summary aria-label={`评论 ${note.title || note.id}`}>评论</summary>
                 <MomentComments config={comments} term={`/moments/${note.id}`} title={note.title || `日常碎片 ${index + 1}`} />

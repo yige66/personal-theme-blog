@@ -53,8 +53,8 @@ describe('subpage experience surfaces', () => {
     assert.match(archiveSwitchboard, /archive-view-toggle/);
     assert.match(archiveSwitchboard, /archive-tag-rail/);
     assert.match(archiveSwitchboard, /xh-reference-surface/);
-    assert.match(archiveSwitchboard, /中枢链路/);
-    assert.match(archiveSwitchboard, /矩阵网格/);
+    assert.match(archiveSwitchboard, /archive-tab-timeline/);
+    assert.match(archiveSwitchboard, /archive-tab-cards/);
     assert.match(archiveSwitchboard, /selectedTag/);
     assert.match(archiveSwitchboard, /post\.tags\.includes\(selectedTag\)/);
     assert.match(archiveSwitchboard, /role="tab"/);
@@ -84,19 +84,30 @@ describe('subpage experience surfaces', () => {
     assert.match(chatterMasonry, /chatter-masonry/);
     assert.match(chatterMasonry, /chatter-cover/);
     assert.match(chatterMasonry, /xh-reference-surface/);
+    assert.match(chatterMasonry, /createContentExcerpt\(chatter\.content\)/);
+    assert.doesNotMatch(chatterMasonry, /chatter\.summary/);
     assert.match(tagSurfaces, /PlanetaryOrbitMap/);
     assert.match(tagSurfaces, /PlanetaryOrbitItem/);
-    assert.match(tagSurfaces, /标签行星图/);
+    assert.match(tagSurfaces, /subtitle="Tag Planet"/);
     assert.match(tagSurfaces, /const ORBIT_MODE_LIMIT = 8/);
     assert.match(momentsBoard, /PlanetaryOrbitMap/);
     assert.match(momentsBoard, /orbitItems/);
+    assert.match(momentsBoard, /heat: note\.mood \? 2 : 1/);
+    assert.match(momentsBoard, /moment-image-grid/);
+    assert.doesNotMatch(momentsBoard, /note\.tags/);
+    assert.doesNotMatch(momentsBoard, /moment-tags/);
+    assert.doesNotMatch(momentsBoard, /detail: `\$\{note\.content\}/);
     assert.doesNotMatch(momentsBoard, /filteredNotes\.slice\(0, 12\)/);
     assert.match(planetaryOrbitMap, /'use client'/);
     assert.match(planetaryOrbitMap, /planetary-modebar/);
-    assert.match(planetaryOrbitMap, /极简模式/);
-    assert.match(planetaryOrbitMap, /详细模式/);
+    assert.match(planetaryOrbitMap, /useState<'minimal' \| 'detail'>\('minimal'\)/);
+    assert.match(planetaryOrbitMap, /setMode\('minimal'\)/);
+    assert.match(planetaryOrbitMap, /setMode\('detail'\)/);
     assert.match(planetaryOrbitMap, /planetary-mini-planet/);
     assert.match(planetaryOrbitMap, /planetary-node-info/);
+    assert.match(planetaryOrbitMap, /tags\?: string\[\]/);
+    assert.match(planetaryOrbitMap, /planetary-node-tags/);
+    assert.match(planetaryOrbitMap, /planetary-node-tag/);
     assert.match(planetaryOrbitMap, /getCameraProfile/);
     assert.match(planetaryOrbitMap, /getOrbitProfiles/);
     assert.match(planetaryOrbitMap, /PLANETARY_ATLAS_THRESHOLD/);
@@ -111,11 +122,14 @@ describe('subpage experience surfaces', () => {
     assert.match(planetaryOrbitMap, /--planet-core-sprite/);
     assert.match(planetaryOrbitMap, /activeId/);
     assert.match(planetaryOrbitMap, /data-active/);
+    assert.match(planetaryOrbitMap, /shouldUseReadableAtlas/);
+    assert.match(planetaryOrbitMap, /mode === 'detail' && \(density === 'dense' \|\| items\.length > 5\)/);
     assert.match(planetaryOrbitMap, /data-layout=\{layoutMode\}/);
     assert.match(planetaryOrbitMap, /data-ring-count=\{orbitProfiles\.length\}/);
     assert.match(planetaryOrbitMap, /data-zoom/);
     assert.match(planetaryOrbitMap, /--planet-camera-scale/);
     assert.match(planetaryOrbitMap, /--planet-core-scale/);
+    assert.match(planetaryOrbitMap, /--planet-info-scale/);
     assert.match(planetaryOrbitMap, /--planet-map-height/);
     assert.match(planetaryOrbitMap, /--planet-ring-width/);
     assert.match(planetaryOrbitMap, /--planet-ring-height/);
@@ -143,9 +157,10 @@ describe('subpage experience surfaces', () => {
   });
 
   it('keeps tag detail and article pages connected to richer reading surfaces', async () => {
-    const [tagPage, postPage] = await Promise.all([
+    const [tagPage, postPage, chatterDetailPage] = await Promise.all([
       readFile('app/tags/[tag]/page.tsx', 'utf8'),
-      readFile('app/posts/[slug]/page.tsx', 'utf8')
+      readFile('app/posts/[slug]/page.tsx', 'utf8'),
+      readFile('app/chatter/[slug]/page.tsx', 'utf8')
     ]);
 
     assert.match(tagPage, /ChannelHeader/);
@@ -154,12 +169,23 @@ describe('subpage experience surfaces', () => {
     assert.match(tagPage, /formatPageText\(page\.title/);
     assert.match(tagPage, /TagReadingDock/);
     assert.match(postPage, /article-capsule/);
-    assert.match(postPage, /article-dock/);
-    assert.match(postPage, /SidebarLyric/);
-    assert.match(postPage, /ArticleTOC/);
-    assert.match(postPage, /extractTableOfContents/);
+    assert.match(postPage, /post-detail-page/);
+    assert.match(postPage, /article-profile-sidebar/);
+    assert.doesNotMatch(postPage, /SidebarLyric/);
+    assert.match(postPage, /ProfileCard/);
+    assert.doesNotMatch(postPage, /extractTableOfContents/);
     assert.match(postPage, /id="article-content"/);
-    assert.match(postPage, /最近文章/);
+    assert.doesNotMatch(postPage, /recentPosts/);
+    assert.match(chatterDetailPage, /subpage article-page chatter-detail-page/);
+    assert.match(chatterDetailPage, /chatter-detail-cover/);
+    assert.match(chatterDetailPage, /coverImage/);
+    assert.match(chatterDetailPage, /article-profile-sidebar/);
+    assert.match(chatterDetailPage, /ProfileCard/);
+    assert.doesNotMatch(chatterDetailPage, /SidebarLyric/);
+    assert.doesNotMatch(chatterDetailPage, /ArticleTOC/);
+    assert.doesNotMatch(chatterDetailPage, /extractTableOfContents/);
+    assert.doesNotMatch(chatterDetailPage, /article-summary/);
+    assert.doesNotMatch(chatterDetailPage, /chatter\.summary/);
 
     const [articleToc, blogLib] = await Promise.all([
       readFile('components/article/ArticleTOC.tsx', 'utf8'),
@@ -178,6 +204,7 @@ describe('subpage experience surfaces', () => {
   it('defines responsive target-site inspired subpage styles', async () => {
     const css = `${await readFile('app/globals.css', 'utf8')}\n${await readFile('app/home-overrides.css', 'utf8')}`;
     const outerFrameRemovalRule = css.match(/\/\* Final outer frame removal[\s\S]*?content: none !important;[\s\S]*?display: none !important;[\s\S]*?\}/)?.[0] ?? '';
+    const xinghuisamaImageRules = css.slice(css.indexOf('/* Final XinghuisamaBlogs-style image handling'));
 
     assert.match(css, /\.page-insight-bar/);
     assert.match(css, /\.page-insight-items/);
@@ -186,6 +213,8 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /\.moment-waterfall/);
     assert.match(css, /\.radio-hero-card/);
     assert.match(css, /\.article-sidebar/);
+    assert.match(css, /\.article-profile-sidebar/);
+    assert.match(css, /body:has\(:is\(\.post-detail-page, \.chatter-detail-page\)\) \.xh-global-toolbox/);
     assert.match(css, /\.article-toc-panel/);
     assert.match(css, /\.article-toc-list/);
     assert.match(css, /\.friends-board/);
@@ -226,6 +255,20 @@ describe('subpage experience surfaces', () => {
     assert.match(outerFrameRemovalRule, /background: transparent !important/);
     assert.doesNotMatch(outerFrameRemovalRule, /\.xh-site-dashboard|\.project-status-rack|\.project-featured-console|\.project-card/);
     assert.match(css, /\.photowall-album-stack img:nth-child\(2\)/);
+    assert.match(xinghuisamaImageRules, /Final XinghuisamaBlogs-style image handling/);
+    assert.match(xinghuisamaImageRules, /\.article-cover,[\s\S]*\.post-cover,[\s\S]*aspect-ratio: var\(--xh-reference-cover-ratio\) !important[\s\S]*height: auto !important/);
+    assert.match(xinghuisamaImageRules, /\.markdown-body img[\s\S]*height: auto !important[\s\S]*max-height: none !important[\s\S]*object-fit: initial !important/);
+    assert.match(xinghuisamaImageRules, /body:has\(\.archive-page\) \.archive-row-cover img,[\s\S]*object-fit: cover !important/);
+    assert.match(xinghuisamaImageRules, /\.chatter-cover img \{[\s\S]*object-fit: cover !important/);
+    assert.match(xinghuisamaImageRules, /\.photowall-album-stack \{[\s\S]*aspect-ratio: var\(--xh-reference-album-ratio\) !important/);
+    assert.match(xinghuisamaImageRules, /\.gallery-polaroid img,[\s\S]*object-fit: cover !important/);
+    assert.match(xinghuisamaImageRules, /\.photowall-masonry img[\s\S]*height: auto !important[\s\S]*object-fit: initial !important/);
+    assert.match(xinghuisamaImageRules, /\.gallery-lightbox img,[\s\S]*\.photowall-lightbox img[\s\S]*object-fit: contain !important/);
+    assert.match(xinghuisamaImageRules, /\.moment-image-grid:not\(\.count-1\) img,[\s\S]*object-fit: cover !important/);
+    assert.match(xinghuisamaImageRules, /\.moment-image-grid\.count-1 img[\s\S]*height: auto !important[\s\S]*max-height: 400px !important[\s\S]*object-fit: contain !important/);
+    assert.match(css, /Final detail page cover full-image fix/);
+    assert.match(css, /:is\(\.post-detail-page, \.chatter-detail-page\) \.article-cover,[\s\S]*aspect-ratio: auto !important;[\s\S]*height: auto !important;[\s\S]*max-height: none !important/);
+    assert.match(css, /:is\(\.post-detail-page, \.chatter-detail-page\) \.article-cover img,[\s\S]*position: relative !important;[\s\S]*height: auto !important;[\s\S]*object-fit: initial !important/);
     assert.match(css, /\.moments-stream[\s\S]*grid-template-columns: repeat\(2/);
     assert.match(css, /\.chatter-masonry[\s\S]*grid-template-columns: repeat\(3/);
     assert.match(css, /\.top-nav \.brand span::after/);
@@ -240,6 +283,25 @@ describe('subpage experience surfaces', () => {
     assert.doesNotMatch(css, /\.planetary-orbit-map::after[\s\S]*radial-gradient\(circle at 50% 50%/);
     assert.match(css, /\.planetary-modebar/);
     assert.match(css, /\.planetary-mini-planet/);
+    assert.match(css, /\.planetary-node-info \.planetary-node-tags/);
+    assert.match(css, /\.planetary-node-info \.planetary-node-tag/);
+    assert.match(css, /\.planetary-node-info[\s\S]*scale\(var\(--planet-info-scale, 1\)\) !important/);
+    assert.match(css, /--planet-info-width: clamp\(188px, 16vw, 252px\) !important/);
+    assert.match(css, /\.planetary-node-info[\s\S]*width: var\(--planet-info-width, clamp\(188px, 16vw, 252px\)\) !important/);
+    assert.match(css, /\.planetary-node-info[\s\S]*max-width: none !important/);
+    assert.match(css, /\.planetary-node\[data-side="left"\] \.planetary-node-info[\s\S]*transform-origin: right center !important/);
+    assert.match(css, /\.planetary-modebar button[\s\S]*font-size: 15px !important/);
+    assert.match(css, /\.planetary-node-info strong[\s\S]*font-size: 17px !important/);
+    assert.match(css, /\.planetary-node-info small,[\s\S]*font-size: 13px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-zoom="deep"\] \.planetary-node-info strong[\s\S]*font-size: 16px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-info small[\s\S]*font-size: 14px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-info strong[\s\S]*font-size: 18px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-info span:not\(\.planetary-node-tags\):not\(\.planetary-node-tag\)[\s\S]*font-size: 14px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-info \.planetary-node-tag[\s\S]*font-size: 14px !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\]\[data-mode="detail"\] \.planetary-node-info strong,[\s\S]*-webkit-line-clamp: unset !important/);
+    assert.doesNotMatch(css, /\.planetary-orbit-map[\s\S]*font-size: (?:9|10)px !important/);
+    assert.match(css, /\.planetary-node\[data-side="left"\],[\s\S]*grid-template-columns: 58px minmax\(0, 1fr\) !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-density="dense"\] \.planetary-node-info,[\s\S]*width: auto !important/);
     assert.match(css, /--planet-camera-scale/);
     assert.match(css, /--planet-core-scale/);
     assert.match(css, /--planet-map-height/);
@@ -251,7 +313,18 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /--planet-ring-height/);
     assert.match(css, /\.planetary-orbit-map \.planetary-ring-set span[\s\S]*opacity: 0 !important/);
     assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\]/);
+    assert.match(css, /body:has\(\.tags-page\) \.planetary-orbit-map\.tag-nebula-world\[data-layout="atlas"\],[\s\S]*height: auto !important/);
+    assert.match(css, /body:has\(\.tags-page\) \.planetary-orbit-map\.tag-nebula-world\[data-layout="atlas"\],[\s\S]*overflow: visible !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-spacefield[\s\S]*min-height: var\(--planet-map-height, 720px\) !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-layer[\s\S]*padding-bottom: clamp\(18px, 2vw, 32px\) !important/);
     assert.match(css, /grid-template-columns: repeat\(auto-fit, minmax\(min\(230px, 100%\), 1fr\)\) !important/);
+    assert.match(css, /\.planetary-node-info :is\(small, strong, em, span\)[\s\S]*min-width: 0 !important/);
+    assert.match(css, /\.planetary-node-info :is\(small, strong, em, span\)[\s\S]*word-break: normal !important/);
+    assert.match(css, /Atlas side reset: keep readable cards from inheriting orbit-only side placement/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node:is\(\[data-side="left"\], \[data-side="right"\], \[data-side="below"\], \[data-side="above"\]\)[\s\S]*grid-template-columns: 58px minmax\(0, 1fr\) !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node:is\(\[data-side="left"\], \[data-side="right"\], \[data-side="below"\], \[data-side="above"\]\) \.planetary-mini-planet[\s\S]*grid-row: 1 !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node:is\(\[data-side="left"\], \[data-side="right"\], \[data-side="below"\], \[data-side="above"\]\) \.planetary-node-info[\s\S]*grid-column: 2 !important/);
+    assert.match(css, /\.planetary-orbit-map\[data-layout="atlas"\] \.planetary-node-info span:not\(\.planetary-node-tags\):not\(\.planetary-node-tag\)[\s\S]*-webkit-line-clamp: 3 !important/);
     assert.doesNotMatch(css, /--planet-ring-step/);
     assert.match(css, /\.planetary-core-texture::before/);
     assert.match(css, /\.planetary-core-texture::after/);

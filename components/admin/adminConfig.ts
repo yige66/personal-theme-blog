@@ -131,7 +131,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       routes: [
         { label: '项目', href: '/projects' }
       ],
-      dataPath: 'site.projectOrder / site.github / GitHub repositories / site.pages.projects',
+      dataPath: 'site.projectOrder / site.github / GitHub 公开仓库 / site.pages.projects',
       impact: '项目卡片从 GitHub 公开仓库自动生成，后台维护 GitHub 地址、项目页文案和前台展示顺序。'
     }
   },
@@ -286,9 +286,9 @@ export const postFields: FieldConfig[] = [
   { key: 'title', label: '标题', help: '读者会先看到这里，尽量清楚直接。' },
   { key: 'summary', label: '摘要', kind: 'textarea', rows: 3, help: '用两三句话说明这篇文章讲什么。' },
   { key: 'content', label: '正文', kind: 'prose', rows: 14, help: '直接写正文，不需要 Markdown 或代码格式。' },
-  { key: 'tags', label: '标签', kind: 'list', help: '一行一个标签，例如：学习方法。' },
+  { key: 'tags', label: '标签', kind: 'tag-list', help: '\u5148\u5728\u6807\u7b7e\u680f\u76ee\u7ef4\u62a4\u6807\u7b7e\uff0c\u518d\u5728\u5f53\u524d\u6587\u7ae0\u4e2d\u9009\u62e9\u6216\u79fb\u9664\u5173\u8054\u6807\u7b7e\u3002' },
   { key: 'category', label: '分类', advanced: true },
-  { key: 'cover', label: '封面图', kind: 'image', cropAspect: 16 / 9, help: '可以上传本地图片，保存后会自动用于文章卡片，上传时会按封面比例裁剪。' },
+  { key: 'cover', label: '封面图', kind: 'image', help: '可以上传横图或竖图，保存后会自动用于文章卡片和详情页，前台会按图片原始比例适配展示。' },
   { key: 'status', label: '状态', kind: 'select', options: postStatusOptions },
   { key: 'createdAt', label: '发布时间', kind: 'datetime' },
   { key: 'featured', label: '精选', kind: 'boolean', advanced: true },
@@ -315,19 +315,17 @@ export const noteFields: FieldConfig[] = [
   { key: 'content', label: '内容', kind: 'prose', rows: 6, help: '像发一条动态一样直接写。' },
   { key: 'date', label: '日期', kind: 'date' },
   { key: 'mood', label: '心情' },
-  { key: 'tags', label: '标签', kind: 'list' },
-  { key: 'images', label: '配图', kind: 'image-list', cropAspect: 4 / 3, help: '可以上传一张或多张本地图片，上传时会按配图比例裁剪。' },
+  { key: 'images', label: '配图', kind: 'image-list', help: '可以上传一张或多张横图、竖图或长图，动态流会按图片比例适配展示。' },
   { key: 'id', label: '内部编号', advanced: true }
 ];
 
 export const chatterFields: FieldConfig[] = [
   { key: 'title', label: '标题' },
-  { key: 'summary', label: '摘要', kind: 'textarea', rows: 3 },
   { key: 'content', label: '正文', kind: 'prose', rows: 11 },
   { key: 'date', label: '日期', kind: 'date' },
-  { key: 'tags', label: '标签', kind: 'list' },
+  { key: 'tags', label: '标签', kind: 'tag-list', help: '\u5148\u5728\u6807\u7b7e\u680f\u76ee\u7ef4\u62a4\u6807\u7b7e\uff0c\u518d\u5728\u5f53\u524d\u6742\u8c08\u4e2d\u9009\u62e9\u6216\u79fb\u9664\u5173\u8054\u6807\u7b7e\u3002' },
   { key: 'mood', label: '心情' },
-  { key: 'cover', label: '封面图', kind: 'image', cropAspect: 16 / 9 },
+  { key: 'cover', label: '封面图', kind: 'image', help: '支持横图和竖图，杂谈列表与详情页会按图片比例适配展示。' },
   { key: 'featured', label: '精选', kind: 'boolean', advanced: true },
   { key: 'id', label: '内部编号', advanced: true },
   { key: 'slug', label: '页面地址', advanced: true, help: '这个设置一般不用改，系统已自动生成。' }
@@ -336,14 +334,14 @@ export const chatterFields: FieldConfig[] = [
 export const galleryFields: FieldConfig[] = [
   { key: 'title', label: '标题' },
   { key: 'description', label: '说明', kind: 'textarea', rows: 4 },
-  { key: 'image', label: '主图', kind: 'image', cropAspect: 4 / 3 },
+  { key: 'image', label: '主图', kind: 'image', help: '支持横图和竖图，照片墙和图库入口会按图片比例适配展示。' },
   { key: 'alt', label: '图片说明' },
   { key: 'collection', label: '图集' },
   { key: 'location', label: '地点' },
   { key: 'date', label: '日期', kind: 'date' },
   { key: 'featured', label: '精选', kind: 'boolean', advanced: true },
   { key: 'tags', label: '标签', kind: 'list' },
-  { key: 'items', label: '子图', kind: 'image-items', cropAspect: 4 / 3 }
+  { key: 'items', label: '子图', kind: 'image-items', help: '支持不同方向和比例的照片，前台相册会尽量保留原图比例。' }
 ];
 
 export const musicFields: FieldConfig[] = [

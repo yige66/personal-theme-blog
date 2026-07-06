@@ -8,6 +8,7 @@ import { SiteDashboard } from '@/components/SiteDashboard';
 import { ThemeSceneCard } from '@/components/ThemeSceneCard';
 import { experienceRoutes } from '@/lib/experience';
 import { formatDate, getPageActions, getPageContent, getPageStatLabel, type BlogData, type BlogPost, type BlogStats } from '@/lib/blog';
+import { createContentExcerpt } from '@/lib/text';
 import type { PortalSearchEntry } from '@/lib/portal-index';
 
 type HomeWorldProps = {
@@ -89,6 +90,9 @@ function isExternalHref(href: string) {
 export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps) {
   const homePage = getPageContent(data.site, 'home');
   const homeActions = getPageActions(homePage);
+  const profileActions = data.site.github
+    ? [...homeActions, { href: data.site.github, label: 'GitHub' }]
+    : homeActions;
   const latestPosts = posts.slice(0, 5);
   const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
   const latestNote = data.notes[0];
@@ -116,16 +120,16 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
               <Image src={data.site.avatar} alt={`${data.site.owner} 的头像`} width={120} height={120} priority />
             </div>
             <p className="eyebrow">{homePage.eyebrow}</p>
-            <h1>{data.site.owner || data.site.title}</h1>
+            <h1>{data.site.title}</h1>
             <p className="xh-role">{data.site.role}</p>
-            <p className="xh-motto">{data.site.bio || data.site.motto}</p>
+            <p className="xh-motto">{data.site.subtitle || data.site.bio || data.site.motto}</p>
             <div className="xh-profile-stats" aria-label="站点数据">
               <span><strong>{stats.posts}</strong><small>{getPageStatLabel(homePage, 0, '文章')}</small></span>
               <span><strong>{stats.notes}</strong><small>{getPageStatLabel(homePage, 1, '动态')}</small></span>
               <span><strong>{stats.gallery}</strong><small>{getPageStatLabel(homePage, 2, '相册')}</small></span>
             </div>
             <div className="xh-profile-actions">
-              {homeActions.map((action) => (
+              {profileActions.map((action) => (
                 isExternalHref(action.href) ? (
                   <a href={action.href} key={`${action.href}-${action.label}`} target="_blank" rel="noreferrer"><span>{action.label}</span></a>
                 ) : (
@@ -193,7 +197,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                 <div className="xh-card-copy">
                   <p className="eyebrow">Chatter</p>
                   <h2>{latestChatter?.title || homePage.panelThreeTitle}</h2>
-                  <p>{latestChatter?.summary || homePage.panelThreeDescription}</p>
+                  <p>{latestChatter ? createContentExcerpt(latestChatter.content, 72) : homePage.panelThreeDescription}</p>
                 </div>
               </Link>
             </div>

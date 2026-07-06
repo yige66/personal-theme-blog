@@ -3,6 +3,20 @@ import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 
 describe('target-inspired homepage portal', () => {
+  it('keeps the homepage profile window controlled by site profile fields', async () => {
+    const [page, homeWorld, adminConfig] = await Promise.all([
+      readFile('app/page.tsx', 'utf8'),
+      readFile('components/HomeWorld.tsx', 'utf8'),
+      readFile('components/admin/adminConfig.ts', 'utf8')
+    ]);
+
+    assert.match(page, /export const dynamic = 'force-dynamic'/);
+    assert.match(adminConfig, /path: \['site', 'title'\]/);
+    assert.match(adminConfig, /path: \['site', 'subtitle'\]/);
+    assert.match(homeWorld, /<h1>\{data\.site\.title\}<\/h1>/);
+    assert.match(homeWorld, /data\.site\.subtitle \|\| data\.site\.bio \|\| data\.site\.motto/);
+    assert.doesNotMatch(homeWorld, /data\.site\.owner \|\| data\.site\.title/);
+  });
   it('keeps the homepage as the normal route ecosystem outside the game start shell', async () => {
     const [
       page,
@@ -185,6 +199,14 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /box-shadow: none !important/);
     assert.match(css, /pointer-events: none !important/);
     assert.match(css, /\.xh-latest-carousel/);
+    assert.match(css, /Final latest insight full-bleed cover fix/);
+    assert.match(css, /\.xh-latest-card\.xh-latest-carousel \{[\s\S]*aspect-ratio: auto !important;[\s\S]*height: clamp\(500px, 55vh, 620px\) !important/);
+    assert.match(css, /\.xh-latest-card\.xh-latest-carousel > img,[\s\S]*min-height: 100% !important;[\s\S]*object-fit: cover !important/);
+    assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.xh-clean-home__posts \.xh-latest-card\.xh-latest-carousel[\s\S]*height: max\(535px, calc\(100svh - 48px\)\) !important/);
+    assert.match(css, /Final home showcase layout recovery/);
+    assert.match(css, /@media \(min-width: 821px\)[\s\S]*\.xh-clean-home__posts,[\s\S]*\.xh-clean-home__posts \.xh-latest-card\.xh-latest-carousel,[\s\S]*\.xh-clean-home__media \{[\s\S]*height: clamp\(520px, 36vw, 600px\) !important;[\s\S]*min-height: 0 !important/);
+    assert.match(css, /\.xh-clean-home__media \{[\s\S]*grid-template-rows: minmax\(230px, 0\.92fr\) minmax\(240px, 1fr\) !important/);
+    assert.match(css, /\.xh-clean-home__mini-grid \{[\s\S]*height: auto !important;[\s\S]*min-height: 0 !important/);
     assert.match(css, /\.xh-dashboard-clock/);
     assert.match(css, /\.xh-clean-dashboard \.xh-clock-caption/);
     assert.match(css, /\.xh-clean-dashboard \.xh-clock-digit/);
@@ -484,6 +506,12 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(homeCss, /body:has\(\.xh-clean-home\) \.xh-background-image\.is-active \{\n\s*opacity: 0\.48 !important/);
     assert.match(component, /pointerdown/);
     assert.match(component, /usePathname/);
+    assert.match(component, /import Link from 'next\/link'/);
+    assert.match(component, /className="xh-floating-player-open" href="\/music"/);
+    assert.match(homeCss, /\.xh-floating-player > \.xh-floating-player-open[\s\S]*z-index: 1 !important/);
+    assert.match(homeCss, /\.xh-floating-player > :is\(span, strong, small\)[\s\S]*pointer-events: none !important/);
+    assert.match(homeCss, /\.xh-floating-player-controls[\s\S]*z-index: 3 !important/);
+    assert.match(homeCss, /\.xh-floating-player-volume[\s\S]*z-index: 3 !important/);
     assert.match(component, /isTransitioning/);
     assert.match(component, /nextMode/);
     assert.match(component, /commitTimerRef/);

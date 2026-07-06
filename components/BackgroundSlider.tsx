@@ -6,6 +6,7 @@ import type { BlogSite } from '@/lib/blog';
 
 type ThemeMode = 'day' | 'night';
 type ThemePhase = ThemeMode | 'dusk' | 'dawn';
+type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
 const BACKGROUND_SLIDE_INTERVAL_MS = 9000;
 const BACKGROUND_FADE_MS = 1800;
@@ -55,6 +56,14 @@ function getThemePhase(): ThemePhase {
   return phase === 'dusk' || phase === 'dawn' || phase === 'night' ? phase : 'day';
 }
 
+function getSeason(): Season {
+  if (typeof document === 'undefined') {
+    return 'spring';
+  }
+  const season = document.documentElement.dataset.xhSeason;
+  return season === 'summer' || season === 'autumn' || season === 'winter' ? season : 'spring';
+}
+
 function getVisibleThemeMode(): ThemeMode {
   if (typeof document === 'undefined') {
     return 'day';
@@ -101,6 +110,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
   const [exitingIndex, setExitingIndex] = useState<number | null>(null);
   const [themeMode, setThemeMode] = useState<ThemeMode>('day');
   const [themePhase, setThemePhase] = useState<ThemePhase>('day');
+  const [season, setSeason] = useState<Season>('spring');
   const [themeTransitionActive, setThemeTransitionActive] = useState(false);
   const activeIndexRef = useRef(0);
   const themeTransitionActiveRef = useRef(false);
@@ -130,6 +140,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
     const syncThemeState = () => {
       setThemeMode(getVisibleThemeMode());
       setThemePhase(getThemePhase());
+      setSeason(getSeason());
       const transitionActive = isThemeTransitionActive();
       themeTransitionActiveRef.current = transitionActive;
       setThemeTransitionActive(transitionActive);
@@ -147,7 +158,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-xh-theme', 'data-xh-theme-next', 'data-xh-theme-transition', 'data-xh-theme-phase']
+      attributeFilter: ['data-xh-theme', 'data-xh-theme-next', 'data-xh-theme-transition', 'data-xh-theme-phase', 'data-xh-season']
     });
 
     return () => observer.disconnect();
@@ -241,7 +252,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
   }
 
   return (
-    <div className={`xh-background-slider ib-scene-shell is-${themeMode} is-phase-${themePhase}${themeTransitionActive ? ' is-theme-transitioning' : ''}`} aria-hidden="true" data-scene-theme={themeMode} data-scene-phase={themePhase} data-theme-transitioning={themeTransitionActive ? 'true' : 'false'} data-loading-scene="ready">
+    <div className={`xh-background-slider ib-scene-shell is-${themeMode} is-phase-${themePhase} is-season-${season}${themeTransitionActive ? ' is-theme-transitioning' : ''}`} aria-hidden="true" data-scene-theme={themeMode} data-scene-phase={themePhase} data-scene-season={season} data-theme-transitioning={themeTransitionActive ? 'true' : 'false'} data-loading-scene="ready">
       <div className="ib-stage">
         {images.map((image, index) => (
           <span
@@ -259,6 +270,20 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
         <div className="ib-scene ib-scene-night">
           <div className="ib-star-field" />
           <div className="ib-night-bloom" />
+        </div>
+
+        <div className="ib-season-sky" />
+
+        <div className="ib-season-landscape">
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <div className="ib-season-glow">
+          <span />
+          <span />
+          <span />
         </div>
 
         <div className="ib-light-beams">

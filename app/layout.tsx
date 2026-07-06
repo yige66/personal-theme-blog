@@ -49,15 +49,27 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
                 var savedMode = localStorage.getItem('xh-theme-mode');
                 var fallbackMode = new Date().getHours() >= 18 || new Date().getHours() < 6 ? 'night' : 'day';
                 var initialMode = savedMode === 'night' || savedMode === 'day' ? savedMode : fallbackMode;
+                var month = new Date().getMonth();
+                var autoSeason = month >= 2 && month <= 4 ? 'spring' : month >= 5 && month <= 7 ? 'summer' : month >= 8 && month <= 10 ? 'autumn' : 'winter';
+                var savedSeason = localStorage.getItem('xh-season-mode');
+                var initialSeason = /^(spring|summer|autumn|winter)$/.test(savedSeason || '') ? savedSeason : autoSeason;
                 document.documentElement.setAttribute('data-xh-theme', initialMode);
                 document.documentElement.setAttribute('data-xh-theme-next', initialMode);
                 document.documentElement.setAttribute('data-xh-theme-transition', 'idle');
                 document.documentElement.setAttribute('data-xh-theme-phase', initialMode);
+                document.documentElement.setAttribute('data-xh-season', initialSeason);
+                document.documentElement.setAttribute('data-xh-season-next', initialSeason);
+                document.documentElement.setAttribute('data-xh-season-previous', initialSeason);
+                document.documentElement.setAttribute('data-xh-season-transition', 'idle');
               } catch (error) {
                 document.documentElement.setAttribute('data-xh-theme', 'day');
                 document.documentElement.setAttribute('data-xh-theme-next', 'day');
                 document.documentElement.setAttribute('data-xh-theme-transition', 'idle');
                 document.documentElement.setAttribute('data-xh-theme-phase', 'day');
+                document.documentElement.setAttribute('data-xh-season', 'spring');
+                document.documentElement.setAttribute('data-xh-season-next', 'spring');
+                document.documentElement.setAttribute('data-xh-season-previous', 'spring');
+                document.documentElement.setAttribute('data-xh-season-transition', 'idle');
               }
 
               try {

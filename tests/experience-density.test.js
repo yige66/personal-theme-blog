@@ -13,7 +13,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.ok(data.site.gallery.length >= 5);
     assert.ok(data.site.gallery.some((item) => Array.isArray(item.items) && item.items.length >= 2));
     assert.ok(data.notes.length >= 6);
-    assert.ok(data.notes.some((note) => Array.isArray(note.tags) && note.tags.length > 0));
+    assert.ok(data.notes.every((note) => !note.tags || note.tags.length === 0));
+    assert.ok(data.notes.some((note) => note.mood || (Array.isArray(note.images) && note.images.length > 0)));
     assert.ok(data.site.music.length >= 5);
     assert.ok(data.site.music.every((track) => track.cover));
   });
@@ -86,6 +87,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(momentsBoard, /moment-avatar/);
     assert.match(momentsBoard, /moment-image-grid/);
     assert.match(momentsBoard, /moment-comment-dock/);
+    assert.doesNotMatch(momentsBoard, /moment-tags/);
+    assert.doesNotMatch(momentsBoard, /note\.tags/);
     assert.match(musicStudio, /music-lyrics/);
     assert.match(musicStudio, /music-playlist/);
     assert.match(musicStudio, /music-command-bar/);
@@ -118,6 +121,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /Music page control buttons: keep each control as one clean, centered circle\./);
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock :is\(\.music-skip-button, \.music-play-toggle, \.music-mode-button, \.music-dock-volume\)::before/);
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock \.music-skip-button:not\(#xh-music-control-fix\)/);
+    assert.match(css, /\.music-dock-volume label:not\(#xh-music-control-fix\)::after[\s\S]*bottom: -12px !important/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*transform: rotate\(-90deg\) !important/);
     assert.match(css, /width: 46px !important/);
     assert.match(css, /width: 58px !important/);
     assert.match(css, /Final music studio layout/);

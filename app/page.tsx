@@ -4,6 +4,8 @@ import { getBlogData, getBlogStats, getPublishedPosts } from '@/lib/blog';
 import { createPortalSearchEntries } from '@/lib/portal-index';
 import { createWebsiteJsonLd, toJsonLd } from '@/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const [data, posts, stats] = await Promise.all([getBlogData(), getPublishedPosts(), getBlogStats()]);
   const websiteJsonLd = createWebsiteJsonLd(data);

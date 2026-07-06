@@ -97,7 +97,6 @@ export type BlogChatter = {
   id: string;
   slug: string;
   title: string;
-  summary: string;
   content: string;
   date: string;
   tags: string[];
@@ -228,6 +227,7 @@ export type BlogSite = {
   email: string;
   github: string;
   projectOrder: string[];
+  tags: string[];
   themeColor: string;
   accentColor: string;
   heroImage: string;
@@ -592,6 +592,7 @@ const fallbackSite: BlogSite = {
   email: '1772365571@qq.com',
   github: 'https://github.com/yige66/personal-theme-blog',
   projectOrder: [],
+  tags: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Next.js', 'TypeScript', 'AI \u5e94\u7528', '\u9879\u76ee\u590d\u76d8', '\u5185\u5bb9\u7cfb\u7edf'],
   themeColor: '#6fb7a8',
   accentColor: '#f0c36a',
   heroImage: '/assets/img/hero-mountain.svg',
@@ -844,7 +845,7 @@ export async function getBlogStats(): Promise<BlogStats> {
   return {
     posts: posts.length,
     drafts: data.posts.filter((post) => post.status === 'draft').length,
-    tags: new Set(posts.flatMap((post) => post.tags)).size,
+    tags: data.site.tags.length,
     categories: new Set(posts.map((post) => post.category)).size,
     words: posts.reduce((total, post) => total + estimateWords(post.content), 0),
     projects: data.projects.length,
@@ -1057,6 +1058,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     comments: normalizeCommentConfig(siteInput.comments),
     cloudMusicIds: normalizeCloudMusicIds(siteInput.cloudMusicIds),
     projectOrder: normalizeProjectOrder(siteInput.projectOrder),
+    tags: normalizeTagLibrary(siteInput.tags, input.posts, input.chatters, fallbackSite.tags),
     friendLinkApplyFormat: siteInput.friendLinkApplyFormat || fallbackSite.friendLinkApplyFormat,
     music: normalizeMusicTracks(siteInput.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
@@ -1118,6 +1120,47 @@ function normalizeProjectOrder(value: unknown): string[] {
     .slice(0, 100);
 }
 
+function normalizeTagLibrary(value: unknown, posts: unknown, chatters: unknown, fallback: string[]): string[] {
+  if (Array.isArray(value)) {
+    return dedupeTagNames(value).slice(0, 100);
+  }
+
+  const derivedTags = dedupeTagNames([
+    ...collectTagsFromRecords(posts),
+    ...collectTagsFromRecords(chatters)
+  ]).slice(0, 100);
+
+  return derivedTags.length > 0 ? derivedTags : fallback;
+}
+function collectTagsFromRecords(records: unknown): unknown[] {
+  if (!Array.isArray(records)) {
+    return [];
+  }
+
+  return records.flatMap((record) => {
+    if (!record || typeof record !== 'object' || !('tags' in record)) {
+      return [];
+    }
+    const value = (record as { tags?: unknown }).tags;
+    return Array.isArray(value) ? value : [];
+  });
+}
+
+function dedupeTagNames(values: unknown[]): string[] {
+  const seen = new Map<string, string>();
+  for (const value of values) {
+    const tag = typeof value === 'string' ? value.trim() : '';
+    if (!tag || tag.length > 80 || /[\u0000-\u001f\u007f]/.test(tag)) {
+      continue;
+    }
+    const key = tag.toLowerCase();
+    if (!seen.has(key)) {
+      seen.set(key, tag);
+    }
+  }
+
+  return [...seen.values()];
+}
 function normalizeAssetList(value: unknown, fallback: string[]): string[] {
   const source = Array.isArray(value) ? value : fallback;
   const seen = new Set<string>();

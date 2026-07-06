@@ -2,12 +2,12 @@
   "site": {
     "title": "Yuki",
     "brandSuffix": "の Blog",
-    "subtitle": "记录后端、个人站和一点日常练习。",
+    "subtitle": "记录后端、个人站和一点日常练习和生活中的点滴。",
     "owner": "Yuki",
-    "role": "Java / Spring Boot / Next.js",
-    "motto": "先做能跑通的东西，再慢慢修细节。",
-    "bio": "在 Java/Spring Boot 后端、Next.js 个人站和 AI 小应用之间做练习。这里记录公开项目、踩坑和一点日常。",
-    "status": "最近在整理 sky-take-out、Isekai-LifeSim 和这个博客，QQ 邮箱可联系。",
+    "role": "一个小小的个人开发者",
+    "motto": "当你无法回头的时候，才是真正的旅途",
+    "bio": "记录 Spring Boot、Next.js、TypeScript 和 Java 项目练习。",
+    "status": "最近在把文章扩成中篇记录：有背景、有做法、有小结；杂谈和说说继续保留日常感。",
     "location": "不公开",
     "email": "1772365571@qq.com",
     "github": "https://github.com/yige66",
@@ -17,6 +17,20 @@
       "https://github.com/yige66/anti-fraud.git",
       "https://github.com/yige66/Isekai-LifeSim.git",
       "https://github.com/yige66/personal-theme-blog.git"
+    ],
+    "tags": [
+      "Spring Boot",
+      "Java",
+      "MySQL",
+      "Redis",
+      "Next.js",
+      "TypeScript",
+      "Vue2",
+      "Vercel",
+      "AI 应用",
+      "内容系统",
+      "后台管理",
+      "项目复盘"
     ],
     "themeColor": "#ff8fc7",
     "accentColor": "#7cd9ff",
@@ -73,7 +87,7 @@
       "projects": {
         "eyebrow": "Projects",
         "title": "项目星港",
-        "description": "把练习、系统、文章工程和长期实验整理成可查看、可追踪的作品停靠区。",
+        "description": "开源项目、科研代码、小巧思的停靠区。",
         "signal": "projects / works / system practice",
         "statLabels": [
           "项目",
@@ -132,8 +146,8 @@
       },
       "photowall": {
         "eyebrow": "Photo Wall",
-        "title": "照片墙",
-        "description": "把项目截图、站点视觉和日常素材按图集整理，后续有真实照片再逐步补充。",
+        "title": "画廊",
+        "description": "捕捉生活中每一个有趣的瞬间",
         "signal": "album entry / stacked covers / fullscreen lightbox",
         "statLabels": [
           "图集",
@@ -160,8 +174,8 @@
       },
       "gallery": {
         "eyebrow": "Gallery",
-        "title": "照片墙",
-        "description": "这里不伪装成生活写真，主要整理站点头图、项目截图、后台界面和写作素材。",
+        "title": "画廊",
+        "description": "捕捉生活中的每一个有趣瞬间",
         "signal": "photo wall / polaroid memories / visual archive",
         "statLabels": [
           "图片",
@@ -188,12 +202,12 @@
       },
       "moments": {
         "eyebrow": "Moments",
-        "title": "项目动态",
-        "description": "短记录放这里：项目进展、调试结果、发布节点和一点日常想法。",
+        "title": "动态",
+        "description": "项目进展、调试结果、发布节点和一点日常想法。",
         "signal": "daily notes / mood filters / constellation stream",
         "statLabels": [
           "动态",
-          "主题",
+          "心情",
           "节奏"
         ],
         "emptyTitle": "暂无动态",
@@ -204,7 +218,7 @@
         "secondaryActionHref": "/chatter",
         "searchPlaceholder": "搜索动态",
         "searchEmptyTitle": "没有找到这类动态",
-        "searchEmptyDescription": "换一个心情或标签试试。",
+        "searchEmptyDescription": "换一个心情或关键词试试。",
         "commentTitle": "",
         "detailLines": [],
         "panelOneTitle": "",
@@ -216,8 +230,8 @@
       },
       "chatter": {
         "eyebrow": "Chatter",
-        "title": "开发杂谈",
-        "description": "比文章短一点，记录做项目时的取舍、边界和复盘。",
+        "title": "杂谈",
+        "description": "记录不止于项目工作时的碎碎念。",
         "signal": "chatter / light essays / mood cards / masonry stream",
         "statLabels": [
           "杂谈",
@@ -245,7 +259,7 @@
       "music": {
         "eyebrow": "Music",
         "title": "夜航电台",
-        "description": "写作、阅读和编码时的背景歌单。",
+        "description": "与音乐相伴，航行在寂静的夜晚。",
         "signal": "cloud music / focus radio / writing ambience",
         "statLabels": [
           "曲目",
@@ -301,7 +315,7 @@
       "tags": {
         "eyebrow": "Tags",
         "title": "标签星云",
-        "description": "用标签把 Java 后端、Next.js、AI 应用、发布流程和项目复盘串起来。",
+        "description": "以标签组成星云图",
         "signal": "tag nebula / topic heat / reading paths",
         "statLabels": [
           "标签",
@@ -357,7 +371,7 @@
       "about": {
         "eyebrow": "About",
         "title": "关于我",
-        "description": "公开项目、学习方向和近况。",
+        "description": "Welcome to my Blog",
         "signal": "profile / activity / contact",
         "statLabels": [
           "文章",
@@ -376,17 +390,17 @@
         "searchEmptyDescription": "",
         "commentTitle": "",
         "detailLines": [
-          "后端：Spring Boot、MyBatis、MySQL、Redis。",
+          "后端：Spring Boot、MyBatis、MySQL、Redis等。",
           "前端：Next.js、React、TypeScript。",
-          "AI：DeepSeek API 的分支叙事和站内助手。",
+          "AI：大模型API 的生成叙事和站内小助手。",
           "发布：GitHub 版本管理和 Vercel 构建。"
         ],
         "panelOneTitle": "自我介绍",
         "panelOneDescription": "你好，我是 {owner}。这里写公开项目能证明的事。",
         "panelTwoTitle": "研究与创作方向",
-        "panelTwoDescription": "最近在补后端接口、内容后台、友链维护和 AI 小应用。",
+        "panelTwoDescription": "最近在将自己自己觉得有趣的想法做成实际应用。",
         "panelThreeTitle": "联系信息",
-        "panelThreeDescription": ""
+        "panelThreeDescription": "欢迎联系交流。"
       }
     },
     "columns": [
@@ -1036,123 +1050,45 @@
     {
       "title": "Yuki on GitHub",
       "url": "https://github.com/yige66",
-      "description": "公开代码仓库与项目记录入口。这里能看到当前学习项目的真实提交和主题。",
+      "description": "公开仓库、项目提交和近况入口；这里比长简历更诚实。",
       "avatar": "/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg",
-      "themeColor": "rgba(124, 217, 255, 0.55)",
+      "themeColor": "#7cd9ff",
       "category": "项目入口",
       "owner": "Yuki",
       "status": "active",
       "addedAt": "2026-07-05",
       "reciprocal": true,
-      "note": "公开主页，用作联系和项目核验入口。"
+      "note": "站点作者公开 GitHub 主页，用来核验项目线索。"
     },
     {
       "title": "personal-theme-blog",
       "url": "https://github.com/yige66/personal-theme-blog",
-      "description": "本站源码，包含个人博客、内容数据、后台管理、GitHub 项目同步和 Vercel 发布流程。",
-      "avatar": "/assets/img/admin-board.svg",
-      "themeColor": "rgba(255, 143, 199, 0.5)",
-      "category": "作品集源码",
-      "owner": "Yuki",
-      "status": "active",
-      "addedAt": "2026-07-05",
-      "reciprocal": true,
-      "note": "本站对应仓库。"
-    },
-    {
-      "title": "Isekai-LifeSim",
-      "url": "https://github.com/yige66/Isekai-LifeSim",
-      "description": "Next.js、TypeScript 和 DeepSeek API 做的分支叙事小应用，适合查看 AI 交互项目练习。",
-      "avatar": "/assets/img/hero-mountain.svg",
-      "themeColor": "rgba(167, 139, 250, 0.58)",
+      "description": "本站源码仓库，文章、说说、杂谈和发布流程都从这里留下版本。",
+      "avatar": "/assets/img/avatar-orbit.svg",
+      "themeColor": "#f0c36a",
       "category": "项目入口",
       "owner": "Yuki",
       "status": "active",
       "addedAt": "2026-07-05",
       "reciprocal": true,
-      "note": "公开项目入口，不伪装成外部友链。"
+      "note": "博客源码、内容数据和部署记录。"
     }
   ],
   "notes": [
     {
-      "id": "note-sky-take-out",
-      "title": "整理 sky-take-out 后端接口",
-      "content": "把员工、菜品、套餐、订单、购物车、地址簿和统计接口按业务模块拆开看，比只写 CRUD 更容易理解后端项目结构。",
-      "date": "2026-07-04",
-      "mood": "Backend",
-      "tags": [
-        "Java",
-        "Spring Boot",
-        "MySQL"
-      ]
-    },
-    {
       "id": "note-blog-privacy",
-      "title": "关于页先做减法",
-      "content": "没有证据的经历不写，公开页面只保留 GitHub 能证明的项目线索。QQ 邮箱可以用于联系。",
+      "title": "把文章、杂谈、说说分开了",
+      "content": "文章负责完整复盘和总结任务，杂谈负责发一些现状和进程，动态就像朋友圈一样随便聊聊。",
       "date": "2026-07-03",
-      "mood": "Profile",
-      "tags": [
-        "关于我",
-        "隐私",
-        "内容整理"
-      ]
-    },
-    {
-      "id": "note-isekai-lifesim",
-      "title": "Isekai-LifeSim 的分支叙事边界",
-      "content": "AI 生成剧情很容易发散，实际开发时要把角色、选择、回合和失败兜底都收进可控状态里。",
-      "date": "2026-07-02",
-      "mood": "AI",
-      "tags": [
-        "Isekai-LifeSim",
-        "DeepSeek",
-        "TypeScript"
-      ]
-    },
-    {
-      "id": "note-admin-link-flow",
-      "title": "友链不能只是一排卡片",
-      "content": "真正可维护的友链至少要有分类、状态、回链标记、备注和申请格式，否则后面会分不清谁已收录、谁待确认。",
-      "date": "2026-07-01",
-      "mood": "Friends",
-      "tags": [
-        "友链",
-        "后台管理"
-      ]
-    },
-    {
-      "id": "note-anti-fraud-platform",
-      "title": "反诈科普平台更像综合练习",
-      "content": "anti-fraud 不是单页展示，而是把知识学习、活动报名、求助、论坛、题库和后台管理放到同一个业务里练习。",
-      "date": "2026-06-30",
-      "mood": "System",
-      "tags": [
-        "Vue2",
-        "Spring Boot",
-        "项目复盘"
-      ]
-    },
-    {
-      "id": "note-vercel-check",
-      "title": "每次推送前跑完整检查",
-      "content": "个人站看起来是内容项目，但只要有后台、API 和构建流程，就应该让测试、类型检查和构建先把低级错误拦住。",
-      "date": "2026-06-29",
-      "mood": "Deploy",
-      "tags": [
-        "GitHub",
-        "Vercel",
-        "测试"
-      ]
+      "mood": "整理"
     }
   ],
   "chatters": [
     {
       "id": "chatter-backend-module-split",
       "slug": "backend-module-split",
-      "title": "后端项目先拆边界",
-      "summary": "sky-take-out 先看订单、商品、用户和统计怎么分开。",
-      "content": "今天又翻了一遍 sky-take-out。员工、菜品、购物车、订单、支付回调和统计接口最好分开看。\n\n技术栈可以慢慢补，边界先别乱。",
+      "title": "sky-take-out 像一篇慢慢补完的题解",
+      "content": "这几天重看 sky-take-out，感觉它更像一篇慢慢补完的后端题解。文章里我会把管理端、用户端、支付回调和统计接口完整写出来，杂谈里就记当前最容易混的点。\n\n今天的问题是订单状态。创建订单、支付成功、取消订单、统计营收，它们都碰订单表，但语义不一样。先把这些词写清楚，再去补代码会轻松一点。",
       "date": "2026-07-04",
       "tags": [
         "Java",
@@ -1166,14 +1102,13 @@
     {
       "id": "chatter-ai-story-boundary",
       "slug": "ai-story-boundary",
-      "title": "AI 分支叙事别放飞",
-      "summary": "Isekai-LifeSim 让我更在意状态机和失败兜底。",
-      "content": "模型写剧情很快，但角色、回合、选项和错误处理还是要由代码管。\n\n提示词给氛围，应用管流程。",
+      "title": "Isekai-LifeSim 不急着加剧情",
+      "content": "AI 叙事项目有个很明显的诱惑：觉得只要多写提示词，故事就会变好。实际做 Isekai-LifeSim 时，我更想先把流程收住。\n\n角色、回合、选项、失败兜底，这些东西如果不稳定，文本再漂亮也会散。模型负责好看，代码负责靠谱。",
       "date": "2026-07-02",
       "tags": [
         "Next.js",
         "TypeScript",
-        "DeepSeek"
+        "AI 应用"
       ],
       "mood": "AI",
       "cover": "/assets/img/hero-mountain.svg",
@@ -1182,15 +1117,10 @@
     {
       "id": "chatter-personal-site-honesty",
       "slug": "personal-site-honesty",
-      "title": "关于页先少写一点",
-      "summary": "没有公开证据的经历不放，页面反而更轻。",
-      "content": "个人站很容易把自己写得很厉害。现在这版先保留公开仓库能证明的内容。\n\nQQ 邮箱可联系，具体位置不公开。",
+      "title": "关于页和简历要互相照得上",
+      "content": "个人站的关于页很容易写成一大段自我介绍。现在我更愿意让它和简历、GitHub 互相照得上：Java 后端有 sky-take-out、web-project、anti-fraud，Next.js 和 AI 小应用有 personal-theme-blog、Isekai-LifeSim。\n\n没有证据的经历先不写。公开内容少一点，但读起来会更安心。",
       "date": "2026-07-01",
-      "tags": [
-        "关于我",
-        "隐私",
-        "个人站"
-      ],
+      "tags": [],
       "mood": "Writing",
       "cover": "/assets/img/desk-notes.svg",
       "featured": false
@@ -1198,14 +1128,13 @@
     {
       "id": "chatter-friend-link-ops",
       "slug": "friend-link-ops",
-      "title": "友链也要能维护",
-      "summary": "申请、分类、状态和回链确认都要留位置。",
-      "content": "友链不是一排卡片就结束。时间久了，要知道谁已互链、谁待确认、谁需要备注。\n\n前台给申请格式，真正添加还是放后台。",
+      "title": "个人站要像可以长期住下来的地方",
+      "content": "这次最想改的是内容的居住感。文章不要太短，要像真正写完一件事；杂谈不用那么正式，但要有进度和想法；说说就保持短，像当天留在页面上的一句话。\n\n友链也是一样。它不只是卡片，而是申请、分类、状态、备注和回链确认。个人站能维护，才会慢慢变得像自己。",
       "date": "2026-06-30",
       "tags": [
-        "友链",
+        "Next.js",
         "后台管理",
-        "Next.js"
+        "内容系统"
       ],
       "mood": "Product",
       "cover": "/assets/img/admin-board.svg",
@@ -1304,10 +1233,10 @@
   "posts": [
     {
       "id": "post-sky-take-out-review",
-      "title": "复盘 sky-take-out：从接口清单到业务边界",
+      "title": "sky-take-out 后端复盘：订单、菜品和统计怎么分开",
       "slug": "sky-take-out-review",
-      "summary": "记录 sky-take-out 里员工、菜品、订单、地址簿、支付回调和统计接口的拆分。",
-      "content": "## 记录一下 sky-take-out\n\n这个仓库更像后端模块练习。员工、菜品、套餐、购物车、订单、地址簿、支付回调和统计接口各有边界。\n\n我现在先看登录鉴权、状态流转和接口返回，不急着把它写成很大的系统。能跑通，再慢慢补校验、权限和缓存。",
+      "summary": "把校园订餐后端拆成管理端、用户端和统计端来看。",
+      "content": "题目\n\nsky-take-out 这个仓库看起来是校园订餐后端，真正拆开以后更像一道业务边界题。员工、菜品、套餐在管理端，购物车、地址簿、订单在用户端，支付回调和统计又是另外两条线。\n\n如果只按表写 CRUD，很快就会混在一起：订单状态是谁改的，支付成功后谁兜底，统计接口到底依赖订单还是直接查明细。\n\n做法\n\n我现在的整理方式是先把接口按角色放好。管理端负责员工、菜品、套餐和营业状态；用户端负责购物车、地址簿和下单；订单模块单独处理状态流转，支付回调只做确认和补偿。\n\n技术栈上，Java、Spring Boot、MyBatis、MySQL 和 Redis 都能在这个项目里找到位置。JWT 负责登录态，Redis 更适合放缓存和临时状态，但这些都应该服务业务边界，而不是反过来把模块搅散。\n\n小结\n\n这篇先不写成很大的系统设计，只记录一个判断：订餐项目的难点不是多写几个接口，而是让管理、下单、支付、统计互相知道边界。\n\n后面再补校验、权限、异常返回和缓存策略。先跑通，再慢慢修细节，这个顺序比较踏实。",
       "tags": [
         "Spring Boot",
         "Java",
@@ -1316,42 +1245,21 @@
         "项目复盘"
       ],
       "category": "后端项目",
-      "cover": "/assets/img/admin-board.svg",
+      "cover": "/assets/uploads/2026-07-06-image-1783253614018-821-cropped-05a5602d.jpg",
       "status": "published",
       "featured": true,
       "createdAt": "2026-07-04T08:00:00.000Z",
       "updatedAt": "2026-07-04T08:00:00.000Z"
     },
     {
-      "id": "post-personal-blog-admin-flow",
-      "title": "把个人博客做成可维护的内容系统",
-      "slug": "personal-blog-admin-flow",
-      "summary": "整理这个博客的内容维护方式：JSON 数据、后台校验、GitHub 版本和 Vercel 构建。",
-      "content": "## 先让内容好维护\n\n个人站不只是首页好看。文章、项目、动态、照片墙、音乐和友链都从同一份数据走，后台负责编辑和校验。\n\n现在先用 data/blog.json 管内容，GitHub 留版本，Vercel 做构建。规模不大，但每次改动能回看，也能用测试挡住低级错误。",
-      "tags": [
-        "Next.js",
-        "TypeScript",
-        "Vercel",
-        "内容系统",
-        "项目复盘"
-      ],
-      "category": "前端项目",
-      "cover": "/assets/img/hero-mountain.svg",
-      "status": "published",
-      "featured": true,
-      "createdAt": "2026-07-03T09:00:00.000Z",
-      "updatedAt": "2026-07-05T08:00:00.000Z"
-    },
-    {
       "id": "post-isekai-lifesim-ai-flow",
-      "title": "Isekai-LifeSim：AI 分支叙事的小型实践",
+      "title": "Isekai-LifeSim 基本过程：AI 叙事先收住分支",
       "slug": "isekai-lifesim-ai-flow",
-      "summary": "Isekai-LifeSim 用 Next.js、TypeScript 和 DeepSeek API 做分支叙事的小练习。",
-      "content": "## 生成内容要有边界\n\nIsekai-LifeSim 是一个 GalGame 风格的异世界人生模拟器。模型可以负责文本，但角色、回合、选项和失败兜底要由应用控制。\n\n这次练习让我更在意状态管理。提示词能给氛围，流程还是要写在代码里。",
+      "summary": "整理 AI 分支叙事：角色、回合、选项和失败兜底。",
+      "content": "背景\n\nIsekai-LifeSim 是一个异世界人生模拟器，用 Next.js、TypeScript、Tailwind CSS 和 大模型API调用 做二次元风格的一次模拟人生叙事。这个项目最容易让人兴奋的地方是模型会写故事，但最容易失控的地方也是它会写故事。\n\n所以我现在不把重点放在生成更多文本，而是先问一个更小的问题：角色怎么进入回合，选项怎么改变状态，失败的时候怎么回到可控流程，角色状态属性值的变化是否符合描述。每一步都要能被页面重新渲染出来，而不是只关注它生成的故事。\n\n做法\n\n模型适合负责氛围，比如人物说话、场景变化和事件描述。应用更适合负责规则，比如当前角色、当前回合、可选行动、状态变化。\n\n如果把所有决定都交给模型，故事会很快天马行空起来，也可能会很快乱掉。把状态收回代码里以后，提示词只需要提供风格和上下文，流程则由应用保证。\n\n小结\n\nAI 应用不是提示词越长越好，而是边界越清楚才能越有可玩性和可掌控性。",
       "tags": [
         "Next.js",
         "TypeScript",
-        "DeepSeek",
         "AI 应用",
         "项目复盘"
       ],
@@ -1364,10 +1272,10 @@
     },
     {
       "id": "post-from-crud-to-system",
-      "title": "从 CRUD 练习到系统意识",
+      "title": "web-project 和 anti-fraud：从 CRUD 到后台系统感",
       "slug": "from-crud-to-system",
-      "summary": "从 web-project 和 anti-fraud 里整理常见后台模块：登录、上传、日志、题库和论坛。",
-      "content": "## CRUD 之后看流程\n\nweb-project 偏教学管理，anti-fraud 偏反诈科普。它们都有登录、文件上传、操作日志、列表统计和后台管理这些常见模块。\n\n现在先把输入校验、角色权限、分页筛选和错误返回补稳。项目可以普通，但流程不能散。",
+      "summary": "两个 Spring Boot 练习",
+      "content": "问题\n\nweb-project 偏教学管理，anti-fraud 偏反诈科普。一个有部门、员工、班级、学员和统计报表，另一个有知识学习、活动报名、在线求助、论坛互动、考试题库和后台管理。\n\n它们看起来方向不同，但后台问题很像：登录鉴权、文件上传、操作日志、列表筛选、分页、角色权限和错误返回。\n\n做法\n\n处理上传要不要限制类型，日志记录谁操作了什么，题库和论坛怎么分权限，列表接口怎么处理空条件和分页越界。\n\n写接口之前先把这些情况列出来，后面调试会少很多弯路。\n\n小结\n\n都是简单的CRUD相关的实战练习\n\n后面继续补的是输入校验、统一返回、角色边界和异常处理。",
       "tags": [
         "Spring Boot",
         "Java",

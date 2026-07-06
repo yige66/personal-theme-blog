@@ -22,17 +22,17 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
   const errors: string[] = [];
 
   if (!isRecord(input)) {
-    return { ok: false, errors: ['Blog data must be a JSON object.'] };
+    return { ok: false, errors: ['博客数据必须是 JSON 对象。'] };
   }
 
   const data = input as Partial<BlogData>;
   if (!isRecord(data.site)) {
-    errors.push('site must be an object.');
+    errors.push('site 必须是对象。');
   }
 
   for (const key of ['links', 'notes', 'chatters', 'projects', 'posts'] as const) {
     if (!Array.isArray(data[key])) {
-      errors.push(`${key} must be an array.`);
+      errors.push(`${key} 必须是数组。`);
     }
   }
 
@@ -51,7 +51,10 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
     validateCloudMusicIds(data.site.cloudMusicIds, errors);
     validateMusicTracks(data.site.music, errors);
     validateCommentConfig(data.site.comments, errors);
+    validateTagLibrary(data.site.tags, errors);
   }
+
+  const allowedTagKeys = collectAllowedTagKeys(isRecord(data.site) ? data.site.tags : []);
 
   if (Array.isArray(data.links)) {
     validateLinks(data.links, errors);
@@ -62,7 +65,7 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
     validateUniqueField(data.posts, 'slug', 'posts', errors);
     data.posts.forEach((post, index) => {
       if (!isRecord(post)) {
-        errors.push(`posts[${index}] must be an object.`);
+        errors.push(`posts[${index}] 必须是对象。`);
         return;
       }
       validateRequiredString(post, `posts[${index}].id`, errors, 'id');
@@ -72,9 +75,9 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
       validateRequiredString(post, `posts[${index}].content`, errors, 'content');
       validateRequiredString(post, `posts[${index}].cover`, errors, 'cover');
       if (post.status !== 'published' && post.status !== 'draft') {
-        errors.push(`posts[${index}].status must be "published" or "draft".`);
+        errors.push(`posts[${index}].status 必须是 "published" 或 "draft"。`);
       }
-      validateOptionalArray(post.tags, `posts[${index}].tags`, errors);
+      validateCuratedTagList(post.tags, `posts[${index}].tags`, allowedTagKeys, errors);
     });
   }
 
@@ -84,11 +87,18 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
 
   if (Array.isArray(data.notes)) {
     validateUniqueIds(data.notes, 'notes', errors);
+    data.notes.forEach((note, index) => validateMomentHasNoTags(note, index, errors));
   }
 
   if (Array.isArray(data.chatters)) {
     validateUniqueIds(data.chatters, 'chatters', errors);
     validateUniqueField(data.chatters, 'slug', 'chatters', errors);
+    data.chatters.forEach((chatter, index) => {
+      if (!isRecord(chatter)) {
+        return;
+      }
+      validateCuratedTagList(chatter.tags, `chatters[${index}].tags`, allowedTagKeys, errors);
+    });
   }
 
   const columns = isRecord(data.site) && Array.isArray(data.site.columns) ? data.site.columns : [];
@@ -139,23 +149,103 @@ export async function createBlogDataBackup(): Promise<string | null> {
 
 function validateRequiredString(record: Record<string, unknown>, label: string, errors: string[], key = label.split('.').at(-1) || label): void {
   if (typeof record[key] !== 'string' || !record[key].trim()) {
-    errors.push(`${label} must be a non-empty string.`);
+    errors.push(`${label} 必须是非空字符串。`);
   }
 }
 
 function validateOptionalArray(value: unknown, label: string, errors: string[]): void {
   if (value !== undefined && !Array.isArray(value)) {
-    errors.push(`${label} must be an array when provided.`);
+    errors.push(`${label} 填写时必须是数组。`);
   }
 }
 
+function validateTagLibrary(value: unknown, errors: string[]): void {
+  if (!Array.isArray(value)) {
+    errors.push('site.tags must be an array managed by the tag column.');
+    return;
+  }
+
+  validateTagNames(value, 'site.tags', errors);
+}
+
+function validateCuratedTagList(value: unknown, label: string, allowedTagKeys: Set<string>, errors: string[]): void {
+  if (value === undefined || value === null) {
+    return;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push(label + ' must be an array.');
+    return;
+  }
+
+  const seen = new Set<string>();
+  value.forEach((item, index) => {
+    const tag = typeof item === 'string' ? item.trim() : '';
+    const key = tag.toLowerCase();
+    if (!isValidTagName(tag)) {
+      errors.push(label + '[' + index + '] must be a non-empty tag shorter than 80 characters without control characters.');
+      return;
+    }
+    if (seen.has(key)) {
+      errors.push(label + '[' + index + '] duplicates "' + tag + '".');
+      return;
+    }
+    seen.add(key);
+    if (!allowedTagKeys.has(key)) {
+      errors.push(label + '[' + index + '] "' + tag + '" must exist in site.tags before it can be used.');
+    }
+  });
+}
+
+function validateTagNames(value: unknown[], label: string, errors: string[]): void {
+  const seen = new Set<string>();
+  value.forEach((item, index) => {
+    const tag = typeof item === 'string' ? item.trim() : '';
+    const key = tag.toLowerCase();
+    if (!isValidTagName(tag)) {
+      errors.push(label + '[' + index + '] must be a non-empty tag shorter than 80 characters without control characters.');
+      return;
+    }
+    if (seen.has(key)) {
+      errors.push(label + '[' + index + '] duplicates "' + tag + '".');
+      return;
+    }
+    seen.add(key);
+  });
+}
+
+function collectAllowedTagKeys(value: unknown): Set<string> {
+  if (!Array.isArray(value)) {
+    return new Set();
+  }
+
+  return new Set(
+    value
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter(isValidTagName)
+      .map((tag) => tag.toLowerCase())
+  );
+}
+function validateMomentHasNoTags(note: unknown, index: number, errors: string[]): void {
+  if (!isRecord(note) || note.tags === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(note.tags) || note.tags.length > 0) {
+    errors.push(`notes[${index}].tags 不受支持，因为动态不使用标签。`);
+  }
+}
+
+function isValidTagName(value: string): boolean {
+  return Boolean(value) && value.length <= 80 && !/[\u0000-\u001f\u007f]/.test(value);
+}
 function validateProjectOrder(value: unknown, errors: string[]): void {
   if (value === undefined) {
     return;
   }
 
   if (!Array.isArray(value)) {
-    errors.push('site.projectOrder must be an array when provided.');
+    errors.push('site.projectOrder 填写时必须是数组。');
     return;
   }
 
@@ -163,16 +253,16 @@ function validateProjectOrder(value: unknown, errors: string[]): void {
   value.forEach((entry, index) => {
     const text = typeof entry === 'string' ? entry.trim() : '';
     if (!text) {
-      errors.push(`site.projectOrder[${index}] must be a non-empty project name or GitHub URL.`);
+      errors.push(`site.projectOrder[${index}] 必须是非空项目名称或 GitHub 地址。`);
       return;
     }
     if (text.length > 200 || /[\u0000-\u001f\u007f]/.test(text)) {
-      errors.push(`site.projectOrder[${index}] must be shorter than 200 characters and contain no control characters.`);
+      errors.push(`site.projectOrder[${index}] 长度必须小于 200 个字符，且不能包含控制字符。`);
       return;
     }
     const key = text.toLowerCase();
     if (seen.has(key)) {
-      errors.push(`site.projectOrder[${index}] duplicates "${text}".`);
+      errors.push(`site.projectOrder[${index}] 与 "${text}" 重复。`);
       return;
     }
     seen.add(key);
@@ -184,7 +274,7 @@ function validateLinks(items: unknown[], errors: string[]): void {
 
   items.forEach((link, index) => {
     if (!isRecord(link)) {
-      errors.push(`links[${index}] must be an object.`);
+      errors.push(`links[${index}] 必须是对象。`);
       return;
     }
 
@@ -193,9 +283,9 @@ function validateLinks(items: unknown[], errors: string[]): void {
 
     const url = typeof link.url === 'string' ? link.url.trim() : '';
     if (!isExternalUrl(url)) {
-      errors.push(`links[${index}].url must be an http or https URL.`);
+      errors.push(`links[${index}].url 必须是 http 或 https 地址。`);
     } else if (seenUrls.has(url)) {
-      errors.push(`links[${index}].url duplicates "${url}".`);
+      errors.push(`links[${index}].url 与 "${url}" 重复。`);
     } else {
       seenUrls.add(url);
     }
@@ -212,13 +302,13 @@ function validateLinks(items: unknown[], errors: string[]): void {
       validateBoundedOptionalString(link.note, `links[${index}].note`, errors, 240);
     }
     if (link.status !== undefined && !['active', 'pending', 'paused'].includes(String(link.status))) {
-      errors.push(`links[${index}].status must be "active", "pending", or "paused".`);
+      errors.push(`links[${index}].status 必须是 "active"、"pending" 或 "paused"。`);
     }
     if (link.addedAt !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(String(link.addedAt))) {
-      errors.push(`links[${index}].addedAt must be a YYYY-MM-DD date.`);
+      errors.push(`links[${index}].addedAt 必须是 YYYY-MM-DD 格式的日期。`);
     }
     if (link.reciprocal !== undefined && typeof link.reciprocal !== 'boolean') {
-      errors.push(`links[${index}].reciprocal must be a boolean when provided.`);
+      errors.push(`links[${index}].reciprocal 填写时必须是布尔值。`);
     }
   });
 }
@@ -226,11 +316,11 @@ function validateLinks(items: unknown[], errors: string[]): void {
 function validateBoundedOptionalString(value: unknown, label: string, errors: string[], maxLength: number): void {
   const text = typeof value === 'string' ? value.trim() : '';
   if (value !== undefined && typeof value !== 'string') {
-    errors.push(`${label} must be a string when provided.`);
+    errors.push(`${label} 填写时必须是字符串。`);
     return;
   }
   if (text.length > maxLength || /[\u0000-\u001f\u007f]/.test(text)) {
-    errors.push(`${label} must be shorter than ${maxLength} characters and contain no control characters.`);
+    errors.push(`${label} 长度必须小于 ${maxLength} 个字符，且不能包含控制字符。`);
   }
 }
 
@@ -240,13 +330,13 @@ function validateCloudMusicIds(value: unknown, errors: string[]): void {
   }
 
   if (!Array.isArray(value)) {
-    errors.push('site.cloudMusicIds must be an array when provided.');
+    errors.push('site.cloudMusicIds 填写时必须是数组。');
     return;
   }
 
   value.forEach((id, index) => {
     if (!/^\d{1,20}$/.test(String(id).trim())) {
-      errors.push(`site.cloudMusicIds[${index}] must be a numeric music id.`);
+      errors.push(`site.cloudMusicIds[${index}] 必须是数字形式的音乐编号。`);
     }
   });
 }
@@ -257,13 +347,13 @@ function validateMusicTracks(value: unknown, errors: string[]): void {
   }
 
   if (!Array.isArray(value)) {
-    errors.push('site.music must be an array when provided.');
+    errors.push('site.music 填写时必须是数组。');
     return;
   }
 
   value.forEach((track, index) => {
     if (!isRecord(track)) {
-      errors.push(`site.music[${index}] must be an object.`);
+      errors.push(`site.music[${index}] 必须是对象。`);
       return;
     }
 
@@ -273,10 +363,10 @@ function validateMusicTracks(value: unknown, errors: string[]): void {
     validateOptionalAssetPath(track.cover, `site.music[${index}].cover`, errors);
 
     if (track.id !== undefined && !/^[\w.-]{1,100}$/.test(String(track.id).trim())) {
-      errors.push(`site.music[${index}].id must contain only letters, numbers, dots, underscores, or hyphens.`);
+      errors.push(`site.music[${index}].id 只能包含字母、数字、点、下划线或连字符。`);
     }
     if (track.duration !== undefined && (typeof track.duration !== 'number' || track.duration < 0)) {
-      errors.push(`site.music[${index}].duration must be a positive number when provided.`);
+      errors.push(`site.music[${index}].duration 填写时必须是正数。`);
     }
   });
 }
@@ -287,39 +377,39 @@ function validateCommentConfig(value: unknown, errors: string[]): void {
   }
 
   if (!isRecord(value)) {
-    errors.push('site.comments must be an object when provided.');
+    errors.push('site.comments 填写时必须是对象。');
     return;
   }
 
   if ('clientSecret' in value || 'secret' in value) {
-    errors.push('site.comments must not store OAuth secrets. Use GITHUB_CLIENT_SECRET or GITALK_CLIENT_SECRET.');
+    errors.push('site.comments 不允许保存 OAuth 密钥，请使用 GITHUB_CLIENT_SECRET 或 GITALK_CLIENT_SECRET。');
   }
 
   if (value.enabled !== undefined && typeof value.enabled !== 'boolean') {
-    errors.push('site.comments.enabled must be a boolean.');
+    errors.push('site.comments.enabled 必须是布尔值。');
   }
 
   for (const [key, label] of [['repo', 'site.comments.repo'], ['owner', 'site.comments.owner'], ['clientId', 'site.comments.clientId'], ['label', 'site.comments.label']] as const) {
     const current = value[key];
     if (current !== undefined && String(current).trim() && !/^[\w.-]{1,100}$/.test(String(current).trim())) {
-      errors.push(`${label} must contain only letters, numbers, dots, underscores, or hyphens.`);
+      errors.push(`${label} 只能包含字母、数字、点、下划线或连字符。`);
     }
   }
 
   if (value.admin !== undefined) {
     if (!Array.isArray(value.admin)) {
-      errors.push('site.comments.admin must be an array when provided.');
+      errors.push('site.comments.admin 填写时必须是数组。');
     } else {
       value.admin.forEach((admin, index) => {
         if (!/^[\w.-]{1,100}$/.test(String(admin).trim())) {
-          errors.push(`site.comments.admin[${index}] must be a valid GitHub username.`);
+          errors.push(`site.comments.admin[${index}] 必须是有效的 GitHub 用户名。`);
         }
       });
     }
   }
 
   if (value.proxy !== undefined && !isLocalPath(String(value.proxy))) {
-    errors.push('site.comments.proxy must be a local API path such as /api/github.');
+    errors.push('site.comments.proxy 必须是本地 API 路径，例如 /api/github。');
   }
 }
 
@@ -329,36 +419,36 @@ function validatePageContentMap(value: unknown, errors: string[]): void {
   }
 
   if (!isRecord(value)) {
-    errors.push('site.pages must be an object when provided.');
+    errors.push('site.pages 填写时必须是对象。');
     return;
   }
 
   Object.entries(value).forEach(([pageId, page]) => {
     if (!/^[a-z][a-z0-9-]{1,39}$/.test(pageId)) {
-      errors.push(`site.pages key "${pageId}" must be a safe page id.`);
+      errors.push(`site.pages 的键 "${pageId}" 必须是安全的页面 ID。`);
       return;
     }
     if (!isRecord(page)) {
-      errors.push(`site.pages.${pageId} must be an object.`);
+      errors.push(`site.pages.${pageId} 必须是对象。`);
       return;
     }
 
     for (const field of ['eyebrow', 'title', 'description'] as const) {
       if (page[field] !== undefined && typeof page[field] !== 'string') {
-        errors.push(`site.pages.${pageId}.${field} must be a string when provided.`);
+        errors.push(`site.pages.${pageId}.${field} 填写时必须是字符串。`);
       }
     }
 
     for (const field of ['primaryActionHref', 'secondaryActionHref'] as const) {
       const href = typeof page[field] === 'string' ? page[field].trim() : '';
       if (href && !isSafeHref(href)) {
-        errors.push(`site.pages.${pageId}.${field} must be an http(s), local, or hash URL.`);
+        errors.push(`site.pages.${pageId}.${field} 必须是 http(s)、本地路径或锚点地址。`);
       }
     }
 
     for (const field of ['statLabels', 'detailLines'] as const) {
       if (page[field] !== undefined && !Array.isArray(page[field])) {
-        errors.push(`site.pages.${pageId}.${field} must be an array when provided.`);
+        errors.push(`site.pages.${pageId}.${field} 填写时必须是数组。`);
       }
     }
   });
@@ -369,18 +459,18 @@ function validateUniqueField(items: unknown[], field: string, label: string, err
 
   items.forEach((item, index) => {
     if (!isRecord(item)) {
-      errors.push(`${label}[${index}] must be an object.`);
+      errors.push(`${label}[${index}] 必须是对象。`);
       return;
     }
 
     const value = item[field];
     if (typeof value !== 'string' || !value.trim()) {
-      errors.push(`${label}[${index}].${field} must be a non-empty string.`);
+      errors.push(`${label}[${index}].${field} 必须是非空字符串。`);
       return;
     }
 
     if (seen.has(value)) {
-      errors.push(`${label}[${index}].${field} duplicates "${value}".`);
+      errors.push(`${label}[${index}].${field} 与 "${value}" 重复。`);
     }
     seen.add(value);
   });
@@ -427,7 +517,7 @@ function validateOptionalPlayableUrl(value: unknown, label: string, errors: stri
 
   const url = String(value).trim();
   if (!isExternalUrl(url) && !isLocalPath(url)) {
-    errors.push(`${label} must be an http(s) URL or a safe local path.`);
+    errors.push(`${label} 必须是 http(s) 地址或安全的本地路径。`);
   }
 }
 

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
-      { error: 'Admin asset upload is locked. Configure ADMIN_WRITE_TOKEN and send it with the request.' },
+      { error: '后台素材上传已锁定，请配置 ADMIN_WRITE_TOKEN 并在请求中携带。' },
       { status: 401 }
     );
   }

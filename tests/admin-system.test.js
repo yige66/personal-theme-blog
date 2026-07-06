@@ -126,6 +126,16 @@ describe('blog administration operating system', () => {
     assert.doesNotMatch(adminFieldEditors, /原始对象 JSON/);
     assert.doesNotMatch(adminConsole, /写入令牌/);
     assert.doesNotMatch(adminConsole, /正在保存到 data\/blog\.json/);
+    assert.match(adminConsole, /AdminOperationState/);
+    assert.match(adminConsole, /createApiErrorState/);
+    assert.match(adminConsole, /createNetworkErrorState/);
+    assert.match(adminConsole, /readAdminJson/);
+    assert.match(adminConsole, /OperationStatusNotice/);
+    assert.match(adminConsole, /错误原因/);
+    assert.match(adminConsole, /下一步/);
+    assert.match(adminConsole, /role=\{state\.status === 'error' \? 'alert' : 'status'\}/);
+    assert.match(adminFieldEditors, /admin-field-error/);
+    assert.match(adminFieldEditors, /getUploadErrorMessage/);
 
     assert.match(adminConfig, /site-profile/);
     assert.match(adminConfig, /site-visuals/);
@@ -134,7 +144,7 @@ describe('blog administration operating system', () => {
     assert.match(adminConfig, /posts/);
     assert.match(adminConfig, /projects/);
     assert.match(adminConfig, /GitHub 同步/);
-    assert.match(adminConfig, /site\.github \/ GitHub repositories \/ site\.pages\.projects/);
+    assert.match(adminConfig, /site\.github \/ GitHub 公开仓库 \/ site\.pages\.projects/);
     assert.match(adminConfig, /gallery/);
     assert.match(adminConfig, /links/);
     assert.match(adminConfig, /advanced: true/);
@@ -147,8 +157,24 @@ describe('blog administration operating system', () => {
     assert.match(adminConfig, /signal'.*advanced: true/);
     assert.match(adminConfig, /updatedAt'.*advanced: true/);
     assert.match(adminConfig, /cropAspect: 16 \/ 9/);
-    assert.match(adminConfig, /cropAspect: 4 \/ 3/);
     assert.match(adminConfig, /cropAspect: 1/);
+    assert.doesNotMatch(adminConfig, /cropAspect: 4 \/ 3/);
+    const postFieldsBlock = adminConfig.match(/export const postFields[\s\S]*?export const projectFields/)?.[0] ?? '';
+    const noteFieldsBlock = adminConfig.match(/export const noteFields[\s\S]*?export const chatterFields/)?.[0] ?? '';
+    const chatterFieldsBlock = adminConfig.match(/export const chatterFields[\s\S]*?export const galleryFields/)?.[0] ?? '';
+    const galleryFieldsBlock = adminConfig.match(/export const galleryFields[\s\S]*?export const musicFields/)?.[0] ?? '';
+    assert.doesNotMatch(postFieldsBlock, /cropAspect/);
+    assert.doesNotMatch(noteFieldsBlock, /cropAspect/);
+    assert.doesNotMatch(chatterFieldsBlock, /cropAspect/);
+    assert.doesNotMatch(galleryFieldsBlock, /cropAspect/);
+    assert.doesNotMatch(noteFieldsBlock, /key: 'tags'/);
+    assert.match(adminTypes, /'tag-list'/);
+    assert.match(adminFieldEditors, /TagListEditor/);
+    assert.match(adminFieldEditors, /tagOptions/);
+    assert.match(adminFieldEditors, /onCreateTag/);
+    assert.match(adminFieldEditors, /admin-selected-tag-chip/);
+    assert.match(adminFieldEditors, /admin-tag-picker-popover/);
+    assert.doesNotMatch(adminFieldEditors, /splitTagDraft/);
     assert.match(adminTypes, /cropAspect\?: number/);
     assert.match(adminTypes, /AdminManagementOverview/);
     assert.match(adminTypes, /AdminManagementModule/);
@@ -183,9 +209,11 @@ describe('blog administration operating system', () => {
     assert.match(adminConsole, /getWorkspaceTools/);
     assert.match(adminConsole, /createPageContentFields\('tag-detail'\)/);
     assert.match(adminConsole, /TagLibraryPanel/);
-    assert.match(adminConsole, /renameTagAcrossPosts/);
+    assert.match(adminConsole, /addTagToLibrary/);
     assert.match(adminConsole, /removeTagFromPosts/);
-    assert.match(adminConsole, /addTagToPostIndexes/);
+    assert.match(adminConsole, /removeTagFromChatters/);
+    assert.match(adminConsole, /site', 'tags/);
+    assert.doesNotMatch(adminConsole, /ContentTagsNoticePanel/);
     assert.match(adminConsole, /标签详情页/);
     assert.doesNotMatch(adminConsole, /ColumnNavigator/);
     assert.doesNotMatch(adminConsole, /WorkspaceToolPanel/);
@@ -210,11 +238,20 @@ describe('blog administration operating system', () => {
     assert.match(css, /\.admin-field/);
     assert.match(css, /\.admin-record-list/);
     assert.match(css, /\.admin-image-uploader/);
+    assert.match(css, /\.admin-selected-tag-chip/);
+    assert.match(css, /\.admin-tag-picker-popover/);
     assert.match(css, /\.admin-image-preview/);
+    assert.match(css, /\.admin-image-preview img[\s\S]*height: auto/);
+    assert.match(css, /\.admin-image-preview img[\s\S]*object-fit: contain/);
     assert.match(css, /\.admin-crop-dialog/);
     assert.match(css, /\.admin-crop-frame/);
     assert.match(css, /\.admin-crop-box/);
     assert.match(css, /\.admin-prose-editor/);
+    assert.match(css, /\.admin-operation-status/);
+    assert.match(css, /\.admin-operation-details/);
+    assert.match(css, /\.admin-operation-suggestion/);
+    assert.match(css, /\.admin-field-error/);
+    assert.match(css, /data-status="error"/);
   });
 
   it('lets admin-managed background images drive the frontend without a count cap', async () => {
@@ -324,7 +361,7 @@ describe('blog administration operating system', () => {
     const invalid = validateBlogDataDraft(duplicatePostData);
     assert.equal(invalid.ok, false);
     if (!invalid.ok) {
-      assert.match(invalid.errors.join('\n'), /duplicates/);
+      assert.match(invalid.errors.join('\n'), /重复/);
     }
 
     const invalidOperationalData = JSON.parse(JSON.stringify(blogData));
@@ -350,9 +387,40 @@ describe('blog administration operating system', () => {
       const errors = invalidOperational.errors.join('\n');
       assert.match(errors, /links\[0\]\.url/);
       assert.match(errors, /cloudMusicIds\[0\]/);
-      assert.match(errors, /must not store OAuth secrets/);
+      assert.match(errors, /不允许保存 OAuth 密钥/);
       assert.match(errors, /site\.projectOrder\[1\]/);
       assert.match(errors, /site\.pages\.about\.primaryActionHref/);
+    }
+
+    const tagColumnData = JSON.parse(JSON.stringify(blogData));
+    tagColumnData.site.tags = [...tagColumnData.site.tags, 'Column Tag'];
+    tagColumnData.posts[0].tags = ['Column Tag'];
+    tagColumnData.chatters[0].tags = ['Column Tag'];
+    const tagColumn = validateBlogDataDraft(tagColumnData);
+    assert.equal(tagColumn.ok, true);
+
+    const invalidPostTagData = JSON.parse(JSON.stringify(blogData));
+    invalidPostTagData.posts[0].tags = [...invalidPostTagData.posts[0].tags, 'Unlisted Tag'];
+    const invalidPostTag = validateBlogDataDraft(invalidPostTagData);
+    assert.equal(invalidPostTag.ok, false);
+    if (!invalidPostTag.ok) {
+      assert.match(invalidPostTag.errors.join('\n'), /posts\[0\]\.tags.*site\.tags/);
+    }
+
+    const invalidChatterTagData = JSON.parse(JSON.stringify(blogData));
+    invalidChatterTagData.chatters[0].tags = [...invalidChatterTagData.chatters[0].tags, 'Unlisted Tag'];
+    const invalidChatterTag = validateBlogDataDraft(invalidChatterTagData);
+    assert.equal(invalidChatterTag.ok, false);
+    if (!invalidChatterTag.ok) {
+      assert.match(invalidChatterTag.errors.join('\n'), /chatters\[0\]\.tags.*site\.tags/);
+    }
+
+    const invalidMomentTagData = JSON.parse(JSON.stringify(blogData));
+    invalidMomentTagData.notes[0].tags = ['Spring Boot'];
+    const invalidMomentTag = validateBlogDataDraft(invalidMomentTagData);
+    assert.equal(invalidMomentTag.ok, false);
+    if (!invalidMomentTag.ok) {
+      assert.match(invalidMomentTag.errors.join('\n'), /notes\[0\]\.tags/);
     }
   });
 

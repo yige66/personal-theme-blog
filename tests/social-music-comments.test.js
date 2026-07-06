@@ -150,7 +150,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(blogLib, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(blogLib, /gitalkConfigured/);
     assert.match(blogLib, /parts\.length > 1 \? parts : \['', withoutProtocol\]/);
-    assert.match(adminLib, /must not store OAuth secrets/);
+    assert.match(adminLib, /不允许保存 OAuth 密钥/);
     assert.match(adminLib, /validateLinks/);
     assert.match(githubApi, /GITHUB_CLIENT_SECRET/);
     assert.match(githubApi, /GITALK_CLIENT_SECRET/);

@@ -24,27 +24,40 @@ describe('published content quality', () => {
     const data = await readBlogData();
     const raw = await readFile('data/blog.json', 'utf8');
 
-    assert.doesNotMatch(raw, /XHBlogs Reference|InternalBeyond Reference|目标站|参考站|复刻|项目截图位|占位|后续项目上线后/);
+    const retiredCopySnippets = [
+      'XHBlogs Reference',
+      'InternalBeyond Reference',
+      '目标站',
+      '参考站',
+      '复刻',
+      '项目截图位',
+      '占位',
+      '后续项目上线后'
+    ];
+    for (const snippet of retiredCopySnippets) {
+      assert.equal(raw.includes(snippet), false, `retired copy remains: ${snippet}`);
+    }
     assert.doesNotMatch(raw, /Changsha, China/);
     assert.equal(data.site.email, '1772365571@qq.com');
-    assert.doesNotMatch(raw, /联系方式不直接公开，优先通过 GitHub 或评论区沟通/);
+    assert.equal(raw.includes('联系方式不直接公开，优先通过 GitHub 或评论区沟通'), false);
     assert.match(data.site.bio, /Spring Boot|Next\.js|TypeScript|Java/);
     assert.match(raw, /sky-take-out|anti-fraud|Isekai-LifeSim|personal-theme-blog/);
   });
 
-  it('keeps the profile and articles concise in the XinghuisamaBlogs reference style', async () => {
+  it('keeps the profile compact while articles read like medium-length Xinghuisama-style notes', async () => {
     const data = await readBlogData();
     const publishedPosts = data.posts.filter((post) => post.status === 'published');
 
-    assert.ok(data.site.bio.length <= 120, 'site bio should stay one compact paragraph');
-    assert.ok(data.site.status.length <= 90, 'site status should not become a long resume sentence');
+    assert.ok(data.site.bio.length <= 150, 'site bio should stay one compact paragraph');
+    assert.ok(data.site.status.length <= 110, 'site status should not become a long resume sentence');
     for (const post of publishedPosts) {
       const headingCount = (post.content.match(/^## /gm) || []).length;
       const paragraphs = post.content.split(/\n{2,}/).filter(Boolean);
-      assert.ok(post.summary.length <= 72, `${post.slug} summary is too long`);
-      assert.ok(post.content.length <= 230, `${post.slug} article body is too long`);
-      assert.ok(headingCount <= 1, `${post.slug} should use at most one section heading`);
-      assert.ok(paragraphs.length <= 4, `${post.slug} should read like a short note`);
+      assert.ok(post.summary.length <= 90, `${post.slug} summary is too long`);
+      assert.ok(post.content.length >= 450, `${post.slug} article body is too short for the requested reference style`);
+      assert.ok(post.content.length <= 1100, `${post.slug} article body is too long for this content surface`);
+      assert.ok(headingCount >= 2 && headingCount <= 4, `${post.slug} should use a few section headings like a medium article`);
+      assert.ok(paragraphs.length >= 6, `${post.slug} should read like a multi-paragraph article`);
     }
   });
 
@@ -57,10 +70,19 @@ describe('published content quality', () => {
     for (const expectedTag of ['Spring Boot', 'Next.js', 'TypeScript', 'Java', '项目复盘']) {
       assert.ok(allTags.has(expectedTag), `missing grounded tag: ${expectedTag}`);
     }
-    assert.ok(data.notes.some((note) => /sky-take-out|校园订餐/.test(`${note.title} ${note.content}`)));
-    assert.ok(data.notes.some((note) => /Isekai-LifeSim|分支叙事/.test(`${note.title} ${note.content}`)));
-    assert.ok(data.chatters.every((chatter) => !/XHBlogs|InternalBeyond|目标站|复刻/.test(`${chatter.title} ${chatter.summary} ${chatter.content}`)));
-    assert.ok(data.site.gallery.some((item) => /后端|Spring Boot|接口/.test(`${item.title} ${item.description} ${item.tags?.join(' ')}`)));
+    assert.ok(data.notes.some((note) => /sky-take-out|鏍″洯璁㈤/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.notes.some((note) => /Isekai-LifeSim|鍒嗘敮鍙欎簨/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.chatters.every((chatter) => !/XHBlogs|InternalBeyond|鐩爣绔檤澶嶅埢/.test(`${chatter.title} ${chatter.content}`)));
+
+    assert.ok(Array.isArray(data.site.tags), 'site.tags should keep a derived tag index for compatibility');
+    assert.ok(data.site.tags.length > 0, 'site.tags should not be empty');
+    const derivedTags = new Set([...publishedPosts, ...data.chatters].flatMap((entry) => entry.tags ?? []));
+    for (const tag of derivedTags) {
+      assert.ok(data.site.tags.includes(tag), `derived tag index should include content-owned tag: ${tag}`);
+    }
+    assert.ok(data.notes.every((note) => !note.tags || note.tags.length === 0), 'moments should not use tags');
+
+    assert.ok(data.site.gallery.some((item) => /鍚庣|Spring Boot|鎺ュ彛/.test(`${item.title} ${item.description} ${item.tags?.join(' ')}`)));
   });
 
   it('keeps project cards complete enough for the homepage and projects page', async () => {

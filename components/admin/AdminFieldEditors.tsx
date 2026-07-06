@@ -24,13 +24,24 @@ export function PathField({ data, field, path, onChange, uploadImage }: {
   onChange: (path: PathSegment[], value: unknown) => void;
   uploadImage: UploadImage;
 }) {
-  return <FieldEditor field={field} value={getAtPath(data, path)} onChange={(nextValue) => onChange(path, nextValue)} uploadImage={uploadImage} />;
+  return (
+    <FieldEditor
+      field={field}
+      tagOptions={data.site.tags}
+      value={getAtPath(data, path)}
+      onChange={(nextValue) => onChange(path, nextValue)}
+      onCreateTag={(tagName) => onChange(['site', 'tags'], dedupeTextList([...data.site.tags, tagName]))}
+      uploadImage={uploadImage}
+    />
+  );
 }
 
-export function FieldEditor({ field, value, onChange, uploadImage }: {
+export function FieldEditor({ field, tagOptions = [], value, onChange, onCreateTag, uploadImage }: {
   field: FieldConfig;
+  tagOptions?: string[];
   value: unknown;
   onChange: (value: unknown) => void;
+  onCreateTag?: (tagName: string) => void;
   uploadImage: UploadImage;
 }) {
   const kind = field.kind ?? 'text';
@@ -47,6 +58,10 @@ export function FieldEditor({ field, value, onChange, uploadImage }: {
 
   if (kind === 'list') {
     return <StringListEditor label={field.label} value={value} onChange={onChange} />;
+  }
+
+  if (kind === 'tag-list') {
+    return <TagListEditor help={field.help} label={field.label} tagOptions={tagOptions} value={value} onChange={onChange} onCreateTag={onCreateTag} />;
   }
 
   if (kind === 'image') {
@@ -111,6 +126,12 @@ export function FieldEditor({ field, value, onChange, uploadImage }: {
   );
 }
 
+function getUploadErrorMessage(error: unknown): string {
+  return error instanceof Error && error.message.trim()
+    ? error.message
+    : '上传失败，请查看上方操作提示后重试。';
+}
+
 function AudioUploadField({ label, placeholder, value, onChange, uploadImage }: {
   label: string;
   placeholder?: string;
@@ -120,6 +141,7 @@ function AudioUploadField({ label, placeholder, value, onChange, uploadImage }: 
 }) {
   const currentPath = stringValue(value);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const handleAudioFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -129,9 +151,12 @@ function AudioUploadField({ label, placeholder, value, onChange, uploadImage }: 
     }
 
     setUploading(true);
+    setUploadError('');
     try {
       const savedPath = await uploadImage(file, 'audio');
       onChange(savedPath);
+    } catch (error) {
+      setUploadError(getUploadErrorMessage(error));
     } finally {
       setUploading(false);
     }
@@ -147,6 +172,7 @@ function AudioUploadField({ label, placeholder, value, onChange, uploadImage }: 
           <input type="file" accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,audio/flac" onChange={handleAudioFile} />
         </label>
       </div>
+      {uploadError ? <small className="admin-field-error" role="alert">{uploadError}</small> : null}
       {currentPath ? (
         <audio className="admin-audio-preview" src={currentPath} controls preload="metadata">
           你的浏览器暂不支持音频预览。
@@ -182,6 +208,139 @@ function StringListEditor({ label, value, onChange }: { label: string; value: un
   );
 }
 
+function TagListEditor({ help, label, tagOptions = [], value, onChange, onCreateTag }: { help?: string; label: string; tagOptions?: string[]; value: unknown; onChange: (value: string[]) => void; onCreateTag?: (tagName: string) => void }) {
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [draftTag, setDraftTag] = useState('');
+  const [pendingRemovalKey, setPendingRemovalKey] = useState('');
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const options = dedupeTextList(tagOptions);
+  const optionKeys = new Set(options.map((tag) => tag.toLowerCase()));
+  const selectedTags = dedupeTextList(toTextLines(value)).filter((tag) => optionKeys.has(tag.toLowerCase()));
+  const selectedKeys = new Set(selectedTags.map((tag) => tag.toLowerCase()));
+  const draftValue = draftTag.trim();
+  const canCreateTag = Boolean(onCreateTag) && isValidTagName(draftValue) && !optionKeys.has(draftValue.toLowerCase());
+
+  useEffect(() => {
+    if (!isPickerOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setIsPickerOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [isPickerOpen]);
+
+  const addTag = (tagName: string) => {
+    const tagKey = tagName.toLowerCase();
+    if (selectedKeys.has(tagKey)) {
+      return;
+    }
+
+    onChange(dedupeTextList([...selectedTags, tagName]));
+    setPendingRemovalKey('');
+  };
+
+  const createAndAddTag = () => {
+    if (!canCreateTag) {
+      return;
+    }
+
+    onCreateTag?.(draftValue);
+    addTag(draftValue);
+    setDraftTag('');
+  };
+
+  const removeTag = (tagName: string) => {
+    const tagKey = tagName.toLowerCase();
+    onChange(selectedTags.filter((tag) => tag.toLowerCase() !== tagKey));
+    setPendingRemovalKey('');
+  };
+
+  return (
+    <div className="admin-field admin-field-wide admin-tag-list-editor">
+      <span>{label}</span>
+      <div className="admin-selected-tag-row" aria-label={label + '\u5df2\u9009\u6807\u7b7e'}>
+        {selectedTags.length > 0 ? selectedTags.map((tag) => {
+          const tagKey = tag.toLowerCase();
+          const isPendingRemoval = pendingRemovalKey === tagKey;
+          return (
+            <span className={isPendingRemoval ? 'admin-selected-tag-chip is-pending-remove' : 'admin-selected-tag-chip'} key={tag}>
+              <button type="button" className="admin-selected-tag-name" aria-pressed={isPendingRemoval} onClick={() => setPendingRemovalKey(isPendingRemoval ? '' : tagKey)}>#{tag}</button>
+              {isPendingRemoval ? <button className="admin-selected-tag-remove" type="button" aria-label={'\u79fb\u9664\u6807\u7b7e ' + tag} onClick={() => removeTag(tag)}>{'\u00d7'}</button> : null}
+            </span>
+          );
+        }) : <small className="admin-tag-empty-text">{'\u5c1a\u672a\u6dfb\u52a0\u6807\u7b7e'}</small>}
+      </div>
+
+      <div className="admin-tag-picker-shell" ref={pickerRef} onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          setIsPickerOpen(false);
+        }
+      }}>
+        <button className="button ghost admin-tag-picker-trigger" type="button" aria-expanded={isPickerOpen} aria-haspopup="dialog" onClick={() => setIsPickerOpen((current) => !current)}>
+          {'+ \u6dfb\u52a0\u6807\u7b7e'}
+        </button>
+        {isPickerOpen ? (
+          <div className="admin-tag-picker-popover" role="dialog" aria-label={label + '\u6807\u7b7e\u9009\u62e9'}>
+            <div className="admin-tag-picker-head">
+              <strong>{'\u9009\u62e9\u5df2\u6709\u6807\u7b7e'}</strong>
+              <button className="button ghost" type="button" onClick={() => setIsPickerOpen(false)}>{'\u5173\u95ed'}</button>
+            </div>
+            {options.length > 0 ? (
+              <div className="admin-tag-picker-options">
+                {options.map((tag) => {
+                  const isSelected = selectedKeys.has(tag.toLowerCase());
+                  return (
+                    <button className={isSelected ? 'is-active' : ''} key={tag} type="button" disabled={isSelected} onClick={() => addTag(tag)}>
+                      <span>#{tag}</span>
+                      {isSelected ? <small>{'\u5df2\u6dfb\u52a0'}</small> : null}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="admin-help-text">{'\u6682\u65e0\u53ef\u9009\u6807\u7b7e\uff0c\u53ef\u5728\u4e0b\u65b9\u65b0\u5efa\u3002'}</p>
+            )}
+            <div className="admin-inline-entry admin-tag-create-row">
+              <input
+                value={draftTag}
+                placeholder={'\u65b0\u6807\u7b7e\u540d\u79f0'}
+                onChange={(event) => setDraftTag(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    createAndAddTag();
+                  }
+                }}
+              />
+              <button className="button primary" type="button" disabled={!canCreateTag} onClick={createAndAddTag}>{'\u65b0\u5efa\u5e76\u6dfb\u52a0'}</button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+      <FieldHelp text={help || '\u70b9\u51fb\u6dfb\u52a0\u6807\u7b7e\u9009\u62e9\u6216\u65b0\u5efa\uff0c\u5220\u9664\u65f6\u5148\u70b9\u51fb\u5df2\u9009\u6807\u7b7e\uff0c\u518d\u70b9\u51fb x\u3002'} />
+    </div>
+  );
+}
+function dedupeTextList(values: unknown[]): string[] {
+  const result = new Map<string, string>();
+  for (const value of values) {
+    const item = typeof value === 'string' ? value.trim() : '';
+    if (item && !result.has(item.toLowerCase())) {
+      result.set(item.toLowerCase(), item);
+    }
+  }
+  return [...result.values()];
+}
+
+function isValidTagName(value: string): boolean {
+  return Boolean(value) && value.length <= 80 && !/[\u0000-\u001f\u007f]/.test(value);
+}
 type CropArea = {
   x: number;
   y: number;
@@ -420,11 +579,13 @@ function ImageCropDialog({ pendingCrop, onConfirm, onKeepOriginal, onCancel }: {
 }) {
   const [area, setArea] = useState<CropArea | null>(null);
   const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const dragRef = useRef<{ pointerId: number; startX: number; startY: number; startArea: CropArea } | null>(null);
 
   useEffect(() => {
     setArea(pendingCrop?.area ?? null);
     setSaving(false);
+    setErrorMessage('');
   }, [pendingCrop]);
 
   if (!pendingCrop || !area) {
@@ -475,16 +636,22 @@ function ImageCropDialog({ pendingCrop, onConfirm, onKeepOriginal, onCancel }: {
   };
   const confirm = async () => {
     setSaving(true);
+    setErrorMessage('');
     try {
       await onConfirm(crop);
+    } catch (error) {
+      setErrorMessage(getUploadErrorMessage(error));
     } finally {
       setSaving(false);
     }
   };
   const keepOriginal = async () => {
     setSaving(true);
+    setErrorMessage('');
     try {
       await onKeepOriginal();
+    } catch (error) {
+      setErrorMessage(getUploadErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -546,6 +713,8 @@ function ImageCropDialog({ pendingCrop, onConfirm, onKeepOriginal, onCancel }: {
           </div>
         </div>
 
+        {errorMessage ? <p className="admin-field-error" role="alert">{errorMessage}</p> : null}
+
         <footer>
           <button className="button ghost" type="button" onClick={keepOriginal} disabled={saving}>不裁剪，保留整张</button>
           <button className="button primary" type="button" onClick={confirm} disabled={saving}>{saving ? '处理中' : '使用选中区域'}</button>
@@ -590,7 +759,7 @@ export function ImageUploadField({ label, value, onChange, uploadImage, cropAspe
       <div className="admin-image-field">
         <figure className="admin-image-preview">
           {cropFlow.preview || currentPath ? <img src={cropFlow.preview || currentPath} alt="" loading="lazy" /> : <div>暂无图片</div>}
-          <figcaption>{cropFlow.preview ? '已按你选择的范围裁剪并上传，路径会自动回填' : currentPath || '选择本地图片或填写图片地址'}</figcaption>
+          <figcaption>{cropFlow.preview ? '图片已上传，路径会自动回填' : currentPath || '选择本地图片或填写图片地址'}</figcaption>
         </figure>
         <div className="admin-image-controls">
           <input value={currentPath} placeholder="/assets/uploads/cover.jpg" onChange={(event) => onChange(event.target.value)} />
@@ -601,7 +770,7 @@ export function ImageUploadField({ label, value, onChange, uploadImage, cropAspe
         </div>
       </div>
       <ImageCropDialog pendingCrop={cropFlow.pendingCrop} onConfirm={cropFlow.confirmCrop} onKeepOriginal={cropFlow.keepOriginal} onCancel={cropFlow.cancelCrop} />
-      <FieldHelp text="字段说明：上传后可以先选择要保留的画面范围，再自动把图片地址填到这里。" />
+      <FieldHelp text="字段说明：上传后可以裁剪保留范围，也可以保留整张；前台内容图片会按原图比例适配展示。" />
     </div>
   );
 }

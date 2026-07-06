@@ -75,7 +75,6 @@ export function createEmptyItem(kind: RecordKind): JsonRecord {
         content: '',
         date: iso.slice(0, 10),
         mood: '',
-        tags: [],
         images: []
       };
     case 'chatter':
@@ -83,7 +82,6 @@ export function createEmptyItem(kind: RecordKind): JsonRecord {
         id: `chatter-${stamp}`,
         slug: `new-chatter-${stamp}`,
         title: '新杂谈',
-        summary: '',
         content: '',
         date: iso.slice(0, 10),
         tags: [],
@@ -141,8 +139,8 @@ export function createEmptyItem(kind: RecordKind): JsonRecord {
         homeVisible: false,
         toolboxVisible: false,
         coordinate: '',
-        tone: 'Custom',
-        room: 'Custom'
+        tone: '自定义',
+        room: '自定义'
       };
   }
 }

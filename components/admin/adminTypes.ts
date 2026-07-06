@@ -81,6 +81,7 @@ export type FieldKind =
   | 'number'
   | 'boolean'
   | 'list'
+  | 'tag-list'
   | 'image'
   | 'image-list'
   | 'image-items'

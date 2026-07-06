@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { BlogChatter } from '@/lib/blog';
 import { formatDate } from '@/lib/blog';
+import { createContentExcerpt } from '@/lib/text';
 import { EmptyState } from '@/components/SectionBlocks';
 
 export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
@@ -26,7 +27,7 @@ export function ChatterMasonry({ chatters }: { chatters: BlogChatter[] }) {
             ) : null}
             <small>{formatDate(chatter.date)}</small>
             <strong>{chatter.title}</strong>
-            <p>{chatter.summary || chatter.content}</p>
+            <p>{createContentExcerpt(chatter.content)}</p>
             <span className="chatter-tags">
               {chatter.tags.slice(0, 4).map((tag) => <em key={tag}>#{tag}</em>)}
             </span>

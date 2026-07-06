@@ -31,6 +31,8 @@ describe('planetary adaptive layout math', () => {
   it('keeps orbit counts expandable and falls back to atlas before the orbit gets cramped', async () => {
     const { getCameraProfile, getLayoutMode, getOrbitProfiles, getOrbitSlot } = await loadPlanetaryLayoutHelpers();
 
+    let previousOrbitHeight = 0;
+
     for (const total of [6, 12, 36, 54]) {
       const profiles = getOrbitProfiles(total);
       const camera = getCameraProfile(total, profiles, getLayoutMode(total));
@@ -41,21 +43,34 @@ describe('planetary adaptive layout math', () => {
       assert.equal(assigned, total);
       assert.ok(profiles.every((profile) => profile.size <= profile.capacity));
       assert.ok(profiles[0].capacity <= 6);
-      assert.ok(outer.radiusX >= 32 + (profiles.length - 1) * 11);
-      assert.ok(camera.mapHeight >= 768);
-      assert.ok(camera.cameraScale >= 0.46);
+      assert.ok(outer.radiusX >= 28 + (profiles.length - 1) * 10);
+      assert.ok(outer.radiusX <= 28 + (profiles.length - 1) * 10.5);
+      assert.ok(outer.radiusY >= 18.5 + (profiles.length - 1) * 7.5);
+      assert.ok(camera.mapHeight >= 820);
+      assert.ok(camera.mapHeight <= 1900);
+      assert.ok(camera.mapHeight >= previousOrbitHeight);
+      assert.ok(camera.cameraScale >= 0.56);
+      previousOrbitHeight = camera.mapHeight;
 
       for (let index = 0; index < total; index += 1) {
         const slot = getOrbitSlot(index, total, profiles);
         const visibleX = 50 + (slot.x - 50) * camera.cameraScale;
         const visibleY = 50 + (slot.y - 50) * camera.cameraScale;
 
-        assert.ok(visibleX > 4 && visibleX < 96, `x visible for ${total}/${index}`);
-        assert.ok(visibleY > 5 && visibleY < 95, `y visible for ${total}/${index}`);
+        assert.ok(visibleX > 8 && visibleX < 92, `x visible with breathing room for ${total}/${index}`);
+        assert.ok(visibleY > 12 && visibleY < 88, `y visible with breathing room for ${total}/${index}`);
+        assert.ok(Math.abs(visibleX - 50) <= 40, `x orbit remains near center for ${total}/${index}`);
+        assert.ok(Math.abs(visibleY - 50) <= 32, `y orbit remains near center for ${total}/${index}`);
       }
     }
 
     assert.equal(getLayoutMode(72), 'atlas');
     assert.equal(getLayoutMode(120), 'atlas');
+
+    const atlasProfiles = getOrbitProfiles(12);
+    const atlasCamera = getCameraProfile(12, atlasProfiles, 'atlas');
+
+    assert.equal(atlasCamera.cameraScale, 1);
+    assert.ok(atlasCamera.mapHeight >= 880);
   });
 });

@@ -1,4 +1,5 @@
 import type { BlogData, BlogPost } from './blog';
+import { createContentExcerpt } from './text';
 
 export type PortalEntryKind = '文章' | '项目' | '动态' | '杂谈' | '相册' | '音乐' | '友链' | '路由';
 
@@ -52,14 +53,14 @@ export function createPortalSearchEntries(data: BlogData, posts: BlogPost[]): Po
       title: note.title || note.content.slice(0, 18),
       description: note.content,
       href: '/moments',
-      keywords: [note.mood || '', ...(note.tags ?? []), note.date].filter(Boolean),
+      keywords: [note.mood || '', note.date].filter(Boolean),
       weight: 72 - index
     })),
     ...data.chatters.map((chatter, index) => ({
       id: `chatter:${chatter.slug}`,
       type: '杂谈' as const,
       title: chatter.title,
-      description: chatter.summary || chatter.content,
+      description: createContentExcerpt(chatter.content),
       href: `/chatter/${chatter.slug}`,
       keywords: [chatter.mood || '', ...chatter.tags, chatter.date].filter(Boolean),
       weight: chatter.featured ? 92 : 70 - index

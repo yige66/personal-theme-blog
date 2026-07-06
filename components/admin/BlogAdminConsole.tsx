@@ -57,6 +57,98 @@ type AiAdminConfigView = {
   updatedAt: string | null;
 };
 
+type AdminOperationStatus = 'idle' | 'saving' | 'success' | 'error';
+
+type AdminOperationState = {
+  status: AdminOperationStatus;
+  title: string;
+  message: string;
+  details?: string[];
+  suggestion?: string;
+};
+
+type AdminErrorPayload = {
+  error?: string;
+  details?: string[];
+  reason?: string;
+};
+
+function createOperationState(
+  status: AdminOperationStatus,
+  title: string,
+  message: string,
+  options: Pick<AdminOperationState, 'details' | 'suggestion'> = {}
+): AdminOperationState {
+  const details = normalizeStatusDetails(options.details);
+  return {
+    status,
+    title,
+    message,
+    ...(details ? { details } : {}),
+    ...(options.suggestion ? { suggestion: options.suggestion } : {})
+  };
+}
+
+async function readAdminJson<T extends Record<string, unknown>>(response: Response): Promise<T & AdminErrorPayload> {
+  const body = await response.text();
+  if (!body.trim()) {
+    return {} as T & AdminErrorPayload;
+  }
+
+  try {
+    return JSON.parse(body) as T & AdminErrorPayload;
+  } catch {
+    return {
+      error: response.ok ? '后台返回内容不是有效 JSON。' : '后台没有返回可读取的错误内容。',
+      details: [body.slice(0, 500)]
+    } as T & AdminErrorPayload;
+  }
+}
+
+function createNetworkErrorState(title: string, error: unknown, fallbackMessage: string): AdminOperationState {
+  return createOperationState('error', title, `请求没有完成：${getErrorMessage(error, fallbackMessage)}`, {
+    suggestion: '检查后台服务是否运行、网络是否可用，然后重试。'
+  });
+}
+
+function createApiErrorState(response: Response, payload: AdminErrorPayload, title: string, fallbackMessage: string): AdminOperationState {
+  const details = payload.details ?? (payload.reason ? [payload.reason] : []);
+  const statusText = response.statusText ? ` ${response.statusText}` : '';
+  return createOperationState('error', title, `后台返回 ${response.status}${statusText}：${payload.error || fallbackMessage}`, {
+    details,
+    suggestion: getResponseSuggestion(response)
+  });
+}
+
+function normalizeStatusDetails(details?: string[]): string[] | undefined {
+  const cleanDetails = (details ?? []).map((item) => item.trim()).filter(Boolean);
+  return cleanDetails.length > 0 ? cleanDetails : undefined;
+}
+
+function getErrorMessage(error: unknown, fallbackMessage: string): string {
+  return error instanceof Error && error.message.trim() ? error.message : fallbackMessage;
+}
+
+function getResponseSuggestion(response: Response): string {
+  if (response.status === 401) {
+    return '检查后台密码是否填写正确，并确认服务端已配置 ADMIN_WRITE_TOKEN。';
+  }
+
+  if (response.status === 400) {
+    return '按错误原因修正表单、导入文件或配置内容后再试。';
+  }
+
+  if (response.status === 413) {
+    return '请求内容过大，请缩小文件或减少一次提交的数据量。';
+  }
+
+  if (response.status >= 500) {
+    return '服务端执行失败，请查看部署或开发服务器日志定位原因。';
+  }
+
+  return '根据上面的错误原因处理后重试。';
+}
+
 type AdminToolId =
   | 'overview'
   | 'profile'
@@ -122,7 +214,7 @@ const columnWorkspaces: AdminWorkspace[] = [
     group: '栏目管理',
     route: '/projects',
     pageId: 'projects',
-    dataPath: 'site.projectOrder / site.github / GitHub repositories / site.pages.projects',
+    dataPath: 'site.projectOrder / site.github / GitHub 公开仓库 / site.pages.projects',
     purpose: '控制前台项目展示顺序，并从 GitHub 公开仓库自动生成项目卡片。',
     support: ['展示顺序', 'GitHub 同步', '项目页文案']
   },
@@ -234,16 +326,9 @@ const columnWorkspaces: AdminWorkspace[] = [
     group: '内容管理',
     route: '/tags',
     pageId: 'tags',
-    dataPath: 'posts[].tags / site.pages.tags / site.pages[tag-detail]',
-    purpose: '维护标签词库、标签页展示文案和标签详情页文案。',
-    support: ['标签词库', '标签页', '标签详情页'],
-    content: {
-      title: '文章标签来源',
-      description: '要新增标签，请在文章内容里给文章添加标签。',
-      path: ['posts'],
-      fields: postFields,
-      recordKind: 'post'
-    }
+    dataPath: 'site.tags / posts[].tags / chatters[].tags / site.pages.tags / site.pages[tag-detail]',
+    purpose: '\u7ef4\u62a4\u6807\u7b7e\u8bcd\u5e93\u548c\u6807\u7b7e\u9875\u5c55\u793a\u6587\u6848\uff1b\u5220\u9664\u6807\u7b7e\u540e\u4f1a\u540c\u6b65\u4ece\u6587\u7ae0\u548c\u6742\u8c08\u4e2d\u79fb\u9664\u3002',
+    support: ['\u6807\u7b7e\u8bcd\u5e93', '\u6587\u7ae0\u5173\u8054', '\u6742\u8c08\u5173\u8054', '\u6807\u7b7e\u9875', '\u6807\u7b7e\u8be6\u60c5\u9875']
   },
   {
     id: 'friends',
@@ -292,10 +377,9 @@ const columnTools: AdminTool[] = [
 ];
 
 const tagTools: AdminTool[] = columnTools.map((tool) => tool.id === 'records'
-  ? { ...tool, label: '标签词库', hint: '改名、删除、分配文章标签。' }
+  ? { ...tool, label: '\u6807\u7b7e\u7ba1\u7406', hint: '\u5728\u6807\u7b7e\u8bcd\u5e93\u91cc\u65b0\u589e\u6216\u5220\u9664\u6807\u7b7e\u3002' }
   : tool
 );
-
 function getWorkspaceTools(workspace: AdminWorkspace): AdminTool[] {
   if (workspace.id === 'global') {
     return globalTools;
@@ -323,14 +407,18 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
   const [overview, setOverview] = useState<AdminManagementOverview | null>(initialOverview ?? null);
   const [activeWorkspace, setActiveWorkspace] = useState('global');
   const [activeTool, setActiveTool] = useState<AdminToolId>('overview');
-  const [saveState, setSaveState] = useState({ status: 'idle', message: '修改会先留在当前页面草稿中，点击保存后才会写入数据文件。' });
+  const [saveState, setSaveState] = useState<AdminOperationState>(
+    createOperationState('idle', '待操作', '修改会先留在当前页面草稿中，点击保存后才会写入数据文件。')
+  );
   const [adminToken, setAdminToken] = useState('');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [aiConfig, setAiConfig] = useState<AiAdminConfigView | null>(null);
   const [aiModel, setAiModel] = useState('');
   const [aiApiKey, setAiApiKey] = useState('');
   const [clearAiApiKey, setClearAiApiKey] = useState(false);
-  const [aiConfigState, setAiConfigState] = useState({ status: 'idle', message: 'DeepSeek 配置只保存在服务端后台，不写入公开博客数据。' });
+  const [aiConfigState, setAiConfigState] = useState<AdminOperationState>(
+    createOperationState('idle', 'AI 配置提示', 'DeepSeek 配置只保存在服务端后台，不写入公开博客数据。')
+  );
 
   const stats = useMemo(
     () => draft ? createDraftStats(draft, serverStats ?? createEmptyStats()) : createEmptyStats(),
@@ -348,12 +436,12 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
     if (nextOverview) {
       setOverview(nextOverview);
     }
-    setSaveState({ status: 'idle', message: '内容已更新，请确认无误后保存。' });
+    setSaveState(createOperationState('idle', '草稿已更新', '内容已更新，请确认无误后保存。'));
   };
 
   const setValueAtPath = (path: PathSegment[], value: unknown) => {
     setDraft((current) => current ? setAtPath(current, path, value) : current);
-    setSaveState({ status: 'idle', message: '内容已更新，请确认无误后保存。' });
+    setSaveState(createOperationState('idle', '草稿已更新', '内容已更新，请确认无误后保存。'));
   };
 
   const selectWorkspace = (workspace: AdminWorkspace) => {
@@ -370,7 +458,9 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
 
   const handleExport = () => {
     if (!draft) {
-      setSaveState({ status: 'error', message: '没有可以导出的博客数据。' });
+      setSaveState(createOperationState('error', '导出失败', '没有可以导出的博客数据。', {
+        suggestion: '请先读取后台数据或导入一份备份。'
+      }));
       return;
     }
 
@@ -392,7 +482,9 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
 
     const parsed = parseJsonDraft(await file.text());
     if (!parsed.ok) {
-      setSaveState({ status: 'error', message: parsed.error });
+      setSaveState(createOperationState('error', '导入失败', parsed.error, {
+        suggestion: '请确认导入的是完整有效的博客 JSON 备份文件。'
+      }));
       return;
     }
 
@@ -400,110 +492,163 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
   };
 
   const handleLoadData = async () => {
-    setSaveState({ status: 'saving', message: '正在读取后台数据。' });
+    setSaveState(createOperationState('saving', '正在读取', '正在读取后台数据。'));
+    let response: Response;
+    let payload: { error?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
+
     try {
-      const response = await fetch('/api/admin/blog', {
+      response = await fetch('/api/admin/blog', {
         headers: adminToken ? { 'x-admin-token': adminToken } : {}
       });
-      const payload = await response.json() as { error?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
-
-      if (!response.ok || !payload.data) {
-        throw new Error(payload.error || '读取后台数据失败。');
-      }
-
-      setServerStats(payload.stats ?? null);
-      replaceDraft(payload.data, payload.management ?? null);
-      setSaveState({ status: 'success', message: '后台数据已重新读取。' });
+      payload = await readAdminJson<{ data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
     } catch (error) {
-      setSaveState({ status: 'error', message: error instanceof Error ? error.message : '读取后台数据失败。' });
+      setSaveState(createNetworkErrorState('读取后台数据失败', error, '读取后台数据失败。'));
+      return;
     }
+
+    if (!response.ok) {
+      setSaveState(createApiErrorState(response, payload, '读取后台数据失败', '读取后台数据失败。'));
+      return;
+    }
+
+    if (!payload.data) {
+      setSaveState(createOperationState('error', '读取后台数据失败', '后台返回成功，但没有包含博客数据。', {
+        suggestion: '请刷新页面，或检查 /api/admin/blog 接口返回内容。'
+      }));
+      return;
+    }
+
+    setServerStats(payload.stats ?? null);
+    replaceDraft(payload.data, payload.management ?? null);
+    setSaveState(createOperationState('success', '读取成功', '后台数据已重新读取。'));
   };
 
   const handleSave = async () => {
     if (!draft) {
-      setSaveState({ status: 'error', message: '请先读取或导入博客数据。' });
+      setSaveState(createOperationState('error', '保存失败', '请先读取或导入博客数据。', {
+        suggestion: '点击“重新读取”，或导入一份博客 JSON 备份后再保存。'
+      }));
       return;
     }
 
-    setSaveState({ status: 'saving', message: '正在校验并保存。' });
+    setSaveState(createOperationState('saving', '正在保存', '正在校验并保存。'));
+    const draftForSave = draft;
+    let response: Response;
+    let payload: { error?: string; details?: string[]; savedAt?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
+
     try {
-      const response = await fetch('/api/admin/blog', {
+      response = await fetch('/api/admin/blog', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(adminToken ? { 'x-admin-token': adminToken } : {})
         },
-        body: JSON.stringify({ data: draft })
+        body: JSON.stringify({ data: draftForSave })
       });
-      const payload = await response.json() as { error?: string; details?: string[]; savedAt?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
-
-      if (!response.ok) {
-        throw new Error(payload.details?.join('\n') || payload.error || '保存失败。');
-      }
-
-      const nextData = payload.data ?? draft;
-      setDraft(nextData);
-      setServerStats(payload.stats ?? serverStats);
-      setOverview(payload.management ?? overview);
-      setLastSavedAt(payload.savedAt ?? new Date().toISOString());
-      setSaveState({ status: 'success', message: '已保存，并生成数据备份。' });
+      payload = await readAdminJson<{ details?: string[]; savedAt?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
     } catch (error) {
-      setSaveState({ status: 'error', message: error instanceof Error ? error.message : '保存失败。' });
+      setSaveState(createNetworkErrorState('保存失败', error, '保存失败。'));
+      return;
     }
+
+    if (!response.ok) {
+      setSaveState(createApiErrorState(response, payload, '保存失败', '保存失败。'));
+      return;
+    }
+
+    const nextData = payload.data ?? draftForSave;
+    setDraft(nextData);
+    setServerStats(payload.stats ?? serverStats);
+    setOverview(payload.management ?? overview);
+    setLastSavedAt(payload.savedAt ?? new Date().toISOString());
+    setSaveState(createOperationState('success', '保存成功', '已保存，并生成数据备份。'));
   };
 
   const handleImageUpload: UploadImage = async (file, kind = 'image') => {
     const assetLabel = kind === 'audio' ? '音乐' : '图片';
-    setSaveState({ status: 'saving', message: `正在上传${assetLabel}。` });
+    setSaveState(createOperationState('saving', '正在上传', `正在上传${assetLabel}。`));
     const formData = new FormData();
     formData.append('file', file);
+    let response: Response;
+    let payload: { path?: string; error?: string };
 
-    const response = await fetch(`/api/admin/assets?kind=${kind}`, {
-      method: 'POST',
-      headers: adminToken ? { 'x-admin-token': adminToken } : {},
-      body: formData
-    });
-    const payload = await response.json() as { path?: string; error?: string };
-
-    if (!response.ok || !payload.path) {
-      const message = payload.error || `${assetLabel}上传失败。`;
-      setSaveState({ status: 'error', message });
-      throw new Error(message);
+    try {
+      response = await fetch(`/api/admin/assets?kind=${kind}`, {
+        method: 'POST',
+        headers: adminToken ? { 'x-admin-token': adminToken } : {},
+        body: formData
+      });
+      payload = await readAdminJson<{ path?: string }>(response);
+    } catch (error) {
+      const state = createNetworkErrorState(`${assetLabel}上传失败`, error, `${assetLabel}上传失败。`);
+      setSaveState(state);
+      throw new Error(state.message);
     }
 
-    setSaveState({ status: 'success', message: `${assetLabel}已上传：${payload.path}` });
+    if (!response.ok) {
+      const state = createApiErrorState(response, payload, `${assetLabel}上传失败`, `${assetLabel}上传失败。`);
+      setSaveState(state);
+      throw new Error(state.message);
+    }
+
+    if (!payload.path) {
+      const state = createOperationState('error', `${assetLabel}上传失败`, '后台返回成功，但没有返回素材路径。', {
+        suggestion: '请检查上传接口返回内容，或重新选择文件上传。'
+      });
+      setSaveState(state);
+      throw new Error(state.message);
+    }
+
+    setSaveState(createOperationState('success', '上传成功', `${assetLabel}已上传：${payload.path}`));
     return payload.path;
   };
 
   const handleLoadAiConfig = async () => {
-    setAiConfigState({ status: 'saving', message: '正在读取 DeepSeek 配置。' });
+    setAiConfigState(createOperationState('saving', '正在读取', '正在读取 DeepSeek 配置。'));
+    let response: Response;
+    let payload: { error?: string; config?: AiAdminConfigView };
+
     try {
-      const response = await fetch('/api/admin/ai', {
+      response = await fetch('/api/admin/ai', {
         headers: adminToken ? { 'x-admin-token': adminToken } : {}
       });
-      const payload = await response.json() as { error?: string; config?: AiAdminConfigView };
-
-      if (!response.ok || !payload.config) {
-        throw new Error(payload.error || '读取 DeepSeek 配置失败。');
-      }
-
-      replaceAiConfig(payload.config);
-      setAiConfigState({ status: 'success', message: 'DeepSeek 配置已读取。' });
+      payload = await readAdminJson<{ config?: AiAdminConfigView }>(response);
     } catch (error) {
-      setAiConfigState({ status: 'error', message: error instanceof Error ? error.message : '读取 DeepSeek 配置失败。' });
+      setAiConfigState(createNetworkErrorState('读取 DeepSeek 配置失败', error, '读取 DeepSeek 配置失败。'));
+      return;
     }
+
+    if (!response.ok) {
+      setAiConfigState(createApiErrorState(response, payload, '读取 DeepSeek 配置失败', '读取 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!payload.config) {
+      setAiConfigState(createOperationState('error', '读取 DeepSeek 配置失败', '后台返回成功，但没有包含 AI 配置。', {
+        suggestion: '请刷新页面，或检查 /api/admin/ai 接口返回内容。'
+      }));
+      return;
+    }
+
+    replaceAiConfig(payload.config);
+    setAiConfigState(createOperationState('success', '读取成功', 'DeepSeek 配置已读取。'));
   };
 
   const handleSaveAiConfig = async () => {
     const model = aiModel.trim();
     if (!model) {
-      setAiConfigState({ status: 'error', message: '请选择或填写一个模型名称。' });
+      setAiConfigState(createOperationState('error', '保存 DeepSeek 配置失败', '请选择或填写一个模型名称。', {
+        suggestion: '选择预设模型，或在“实际调用模型”里填写模型名。'
+      }));
       return;
     }
 
-    setAiConfigState({ status: 'saving', message: '正在保存 DeepSeek 配置。' });
+    setAiConfigState(createOperationState('saving', '正在保存', '正在保存 DeepSeek 配置。'));
+    let response: Response;
+    let payload: { error?: string; config?: AiAdminConfigView };
+
     try {
-      const response = await fetch('/api/admin/ai', {
+      response = await fetch('/api/admin/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -515,17 +660,26 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
           model
         })
       });
-      const payload = await response.json() as { error?: string; config?: AiAdminConfigView };
-
-      if (!response.ok || !payload.config) {
-        throw new Error(payload.error || '保存 DeepSeek 配置失败。');
-      }
-
-      replaceAiConfig(payload.config);
-      setAiConfigState({ status: 'success', message: 'DeepSeek 配置已保存。' });
+      payload = await readAdminJson<{ config?: AiAdminConfigView }>(response);
     } catch (error) {
-      setAiConfigState({ status: 'error', message: error instanceof Error ? error.message : '保存 DeepSeek 配置失败。' });
+      setAiConfigState(createNetworkErrorState('保存 DeepSeek 配置失败', error, '保存 DeepSeek 配置失败。'));
+      return;
     }
+
+    if (!response.ok) {
+      setAiConfigState(createApiErrorState(response, payload, '保存 DeepSeek 配置失败', '保存 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!payload.config) {
+      setAiConfigState(createOperationState('error', '保存 DeepSeek 配置失败', '后台返回成功，但没有返回最新 AI 配置。', {
+        suggestion: '请重新读取 AI 配置，或检查 /api/admin/ai 接口返回内容。'
+      }));
+      return;
+    }
+
+    replaceAiConfig(payload.config);
+    setAiConfigState(createOperationState('success', '保存成功', 'DeepSeek 配置已保存。'));
   };
 
   return (
@@ -611,7 +765,7 @@ function AdminHeader({
   adminToken: string;
   draft: BlogData | null;
   lastSavedAt: string | null;
-  saveStatus: string;
+  saveStatus: AdminOperationStatus;
   onAdminTokenChange: (value: string) => void;
   onExport: () => void;
   onImport: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -691,17 +845,44 @@ function AdminSidebar({ activeWorkspace, modules, workspaces, onSelect }: {
   );
 }
 
+function OperationStatusNotice({ children, className = 'admin-save-status', label, state }: {
+  children?: ReactNode;
+  className?: string;
+  label: string;
+  state: AdminOperationState;
+}) {
+  const details = state.details ?? [];
+  return (
+    <div
+      className={`admin-operation-status ${className}`}
+      data-status={state.status}
+      role={state.status === 'error' ? 'alert' : 'status'}
+      aria-live={state.status === 'error' ? 'assertive' : 'polite'}
+    >
+      <strong>{state.title || label}</strong>
+      <span className="admin-operation-message">{state.message}</span>
+      {details.length > 0 ? (
+        <div className="admin-operation-details">
+          <span>错误原因</span>
+          <ul>
+            {details.map((detail) => <li key={detail}>{detail}</li>)}
+          </ul>
+        </div>
+      ) : null}
+      {state.suggestion ? <small className="admin-operation-suggestion">下一步：{state.suggestion}</small> : null}
+      {children ? <small className="admin-operation-meta">{children}</small> : null}
+    </div>
+  );
+}
+
 function AdminStatusRail({ overview, saveState, stats }: {
   overview: AdminManagementOverview;
-  saveState: { status: string; message: string };
+  saveState: AdminOperationState;
   stats: ReturnType<typeof createEmptyStats>;
 }) {
   return (
     <section className="fraud-admin-status">
-      <div className="admin-save-status" data-status={saveState.status}>
-        <strong>操作提示</strong>
-        <span>{saveState.message}</span>
-      </div>
+      <OperationStatusNotice label="操作提示" state={saveState} />
       <div className="fraud-admin-summary">
         {overview.summaries.map((item) => (
           <article key={item.id}>
@@ -780,7 +961,7 @@ function AdminToolPanel({
   activeModule?: AdminManagementModule;
   aiApiKey: string;
   aiConfig: AiAdminConfigView | null;
-  aiConfigState: { status: string; message: string };
+  aiConfigState: AdminOperationState;
   aiModel: string;
   clearAiApiKey: boolean;
   data: BlogData;
@@ -996,268 +1177,159 @@ function TagLibraryPanel({ data, onChange }: {
   data: BlogData;
   onChange: (path: PathSegment[], value: unknown) => void;
 }) {
-  const posts = data.posts;
-  const tagUsages = collectTagUsages(posts);
-  const [selectedTagName, setSelectedTagName] = useState('');
-  const [renameDraft, setRenameDraft] = useState<string | null>(null);
-  const [newTag, setNewTag] = useState('');
-  const [selectedPostIndexes, setSelectedPostIndexes] = useState<number[]>([]);
-  const selectedTag = tagUsages.find((tag) => tag.name === selectedTagName) ?? tagUsages[0] ?? null;
-  const renameValue = renameDraft ?? selectedTag?.name ?? '';
-  const selectedPostSet = new Set(selectedPostIndexes);
+  const [draftTag, setDraftTag] = useState('');
+  const tagLibrary = dedupeTagNames(data.site.tags);
+  const tagUsages = collectTagUsages(tagLibrary, data.posts, data.chatters);
+  const draftValue = draftTag.trim();
+  const canAddTag = isValidTagName(draftValue) && !tagLibrary.some((tag) => tag.toLowerCase() === draftValue.toLowerCase());
 
-  const selectTag = (name: string) => {
-    setSelectedTagName(name);
-    setRenameDraft(name);
-  };
-
-  const renameSelectedTag = () => {
-    if (!selectedTag) {
+  const handleAddTag = () => {
+    if (!canAddTag) {
       return;
     }
 
-    const nextName = renameValue.trim();
-    if (!nextName || nextName === selectedTag.name) {
+    onChange(['site', 'tags'], addTagToLibrary(tagLibrary, draftValue));
+    setDraftTag('');
+  };
+
+  const handleDeleteTag = (tagName: string) => {
+    if (!window.confirm('\u5220\u9664\u6807\u7b7e \"' + tagName + '\"\uff1f\u5bf9\u5e94\u6587\u7ae0\u548c\u6742\u8c08\u4e2d\u7684\u8fd9\u4e2a\u6807\u7b7e\u4e5f\u4f1a\u4e00\u8d77\u79fb\u9664\u3002')) {
       return;
     }
 
-    onChange(['posts'], renameTagAcrossPosts(posts, selectedTag.name, nextName));
-    setSelectedTagName(nextName);
-    setRenameDraft(nextName);
-  };
-
-  const removeSelectedTag = () => {
-    if (!selectedTag || !window.confirm(`从所有文章移除「${selectedTag.name}」标签？保存前仍可刷新页面放弃本地草稿。`)) {
-      return;
-    }
-
-    onChange(['posts'], removeTagFromPosts(posts, selectedTag.name));
-    setSelectedTagName('');
-    setRenameDraft(null);
-  };
-
-  const togglePostSelection = (index: number) => {
-    setSelectedPostIndexes((current) => current.includes(index)
-      ? current.filter((item) => item !== index)
-      : [...current, index].sort((a, b) => a - b)
-    );
-  };
-
-  const assignTagToPosts = () => {
-    const cleanTag = newTag.trim();
-    if (!cleanTag || selectedPostIndexes.length === 0) {
-      return;
-    }
-
-    onChange(['posts'], addTagToPostIndexes(posts, cleanTag, selectedPostIndexes));
-    setSelectedTagName(cleanTag);
-    setRenameDraft(cleanTag);
-    setNewTag('');
-    setSelectedPostIndexes([]);
+    const tagKey = tagName.toLowerCase();
+    onChange(['site', 'tags'], tagLibrary.filter((tag) => tag.toLowerCase() !== tagKey));
+    onChange(['posts'], removeTagFromPosts(data.posts, tagName));
+    onChange(['chatters'], removeTagFromChatters(data.chatters, tagName));
   };
 
   return (
-    <PanelFrame title="标签词库" description="这里管理文章标签本身：改名会同步到所有文章，删除会从所有文章移除，也可以把标签批量分配给选中的文章。">
+    <PanelFrame title={'\u6807\u7b7e\u8bcd\u5e93'} description={'\u5728\u8fd9\u91cc\u65b0\u589e\u6216\u5220\u9664\u6587\u7ae0\u548c\u6742\u8c08\u53ef\u4f7f\u7528\u7684\u6807\u7b7e\u3002\u5220\u9664\u540e\uff0c\u5df2\u5173\u8054\u7684\u6587\u7ae0\u548c\u6742\u8c08\u4f1a\u540c\u6b65\u79fb\u9664\u8be5\u6807\u7b7e\u3002'}>
       <div className="admin-publish-guide">
-        <strong>标签不是文章正文</strong>
-        <span>前台标签页仍从文章标签生成，但这里的操作只改标签字段，不会打开文章发布表单。</span>
+        <strong>{'\u6807\u7b7e\u5728\u8fd9\u4e2a\u540e\u53f0\u680f\u76ee\u4e2d\u7edf\u4e00\u7ba1\u7406'}</strong>
+        <span>{'\u6587\u7ae0\u548c\u6742\u8c08\u9875\u9762\u53ea\u80fd\u9009\u62e9\u8fd9\u91cc\u5df2\u5b58\u5728\u7684\u6807\u7b7e\u3002'}</span>
       </div>
 
-      <div className="admin-record-list">
+      <div className="admin-inline-entry">
+        <input
+          value={draftTag}
+          placeholder={'\u65b0\u6807\u7b7e\u540d\u79f0'}
+          onChange={(event) => setDraftTag(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleAddTag();
+            }
+          }}
+        />
+        <button className="button primary" type="button" disabled={!canAddTag} onClick={handleAddTag}>{'\u6dfb\u52a0\u6807\u7b7e'}</button>
+      </div>
+
+      <div className="admin-record-list admin-tag-library">
         <div className="admin-record-index">
           <div className="admin-record-index-head">
             <div>
-              <strong>{tagUsages.length}</strong>
-              <span>个标签</span>
+              <strong>{tagLibrary.length}</strong>
+              <span>{'\u4e2a\u6807\u7b7e'}</span>
             </div>
           </div>
           <div className="admin-record-buttons">
-            {tagUsages.map((tag) => (
-              <button className={tag.name === selectedTag?.name ? 'is-active' : ''} key={tag.name} type="button" onClick={() => selectTag(tag.name)}>
-                <span>#{tag.name}</span>
-                <small>{tag.count} 篇文章 / 已发布 {tag.publishedCount}</small>
+            {tagUsages.map((usage) => (
+              <button key={usage.tag} type="button">
+                <span>#{usage.tag}</span>
+                <small>{usage.posts + usage.chatters} {'\u6761\u5185\u5bb9\u5173\u8054'}</small>
               </button>
             ))}
           </div>
         </div>
 
         <div className="admin-record-editor">
-          {selectedTag ? (
-            <>
-              <div className="admin-record-edit-head">
-                <div>
-                  <span>当前标签</span>
-                  <strong>#{selectedTag.name}</strong>
-                  <small>{selectedTag.count} 篇文章使用，{selectedTag.draftCount} 篇草稿关联。</small>
-                </div>
-                <div className="admin-record-toolbar">
-                  <button className="button primary" type="button" onClick={renameSelectedTag}>应用改名</button>
-                  <button className="button danger" type="button" onClick={removeSelectedTag}>移除标签</button>
-                </div>
-              </div>
-
-              <FieldSectionLabel count={2} title="标签维护" />
-              <FieldGrid>
-                <label className="admin-field">
-                  <span>标签名称</span>
-                  <input value={renameValue} onChange={(event) => setRenameDraft(event.target.value)} />
-                  <small className="admin-field-help">字段说明：改名会同步替换所有文章里的这个标签。</small>
-                </label>
-                <label className="admin-field">
-                  <span>使用范围</span>
-                  <input readOnly value={`${selectedTag.count} 篇文章`} />
-                  <small className="admin-field-help">字段说明：标签云只展示已发布文章中的标签。</small>
-                </label>
-              </FieldGrid>
-
-              <div className="fraud-checklist">
-                {selectedTag.postTitles.map((title, index) => <span key={`${selectedTag.name}-${index}`}>{title}</span>)}
-              </div>
-            </>
+          {tagUsages.length > 0 ? (
+            <div className="fraud-guide-grid">
+              {tagUsages.map((usage) => (
+                <article className="admin-simple-note" key={usage.tag}>
+                  <strong>#{usage.tag}</strong>
+                  <span>{usage.posts} {'\u7bc7\u6587\u7ae0'} / {usage.chatters} {'\u7bc7\u6742\u8c08'}</span>
+                  <button className="button danger" type="button" onClick={() => handleDeleteTag(usage.tag)}>{'\u5220\u9664\u6807\u7b7e'}</button>
+                </article>
+              ))}
+            </div>
           ) : (
             <div className="admin-empty-state">
-              <p>当前还没有文章标签。先在下方选择文章并分配一个标签。</p>
+              <p>{'\u8fd8\u6ca1\u6709\u6807\u7b7e\uff0c\u5148\u5728\u4e0a\u65b9\u65b0\u589e\u4e00\u4e2a\u3002'}</p>
             </div>
           )}
-
-          <section className="admin-soft-section">
-            <h4>给文章分配标签</h4>
-            <p>新增标签必须至少分配给一篇文章；未关联文章的标签不会出现在前台标签页。</p>
-            <FieldGrid>
-              <label className="admin-field">
-                <span>标签名称</span>
-                <input value={newTag} placeholder="例如：Next.js" onChange={(event) => setNewTag(event.target.value)} />
-              </label>
-            </FieldGrid>
-            <div className="admin-row-actions">
-              <button className="button ghost" type="button" onClick={() => setSelectedPostIndexes(posts.map((_post, index) => index))}>全选文章</button>
-              <button className="button ghost" type="button" onClick={() => setSelectedPostIndexes([])}>清空选择</button>
-              <button className="button primary" type="button" disabled={!newTag.trim() || selectedPostIndexes.length === 0} onClick={assignTagToPosts}>分配标签</button>
-            </div>
-            <FieldGrid>
-              {posts.map((post, index) => (
-                <label className="admin-field admin-field-toggle" key={post.id || post.slug || index}>
-                  <span>{post.title}</span>
-                  <input checked={selectedPostSet.has(index)} type="checkbox" onChange={() => togglePostSelection(index)} />
-                  <small className="admin-field-help">当前标签：{normalizeTagList(post.tags).join('、') || '暂无'}</small>
-                </label>
-              ))}
-            </FieldGrid>
-          </section>
         </div>
       </div>
     </PanelFrame>
   );
 }
 
-type TagUsage = {
-  name: string;
-  count: number;
-  draftCount: number;
-  publishedCount: number;
-  postTitles: string[];
-};
-
-function collectTagUsages(posts: BlogData['posts']): TagUsage[] {
-  const tags = new Map<string, TagUsage>();
-
-  posts.forEach((post, index) => {
-    for (const tag of normalizeTagList(post.tags)) {
-      const key = tag.toLowerCase();
-      const current = tags.get(key);
-      const postTitle = post.title || `第 ${index + 1} 篇文章`;
-      const isPublished = post.status === 'published';
-
-      tags.set(key, current ? {
-        ...current,
-        count: current.count + 1,
-        draftCount: current.draftCount + (isPublished ? 0 : 1),
-        publishedCount: current.publishedCount + (isPublished ? 1 : 0),
-        postTitles: [...current.postTitles, postTitle]
-      } : {
-        name: tag,
-        count: 1,
-        draftCount: isPublished ? 0 : 1,
-        publishedCount: isPublished ? 1 : 0,
-        postTitles: [postTitle]
-      });
-    }
-  });
-
-  return [...tags.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+function addTagToLibrary(tags: string[], tagName: string): string[] {
+  return dedupeTagNames([...tags, tagName]);
 }
 
-function renameTagAcrossPosts(posts: BlogData['posts'], sourceTag: string, targetTag: string): BlogData['posts'] {
-  const sourceKey = sourceTag.trim().toLowerCase();
-  const cleanTarget = targetTag.trim();
-  if (!sourceKey || !cleanTarget) {
-    return posts;
+type TagUsage = {
+  tag: string;
+  posts: number;
+  chatters: number;
+};
+
+function collectTagUsages(tagLibrary: string[], posts: BlogData['posts'], chatters: BlogData['chatters']): TagUsage[] {
+  const usages = new Map(tagLibrary.map((tag) => [tag.toLowerCase(), { tag, posts: 0, chatters: 0 }]));
+
+  for (const post of posts) {
+    for (const tag of post.tags ?? []) {
+      const usage = usages.get(tag.toLowerCase());
+      if (usage) {
+        usage.posts += 1;
+      }
+    }
   }
 
-  return posts.map((post) => {
-    const currentTags = normalizeTagList(post.tags);
-    const nextTags = dedupeTags(currentTags.map((tag) => tag.toLowerCase() === sourceKey ? cleanTarget : tag));
-    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
-  });
+  for (const chatter of chatters) {
+    for (const tag of chatter.tags ?? []) {
+      const usage = usages.get(tag.toLowerCase());
+      if (usage) {
+        usage.chatters += 1;
+      }
+    }
+  }
+
+  return [...usages.values()];
 }
 
 function removeTagFromPosts(posts: BlogData['posts'], tagName: string): BlogData['posts'] {
-  const tagKey = tagName.trim().toLowerCase();
-  if (!tagKey) {
-    return posts;
-  }
-
-  return posts.map((post) => {
-    const currentTags = normalizeTagList(post.tags);
-    const nextTags = currentTags.filter((tag) => tag.toLowerCase() !== tagKey);
-    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
-  });
+  return removeTagFromTaggedRecords(posts, tagName);
 }
 
-function addTagToPostIndexes(posts: BlogData['posts'], tagName: string, postIndexes: number[]): BlogData['posts'] {
-  const cleanTag = tagName.trim();
-  const indexSet = new Set(postIndexes);
-  if (!cleanTag || indexSet.size === 0) {
-    return posts;
-  }
-
-  return posts.map((post, index) => {
-    if (!indexSet.has(index)) {
-      return post;
-    }
-
-    const currentTags = normalizeTagList(post.tags);
-    const nextTags = dedupeTags([...currentTags, cleanTag]);
-    return tagsAreEqual(currentTags, nextTags) ? post : { ...post, tags: nextTags };
-  });
+function removeTagFromChatters(chatters: BlogData['chatters'], tagName: string): BlogData['chatters'] {
+  return removeTagFromTaggedRecords(chatters, tagName);
 }
 
-function normalizeTagList(value: unknown): string[] {
-  const rawItems = Array.isArray(value)
-    ? value
-    : typeof value === 'string'
-      ? value.split(/[\n,，]/)
-      : [];
-
-  return dedupeTags(rawItems.map((item) => stringValue(item).trim()).filter(Boolean));
+function removeTagFromTaggedRecords<T extends { tags?: string[] }>(records: T[], tagName: string): T[] {
+  const tagKey = tagName.toLowerCase();
+  return records.map((record) => ({
+    ...record,
+    tags: (record.tags ?? []).filter((tag) => tag.toLowerCase() !== tagKey)
+  }));
 }
 
-function dedupeTags(tags: string[]): string[] {
-  const result = new Map<string, string>();
-  for (const tag of tags) {
-    const cleanTag = tag.trim();
-    if (cleanTag && !result.has(cleanTag.toLowerCase())) {
-      result.set(cleanTag.toLowerCase(), cleanTag);
+function dedupeTagNames(values: unknown[]): string[] {
+  const tags = new Map<string, string>();
+  for (const value of values) {
+    const tag = typeof value === 'string' ? value.trim() : '';
+    if (isValidTagName(tag) && !tags.has(tag.toLowerCase())) {
+      tags.set(tag.toLowerCase(), tag);
     }
   }
 
-  return [...result.values()];
+  return [...tags.values()];
 }
 
-function tagsAreEqual(left: string[], right: string[]): boolean {
-  return left.length === right.length && left.every((item, index) => item === right[index]);
+function isValidTagName(value: string): boolean {
+  return Boolean(value) && value.length <= 80 && !/[\u0000-\u001f\u007f]/.test(value);
 }
-
 function PathFieldPanel({ children, data, description, fields, title, uploadImage, onChange }: {
   children?: ReactNode;
   data: BlogData;
@@ -1509,12 +1581,12 @@ function CommentsEffectsPanel({ compact = false, data, uploadImage, onChange }: 
     { path: ['site', 'comments', 'enabled'], key: 'enabled', label: '启用评论', kind: 'boolean' },
     { path: ['site', 'comments', 'provider'], key: 'provider', label: '评论提供方' },
     { path: ['site', 'comments', 'repo'], key: 'repo', label: '评论仓库', advanced: true },
-    { path: ['site', 'comments', 'owner'], key: 'owner', label: '仓库 owner', advanced: true },
+    { path: ['site', 'comments', 'owner'], key: 'owner', label: '仓库所有者', advanced: true },
     { path: ['site', 'comments', 'admin'], key: 'admin', label: '评论管理员', kind: 'list', advanced: true },
-    { path: ['site', 'comments', 'clientId'], key: 'clientId', label: 'GitHub Client ID', advanced: true },
+    { path: ['site', 'comments', 'clientId'], key: 'clientId', label: 'GitHub 客户端 ID', advanced: true },
     { path: ['site', 'comments', 'proxy'], key: 'proxy', label: '代理接口', advanced: true },
     { path: ['site', 'comments', 'mapping'], key: 'mapping', label: '映射方式', advanced: true },
-    { path: ['site', 'comments', 'label'], key: 'label', label: 'Issue 标签', advanced: true },
+    { path: ['site', 'comments', 'label'], key: 'label', label: '议题标签', advanced: true },
     { path: ['site', 'comments', 'theme'], key: 'theme', label: '评论主题', advanced: true },
     { path: ['site', 'effects', 'enabled'], key: 'enabled', label: '启用特效', kind: 'boolean' },
     { path: ['site', 'effects', 'fireflies'], key: 'fireflies', label: '萤光', kind: 'boolean' },
@@ -1528,7 +1600,7 @@ function CommentsEffectsPanel({ compact = false, data, uploadImage, onChange }: 
 
   const content = (
     <PathFieldSections
-      advancedDescription="评论仓库、OAuth Client ID、代理接口、映射方式和弹幕文本属于技术配置；正常发内容时不用打开。"
+      advancedDescription="评论仓库、OAuth 客户端 ID、代理接口、映射方式和弹幕文本属于技术配置；正常发内容时不用打开。"
       data={data}
       fields={fields}
       uploadImage={uploadImage}
@@ -1544,7 +1616,7 @@ function CommentsEffectsPanel({ compact = false, data, uploadImage, onChange }: 
     <PanelFrame title="安全与互动设置" description="评论配置会影响音乐、友链、动态、文章和杂谈详情。特效配置影响全站氛围。">
       <div className="fraud-risk-note">
         <strong>安全提示</strong>
-        <span>OAuth secret 和 AI API Key 不允许写进公开博客数据，只能放在环境变量或服务端配置。</span>
+        <span>OAuth 密钥和 AI 接口密钥不允许写进公开博客数据，只能放在环境变量或服务端配置。</span>
       </div>
       {content}
     </PanelFrame>
@@ -1567,7 +1639,7 @@ function AiSettingsPanel({
   clearApiKey: boolean;
   config: AiAdminConfigView | null;
   model: string;
-  saveState: { status: string; message: string };
+  saveState: AdminOperationState;
   onApiKeyChange: (value: string) => void;
   onClearApiKeyChange: (value: boolean) => void;
   onLoad: () => void;
@@ -1588,13 +1660,10 @@ function AiSettingsPanel({
 
   return (
     <PanelFrame title="DeepSeek 设置" description="这里配置右下角助手使用的 DeepSeek 模型和密钥。密钥只保存在服务端后台。">
-      <div className="admin-ai-status" data-status={saveState.status}>
-        <span>{saveState.message}</span>
-        <small>
-          当前状态：{config?.hasApiKey ? `已配置（${keySourceLabel}）` : '未配置密钥'}
-          {config?.updatedAt ? ` / 更新时间：${new Date(config.updatedAt).toLocaleString('zh-CN')}` : ''}
-        </small>
-      </div>
+      <OperationStatusNotice className="admin-ai-status" label="AI 配置提示" state={saveState}>
+        当前状态：{config?.hasApiKey ? `已配置（${keySourceLabel}）` : '未配置密钥'}
+        {config?.updatedAt ? ` / 更新时间：${new Date(config.updatedAt).toLocaleString('zh-CN')}` : ''}
+      </OperationStatusNotice>
 
       <FieldGrid>
         <label className="admin-field">
@@ -1607,7 +1676,7 @@ function AiSettingsPanel({
             {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             <option value="custom">自定义模型</option>
           </select>
-          <small className="admin-field-help">可以选择预设，也可以在下方填写兼容 DeepSeek Chat Completions 的模型名。</small>
+          <small className="admin-field-help">可以选择预设，也可以在下方填写兼容 DeepSeek 对话接口的模型名。</small>
         </label>
 
         <label className="admin-field">
@@ -1617,12 +1686,12 @@ function AiSettingsPanel({
         </label>
 
         <label className="admin-field admin-field-wide">
-          <span>DeepSeek API Key</span>
+          <span>DeepSeek 接口密钥</span>
           <input
             type="password"
             autoComplete="off"
             value={apiKey}
-            placeholder={config?.hasApiKey ? '留空则保留当前密钥' : '粘贴 DeepSeek API Key'}
+            placeholder={config?.hasApiKey ? '留空则保留当前密钥' : '粘贴 DeepSeek 接口密钥'}
             onChange={(event) => onApiKeyChange(event.target.value)}
           />
           <small className="admin-field-help">不会返回到前端；保存后写入服务端配置文件。</small>
@@ -1745,7 +1814,7 @@ function RecordListEditor({ data, description, fields, path, recordKind, title, 
               <FieldSectionLabel count={primaryFields.length} title="常用字段" />
               <FieldGrid>
                 {primaryFields.map((field) => (
-                  <FieldEditor field={field} key={field.key} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} uploadImage={uploadImage} />
+                  <FieldEditor field={field} key={field.key} tagOptions={data.site.tags} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} onCreateTag={(tagName) => onChange(['site', 'tags'], addTagToLibrary(data.site.tags, tagName))} uploadImage={uploadImage} />
                 ))}
               </FieldGrid>
               {advancedFields.length > 0 ? (
@@ -1754,7 +1823,7 @@ function RecordListEditor({ data, description, fields, path, recordKind, title, 
                   <p>{copy.advancedHelp}</p>
                   <FieldGrid>
                     {advancedFields.map((field) => (
-                      <FieldEditor field={field} key={field.key} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} uploadImage={uploadImage} />
+                      <FieldEditor field={field} key={field.key} tagOptions={data.site.tags} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} onCreateTag={(tagName) => onChange(['site', 'tags'], addTagToLibrary(data.site.tags, tagName))} uploadImage={uploadImage} />
                     ))}
                   </FieldGrid>
                 </details>

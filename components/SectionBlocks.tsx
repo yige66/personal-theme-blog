@@ -173,11 +173,6 @@ export function MomentTimelineCard({ note, index }: { note: BlogNote; index: num
         </div>
         {note.title ? <h3>{note.title}</h3> : null}
         <p>{note.content}</p>
-        {note.tags?.length ? (
-          <div className="tag-row">
-            {note.tags.map((tag) => <span key={tag}>#{tag}</span>)}
-          </div>
-        ) : null}
       </div>
     </article>
   );

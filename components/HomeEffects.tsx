@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
 import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
@@ -39,10 +40,25 @@ const xhThemeAttribute = 'data-xh-theme';
 const xhThemeNextAttribute = 'data-xh-theme-next';
 const xhThemeTransitionAttribute = 'data-xh-theme-transition';
 const xhThemePhaseAttribute = 'data-xh-theme-phase';
+const xhSeasonAttribute = 'data-xh-season';
+const xhSeasonNextAttribute = 'data-xh-season-next';
+const xhSeasonPreviousAttribute = 'data-xh-season-previous';
+const xhSeasonTransitionAttribute = 'data-xh-season-transition';
+const seasonRotationIntervalMs = 120000;
+const seasonTransitionDurationMs = 4200;
 
 type ThemeMode = 'day' | 'night';
 type ThemeTransition = 'active' | 'idle';
 type ThemePhase = 'day' | 'night' | 'dusk' | 'dawn';
+type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+
+const seasonOrder: Season[] = ['spring', 'summer', 'autumn', 'winter'];
+const seasonCopy: Record<Season, { label: string; day: string; night: string }> = {
+  spring: { label: '\u6625\u65e5\u82b1\u5ead', day: '\u82b1\u96e8\u4e0e\u6674\u5149', night: '\u6708\u8272\u4e0e\u591c\u6a31' },
+  summer: { label: '\u590f\u65e5\u6d77\u98ce', day: '\u9752\u7a7a\u4e0e\u5149\u6591', night: '\u796d\u706f\u4e0e\u8424\u5149' },
+  autumn: { label: '\u79cb\u65e5\u7ea2\u53f6', day: '\u91d1\u98ce\u4e0e\u843d\u53f6', night: '\u8584\u96fe\u4e0e\u6696\u661f' },
+  winter: { label: '\u51ac\u65e5\u96ea\u91ce', day: '\u971c\u5149\u4e0e\u96ea\u82b1', night: '\u6781\u5149\u4e0e\u96ea\u6676' }
+};
 
 function uniqueMessages(values: string[]): string[] {
   const seen = new Set<string>();
@@ -67,6 +83,44 @@ function getThemePhase(currentMode: ThemeMode, nextMode: ThemeMode, transition: 
     return currentMode;
   }
   return nextMode === 'night' ? 'dusk' : 'dawn';
+}
+
+function isSeason(value: string | null): value is Season {
+  return value === 'spring' || value === 'summer' || value === 'autumn' || value === 'winter';
+}
+
+function getSeasonForDate(date = new Date()): Season {
+  const month = date.getMonth();
+  if (month >= 2 && month <= 4) {
+    return 'spring';
+  }
+  if (month >= 5 && month <= 7) {
+    return 'summer';
+  }
+  if (month >= 8 && month <= 10) {
+    return 'autumn';
+  }
+  return 'winter';
+}
+
+function getNextSeason(current: Season): Season {
+  return seasonOrder[(seasonOrder.indexOf(current) + 1) % seasonOrder.length];
+}
+
+function setSeasonAttributes(currentSeason: Season, nextSeason: Season, transition: ThemeTransition, previousSeason = currentSeason) {
+  const root = document.documentElement;
+  const attributes = [
+    [xhSeasonAttribute, currentSeason],
+    [xhSeasonNextAttribute, nextSeason],
+    [xhSeasonPreviousAttribute, previousSeason],
+    [xhSeasonTransitionAttribute, transition]
+  ] as const;
+
+  attributes.forEach(([name, value]) => {
+    if (root.getAttribute(name) !== value) {
+      root.setAttribute(name, value);
+    }
+  });
 }
 
 function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition, phaseOverride?: ThemePhase) {
@@ -104,11 +158,17 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
+  const seasonTransitionTimerRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
+  const isSeasonTransitioningRef = useRef(false);
   const hasSyncedThemeStateRef = useRef(false);
   const [nightMode, setNightMode] = useState(false);
   const [nextMode, setNextMode] = useState<ThemeMode>('day');
   const [themePhase, setThemePhase] = useState<ThemePhase>('day');
+  const [season, setSeason] = useState<Season>('spring');
+  const [nextSeason, setNextSeason] = useState<Season>('spring');
+  const [previousSeason, setPreviousSeason] = useState<Season>('spring');
+  const [isSeasonTransitioning, setIsSeasonTransitioning] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
@@ -175,6 +235,24 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     delay: `${(index % 6) * 0.54}s`
   })), []);
 
+  const seasonalParticles = useMemo(() => Array.from({ length: Math.round(intensity / 2.6) }, (_item, index) => {
+    const drift = 48 + (index % 8) * 16;
+    const size = 9 + (index % 5) * 3;
+    const rotate = (index % 2 === 0 ? 1 : -1) * (150 + (index % 7) * 24);
+
+    return {
+      id: `seasonal-${index}`,
+      left: `${(index * 17 + 5) % 100}%`,
+      top: `${(index * 23 + 9) % 92}%`,
+      drift: `${drift}px`,
+      driftMid: `${drift * -0.48}px`,
+      delay: `${(index % 12) * -0.46}s`,
+      duration: `${9 + (index % 8)}s`,
+      rotate: `${rotate}deg`,
+      size: `${size}px`
+    };
+  }), [intensity]);
+
   const rainDrops = useMemo(() => Array.from({ length: Math.round(intensity / 4) }, (_item, index) => ({
     id: `rain-${index}`,
     left: `${(index * 13 + 7) % 100}%`,
@@ -185,10 +263,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   useEffect(() => {
     const savedMode = window.localStorage.getItem('xh-theme-mode');
+    const savedSeason = window.localStorage.getItem('xh-season-mode');
     const initialNight = savedMode ? savedMode === 'night' : new Date().getHours() >= 18 || new Date().getHours() < 6;
+    const initialSeason = isSeason(savedSeason) ? savedSeason : getSeasonForDate();
     setNightMode(initialNight);
     setNextMode(initialNight ? 'night' : 'day');
+    setSeason(initialSeason);
+    setNextSeason(initialSeason);
+    setPreviousSeason(initialSeason);
     setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
+    setSeasonAttributes(initialSeason, initialSeason, 'idle');
   }, []);
 
   useEffect(() => {
@@ -197,9 +281,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const rootNextMode: ThemeMode = root.getAttribute(xhThemeNextAttribute) === 'night' ? 'night' : 'day';
     const rootPhaseValue = root.getAttribute(xhThemePhaseAttribute);
     const rootPhase: ThemePhase = rootPhaseValue === 'night' || rootPhaseValue === 'dusk' || rootPhaseValue === 'dawn' ? rootPhaseValue : 'day';
+    const rootSeason = root.getAttribute(xhSeasonAttribute);
+    const rootNextSeason = root.getAttribute(xhSeasonNextAttribute);
+    const rootPreviousSeason = root.getAttribute(xhSeasonPreviousAttribute);
+    const rootSeasonTransition = root.getAttribute(xhSeasonTransitionAttribute) === 'active';
+    const syncedSeason = isSeason(rootSeason) ? rootSeason : getSeasonForDate();
     setNightMode(rootMode === 'night');
     setNextMode(rootNextMode);
     setThemePhase(rootPhase);
+    setSeason(syncedSeason);
+    setNextSeason(isSeason(rootNextSeason) ? rootNextSeason : syncedSeason);
+    setPreviousSeason(isSeason(rootPreviousSeason) ? rootPreviousSeason : syncedSeason);
+    setIsSeasonTransitioning(rootSeasonTransition);
+    isSeasonTransitioningRef.current = rootSeasonTransition;
   }, []);
 
   useEffect(() => {
@@ -228,6 +322,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     if (commitTimerRef.current) {
       window.clearTimeout(commitTimerRef.current);
       commitTimerRef.current = null;
+    }
+    if (seasonTransitionTimerRef.current) {
+      window.clearTimeout(seasonTransitionTimerRef.current);
+      seasonTransitionTimerRef.current = null;
     }
   }, []);
 
@@ -362,11 +460,68 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     startThemeTransition();
   };
 
+  const startSeasonTransition = useCallback((targetSeason?: Season) => {
+    if (isSeasonTransitioningRef.current) {
+      return;
+    }
+
+    if (seasonTransitionTimerRef.current) {
+      window.clearTimeout(seasonTransitionTimerRef.current);
+      seasonTransitionTimerRef.current = null;
+    }
+
+    const currentSeason = season;
+    const target = targetSeason ?? getNextSeason(currentSeason);
+    if (target === currentSeason) {
+      return;
+    }
+
+    isSeasonTransitioningRef.current = true;
+    setPreviousSeason(currentSeason);
+    setNextSeason(target);
+    setIsSeasonTransitioning(true);
+    setSeasonAttributes(currentSeason, target, 'active', currentSeason);
+
+    seasonTransitionTimerRef.current = window.setTimeout(() => {
+      setSeason(target);
+      setPreviousSeason(currentSeason);
+      setNextSeason(target);
+      setIsSeasonTransitioning(false);
+      setSeasonAttributes(target, target, 'idle', currentSeason);
+      window.localStorage.setItem('xh-season-mode', target);
+      isSeasonTransitioningRef.current = false;
+      seasonTransitionTimerRef.current = null;
+    }, prefersReducedMotion() ? 240 : seasonTransitionDurationMs);
+  }, [season]);
+
+  const toggleSeason = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    startSeasonTransition();
+  };
+
+  useEffect(() => {
+    if (isAdmin || !effects.enabled) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      startSeasonTransition();
+    }, seasonRotationIntervalMs);
+
+    return () => window.clearInterval(timer);
+  }, [effects.enabled, isAdmin, startSeasonTransition]);
+
   useEffect(() => {
     const handleExternalToggle = () => startThemeTransition();
+    const handleExternalSeasonCycle = () => startSeasonTransition();
     window.addEventListener('xh-toggle-theme', handleExternalToggle);
-    return () => window.removeEventListener('xh-toggle-theme', handleExternalToggle);
-  }, [startThemeTransition]);
+    window.addEventListener('xh-cycle-season', handleExternalSeasonCycle);
+    return () => {
+      window.removeEventListener('xh-toggle-theme', handleExternalToggle);
+      window.removeEventListener('xh-cycle-season', handleExternalSeasonCycle);
+    };
+  }, [startSeasonTransition, startThemeTransition]);
 
   if (isAdmin || !effects.enabled) {
     return null;
@@ -374,6 +529,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
   const renderedMode: ThemeMode = nightMode ? 'night' : 'day';
   const renderedPhase = themePhase;
+  const seasonText = seasonCopy[season];
+  const nextSeasonText = seasonCopy[nextSeason];
+  const seasonSummary = nightMode ? seasonText.night : seasonText.day;
   const floatingTrack = currentTrack ?? activeTrack;
   const hasMusicTracks = playlist.length > 0;
   const floatingVolume = isMuted ? 0 : volume;
@@ -398,6 +556,42 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <span />
         <span />
         <span />
+      </div>
+
+      <div
+        className={`xh-season-transition${isSeasonTransitioning ? ' is-active' : ''}`}
+        data-season-from={previousSeason}
+        data-season-to={nextSeason}
+        aria-hidden="true"
+      >
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+
+      <div className="xh-seasonal-aura" data-season={season} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+
+      <div className="xh-seasonal-layer" data-season={season} data-scene-theme={renderedMode} aria-hidden="true">
+        {seasonalParticles.map((item) => (
+          <i
+            key={item.id}
+            style={{
+              left: item.left,
+              top: item.top,
+              '--season-delay': item.delay,
+              '--season-duration': item.duration,
+              '--season-drift': item.drift,
+              '--season-drift-mid': item.driftMid,
+              '--season-rotate': item.rotate,
+              '--season-size': item.size
+            } as CSSProperties}
+          />
+        ))}
       </div>
 
       <div className={`xh-space-rain${nightMode ? ' is-visible' : ''}`} aria-hidden="true">
@@ -478,7 +672,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         ))}
       </div>
 
-      {effects.grass ? <div className="xh-grass-layer" aria-hidden="true" /> : null}
+      {effects.grass ? <div className="xh-grass-layer" data-season={season} aria-hidden="true" /> : null}
 
       <div className="xh-kirakira-layer" aria-hidden="true">
         {sparkles.map((item) => (
@@ -487,30 +681,51 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       </div>
 
       {!isHome ? (
-        <button
-          className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
-          type="button"
-          aria-pressed={nightMode}
-          aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
-          aria-live="polite"
-          data-next-mode={nextMode}
-          data-theme-phase={renderedPhase}
-          data-transitioning={isTransitioning ? 'true' : 'false'}
-          onClick={toggleTheme}
-        >
-          <span className="xh-theme-switch-orbit" aria-hidden="true">
-            <span className="xh-theme-switch-body is-sun">
+        <>
+          <button
+            className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
+            type="button"
+            aria-pressed={nightMode}
+            aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
+            aria-live="polite"
+            data-next-mode={nextMode}
+            data-theme-phase={renderedPhase}
+            data-transitioning={isTransitioning ? 'true' : 'false'}
+            onClick={toggleTheme}
+          >
+            <span className="xh-theme-switch-orbit" aria-hidden="true">
+              <span className="xh-theme-switch-body is-sun">
+                <i />
+              </span>
+              <span className="xh-theme-switch-body is-moon">
+                <i />
+              </span>
+              <em />
+            </span>
+            <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
+            <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
+            <small>{isTransitioning ? '\u8272\u5f69\u6e10\u53d8\u8fc7\u6e21\u4e2d' : nightMode ? '\u6df1\u84dd\u6e10\u53d8\u4e0e\u4f4e\u4eae\u5ea6\u8272\u5f69' : '\u6674\u7a7a\u6e10\u53d8\u4e0e\u67d4\u548c\u8272\u5f69'}</small>
+          </button>
+
+          <button
+            className={`xh-season-switch is-${season}${isSeasonTransitioning ? ' is-transitioning' : ''}`}
+            type="button"
+            aria-label={`\u5207\u6362\u5230\u4e0b\u4e00\u4e2a\u5b63\u8282\uff0c\u5f53\u524d${seasonText.label}`}
+            data-season={season}
+            data-next-season={nextSeason}
+            data-transitioning={isSeasonTransitioning ? 'true' : 'false'}
+            onClick={toggleSeason}
+          >
+            <span className="xh-season-switch-orbit" aria-hidden="true">
+              <i />
+              <i />
               <i />
             </span>
-            <span className="xh-theme-switch-body is-moon">
-              <i />
-            </span>
-            <em />
-          </span>
-          <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
-          <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
-          <small>{isTransitioning ? '\u573a\u666f\u6b63\u5728\u8fc7\u6e21' : nightMode ? '\u96e8\u5e55\u4e0e\u5fae\u5149' : '\u6674\u7a7a\u4e0e\u6298\u5149'}</small>
-        </button>
+            <span className="xh-season-switch-kicker">Season Field</span>
+            <strong>{isSeasonTransitioning ? nextSeasonText.label : seasonText.label}</strong>
+            <small>{isSeasonTransitioning ? '\u5b63\u8282\u98ce\u573a\u6b63\u5728\u8fc7\u6e21' : seasonSummary}</small>
+          </button>
+        </>
       ) : null}
 
       {effects.floatingCompanion ? <PixelKurisuPet /> : null}
@@ -522,6 +737,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           data-playing={isPlaying ? 'true' : 'false'}
           data-loading={isLoading ? 'true' : 'false'}
         >
+          <Link className="xh-floating-player-open" href="/music" aria-label="打开音乐栏目" />
           <span>Cloud Music</span>
           <strong>{floatingTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
           <small>{isLoading ? '音乐电台同步中' : floatingTrack ? `${floatingTrack.artist} / ${floatingTrack.mood || 'Focus Radio'}` : '\u6570\u636e\u6e90\u53ef\u7ef4\u62a4\u97f3\u4e50\u5c01\u9762\u4e0e\u97f3\u9891\u5730\u5740'}</small>
