@@ -617,10 +617,13 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeCss, /Final seasonal quality pass/);
     assert.match(homeCss, /Hard stop for legacy seasonal washes and summer heat rectangles/);
     assert.match(homeCss, /Absolute final seasonal compositor lock/);
+    assert.match(homeCss, /Floating control collision guard/);
     assert.match(homeCss, /html body \.xh-heat-distortion[\s\S]*display: none !important/);
     assert.match(homeCss, /html body \.xh-seasonal-aura[\s\S]*display: none !important/);
     assert.match(homeCss, /body \.xh-season-transition\[data-season-from\]\[data-season-to\]\.is-active::after[\s\S]*display: none !important/);
     assert.match(homeCss, /html\[data-xh-season\] body \.xh-season-ground[\s\S]*display: none !important/);
+    assert.match(homeCss, /body:has\(\.xh-pixel-kurisu-pet\[data-open="true"\]\) \.xh-season-switch[\s\S]*pointer-events: none !important/);
+    assert.match(homeCss, /body:has\(\.xh-pixel-kurisu-pet\[data-open="true"\]\) \.xh-kurisu-panel[\s\S]*z-index: 174 !important/);
     assert.match(homeCss, /backdrop-filter: none !important/);
     assert.match(homeCss, /\.xh-season-transition,\s*[\s\S]*\.xh-season-transition\.is-active\s*\{[\s\S]*display: none !important/);
     assert.match(homeCss, /body:has\(\.xh-clean-home\) \.xh-season-switch[\s\S]*bottom: clamp\(238px, 26vh, 286px\)/);
