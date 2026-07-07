@@ -19163,7 +19163,7 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
 
 .planetary-node-info small,
 .planetary-node-info em,
-.planetary-node-info span {
+.planetary-node-info > span {
   color: rgba(228, 238, 255, 0.72) !important;
   font-size: 13px !important;
   font-style: normal !important;
@@ -19179,7 +19179,7 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
   overflow-wrap: break-word !important;
 }
 
-.planetary-node-info span {
+.planetary-node-info > span {
   display: block !important;
   overflow: visible !important;
   white-space: normal !important;
@@ -19266,7 +19266,7 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
 
 .planetary-orbit-map[data-density="dense"] .planetary-node-info small,
 .planetary-orbit-map[data-density="dense"] .planetary-node-info em,
-.planetary-orbit-map[data-density="dense"] .planetary-node-info span {
+.planetary-orbit-map[data-density="dense"] .planetary-node-info > span {
   font-size: 13px !important;
 }
 
@@ -19286,7 +19286,7 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
 
 .planetary-orbit-map[data-zoom="deep"] .planetary-node-info small,
 .planetary-orbit-map[data-zoom="deep"] .planetary-node-info em,
-.planetary-orbit-map[data-zoom="deep"] .planetary-node-info span {
+.planetary-orbit-map[data-zoom="deep"] .planetary-node-info > span {
   font-size: 13px !important;
 }
 
@@ -21651,8 +21651,7 @@ body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-card.xh-latest-carousel, 
   inset: 0 !important;
   z-index: 1 !important;
   background:
-    linear-gradient(180deg, rgba(8, 10, 24, 0) 28%, rgba(8, 10, 24, 0.6) 100%),
-    linear-gradient(90deg, rgba(8, 10, 24, 0.3) 0%, rgba(8, 10, 24, 0.04) 58%) !important;
+    linear-gradient(180deg, rgba(8, 10, 24, 0) 34%, rgba(8, 10, 24, 0.28) 70%, rgba(8, 10, 24, 0.54) 100%) !important;
   pointer-events: none !important;
 }
 
@@ -21663,8 +21662,19 @@ body:has(.xh-clean-home) .xh-clean-home :is(.xh-record-card, .xh-mode-card) .xh-
   width: 100% !important;
   height: 100% !important;
   min-height: 100% !important;
-  opacity: 1 !important;
   object-fit: cover !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) > img {
+  opacity: 0 !important;
+  transform: scale(1.015) !important;
+  transition: opacity 680ms ease, transform 1100ms var(--xh-ease) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) > img.is-active,
+body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel.is-empty > img {
+  opacity: 1 !important;
+  transform: scale(1) !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home :is(.xh-record-card, .xh-mode-card) {
@@ -21672,14 +21682,20 @@ body:has(.xh-clean-home) .xh-clean-home :is(.xh-record-card, .xh-mode-card) {
   grid-template-rows: none !important;
 }
 
+body:has(.xh-clean-home) .xh-clean-home .xh-home-media-carousel__main-link {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+}
+
 body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-poster div, .xh-card-copy) {
   position: absolute !important;
-  inset: auto auto 24px 28px !important;
+  inset: auto auto 30px 32px !important;
   z-index: 3 !important;
   display: grid !important;
-  width: min(74%, 620px) !important;
-  max-width: calc(100% - 56px) !important;
-  gap: 8px !important;
+  width: min(62%, 560px) !important;
+  max-width: calc(100% - 128px) !important;
+  gap: 6px !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -21687,19 +21703,19 @@ body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-
   box-shadow: none !important;
   color: #fff !important;
   text-align: left !important;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.48) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.52), 0 1px 2px rgba(0, 0, 0, 0.36) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel-copy {
-  bottom: 52px !important;
+  bottom: 62px !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-poster div, .xh-card-copy) :is(.eyebrow, time, small, span, p) {
   margin: 0 !important;
   color: rgba(255, 255, 255, 0.86) !important;
-  font-size: clamp(13px, 1vw, 16px) !important;
+  font-size: 14px !important;
   font-weight: 750 !important;
   line-height: 1.35 !important;
 }
@@ -21716,17 +21732,17 @@ body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-
   margin: 0 !important;
   overflow: hidden !important;
   color: #fff !important;
-  font-size: clamp(30px, 3.2vw, 56px) !important;
+  font-size: 36px !important;
   font-weight: 900 !important;
-  line-height: 1.06 !important;
+  line-height: 1.08 !important;
   letter-spacing: 0 !important;
   text-wrap: balance !important;
   -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 3 !important;
+  -webkit-line-clamp: 2 !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home :is(.xh-photo-poster div, .xh-card-copy) h2 {
-  font-size: clamp(22px, 2vw, 34px) !important;
+  font-size: 28px !important;
 }
 
 body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-poster div, .xh-card-copy) :is(span, p, small) {
@@ -21740,23 +21756,23 @@ body:has(.xh-clean-home) .xh-clean-home .xh-latest-card > div > a {
   display: none !important;
 }
 
-body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav {
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots {
   position: absolute !important;
-  right: 0 !important;
-  bottom: -32px !important;
-  z-index: 4 !important;
+  right: 24px !important;
+  bottom: 22px !important;
+  z-index: 5 !important;
   display: flex !important;
   width: auto !important;
-  gap: 9px !important;
+  gap: 8px !important;
   margin: 0 !important;
   pointer-events: auto !important;
 }
 
-body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav button {
-  width: 11px !important;
-  height: 11px !important;
-  min-width: 11px !important;
-  min-height: 11px !important;
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 999px !important;
@@ -21764,33 +21780,38 @@ body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav button {
   box-shadow: none !important;
 }
 
-body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav button.is-active {
-  width: 38px !important;
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button.is-active {
+  width: 34px !important;
   background: linear-gradient(90deg, var(--xh-violet), var(--xh-cyan)) !important;
 }
 
-body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav button::before,
-body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel nav button span {
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button::before,
+body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button span {
   display: none !important;
 }
 
 @media (max-width: 760px) {
   body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-poster div, .xh-card-copy) {
-    inset: auto 22px 24px 22px !important;
+    inset: auto 22px 54px 22px !important;
     width: auto !important;
     max-width: calc(100% - 44px) !important;
   }
 
   body:has(.xh-clean-home) .xh-clean-home .xh-latest-carousel-copy {
-    bottom: 54px !important;
+    bottom: 66px !important;
   }
 
   body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel-copy, .xh-photo-poster div, .xh-card-copy) h2 {
-    font-size: clamp(28px, 9vw, 44px) !important;
+    font-size: 32px !important;
   }
 
   body:has(.xh-clean-home) .xh-clean-home :is(.xh-photo-poster div, .xh-card-copy) h2 {
-    font-size: clamp(22px, 7vw, 32px) !important;
+    font-size: 24px !important;
+  }
+
+  body:has(.xh-clean-home) .xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots {
+    right: 22px !important;
+    bottom: 22px !important;
   }
 }
 
@@ -22632,4 +22653,416 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(
   100% {
     transform: translate3d(5%, 4%, 0) scale(1.08);
   }
+}
+
+/* Seasonal effects v4: denser JRPG/anime field, richer transfer curtain, morphing season orb. */
+html[data-xh-theme][data-xh-season] .xh-seasonal-aura {
+  opacity: 0.92 !important;
+  mix-blend-mode: screen !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-aura::before,
+html[data-xh-theme][data-xh-season] .xh-seasonal-aura::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -12% !important;
+  display: block !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--xh-season-aura) 82%, transparent), transparent 16rem),
+    radial-gradient(circle at 82% 24%, color-mix(in srgb, var(--xh-season-aura) 74%, transparent), transparent 18rem),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 15px) !important;
+  filter: blur(2px) saturate(1.28) !important;
+  animation: xh-season-anime-field-sweep 16s ease-in-out infinite alternate !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-aura::after {
+  opacity: 0.44 !important;
+  transform: rotate(180deg) scale(1.08) !important;
+  animation-delay: -8s !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer {
+  z-index: 8 !important;
+  opacity: 1 !important;
+  filter: saturate(1.42) brightness(1.08) !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer::before,
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.18), transparent 9rem),
+    radial-gradient(circle at 72% 34%, color-mix(in srgb, var(--xh-season-aura) 96%, transparent), transparent 11rem),
+    radial-gradient(circle at 42% 88%, rgba(255, 255, 255, 0.12), transparent 10rem) !important;
+  animation: xh-season-anime-parallax 20s ease-in-out infinite alternate !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer::after {
+  opacity: 0.35 !important;
+  filter: blur(11.5px) !important;
+  animation-duration: 27s !important;
+  animation-direction: alternate-reverse !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer i,
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer i:nth-child(n),
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer[data-season][data-scene-theme] i,
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer[data-season][data-scene-theme] i:nth-child(n) {
+  width: clamp(10px, var(--season-size, 16px), 30px) !important;
+  height: clamp(9px, calc(var(--season-size, 16px) * 0.84), 28px) !important;
+  opacity: var(--season-alpha, 0.9) !important;
+  filter: blur(var(--season-blur, 0px)) saturate(1.22) drop-shadow(0 0 8px color-mix(in srgb, var(--xh-season-aura) 82%, transparent)) !important;
+  animation:
+    xh-season-anime-hires-drift var(--season-duration, 10s) linear infinite,
+    xh-season-anime-hires-flicker 2100ms ease-in-out infinite !important;
+  animation-delay: var(--season-delay, 0s), calc(var(--season-delay, 0s) * -0.45) !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer i:nth-child(3n) {
+  transform-origin: 30% 70% !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer i:nth-child(4n) {
+  opacity: 0.58 !important;
+  filter: blur(calc(var(--season-blur, 0px) + 0.8px)) saturate(1.16) !important;
+}
+
+html[data-xh-theme][data-xh-season] .xh-seasonal-layer i:nth-child(5n) {
+  width: clamp(16px, calc(var(--season-size, 16px) * 1.26), 36px) !important;
+  height: clamp(14px, calc(var(--season-size, 16px) * 1.02), 32px) !important;
+}
+
+html[data-xh-season="spring"] { --xh-season-aura: rgba(255, 120, 190, 0.42); }
+html[data-xh-season="summer"] { --xh-season-aura: rgba(86, 238, 189, 0.38); }
+html[data-xh-season="autumn"] { --xh-season-aura: rgba(255, 154, 72, 0.4); }
+html[data-xh-season="winter"] { --xh-season-aura: rgba(146, 224, 255, 0.42); }
+
+html[data-xh-season="spring"] .xh-seasonal-layer i,
+html[data-xh-season="spring"] .xh-seasonal-layer[data-season][data-scene-theme] i {
+  border-radius: 92% 10% 82% 18% / 78% 18% 82% 22% !important;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.98) 0 12%, transparent 13%),
+    linear-gradient(145deg, rgba(255, 248, 252, 0.98), rgba(255, 119, 188, 0.9) 48%, rgba(255, 199, 226, 0.7) 72%, rgba(255, 255, 255, 0.36)) !important;
+  box-shadow: 0 0 18px rgba(255, 126, 194, 0.62), 0 0 38px rgba(255, 212, 234, 0.34) !important;
+}
+
+html[data-xh-season="spring"] .xh-seasonal-layer i::before {
+  transform: rotate(44deg) scale(0.62) translate(22%, -16%) !important;
+}
+
+html[data-xh-season="spring"] .xh-seasonal-layer i::after {
+  transform: rotate(-58deg) scale(0.48) translate(-24%, 18%) !important;
+}
+
+html[data-xh-season="summer"] .xh-seasonal-layer i,
+html[data-xh-season="summer"] .xh-seasonal-layer[data-season][data-scene-theme] i {
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle, rgba(255, 255, 236, 1) 0 14%, rgba(255, 238, 132, 0.95) 30%, rgba(73, 237, 192, 0.64) 57%, rgba(73, 237, 192, 0.1) 72%, transparent 74%) !important;
+  box-shadow: 0 0 20px rgba(255, 235, 114, 0.85), 0 0 54px rgba(75, 234, 192, 0.58) !important;
+  animation-name: xh-season-anime-firefly-path, xh-season-anime-hires-flicker !important;
+}
+
+html[data-xh-season="summer"] .xh-seasonal-layer i::before,
+html[data-xh-season="summer"] .xh-seasonal-layer i::after {
+  border-radius: 999px !important;
+  opacity: 0.32 !important;
+  transform: scale(2.2) !important;
+}
+
+html[data-xh-season="autumn"] .xh-seasonal-layer i,
+html[data-xh-season="autumn"] .xh-seasonal-layer[data-season][data-scene-theme] i {
+  clip-path: polygon(50% 0, 62% 22%, 96% 16%, 74% 44%, 92% 78%, 56% 64%, 22% 100%, 30% 61%, 0 42%, 35% 31%) !important;
+  border-radius: 78% 12% 72% 22% / 68% 22% 78% 30% !important;
+  background:
+    linear-gradient(148deg, rgba(255, 238, 150, 0.98), rgba(241, 130, 51, 0.94) 45%, rgba(137, 53, 35, 0.8) 76%, rgba(255, 214, 132, 0.5)) !important;
+  box-shadow: 0 0 18px rgba(241, 130, 51, 0.68), 0 0 34px rgba(255, 202, 112, 0.28) !important;
+}
+
+html[data-xh-season="winter"] .xh-seasonal-layer i,
+html[data-xh-season="winter"] .xh-seasonal-layer[data-season][data-scene-theme] i {
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, 1) 46% 54%, transparent 55%),
+    linear-gradient(0deg, transparent 45%, rgba(210, 245, 255, 0.95) 46% 54%, transparent 55%),
+    linear-gradient(60deg, transparent 45%, rgba(255, 255, 255, 0.84) 46% 54%, transparent 55%),
+    linear-gradient(-60deg, transparent 45%, rgba(185, 234, 255, 0.78) 46% 54%, transparent 55%),
+    radial-gradient(circle, rgba(255, 255, 255, 1), rgba(154, 223, 255, 0.74) 52%, transparent 58%) !important;
+  box-shadow: 0 0 18px rgba(187, 237, 255, 0.75), 0 0 42px rgba(190, 206, 255, 0.32) !important;
+}
+
+.xh-season-transition.is-active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 190 !important;
+}
+
+.xh-season-transition.is-active::before,
+.xh-season-transition.is-active::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -20% !important;
+  display: block !important;
+  opacity: 0.92 !important;
+  background:
+    radial-gradient(circle at 20% 24%, var(--xh-season-wash-a), transparent 22rem),
+    radial-gradient(circle at 78% 18%, var(--xh-season-wash-b), transparent 20rem),
+    conic-gradient(from 40deg at 50% 50%, transparent 0 18%, rgba(255, 255, 255, 0.42) 22%, transparent 31% 48%, rgba(255, 255, 255, 0.34) 52%, transparent 64% 100%) !important;
+  filter: blur(7px) saturate(1.48) !important;
+  animation: xh-season-transfer-curtain 2600ms cubic-bezier(0.18, 0.78, 0.18, 1) both !important;
+}
+
+.xh-season-transition.is-active::after {
+  mix-blend-mode: screen !important;
+  animation-delay: 120ms !important;
+  animation-direction: reverse !important;
+}
+
+.xh-season-transition.is-active span:nth-child(n+5) {
+  left: calc((var(--season-transfer-index, 1) * 11%) - 8%) !important;
+  top: -18vh !important;
+  width: clamp(18px, 3.4vw, 42px) !important;
+  height: clamp(18px, 3.4vw, 42px) !important;
+  opacity: 0 !important;
+  border: 0 !important;
+  border-radius: 80% 18% 76% 24% !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), var(--xh-season-wash-a), var(--xh-season-wash-b)) !important;
+  box-shadow: 0 0 28px var(--xh-season-wash-a), 0 0 58px var(--xh-season-wash-b) !important;
+  animation: xh-season-transfer-burst 2600ms cubic-bezier(0.16, 0.75, 0.21, 1) both !important;
+}
+
+.xh-season-transition span:nth-child(5) { --season-transfer-index: 1; animation-delay: 40ms !important; }
+.xh-season-transition span:nth-child(6) { --season-transfer-index: 2; animation-delay: 120ms !important; }
+.xh-season-transition span:nth-child(7) { --season-transfer-index: 3; animation-delay: 200ms !important; }
+.xh-season-transition span:nth-child(8) { --season-transfer-index: 4; animation-delay: 280ms !important; }
+.xh-season-transition span:nth-child(9) { --season-transfer-index: 5; animation-delay: 360ms !important; }
+.xh-season-transition span:nth-child(10) { --season-transfer-index: 6; animation-delay: 440ms !important; }
+.xh-season-transition span:nth-child(11) { --season-transfer-index: 7; animation-delay: 520ms !important; }
+.xh-season-transition span:nth-child(12) { --season-transfer-index: 8; animation-delay: 600ms !important; }
+
+.xh-season-switch-orbit {
+  overflow: visible !important;
+  transition: transform 650ms cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 650ms ease, background 650ms ease !important;
+}
+
+.xh-season-switch-icon {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  display: block !important;
+  width: 22px !important;
+  height: 22px !important;
+  margin: -11px 0 0 -11px !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  transition:
+    opacity 680ms ease,
+    transform 680ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    clip-path 680ms ease,
+    border-radius 680ms ease,
+    background 680ms ease,
+    box-shadow 680ms ease !important;
+}
+
+.xh-season-switch-icon.is-next {
+  opacity: 0 !important;
+  transform: translate(-1px, 5px) rotate(-70deg) scale(0.58) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-orbit {
+  transform: rotate(145deg) scale(1.08) !important;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.62), 0 0 34px var(--xh-season-switch-glow), 0 0 72px var(--xh-season-wash-b) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-icon.is-current {
+  opacity: 0 !important;
+  transform: translate(4px, -6px) rotate(90deg) scale(0.42) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-icon.is-next {
+  opacity: 1 !important;
+  transform: translate(0, 0) rotate(0deg) scale(1) !important;
+}
+
+.xh-season-switch[data-season="spring"] .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next {
+  border-radius: 90% 12% 86% 18% / 76% 18% 84% 24% !important;
+  background: linear-gradient(135deg, #fff, #ff82c1 54%, #ffd6eb) !important;
+  box-shadow: 0 0 18px rgba(255, 130, 193, 0.8) !important;
+}
+
+.xh-season-switch[data-season="summer"] .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next {
+  border-radius: 999px !important;
+  background: radial-gradient(circle, #ffffec 0 18%, #ffe96e 34%, #46e8bd 70%, transparent 74%) !important;
+  box-shadow: 0 0 18px rgba(255, 233, 110, 0.94), 0 0 36px rgba(70, 232, 189, 0.72) !important;
+}
+
+.xh-season-switch[data-season="autumn"] .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next {
+  clip-path: polygon(50% 0, 62% 22%, 96% 16%, 74% 44%, 92% 78%, 56% 64%, 22% 100%, 30% 61%, 0 42%, 35% 31%) !important;
+  background: linear-gradient(145deg, #ffe895, #ef8134 48%, #8d3929) !important;
+  box-shadow: 0 0 18px rgba(239, 129, 52, 0.85) !important;
+}
+
+.xh-season-switch[data-season="winter"] .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next {
+  border-radius: 999px !important;
+  background:
+    linear-gradient(90deg, transparent 44%, #fff 45% 55%, transparent 56%),
+    linear-gradient(0deg, transparent 44%, #d8f6ff 45% 55%, transparent 56%),
+    linear-gradient(60deg, transparent 44%, rgba(255,255,255,0.84) 45% 55%, transparent 56%),
+    linear-gradient(-60deg, transparent 44%, rgba(184,236,255,0.8) 45% 55%, transparent 56%),
+    radial-gradient(circle, #fff, #9ee4ff 56%, transparent 60%) !important;
+  box-shadow: 0 0 18px rgba(175, 236, 255, 0.9) !important;
+}
+
+@media (max-width: 760px) {
+  html[data-xh-theme][data-xh-season] .xh-seasonal-layer {
+    opacity: 0.92 !important;
+  }
+
+  html[data-xh-theme][data-xh-season] .xh-seasonal-layer i:nth-child(n+54) {
+    display: none !important;
+  }
+}
+
+@keyframes xh-season-anime-hires-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -18vh, 0) rotate(0deg) scale(0.62);
+  }
+
+  12% {
+    opacity: var(--season-alpha, 0.9);
+  }
+
+  50% {
+    transform: translate3d(var(--season-drift-mid, 0), 48vh, 0) rotate(calc(var(--season-rotate, 180deg) * 0.52)) scale(calc(0.86 + var(--season-depth, 1) * 0.1));
+  }
+
+  88% {
+    opacity: var(--season-alpha, 0.9);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--season-drift, 0), 128vh, 0) rotate(var(--season-rotate, 260deg)) scale(0.78);
+  }
+}
+
+@keyframes xh-season-anime-firefly-path {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12vh, 0) scale(0.5);
+  }
+
+  18% {
+    opacity: var(--season-alpha, 0.92);
+  }
+
+  52% {
+    transform: translate3d(var(--season-drift-mid, 0), -18vh, 0) scale(1.18);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--season-drift, 0), -58vh, 0) scale(0.7);
+  }
+}
+
+@keyframes xh-season-anime-hires-flicker {
+  0%,
+  100% {
+    filter: blur(var(--season-blur, 0px)) brightness(0.82) saturate(1.08);
+  }
+
+  42% {
+    filter: blur(var(--season-blur, 0px)) brightness(1.62) saturate(1.42);
+  }
+}
+
+@keyframes xh-season-anime-field-sweep {
+  0% {
+    transform: translate3d(-2%, -1%, 0) rotate(-1deg);
+  }
+
+  100% {
+    transform: translate3d(3%, 2%, 0) rotate(1deg);
+  }
+}
+
+@keyframes xh-season-anime-parallax {
+  0% {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+
+  100% {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+}
+
+@keyframes xh-season-transfer-curtain {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(-10deg);
+  }
+
+  42% {
+    opacity: 1;
+    transform: scale(1.08) rotate(7deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.28) rotate(18deg);
+  }
+}
+
+@keyframes xh-season-transfer-burst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -8vh, 0) rotate(-40deg) scale(0.4);
+  }
+
+  28% {
+    opacity: 0.96;
+  }
+
+  70% {
+    opacity: 0.88;
+    transform: translate3d(calc((var(--season-transfer-index, 1) - 4) * 2.2vw), 56vh, 0) rotate(190deg) scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(calc((var(--season-transfer-index, 1) - 4) * -3vw), 118vh, 0) rotate(380deg) scale(0.72);
+  }
+}
+
+html[data-xh-season-transition="active"] body .xh-season-transition,
+html[data-xh-season-transition="active"] .xh-season-transition,
+.xh-season-transition.is-active {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+}
+
+html[data-xh-season-transition="active"] .xh-season-transition span:nth-child(n+5),
+.xh-season-transition.is-active span:nth-child(n+5) {
+  opacity: 0.82 !important;
+}
+
+html[data-xh-season-transition="active"][data-xh-season][data-xh-season-next] body .xh-season-transition.xh-season-transition.is-active,
+html[data-xh-season-transition="active"][data-xh-season][data-xh-season-next] body .xh-season-transition.xh-season-transition {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }

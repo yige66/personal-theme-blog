@@ -238,21 +238,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     delay: `${(index % 6) * 0.54}s`
   })), []);
 
-  const seasonalParticles = useMemo(() => Array.from({ length: Math.round(intensity / 2.6) }, (_item, index) => {
-    const drift = 48 + (index % 8) * 16;
-    const size = 9 + (index % 5) * 3;
+  const seasonalParticles = useMemo(() => Array.from({ length: Math.round(intensity / 1.15) + 18 }, (_item, index) => {
+    const drift = 72 + (index % 10) * 18;
+    const size = 11 + (index % 7) * 3;
     const rotate = (index % 2 === 0 ? 1 : -1) * (150 + (index % 7) * 24);
+    const depth = index % 3;
 
     return {
       id: `seasonal-${index}`,
-      left: `${(index * 17 + 5) % 100}%`,
-      top: `${(index * 23 + 9) % 92}%`,
+      left: `${(index * 17 + 5) % 104 - 2}%`,
+      top: `${(index * 29 + 9) % 118 - 18}vh`,
       drift: `${drift}px`,
       driftMid: `${drift * -0.48}px`,
-      delay: `${(index % 12) * -0.46}s`,
-      duration: `${9 + (index % 8)}s`,
+      delay: `${(index % 18) * -0.58}s`,
+      duration: `${8.4 + (index % 10) * 0.74}s`,
       rotate: `${rotate}deg`,
-      size: `${size}px`
+      size: `${size}px`,
+      depth: `${depth}`,
+      blur: `${depth * 0.45}px`,
+      alpha: `${0.68 + depth * 0.12}`
     };
   }), [intensity]);
 
@@ -578,6 +582,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <span />
         <span />
         <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
       </div>
 
       <div className="xh-seasonal-aura" data-season={season} aria-hidden="true">
@@ -598,7 +610,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
               '--season-drift': item.drift,
               '--season-drift-mid': item.driftMid,
               '--season-rotate': item.rotate,
-              '--season-size': item.size
+              '--season-size': item.size,
+              '--season-depth': item.depth,
+              '--season-blur': item.blur,
+              '--season-alpha': item.alpha
             } as CSSProperties}
           />
         ))}
@@ -729,6 +744,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         onClick={toggleSeason}
       >
         <span className="xh-season-switch-orbit" aria-hidden="true">
+          <b className="xh-season-switch-icon is-current" />
+          <b className="xh-season-switch-icon is-next" />
           <i />
           <i />
           <i />
