@@ -24205,3 +24205,182 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-
   transform: translate3d(0, 18px, 0) scale(0.82) !important;
   z-index: 118 !important;
 }
+
+/* Clear floating season/day-night controls. */
+body .xh-theme-switch,
+body .xh-season-switch {
+  position: fixed !important;
+  right: clamp(16px, 2vw, 26px) !important;
+  z-index: 132 !important;
+  display: grid !important;
+  grid-template-columns: 42px minmax(64px, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 8px !important;
+  align-items: center !important;
+  width: 142px !important;
+  min-width: 142px !important;
+  height: 58px !important;
+  min-height: 58px !important;
+  padding: 7px 10px 7px 7px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(28, 30, 68, 0.68) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 14px 34px rgba(16, 12, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(14px) saturate(1.18) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.18) !important;
+  overflow: hidden !important;
+  transition:
+    transform 520ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    opacity 520ms ease,
+    background 720ms ease,
+    border-color 720ms ease !important;
+}
+
+body .xh-theme-switch {
+  bottom: calc(var(--xh-float-bottom, 16px) + var(--xh-player-height, 78px) + 78px) !important;
+}
+
+body .xh-season-switch {
+  bottom: calc(var(--xh-float-bottom, 16px) + var(--xh-player-height, 78px) + 146px) !important;
+}
+
+body:has(.xh-clean-home) .xh-theme-switch {
+  bottom: clamp(116px, 13vh, 156px) !important;
+}
+
+body:has(.xh-clean-home) .xh-season-switch {
+  bottom: clamp(184px, 21vh, 238px) !important;
+}
+
+body .xh-theme-switch:hover,
+body .xh-season-switch:hover {
+  transform: translate3d(-4px, -2px, 0) !important;
+  border-color: rgba(153, 219, 255, 0.58) !important;
+}
+
+body .xh-theme-switch :is(.xh-theme-switch-kicker, strong, small),
+body .xh-season-switch :is(.xh-season-switch-kicker, strong, small) {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: nowrap !important;
+}
+
+body .xh-theme-switch-orbit,
+body .xh-season-switch-orbit {
+  grid-row: 1 / span 2 !important;
+  grid-column: 1 !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+}
+
+body .xh-theme-switch-kicker,
+body .xh-season-switch-kicker {
+  grid-column: 2 !important;
+  align-self: end !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  opacity: 0.7 !important;
+}
+
+body .xh-theme-switch strong,
+body .xh-season-switch strong {
+  grid-column: 2 !important;
+  align-self: start !important;
+  font-size: 14px !important;
+  line-height: 1.05 !important;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28) !important;
+}
+
+body .xh-theme-switch small,
+body .xh-season-switch small {
+  display: none !important;
+}
+
+.xh-season-switch-icon {
+  position: absolute !important;
+  inset: 6px !important;
+  border-radius: 999px !important;
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+  transition: opacity 900ms ease, transform 900ms cubic-bezier(0.2, 0.86, 0.22, 1), background 900ms ease !important;
+}
+
+.xh-season-switch-icon::before,
+.xh-season-switch-icon::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 10px !important;
+  border-radius: inherit !important;
+}
+
+.xh-season-switch.is-spring .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next {
+  background: radial-gradient(circle at 42% 36%, #ffeef8 0 20%, #ff9fd1 21% 44%, #92df9a 45% 100%) !important;
+}
+
+.xh-season-switch.is-summer .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next {
+  background: radial-gradient(circle at 50% 34%, #fff2a8 0 18%, #65d8a4 19% 58%, #2f9b73 59% 100%) !important;
+}
+
+.xh-season-switch.is-autumn .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next {
+  background: radial-gradient(circle at 50% 34%, #ffe58f 0 16%, #d77b32 17% 56%, #8e3e22 57% 100%) !important;
+}
+
+.xh-season-switch.is-winter .xh-season-switch-icon.is-current,
+.xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next {
+  background: radial-gradient(circle at 45% 32%, #ffffff 0 20%, #bfeaff 21% 58%, #6e9fd3 59% 100%) !important;
+}
+
+.xh-season-switch-icon.is-next {
+  opacity: 0 !important;
+  transform: scale(0.72) rotate(-28deg) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-icon.is-current {
+  opacity: 0 !important;
+  transform: scale(0.74) rotate(34deg) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-icon.is-next {
+  opacity: 1 !important;
+  transform: scale(1) rotate(0deg) !important;
+}
+
+.xh-season-switch.is-transitioning,
+.xh-theme-switch.is-transitioning {
+  transform: translate3d(-4px, -4px, 0) scale(1.02) !important;
+}
+
+@media (max-width: 760px) {
+  body .xh-theme-switch,
+  body .xh-season-switch {
+    width: 118px !important;
+    min-width: 118px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    grid-template-columns: 36px minmax(52px, 1fr) !important;
+    padding: 6px 8px 6px 6px !important;
+  }
+
+  body .xh-theme-switch-orbit,
+  body .xh-season-switch-orbit {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  body .xh-theme-switch strong,
+  body .xh-season-switch strong {
+    font-size: 12px !important;
+  }
+}

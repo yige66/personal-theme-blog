@@ -24,7 +24,7 @@ type Ripple = {
   speed: number;
 };
 
-type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'leafPile' | 'snowbank';
+type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'snowMist' | 'leafPile' | 'snowbank';
 
 type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
 
@@ -192,8 +192,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const seasonTransitionTimerRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
   const isSeasonTransitioningRef = useRef(false);
+  const seasonTransitionStartedAtRef = useRef(0);
   const hasSyncedThemeStateRef = useRef(false);
   const nightModeRef = useRef(false);
+  const seasonRef = useRef<Season>('spring');
+  const nextSeasonRef = useRef<Season>('spring');
+  const previousSeasonRef = useRef<Season>('spring');
   const themeBlendRef = useRef<ThemeBlendState>({
     active: false,
     from: 'day',
@@ -210,6 +214,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const [isSeasonTransitioning, setIsSeasonTransitioning] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   nightModeRef.current = nightMode;
+  seasonRef.current = season;
+  nextSeasonRef.current = nextSeason;
+  previousSeasonRef.current = previousSeason;
+  isSeasonTransitioningRef.current = isSeasonTransitioning;
   const effects = site.effects;
   const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
   const isHome = pathname === '/';
@@ -239,6 +247,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setSeason(initialSeason);
     setNextSeason(initialSeason);
     setPreviousSeason(initialSeason);
+    seasonRef.current = initialSeason;
+    nextSeasonRef.current = initialSeason;
+    previousSeasonRef.current = initialSeason;
+    seasonTransitionStartedAtRef.current = 0;
     setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
     themeBlendRef.current = {
       active: false,
@@ -275,7 +287,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setNextSeason(isSeason(rootNextSeason) ? rootNextSeason : syncedSeason);
     setPreviousSeason(isSeason(rootPreviousSeason) ? rootPreviousSeason : syncedSeason);
     setIsSeasonTransitioning(rootSeasonTransition);
+    seasonRef.current = syncedSeason;
+    nextSeasonRef.current = isSeason(rootNextSeason) ? rootNextSeason : syncedSeason;
+    previousSeasonRef.current = isSeason(rootPreviousSeason) ? rootPreviousSeason : syncedSeason;
     isSeasonTransitioningRef.current = rootSeasonTransition;
+    seasonTransitionStartedAtRef.current = rootSeasonTransition ? performance.now() : 0;
   }, []);
 
   useEffect(() => {
@@ -420,6 +436,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       leafC: '/assets/seasonal/autumn-leaf-c.png',
       snow: '/assets/seasonal/winter-snowflake.png',
       heat: '/assets/seasonal/summer-heat-haze.png',
+      snowMist: '/assets/seasonal/winter-snow-mist.png',
       leafPile: '/assets/seasonal/autumn-leaf-pile.png',
       snowbank: '/assets/seasonal/winter-snowbank.png'
     };
@@ -435,7 +452,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const frameIntervalMs = 1000 / 30;
     const effectStartedAt = performance.now();
     const particles: SeasonalVfxParticle[] = [];
-    const transitionStartedAt = isSeasonTransitioning ? performance.now() : 0;
     const smoothStep = (value: number) => {
       const clamped = Math.max(0, Math.min(1, value));
       return clamped * clamped * (3 - clamped * 2);
@@ -456,6 +472,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       };
     };
     const getNightMode = () => getThemeWeights().night >= 0.5;
+    const getSeasonState = () => ({
+      current: seasonRef.current,
+      next: nextSeasonRef.current,
+      previous: previousSeasonRef.current,
+      transitioning: isSeasonTransitioningRef.current,
+      startedAt: seasonTransitionStartedAtRef.current
+    });
 
     const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
     const chooseLeafSprite = (): SeasonalSpriteKey => {
@@ -468,11 +491,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const resetParticle = (particle: SeasonalVfxParticle, initial = false) => {
       const sceneMode = getNightMode() ? 'night' : 'day';
+      const activeSeason = getSeasonState().current;
       particle.phase = randomBetween(0, Math.PI * 2);
       particle.depth = randomBetween(0.68, 1.26);
       particle.rotation = randomBetween(-Math.PI, Math.PI);
 
-      if (season === 'spring') {
+      if (activeSeason === 'spring') {
         particle.kind = 'petal';
         particle.sprite = 'petal';
         particle.size = randomBetween(18, 34) * particle.depth;
@@ -485,7 +509,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return;
       }
 
-      if (season === 'summer' && sceneMode === 'night') {
+      if (activeSeason === 'summer' && sceneMode === 'night') {
         particle.kind = 'firefly';
         particle.sprite = 'firefly';
         particle.size = randomBetween(9, 18) * particle.depth;
@@ -498,7 +522,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return;
       }
 
-      if (season === 'summer' && sceneMode === 'day') {
+      if (activeSeason === 'summer' && sceneMode === 'day') {
         particle.kind = 'bug';
         particle.sprite = 'firefly';
         particle.size = randomBetween(4, 7.5) * particle.depth;
@@ -511,7 +535,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return;
       }
 
-      if (season === 'autumn') {
+      if (activeSeason === 'autumn') {
         particle.kind = 'leaf';
         particle.sprite = chooseLeafSprite();
         particle.size = randomBetween(16, 30) * particle.depth;
@@ -536,20 +560,21 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const targetCount = () => {
-      if (season === 'summer') {
+      const activeSeason = getSeasonState().current;
+      if (activeSeason === 'summer') {
         const weights = getThemeWeights();
         const dayCount = Math.max(6, Math.round(intensity / 10));
-        const nightCount = Math.max(12, Math.round(intensity / 6));
+        const nightCount = Math.max(18, Math.round(intensity / 4.2));
         return Math.max(6, Math.round(dayCount * weights.day + nightCount * weights.night));
       }
-      if (season === 'spring') {
-        return Math.max(24, Math.round(intensity / 2.8));
+      if (activeSeason === 'spring') {
+        return Math.max(32, Math.round(intensity / 2.2));
       }
-      if (season === 'winter') {
-        return Math.max(18, Math.round(intensity / 4.5));
+      if (activeSeason === 'winter') {
+        return Math.max(24, Math.round(intensity / 3.5));
       }
-      if (season === 'autumn') {
-        return Math.max(12, Math.round(intensity / 6));
+      if (activeSeason === 'autumn') {
+        return Math.max(22, Math.round(intensity / 3.4));
       }
       return Math.max(12, Math.round(intensity / 6));
     };
@@ -578,14 +603,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       particles.forEach((particle) => {
         const weights = getThemeWeights();
         const isNightScene = weights.night >= 0.5;
-        const keepsSummerParticle = season === 'summer'
+        const activeSeason = getSeasonState().current;
+        const keepsSummerParticle = activeSeason === 'summer'
           && ((particle.kind === 'bug' && weights.day > 0.04) || (particle.kind === 'firefly' && weights.night > 0.04));
         if (
-          (season === 'summer' && !keepsSummerParticle && !isNightScene && particle.kind !== 'bug')
-          || (season === 'summer' && !keepsSummerParticle && isNightScene && particle.kind !== 'firefly')
-          || (season === 'spring' && particle.kind !== 'petal')
-          || (season === 'autumn' && particle.kind !== 'leaf')
-          || (season === 'winter' && particle.kind !== 'snow')
+          (activeSeason === 'summer' && !keepsSummerParticle && !isNightScene && particle.kind !== 'bug')
+          || (activeSeason === 'summer' && !keepsSummerParticle && isNightScene && particle.kind !== 'firefly')
+          || (activeSeason === 'spring' && particle.kind !== 'petal')
+          || (activeSeason === 'autumn' && particle.kind !== 'leaf')
+          || (activeSeason === 'winter' && particle.kind !== 'snow')
         ) {
           resetParticle(particle, true);
         }
@@ -742,7 +768,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawSpringGround = (growth: number, now: number, summerFlowers = false, dry = 0) => {
-      const groundHeight = Math.min(56, Math.max(30, height * 0.048)) * growth;
+      const groundHeight = Math.min(summerFlowers ? 82 : 64, Math.max(summerFlowers ? 42 : 34, height * (summerFlowers ? 0.068 : 0.054))) * growth;
       const top = height - groundHeight;
       context.save();
       drawSoftGroundGradient(top, [
@@ -756,21 +782,22 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       haze.addColorStop(1, dry > 0.2 ? `rgba(105, 88, 36, ${0.14 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(58, 144, 78, 0.14)' : 'rgba(79, 155, 84, 0.1)'));
       context.fillStyle = haze;
       context.fillRect(0, top - 6, width, groundHeight + 8);
-      const step = Math.max(8, width / 190);
+      const step = Math.max(5.5, width / (summerFlowers ? 310 : 230));
       for (let x = -20; x < width + 20; x += step) {
         const frac = seededUnit(x);
-        const blade = (9 + frac * (summerFlowers ? 26 : 18)) * growth;
-        const lean = Math.sin(now * 0.0011 + x * 0.02) * (summerFlowers ? 6 : 4);
+        const blade = (12 + frac * (summerFlowers ? 38 : 22)) * growth;
+        const lean = Math.sin(now * 0.0011 + x * 0.02) * (summerFlowers ? 8 : 4.5);
         const hue = dry > 0 ? 82 - dry * 28 + frac * 18 : (summerFlowers ? 104 + frac * 36 : 96 + frac * 28);
         const alpha = (summerFlowers ? 0.82 : 0.66) * (1 - dry * 0.66);
         drawGrassBlade(x, height + 3, blade * (1 - dry * 0.22), lean, `hsla(${hue}, ${44 - dry * 16}%, ${summerFlowers ? 40 : 46}%, ${alpha})`, alpha);
-        if (summerFlowers && frac > 0.74 && dry < 0.9) {
+        if (summerFlowers && frac > 0.64 && dry < 0.9) {
           context.save();
-          context.globalAlpha = (0.28 + frac * 0.24) * growth * (1 - dry);
-          context.fillStyle = frac > 0.92 ? 'rgba(255, 218, 116, 0.7)' : (frac > 0.84 ? 'rgba(164, 208, 255, 0.5)' : 'rgba(255, 154, 206, 0.58)');
+          context.globalAlpha = (0.34 + frac * 0.28) * growth * (1 - dry);
+          context.fillStyle = frac > 0.92 ? 'rgba(255, 225, 126, 0.78)' : (frac > 0.82 ? 'rgba(156, 215, 255, 0.58)' : 'rgba(255, 142, 204, 0.66)');
           const flowerY = height - blade - 4;
           context.beginPath();
-          context.arc(x + lean, flowerY, 1.2 + frac * 1.9, 0, Math.PI * 2);
+          context.arc(x + lean, flowerY, 1.5 + frac * 2.4, 0, Math.PI * 2);
+          context.arc(x + lean + 2.5, flowerY + 1.5, 0.9 + frac * 1.2, 0, Math.PI * 2);
           context.fill();
           context.restore();
         }
@@ -779,7 +806,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawLeafAccumulation = (growth: number) => {
-      const pileHeight = Math.min(66, Math.max(36, height * 0.062)) * growth;
+      const pileHeight = Math.min(82, Math.max(42, height * 0.078)) * growth;
       if (pileHeight < 4) {
         return;
       }
@@ -790,11 +817,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         'rgba(88, 48, 22, 0.44)'
       ]);
       if (sprites.leafPile) {
-        context.globalAlpha = 0.34 * growth;
-        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.08, width, pileHeight * 1.04);
+        context.globalAlpha = 0.46 * growth;
+        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.12, width, pileHeight * 1.12);
       }
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
-      for (let index = 0; index < 64; index += 1) {
+      for (let index = 0; index < 104; index += 1) {
         const frac = seededUnit(index + 17.2);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
         if (!sprite) {
@@ -802,9 +829,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         }
         const x = (index * 71 + frac * 160) % (width + 120) - 60;
         const y = height - Math.pow(seededUnit(index + 82.6), 1.25) * pileHeight * 0.88 - 3;
-        const size = 9 + frac * 12;
+        const size = 10 + frac * 15;
         context.save();
-        context.globalAlpha = (0.16 + frac * 0.2) * growth;
+        context.globalAlpha = (0.22 + frac * 0.28) * growth;
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -861,12 +888,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawNightFireflies = (now: number) => {
       const nightWeight = getThemeWeights(now).night;
-      if (nightWeight <= 0.02 || (season !== 'spring' && season !== 'summer')) {
+      const activeSeason = getSeasonState().current;
+      if (nightWeight <= 0.02 || (activeSeason !== 'spring' && activeSeason !== 'summer')) {
         return;
       }
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 12; index += 1) {
+      for (let index = 0; index < 20; index += 1) {
         const seed = seededUnit(index + 135.7);
         const drift = Math.sin(now * 0.0007 + index * 1.7);
         const x = width * (0.08 + seededUnit(index + 21.9) * 0.84) + drift * (24 + seed * 36);
@@ -881,12 +909,17 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.beginPath();
         context.arc(x, y, 18 + glow * 8, 0, Math.PI * 2);
         context.fill();
+        context.globalAlpha = Math.min(0.72, alpha + 0.16);
+        context.fillStyle = seed > 0.5 ? 'rgba(255, 250, 170, 0.86)' : 'rgba(166, 255, 205, 0.76)';
+        context.beginPath();
+        context.arc(x + Math.sin(now * 0.003 + index) * 2, y, 1.2 + seed * 1.8, 0, Math.PI * 2);
+        context.fill();
       }
       context.restore();
     };
 
     const drawWinterFlurries = (now: number) => {
-      if (season !== 'winter') {
+      if (getSeasonState().current !== 'winter') {
         return;
       }
       context.save();
@@ -898,12 +931,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const fall = ((now * (0.018 + seed * 0.032) + index * 47) % (height + 120)) - 70;
         const x = ((lane * width + Math.sin(now * 0.0007 + index) * (18 + seed * 42) + width) % (width + 80)) - 40;
         const y = fall;
-        const radius = 1.2 + seed * 2.2;
+        const radius = 1.6 + seed * 3.2;
         const alpha = (0.36 * weights.day + 0.28 * weights.night) + seed * 0.22;
         context.save();
         context.globalAlpha = alpha;
-        context.shadowColor = 'rgba(220, 248, 255, 0.1)';
-        context.shadowBlur = radius * 0.25;
+        context.shadowColor = 'rgba(220, 248, 255, 0.18)';
+        context.shadowBlur = radius * 0.42;
         context.fillStyle = 'rgba(246, 253, 255, 0.74)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
@@ -926,7 +959,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawSnowAccumulation = (growth: number, melt = 0) => {
       const level = Math.max(0, growth * (1 - melt));
-      const snowHeight = Math.min(34, Math.max(18, height * 0.032)) * level;
+      const snowHeight = Math.min(58, Math.max(32, height * 0.052)) * level;
       if (snowHeight < 3) {
         return;
       }
@@ -940,10 +973,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.fillStyle = glow;
       context.fillRect(0, top - 10, width, snowHeight + 12);
 
+      if (sprites.snowMist) {
+        context.save();
+        context.globalAlpha = (0.16 * weights.day + 0.2 * weights.night) * level;
+        context.globalCompositeOperation = 'screen';
+        context.drawImage(sprites.snowMist, -width * 0.04, top - snowHeight * 0.58, width * 1.08, snowHeight * 1.4);
+        context.restore();
+      }
+
+      if (sprites.snowbank) {
+        context.save();
+        context.globalAlpha = (0.42 * weights.day + 0.34 * weights.night) * level;
+        context.drawImage(sprites.snowbank, 0, height - snowHeight * 1.18, width, snowHeight * 1.18);
+        context.restore();
+      }
+
       context.beginPath();
       context.moveTo(0, top + Math.sin(width * 0.001) * 4);
-      for (let x = 0; x <= width; x += 90) {
-        const y = top + Math.sin(x * 0.008 + level * 2.4) * 3 + Math.sin(x * 0.021) * 1.6;
+      for (let x = 0; x <= width; x += 58) {
+        const y = top + Math.sin(x * 0.008 + level * 2.4) * 4.6 + Math.sin(x * 0.021) * 2.4;
         context.lineTo(x, y);
       }
       context.lineTo(width, height);
@@ -954,21 +1002,37 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.strokeStyle = `rgba(235, 246, 255, ${0.26 * weights.day + 0.18 * weights.night})`;
       context.lineWidth = 1;
       context.stroke();
+
+      context.save();
+      context.globalCompositeOperation = 'screen';
+      for (let index = 0; index < 72; index += 1) {
+        const frac = seededUnit(index + 511.8);
+        const x = (index * 67 + frac * 180) % (width + 100) - 50;
+        const y = height - Math.pow(seededUnit(index + 44.1), 1.36) * snowHeight * 0.82 - 2;
+        const radius = 0.7 + frac * 1.9;
+        context.globalAlpha = (0.12 + frac * 0.22) * level;
+        context.fillStyle = 'rgba(255, 255, 255, 0.84)';
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.restore();
       context.restore();
     };
 
     const drawGround = (now: number, transitionProgress: number) => {
-      const isAutumn = season === 'autumn';
-      const isWinter = season === 'winter';
+      const { current, next, previous, transitioning } = getSeasonState();
+      const isAutumn = current === 'autumn';
+      const isWinter = current === 'winter';
       const growth = easeOut((now - effectStartedAt) / 16000);
-      const transitionGrowth = isSeasonTransitioning ? easeOut(transitionProgress) : growth;
+      const transitionGrowth = transitioning ? easeOut(transitionProgress) : growth;
 
-      if (season === 'spring') {
-        const windAway = isSeasonTransitioning && nextSeason === 'summer' ? transitionGrowth : 0;
+      if (current === 'spring') {
+        const windAway = transitioning && next === 'summer' ? transitionGrowth : 0;
         drawSpringGround(growth * 0.75, now, false, 0);
         drawPetalAccumulation(growth, now, windAway);
-      } else if (season === 'summer') {
-        const dry = isSeasonTransitioning && nextSeason === 'autumn' ? transitionGrowth : 0;
+      } else if (current === 'summer') {
+        const dry = transitioning && next === 'autumn' ? transitionGrowth : 0;
         drawSpringGround(growth, now, true, dry);
       } else if (isAutumn) {
         drawLeafAccumulation(growth);
@@ -976,27 +1040,27 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         drawSnowAccumulation(growth);
       }
 
-      if (isSeasonTransitioning && nextSeason === 'spring') {
+      if (transitioning && next === 'spring') {
         drawSnowAccumulation(1, transitionGrowth);
         drawSpringGround(transitionGrowth * 0.72, now, false, 0);
         drawPetalAccumulation(transitionGrowth, now);
-      } else if (isSeasonTransitioning && nextSeason === 'summer') {
+      } else if (transitioning && next === 'summer') {
         drawSweptPetals(now, transitionGrowth);
         drawSpringGround(transitionGrowth, now, true, 0);
-      } else if (isSeasonTransitioning && nextSeason === 'autumn') {
-        if (previousSeason === 'summer') {
+      } else if (transitioning && next === 'autumn') {
+        if (previous === 'summer') {
           drawSpringGround(1 - transitionGrowth * 0.28, now, true, transitionGrowth);
         }
         drawTransitionLeaves(now, transitionGrowth);
         drawLeafAccumulation(transitionGrowth);
-      } else if (isSeasonTransitioning && nextSeason === 'winter') {
+      } else if (transitioning && next === 'winter') {
         drawSnowAccumulation(transitionGrowth);
       }
     };
 
     const drawSummer = (now: number, transitionProgress: number) => {
       const dayWeight = getThemeWeights(now).day;
-      if (season !== 'summer' || dayWeight <= 0.02) {
+      if (getSeasonState().current !== 'summer' || dayWeight <= 0.02) {
         return;
       }
 
@@ -1026,24 +1090,37 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
 
       context.save();
-      context.globalAlpha = 0.055 * dayWeight * (1 - transitionProgress * 0.65);
+      context.globalAlpha = 0.12 * dayWeight * (1 - transitionProgress * 0.55);
       context.globalCompositeOperation = 'screen';
-      context.filter = 'blur(4px)';
-      const bandHeight = Math.max(42, height * 0.055);
-      for (let line = 0; line < 4; line += 1) {
-        const y = height * (0.55 + line * 0.055) + Math.sin(now * 0.0012 + line) * 7;
-        const gradient = context.createLinearGradient(0, y, width, y + 18);
+      context.filter = 'blur(2.6px)';
+      const bandHeight = Math.max(48, height * 0.064);
+      for (let line = 0; line < 7; line += 1) {
+        const y = height * (0.5 + line * 0.052) + Math.sin(now * 0.0015 + line) * 10;
+        const offset = Math.sin(now * 0.0012 + line * 1.8) * 42;
+        const gradient = context.createLinearGradient(offset, y, width + offset, y + 18);
         gradient.addColorStop(0, 'rgba(255, 224, 120, 0)');
-        gradient.addColorStop(0.5, 'rgba(255, 224, 120, 0.24)');
+        gradient.addColorStop(0.45, 'rgba(255, 225, 132, 0.26)');
+        gradient.addColorStop(0.55, 'rgba(132, 226, 210, 0.2)');
         gradient.addColorStop(1, 'rgba(84, 199, 184, 0)');
         context.fillStyle = gradient;
         context.fillRect(0, y, width, bandHeight / 6);
       }
       context.restore();
+
+      if (sprites.heat) {
+        context.save();
+        context.globalAlpha = 0.05 * dayWeight * (1 - transitionProgress * 0.6);
+        context.globalCompositeOperation = 'screen';
+        context.filter = 'blur(3px)';
+        const heatY = height * 0.48 + Math.sin(now * 0.0008) * 8;
+        context.drawImage(sprites.heat, -width * 0.05 + Math.sin(now * 0.0006) * 24, heatY, width * 1.1, Math.max(160, height * 0.42));
+        context.restore();
+      }
     };
 
     const drawTransition = (now: number, progress: number) => {
-      if (!isSeasonTransitioning) {
+      const { previous, next, transitioning } = getSeasonState();
+      if (!transitioning) {
         return;
       }
 
@@ -1068,7 +1145,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.stroke();
       }
 
-      if (previousSeason === 'spring' && nextSeason === 'summer') {
+      if (previous === 'spring' && next === 'summer') {
         context.globalAlpha = pulse * 0.055;
         context.strokeStyle = 'rgba(255, 255, 255, 0.24)';
         context.lineWidth = 1.2;
@@ -1081,12 +1158,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         }
       }
 
-      if (previousSeason === 'summer' && nextSeason === 'autumn') {
+      if (previous === 'summer' && next === 'autumn') {
         drawSummer(now, progress);
         drawTransitionLeaves(now, progress);
       }
 
-      if (previousSeason === 'winter' && nextSeason === 'spring') {
+      if (previous === 'winter' && next === 'spring') {
         drawSweptPetals(now, progress);
       }
       context.restore();
@@ -1102,8 +1179,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       lastTime = now;
       context.clearRect(0, 0, width, height);
       reconcileParticles();
-      const transitionProgress = isSeasonTransitioning
-        ? Math.min(1, (now - transitionStartedAt) / seasonTransitionDurationMs)
+      const seasonState = getSeasonState();
+      const transitionProgress = seasonState.transitioning
+        ? Math.min(1, (now - seasonState.startedAt) / seasonTransitionDurationMs)
         : 0;
 
       drawSummer(now, transitionProgress);
@@ -1159,7 +1237,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       window.cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
     };
-  }, [effects.enabled, intensity, isSeasonTransitioning, nextSeason, previousSeason, season]);
+  }, [effects.enabled, intensity]);
 
   const startThemeTransition = useCallback(() => {
     if (isTransitioningRef.current) {
@@ -1241,19 +1319,27 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     }
 
     isSeasonTransitioningRef.current = true;
+    seasonTransitionStartedAtRef.current = performance.now();
+    seasonRef.current = currentSeason;
+    previousSeasonRef.current = currentSeason;
+    nextSeasonRef.current = target;
     setPreviousSeason(currentSeason);
     setNextSeason(target);
     setIsSeasonTransitioning(true);
     setSeasonAttributes(currentSeason, target, 'active', currentSeason);
 
     seasonTransitionTimerRef.current = window.setTimeout(() => {
+      seasonRef.current = target;
+      previousSeasonRef.current = currentSeason;
+      nextSeasonRef.current = target;
+      isSeasonTransitioningRef.current = false;
+      seasonTransitionStartedAtRef.current = 0;
       setSeason(target);
       setPreviousSeason(currentSeason);
       setNextSeason(target);
       setIsSeasonTransitioning(false);
       setSeasonAttributes(target, target, 'idle', currentSeason);
       window.localStorage.setItem('xh-season-mode', target);
-      isSeasonTransitioningRef.current = false;
       seasonTransitionTimerRef.current = null;
     }, prefersReducedMotion() ? 240 : seasonTransitionDurationMs);
   }, [season]);
@@ -1363,32 +1449,30 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         ))}
       </div>
 
-      {!isHome ? (
-        <button
-          className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
-          type="button"
-          aria-pressed={nightMode}
-          aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
-          aria-live="polite"
-          data-next-mode={nextMode}
-          data-theme-phase={renderedPhase}
-          data-transitioning={isTransitioning ? 'true' : 'false'}
-          onClick={toggleTheme}
-        >
-          <span className="xh-theme-switch-orbit" aria-hidden="true">
-            <span className="xh-theme-switch-body is-sun">
-              <i />
-            </span>
-            <span className="xh-theme-switch-body is-moon">
-              <i />
-            </span>
-            <em />
+      <button
+        className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
+        type="button"
+        aria-pressed={nightMode}
+        aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
+        aria-live="polite"
+        data-next-mode={nextMode}
+        data-theme-phase={renderedPhase}
+        data-transitioning={isTransitioning ? 'true' : 'false'}
+        onClick={toggleTheme}
+      >
+        <span className="xh-theme-switch-orbit" aria-hidden="true">
+          <span className="xh-theme-switch-body is-sun">
+            <i />
           </span>
-          <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
-          <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
-          <small>{isTransitioning ? '\u8272\u5f69\u6e10\u53d8\u8fc7\u6e21\u4e2d' : nightMode ? '\u6df1\u84dd\u6e10\u53d8\u4e0e\u4f4e\u4eae\u5ea6\u8272\u5f69' : '\u6674\u7a7a\u6e10\u53d8\u4e0e\u67d4\u548c\u8272\u5f69'}</small>
-        </button>
-      ) : null}
+          <span className="xh-theme-switch-body is-moon">
+            <i />
+          </span>
+          <em />
+        </span>
+        <span className="xh-theme-switch-kicker">昼夜切换</span>
+        <strong>{nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+        <small>{isTransitioning ? '\u6e10\u53d8\u4e2d' : nightMode ? '\u70b9\u51fb\u5207\u5230\u65e5\u95f4' : '\u70b9\u51fb\u5207\u5230\u591c\u95f4'}</small>
+      </button>
 
       <button
         className={`xh-season-switch is-${season}${isSeasonTransitioning ? ' is-transitioning' : ''}`}
