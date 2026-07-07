@@ -572,7 +572,13 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-season-vfx-canvas/);
     assert.match(component, /SeasonalVfxParticle/);
     assert.match(component, /nightModeRef\.current = nightMode/);
-    assert.match(component, /const getNightMode = \(\) => nightModeRef\.current/);
+    assert.match(component, /const themeTransitionDurationMs = 3400/);
+    assert.match(component, /const getThemeWeights = \(now = performance\.now\(\)\) =>/);
+    assert.match(component, /const getNightMode = \(\) => getThemeWeights\(\)\.night >= 0\.5/);
+    assert.match(component, /dayCount \* weights\.day \+ nightCount \* weights\.night/);
+    assert.match(component, /const sceneAlpha = particle\.kind === 'firefly'[\s\S]*weights\.night[\s\S]*particle\.kind === 'bug' \? weights\.day : 1/);
+    assert.match(component, /const nightWeight = getThemeWeights\(now\)\.night/);
+    assert.match(component, /const dayWeight = getThemeWeights\(now\)\.day/);
     assert.match(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, previousSeason, season\]\);/);
     assert.doesNotMatch(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, nightMode, previousSeason, season\]\);/);
     assert.match(component, /kind: 'petal' \| 'firefly' \| 'bug' \| 'leaf' \| 'snow'/);

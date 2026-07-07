@@ -66,11 +66,19 @@ const xhSeasonPreviousAttribute = 'data-xh-season-previous';
 const xhSeasonTransitionAttribute = 'data-xh-season-transition';
 const seasonRotationIntervalMs = 120000;
 const seasonTransitionDurationMs = 4200;
+const themeTransitionDurationMs = 3400;
 
 type ThemeMode = 'day' | 'night';
 type ThemeTransition = 'active' | 'idle';
 type ThemePhase = 'day' | 'night' | 'dusk' | 'dawn';
 type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+type ThemeBlendState = {
+  active: boolean;
+  from: ThemeMode;
+  to: ThemeMode;
+  startedAt: number;
+  duration: number;
+};
 
 const seasonOrder: Season[] = ['spring', 'summer', 'autumn', 'winter'];
 const seasonCopy: Record<Season, { label: string; day: string; night: string }> = {
@@ -186,6 +194,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const isSeasonTransitioningRef = useRef(false);
   const hasSyncedThemeStateRef = useRef(false);
   const nightModeRef = useRef(false);
+  const themeBlendRef = useRef<ThemeBlendState>({
+    active: false,
+    from: 'day',
+    to: 'day',
+    startedAt: 0,
+    duration: themeTransitionDurationMs
+  });
   const [nightMode, setNightMode] = useState(false);
   const [nextMode, setNextMode] = useState<ThemeMode>('day');
   const [themePhase, setThemePhase] = useState<ThemePhase>('day');
@@ -225,6 +240,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setNextSeason(initialSeason);
     setPreviousSeason(initialSeason);
     setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
+    themeBlendRef.current = {
+      active: false,
+      from: initialNight ? 'night' : 'day',
+      to: initialNight ? 'night' : 'day',
+      startedAt: 0,
+      duration: themeTransitionDurationMs
+    };
     setSeasonAttributes(initialSeason, initialSeason, 'idle');
   }, []);
 
@@ -240,6 +262,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const rootSeasonTransition = root.getAttribute(xhSeasonTransitionAttribute) === 'active';
     const syncedSeason = isSeason(rootSeason) ? rootSeason : getSeasonForDate();
     setNightMode(rootMode === 'night');
+    themeBlendRef.current = {
+      active: root.getAttribute(xhThemeTransitionAttribute) === 'active',
+      from: rootMode,
+      to: rootNextMode,
+      startedAt: performance.now(),
+      duration: themeTransitionDurationMs
+    };
     setNextMode(rootNextMode);
     setThemePhase(rootPhase);
     setSeason(syncedSeason);
@@ -260,6 +289,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     if (!isTransitioning) {
       const idleMode: ThemeMode = nightMode ? 'night' : 'day';
       setThemeAttributes(idleMode, idleMode, 'idle');
+      themeBlendRef.current = {
+        active: false,
+        from: idleMode,
+        to: idleMode,
+        startedAt: 0,
+        duration: themeTransitionDurationMs
+      };
       setNextMode(idleMode);
       setThemePhase(idleMode);
       window.localStorage.setItem('xh-theme-mode', idleMode);
@@ -402,7 +438,26 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const effectStartedAt = performance.now();
     const particles: SeasonalVfxParticle[] = [];
     const transitionStartedAt = isSeasonTransitioning ? performance.now() : 0;
-    const getNightMode = () => nightModeRef.current;
+    const smoothStep = (value: number) => {
+      const clamped = Math.max(0, Math.min(1, value));
+      return clamped * clamped * (3 - clamped * 2);
+    };
+    const getThemeWeights = (now = performance.now()) => {
+      const blend = themeBlendRef.current;
+      if (!blend.active) {
+        return nightModeRef.current
+          ? { day: 0, night: 1, progress: 1 }
+          : { day: 1, night: 0, progress: 0 };
+      }
+      const progress = smoothStep((now - blend.startedAt) / blend.duration);
+      const night = blend.to === 'night' ? progress : 1 - progress;
+      return {
+        day: 1 - night,
+        night,
+        progress
+      };
+    };
+    const getNightMode = () => getThemeWeights().night >= 0.5;
 
     const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
     const chooseLeafSprite = (): SeasonalSpriteKey => {
@@ -483,8 +538,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const targetCount = () => {
-      if (season === 'summer' && !getNightMode()) {
-        return Math.max(6, Math.round(intensity / 10));
+      if (season === 'summer') {
+        const weights = getThemeWeights();
+        const dayCount = Math.max(6, Math.round(intensity / 10));
+        const nightCount = Math.max(12, Math.round(intensity / 6));
+        return Math.max(6, Math.round(dayCount * weights.day + nightCount * weights.night));
       }
       if (season === 'spring') {
         return Math.max(24, Math.round(intensity / 2.8));
@@ -520,10 +578,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         particles.splice(count);
       }
       particles.forEach((particle) => {
-        const isNightScene = getNightMode();
+        const weights = getThemeWeights();
+        const isNightScene = weights.night >= 0.5;
+        const keepsSummerParticle = season === 'summer'
+          && ((particle.kind === 'bug' && weights.day > 0.04) || (particle.kind === 'firefly' && weights.night > 0.04));
         if (
-          (season === 'summer' && !isNightScene && particle.kind !== 'bug')
-          || (season === 'summer' && isNightScene && particle.kind !== 'firefly')
+          (season === 'summer' && !keepsSummerParticle && !isNightScene && particle.kind !== 'bug')
+          || (season === 'summer' && !keepsSummerParticle && isNightScene && particle.kind !== 'firefly')
           || (season === 'spring' && particle.kind !== 'petal')
           || (season === 'autumn' && particle.kind !== 'leaf')
           || (season === 'winter' && particle.kind !== 'snow')
@@ -543,12 +604,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const x = particle.x + bob * 18 * particle.depth;
       const y = particle.y;
       const size = particle.size * (particle.kind === 'leaf' ? 1.18 : 1);
+      const weights = getThemeWeights(now);
+      const sceneAlpha = particle.kind === 'firefly'
+        ? weights.night
+        : (particle.kind === 'bug' ? weights.day : 1);
       const alpha = particle.kind === 'firefly'
         ? particle.alpha * (0.58 + Math.sin(now * 0.003 + particle.phase) * 0.28 + 0.28)
         : particle.alpha;
 
       context.save();
-      context.globalAlpha = Math.max(0, Math.min(0.9, alpha));
+      context.globalAlpha = Math.max(0, Math.min(0.9, alpha * sceneAlpha));
       context.translate(x, y);
       context.rotate(particle.rotation + Math.sin(now * 0.001 + particle.phase) * 0.38);
       if (particle.kind === 'bug') {
@@ -785,7 +850,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawNightFireflies = (now: number) => {
-      if (!getNightMode() || (season !== 'spring' && season !== 'summer')) {
+      const nightWeight = getThemeWeights(now).night;
+      if (nightWeight <= 0.02 || (season !== 'spring' && season !== 'summer')) {
         return;
       }
       context.save();
@@ -796,7 +862,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const x = width * (0.08 + seededUnit(index + 21.9) * 0.84) + drift * (24 + seed * 36);
         const y = height * (0.28 + seededUnit(index + 77.1) * 0.5) + Math.cos(now * 0.0008 + index) * (12 + seed * 22);
         const glow = 1 + seed * 2.4;
-        const alpha = 0.12 + (Math.sin(now * 0.0024 + index) * 0.5 + 0.5) * 0.18;
+        const alpha = (0.12 + (Math.sin(now * 0.0024 + index) * 0.5 + 0.5) * 0.18) * nightWeight;
         const gradient = context.createRadialGradient(x, y, 0, x, y, 18 + glow * 8);
         gradient.addColorStop(0, `rgba(255, 246, 166, ${alpha + 0.18})`);
         gradient.addColorStop(0.34, `rgba(129, 255, 190, ${alpha})`);
@@ -815,6 +881,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.save();
       context.globalCompositeOperation = 'screen';
+      const weights = getThemeWeights(now);
       for (let index = 0; index < 36; index += 1) {
         const seed = seededUnit(index + 301.4);
         const lane = seededUnit(index + 18.6);
@@ -822,7 +889,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const x = ((lane * width + Math.sin(now * 0.0007 + index) * (18 + seed * 42) + width) % (width + 80)) - 40;
         const y = fall;
         const radius = 1.2 + seed * 2.2;
-        const alpha = (getNightMode() ? 0.28 : 0.36) + seed * 0.22;
+        const alpha = (0.36 * weights.day + 0.28 * weights.night) + seed * 0.22;
         context.save();
         context.globalAlpha = alpha;
         context.shadowColor = 'rgba(220, 248, 255, 0.1)';
@@ -854,11 +921,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return;
       }
       const top = height - snowHeight;
+      const weights = getThemeWeights();
       context.save();
       const glow = context.createLinearGradient(0, top - 10, 0, height);
       glow.addColorStop(0, 'rgba(235, 248, 255, 0)');
-      glow.addColorStop(0.38, getNightMode() ? 'rgba(214, 239, 255, 0.1)' : 'rgba(250, 254, 255, 0.14)');
-      glow.addColorStop(1, getNightMode() ? 'rgba(180, 218, 240, 0.22)' : 'rgba(236, 250, 255, 0.28)');
+      glow.addColorStop(0.38, `rgba(235, 248, 255, ${0.14 * weights.day + 0.1 * weights.night})`);
+      glow.addColorStop(1, `rgba(218, 240, 250, ${0.28 * weights.day + 0.22 * weights.night})`);
       context.fillStyle = glow;
       context.fillRect(0, top - 10, width, snowHeight + 12);
 
@@ -871,9 +939,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.lineTo(width, height);
       context.lineTo(0, height);
       context.closePath();
-      context.fillStyle = getNightMode() ? 'rgba(224, 243, 255, 0.38)' : 'rgba(252, 254, 255, 0.48)';
+      context.fillStyle = `rgba(244, 252, 255, ${0.48 * weights.day + 0.38 * weights.night})`;
       context.fill();
-      context.strokeStyle = getNightMode() ? 'rgba(198, 226, 246, 0.18)' : 'rgba(255, 255, 255, 0.26)';
+      context.strokeStyle = `rgba(235, 246, 255, ${0.26 * weights.day + 0.18 * weights.night})`;
       context.lineWidth = 1;
       context.stroke();
       context.restore();
@@ -917,7 +985,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawSummer = (now: number, transitionProgress: number) => {
-      if (season !== 'summer' || getNightMode()) {
+      const dayWeight = getThemeWeights(now).day;
+      if (season !== 'summer' || dayWeight <= 0.02) {
         return;
       }
 
@@ -927,14 +996,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const beamSoft = sprites.beamSoft;
       if (beam && beamSoft) {
         const sway = Math.sin(now * 0.00045) * 22;
-        context.globalAlpha = 0.22;
+        context.globalAlpha = 0.22 * dayWeight;
         context.filter = 'blur(1px)';
         context.translate(width * 0.18 + sway, -height * 0.08);
         context.rotate(-0.24);
         context.drawImage(beam, -120, 0, width * 0.32, height * 0.84);
         const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
         context.setTransform(ratio, 0, 0, ratio, 0, 0);
-        context.globalAlpha = 0.18;
+        context.globalAlpha = 0.18 * dayWeight;
         context.translate(width * 0.68 - sway, -height * 0.1);
         context.rotate(0.18);
         context.drawImage(beamSoft, -90, 0, width * 0.34, height * 0.78);
@@ -942,7 +1011,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
 
       context.save();
-      context.globalAlpha = 0.055 * (1 - transitionProgress * 0.65);
+      context.globalAlpha = 0.055 * dayWeight * (1 - transitionProgress * 0.65);
       context.globalCompositeOperation = 'screen';
       context.filter = 'blur(4px)';
       const bandHeight = Math.max(42, height * 0.055);
@@ -1106,10 +1175,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setNextMode(targetMode);
     setIsTransitioning(true);
 
-    const finishDelay = prefersReducedMotion() ? 160 : 3400;
+    const finishDelay = prefersReducedMotion() ? 160 : themeTransitionDurationMs;
+    themeBlendRef.current = {
+      active: true,
+      from: currentMode,
+      to: targetMode,
+      startedAt: performance.now(),
+      duration: finishDelay
+    };
 
     transitionTimerRef.current = window.setTimeout(() => {
       setThemeAttributes(targetMode, targetMode, 'idle');
+      nightModeRef.current = targetMode === 'night';
+      themeBlendRef.current = {
+        active: false,
+        from: targetMode,
+        to: targetMode,
+        startedAt: 0,
+        duration: themeTransitionDurationMs
+      };
       setThemePhase(targetMode);
       setNightMode(targetMode === 'night');
       setNextMode(targetMode);
