@@ -637,7 +637,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
     assert.match(component, /index < 104/);
-    assert.match(component, /index < 112/);
+    assert.match(component, /index < 190/);
+    assert.match(component, /index < 52/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);
     assert.match(component, /const groundLevels = seasonGroundLevelsRef\.current/);
     assert.match(component, /groundLevels\[next\] = Math\.max\(groundLevels\[next\], transitionGrowth\)/);
@@ -651,6 +652,7 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /Math\.random\(\) < settle\.progress \? settle\.to : settle\.from/);
     assert.doesNotMatch(component, /Math\.random\(\) < smoothStep\(getSeasonTransitionProgress\(\)\)/);
     assert.doesNotMatch(component, /shouldSeedNextSeason|shouldSeedSettleTarget/);
+    assert.match(component, /const particleShouldRetire = !seasonState\.transitioning && \(!settle\.active \|\| particle\.season !== settle\.from\) && particleSeasonAlpha <= 0\.015/);
     assert.match(component, /settle\.active && settle\.from === 'summer' && settle\.to === 'autumn'/);
     assert.match(component, /withAlpha\(1 - settle\.progress, \(\) => \{\s*drawSummer\(now, 1\);[\s\S]*drawTransitionLeaves\(now, 1\);[\s\S]*\}\)/);
     assert.match(component, /seasonSettleRef\.current = \{\s*active: true/);
@@ -664,9 +666,12 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /particle\.kind = 'snow'[\s\S]*randomBetween\(7, 18\)/);
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawStableSeasonGround\('summer', growth, 0, dry\)/);
-    assert.match(component, /const pileHeight = Math\.min\(46, Math\.max\(26, height \* 0\.042\)\) \* level/);
+    assert.match(component, /const pileHeight = Math\.min\(74, Math\.max\(42, height \* 0\.068\)\) \* level/);
     assert.match(component, /const snowHeight = Math\.min\(58, Math\.max\(32, height \* 0\.052\)\) \* level/);
     assert.match(component, /const baseGrowth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
+    assert.match(component, /withAlpha\(next === 'winter' \? Math\.max\(0\.38, fadeOut\) : 1, \(\) => drawLeafAccumulation\(growth\)\)/);
+    assert.match(component, /1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.64\) \/ 0\.36\)\)/);
+    assert.match(component, /resetParticle\(particle, false, particleAlpha > 0\.02 \? particle\.season : undefined\)/);
     assert.match(component, /const lane = index \/ 12/);
     assert.match(homeCss, /Summer heat distortion/);
     assert.match(homeCss, /@keyframes xh-heat-refraction/);

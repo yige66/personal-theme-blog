@@ -772,7 +772,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           || (seasonState.current === 'winter' && particle.kind === 'snow' && transitionMix < 0.72)
         );
         const particleSeasonAlpha = getParticleSeasonAlpha(particle.season);
-        if (particleSeasonAlpha <= 0.015) {
+        const particleShouldRetire = !seasonState.transitioning && (!settle.active || particle.season !== settle.from) && particleSeasonAlpha <= 0.015;
+        if (particleShouldRetire) {
           resetParticle(particle, true, seasonState.transitioning ? seasonState.next : (settle.active ? settle.to : undefined));
           return;
         }
@@ -928,7 +929,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
       const level = Math.max(0, growth * (1 - windAway));
-      const pileHeight = Math.min(46, Math.max(26, height * 0.042)) * level;
+      const pileHeight = Math.min(74, Math.max(42, height * 0.068)) * level;
       if (pileHeight < 2) {
         return;
       }
@@ -957,7 +958,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       const petal = sprites.petal;
       if (petal) {
-        for (let index = 0; index < 112; index += 1) {
+        for (let index = 0; index < 190; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
           const cluster = Math.floor(index / 8);
@@ -967,19 +968,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           const y = height - (Math.pow(lane, 1.52) * pileHeight * 0.92 + 1 + seededUnit(index + 58.2) * 5) - windAway * (12 + frac * 42);
           const size = (5.5 + frac * 8.5) * (0.96 + level * 0.18);
           context.save();
-          context.globalAlpha = (0.3 + frac * 0.34) * fade;
+          context.globalAlpha = (0.38 + frac * 0.42) * fade;
           context.translate(x, y + wave);
           context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
-        for (let index = 0; index < 28; index += 1) {
+        for (let index = 0; index < 52; index += 1) {
           const frac = seededUnit(index + 211.3);
           const x = ((index * 91 + frac * 210 + drift * 0.8) % (width + 120)) - 60;
           const y = height - (4 + Math.pow(seededUnit(index + 19.6), 1.18) * pileHeight * 0.62) - windAway * (18 + frac * 52);
           const size = 10 + frac * 11;
           context.save();
-          context.globalAlpha = (0.22 + frac * 0.2) * fade * level;
+          context.globalAlpha = (0.3 + frac * 0.28) * fade * level;
           context.translate(x, y + Math.sin(now * 0.001 + index) * windAway * 20);
           context.rotate(frac * Math.PI * 2.8 + windAway * 1.5);
           context.drawImage(petal, -size / 2, -size / 2, size, size);
@@ -1311,7 +1312,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const dry = transitioning && next === 'autumn' ? transitionGrowth : 0;
         withAlpha(fadeOut, () => drawStableSeasonGround('summer', growth, 0, dry));
       } else if (current === 'autumn') {
-        withAlpha(next === 'winter' ? fadeOut : 1, () => drawLeafAccumulation(growth));
+        withAlpha(next === 'winter' ? Math.max(0.38, fadeOut) : 1, () => drawLeafAccumulation(growth));
       } else if (current === 'winter') {
         withAlpha(next === 'spring' ? fadeOut : 1, () => drawSnowAccumulation(growth, next === 'spring' ? transitionGrowth : 0));
       }
@@ -1331,6 +1332,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         drawTransitionLeaves(now, transitionGrowth);
         withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth));
       } else if (transitioning && next === 'winter') {
+        if (previous === 'autumn') {
+          withAlpha(1 - smoothStep(Math.max(0, (transitionProgress - 0.64) / 0.36)), () => drawLeafAccumulation(growth));
+        }
         withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth));
       }
     };
@@ -1495,7 +1499,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           particle.y += particle.vy * deltaSeconds;
           particle.rotation += particle.spin * deltaSeconds;
           if (particle.y > height + 80 || particle.x < -160 || particle.x > width + 180) {
-            resetParticle(particle);
+            const particleAlpha = getParticleSeasonAlpha(particle.season, now);
+            resetParticle(particle, false, particleAlpha > 0.02 ? particle.season : undefined);
           }
         }
         drawSprite(particle, now);
