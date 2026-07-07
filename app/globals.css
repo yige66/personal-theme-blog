@@ -529,32 +529,82 @@ html[data-xh-theme="night"] .ib-scene-vignette {
 }
 
 .top-nav {
+  --nav-scroll-opacity: 1;
+  --nav-scroll-y: 0px;
+  --nav-scroll-blur: 0px;
   position: fixed;
-  top: 18px;
-  left: 50%;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 80;
   display: flex;
-  width: min(1120px, calc(100% - 30px));
-  min-height: 64px;
+  width: 100%;
+  min-height: 72px;
   align-items: center;
   justify-content: space-between;
   gap: 28px;
-  padding: 0 20px;
-  border: 1px solid rgba(255, 255, 255, 0.76);
-  border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
+  padding: max(8px, env(safe-area-inset-top)) max(20px, calc((100vw - 1120px) / 2 + 20px)) 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 0;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(255, 236, 248, 0.28)),
-    rgba(255, 255, 255, 0.24);
-  box-shadow: 0 20px 70px rgba(99, 75, 135, 0.16);
-  backdrop-filter: blur(24px);
-  transform: translateX(-50%);
-  transition: transform 420ms var(--xh-ease), opacity 420ms var(--xh-ease);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 244, 251, 0.42)),
+    linear-gradient(90deg, rgba(255, 143, 199, 0.16), rgba(124, 217, 255, 0.14), rgba(167, 139, 250, 0.12));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 18px 54px rgba(99, 75, 135, 0.14);
+  opacity: var(--nav-scroll-opacity);
+  filter: blur(var(--nav-scroll-blur));
+  transform: translate3d(0, var(--nav-scroll-y), 0);
+  transition:
+    opacity 120ms linear,
+    transform 120ms linear,
+    filter 120ms linear,
+    background 260ms ease,
+    box-shadow 260ms ease;
+  will-change: opacity, transform, filter;
+  -webkit-backdrop-filter: blur(26px) saturate(1.44);
+  backdrop-filter: blur(26px) saturate(1.44);
+}
+
+.top-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 5px),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.34), transparent 32%, rgba(255, 255, 255, 0.18) 68%, transparent);
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+}
+
+.top-nav > * {
+  position: relative;
+  z-index: 1;
 }
 
 .top-nav.is-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, -92px);
+  filter: blur(2.5px);
+  transform: translate3d(0, -40px, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-nav {
+    filter: none;
+    transform: none;
+    transition: opacity 120ms linear;
+  }
+
+  .top-nav.is-hidden {
+    filter: none;
+    transform: none;
+  }
 }
 
 .brand {
@@ -6556,6 +6606,20 @@ html[data-xh-theme="night"] .page-scene-id {
   border-color: rgba(255, 255, 255, 0.16);
 }
 
+html[data-xh-theme="night"] .top-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 18px 58px rgba(0, 0, 0, 0.28);
+}
+
+html[data-xh-theme="night"] .top-nav::before {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 5px),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.14), transparent 36%, rgba(124, 217, 255, 0.12) 70%, transparent);
+  opacity: 0.42;
+}
+
 html[data-xh-theme="night"] .archive-world,
 html[data-xh-theme="night"] .archive-year header,
 html[data-xh-theme="night"] .tag-reading-dock aside,
@@ -7096,9 +7160,9 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
 
   .top-nav {
     align-items: center;
-    min-height: auto;
-    padding: 12px;
-    border-radius: 28px;
+    min-height: 68px;
+    padding: max(8px, env(safe-area-inset-top)) 16px 8px;
+    border-radius: 0;
   }
 
   .nav-links {
@@ -7528,8 +7592,8 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
   }
 
   .top-nav {
-    top: 10px;
-    width: min(100% - 20px, 1120px);
+    top: 0;
+    width: 100%;
     gap: 12px;
   }
 
@@ -11538,10 +11602,11 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 
 @media (max-width: 760px) {
   .top-nav {
-    left: 50%;
-    width: calc(100vw - 20px);
-    min-height: 58px;
-    padding: 0 14px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 62px;
+    padding: max(8px, env(safe-area-inset-top)) 14px 8px;
     overflow: hidden;
   }
 

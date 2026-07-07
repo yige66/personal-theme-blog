@@ -78,7 +78,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   const [progress, setProgress] = useState(0);
   const [volume, setVolumeState] = useState(0.84);
   const [isMuted, setIsMuted] = useState(false);
-  const [fallbackTrackKeys, setFallbackTrackKeys] = useState<Set<string>>(() => new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const localFileUrlsRef = useRef<Set<string>>(new Set());
 
@@ -86,7 +85,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   const currentTrack = playlist[currentIndex] ?? playlist[0] ?? null;
   const lyricLines = useMemo(() => parseTrackLyrics(currentTrack), [currentTrack]);
   const currentTrackKey = useMemo(() => currentTrack ? getTrackKey(currentTrack) : '', [currentTrack]);
-  const canUseAudio = Boolean(currentTrack?.url && currentTrackKey && !fallbackTrackKeys.has(currentTrackKey));
+  const canUseAudio = Boolean(currentTrack?.url && currentTrackKey);
   const activeDuration = duration || getDraftDuration(currentTrack, currentIndex);
   const isLyricPrelude = lyricLines.length > 0 && currentTime < lyricLines[0].time;
   const handleAudioPlaybackFailure = useCallback((error?: unknown) => {
@@ -97,15 +96,10 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return;
     }
 
-    setFallbackTrackKeys((keys) => {
-      const nextKeys = new Set(keys);
-      if (currentTrackKey) {
-        nextKeys.add(currentTrackKey);
-      }
-      return nextKeys;
-    });
-    setLoadError('当前音频源暂时不可播放，已切换为站内电台降级状态。');
-  }, [currentTrackKey]);
+    audioRef.current?.pause();
+    setIsPlaying(false);
+    setLoadError('当前音频无法播放，可能是文件损坏、格式不受浏览器支持，或上传未完成。请重新导入标准 MP3/M4A/WAV/FLAC 文件。');
+  }, []);
   const currentLyric = useMemo(() => {
     if (!currentTrack) {
       return '歌单等待配置。';
@@ -231,7 +225,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
 
   const reloadCloudMusic = useCallback(() => {
     setLoadError('');
-    setFallbackTrackKeys(new Set());
     setSyncNonce((value) => value + 1);
   }, []);
 
@@ -269,7 +262,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       }
       return retainedTracks;
     });
-    setFallbackTrackKeys(new Set());
     setLoadError('');
     setCurrentIndex(0);
     setIsPlaying(true);
@@ -403,6 +395,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     setCurrentTime(0);
     setProgress(0);
     setDuration(currentTrack?.duration ?? 0);
+    setLoadError('');
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
     }
@@ -429,7 +422,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
 
     audio.play().catch(handleAudioPlaybackFailure);
     return undefined;
-  }, [canUseAudio, handleAudioPlaybackFailure, isPlaying]);
+  }, [canUseAudio, currentTrackKey, handleAudioPlaybackFailure, isPlaying]);
 
   useEffect(() => {
     if (!isPlaying || canUseAudio) {
@@ -492,16 +485,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
           onLoadedMetadata={updateFromAudio}
           onTimeUpdate={updateFromAudio}
           onEnded={handleTrackEnded}
-          onError={() => {
-            setFallbackTrackKeys((keys) => {
-              const nextKeys = new Set(keys);
-              if (currentTrackKey) {
-                nextKeys.add(currentTrackKey);
-              }
-              return nextKeys;
-            });
-            setLoadError('当前音频源暂时不可播放，已切换为站内电台降级状态。');
-          }}
+          onError={() => handleAudioPlaybackFailure()}
         />
       ) : null}
     </MusicContext.Provider>

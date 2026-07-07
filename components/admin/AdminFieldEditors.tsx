@@ -357,8 +357,13 @@ type PendingCrop = {
   area: CropArea;
 };
 
+type UploadedImagePreview = {
+  path: string;
+  url: string;
+};
+
 type ImageUploadFlow = {
-  preview: string;
+  uploadedPreview: UploadedImagePreview | null;
   pendingCrop: PendingCrop | null;
   handleFile: (event: ChangeEvent<HTMLInputElement>) => void;
   confirmCrop: (area: CropArea) => Promise<void>;
@@ -367,17 +372,17 @@ type ImageUploadFlow = {
 };
 
 function useImageUploadFlow(uploadImage: UploadImage, onUploaded: (path: string, previewUrl: string) => void, cropAspect?: number): ImageUploadFlow {
-  const [preview, setPreview] = useState('');
+  const [uploadedPreview, setUploadedPreview] = useState<UploadedImagePreview | null>(null);
   const [pendingCrop, setPendingCrop] = useState<PendingCrop | null>(null);
   const previewRef = useRef('');
 
-  const setPreviewUrl = (nextUrl: string) => {
+  const setUploadedPreviewUrl = (path: string, nextUrl: string) => {
     const previous = previewRef.current;
     if (previous && previous !== nextUrl) {
       URL.revokeObjectURL(previous);
     }
     previewRef.current = nextUrl;
-    setPreview(nextUrl);
+    setUploadedPreview({ path, url: nextUrl });
   };
 
   useEffect(() => {
@@ -390,16 +395,26 @@ function useImageUploadFlow(uploadImage: UploadImage, onUploaded: (path: string,
 
   const uploadAndPreview = async (file: File, previewUrl?: string) => {
     const nextPreviewUrl = previewUrl ?? URL.createObjectURL(file);
-    setPreviewUrl(nextPreviewUrl);
-    const savedPath = await uploadImage(file);
-    onUploaded(savedPath, nextPreviewUrl);
+    try {
+      const savedPath = await uploadImage(file);
+      setUploadedPreviewUrl(savedPath, nextPreviewUrl);
+      onUploaded(savedPath, nextPreviewUrl);
+    } catch (error) {
+      URL.revokeObjectURL(nextPreviewUrl);
+      throw error;
+    }
   };
 
   const uploadCroppedFile = async (file: File) => {
     const previewUrl = URL.createObjectURL(file);
-    setPreviewUrl(previewUrl);
-    const savedPath = await uploadImage(file);
-    onUploaded(savedPath, previewUrl);
+    try {
+      const savedPath = await uploadImage(file);
+      setUploadedPreviewUrl(savedPath, previewUrl);
+      onUploaded(savedPath, previewUrl);
+    } catch (error) {
+      URL.revokeObjectURL(previewUrl);
+      throw error;
+    }
   };
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -464,7 +479,7 @@ function useImageUploadFlow(uploadImage: UploadImage, onUploaded: (path: string,
   };
 
   return {
-    preview,
+    uploadedPreview,
     pendingCrop,
     handleFile,
     confirmCrop,
@@ -752,14 +767,15 @@ export function ImageUploadField({ label, value, onChange, uploadImage, cropAspe
 }) {
   const currentPath = stringValue(value);
   const cropFlow = useImageUploadFlow(uploadImage, (savedPath) => onChange(savedPath), cropAspect);
+  const visiblePreview = cropFlow.uploadedPreview?.path === currentPath ? cropFlow.uploadedPreview.url : '';
 
   return (
     <div className="admin-field admin-field-wide admin-image-uploader">
       <span>{label}</span>
       <div className="admin-image-field">
         <figure className="admin-image-preview">
-          {cropFlow.preview || currentPath ? <img src={cropFlow.preview || currentPath} alt="" loading="lazy" /> : <div>暂无图片</div>}
-          <figcaption>{cropFlow.preview ? '图片已上传，路径会自动回填' : currentPath || '选择本地图片或填写图片地址'}</figcaption>
+          {visiblePreview || currentPath ? <img src={visiblePreview || currentPath} alt="" loading="lazy" /> : <div>暂无图片</div>}
+          <figcaption>{visiblePreview ? '图片已上传，路径会自动回填' : currentPath || '选择本地图片或填写图片地址'}</figcaption>
         </figure>
         <div className="admin-image-controls">
           <input value={currentPath} placeholder="/assets/uploads/cover.jpg" onChange={(event) => onChange(event.target.value)} />

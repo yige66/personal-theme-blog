@@ -57,6 +57,22 @@ const allowedAudioTypes = new Map<string, string[]>([
   ['audio/x-flac', ['.flac']]
 ]);
 
+const mp3MimeTypes = new Set(['audio/mpeg', 'audio/mp3']);
+const minimumPlayableMp3Frames = 4;
+const mpegAudioBitratesKilobits: Record<string, number[]> = {
+  V1L1: [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448],
+  V1L2: [0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384],
+  V1L3: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320],
+  V2L1: [0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256],
+  V2L2: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160],
+  V2L3: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160]
+};
+const mpegAudioSampleRates: Record<string, number[]> = {
+  '1': [44100, 48000, 32000],
+  '2': [22050, 24000, 16000],
+  '2.5': [11025, 12000, 8000]
+};
+
 export function validateAdminImageFile(file: AdminImageFileMeta): AdminImageValidationResult {
   const name = typeof file.name === 'string' ? file.name.trim() : '';
   const mime = typeof file.type === 'string' ? file.type.toLowerCase().trim() : '';
@@ -165,6 +181,10 @@ export async function saveAdminAudioFile(file: AdminUploadFile): Promise<SavedAd
     throw new Error('音乐文件内容和声明的文件类型不一致。');
   }
 
+  if (mp3MimeTypes.has(validation.mime) && !hasPlayableMp3Frames(bytes)) {
+    throw new Error('MP3 文件没有检测到可播放的音频帧，请重新导出为标准 MP3/M4A/WAV/FLAC 后上传。');
+  }
+
   await mkdir(audioUploadDirectory, { recursive: true });
   const fileName = createSafeUploadName(file.name || 'audio', validation.extension, 'audio');
   const outputPath = path.join(audioUploadDirectory, fileName);
@@ -214,6 +234,86 @@ function detectImageMime(bytes: Buffer): string {
   }
 
   return '';
+}
+
+export function hasPlayableMp3Frames(bytes: Buffer): boolean {
+  const startOffset = getId3v2EndOffset(bytes);
+
+  for (let offset = startOffset; offset < bytes.length - 4; offset += 1) {
+    let frameOffset = offset;
+    let frameCount = 0;
+
+    while (frameCount < minimumPlayableMp3Frames) {
+      const frame = parseMpegAudioFrame(bytes, frameOffset);
+      if (!frame) {
+        break;
+      }
+
+      frameOffset += frame.frameLength;
+      frameCount += 1;
+    }
+
+    if (frameCount >= minimumPlayableMp3Frames) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getId3v2EndOffset(bytes: Buffer): number {
+  if (bytes.length < 10 || bytes.subarray(0, 3).toString('ascii') !== 'ID3') {
+    return 0;
+  }
+
+  const tagSize = readSynchsafeInteger(bytes, 6);
+  const hasFooter = (bytes[5] & 0x10) === 0x10;
+  return Math.min(bytes.length, 10 + tagSize + (hasFooter ? 10 : 0));
+}
+
+function readSynchsafeInteger(bytes: Buffer, offset: number): number {
+  return (
+    ((bytes[offset] & 0x7f) << 21) |
+    ((bytes[offset + 1] & 0x7f) << 14) |
+    ((bytes[offset + 2] & 0x7f) << 7) |
+    (bytes[offset + 3] & 0x7f)
+  );
+}
+
+function parseMpegAudioFrame(bytes: Buffer, offset: number): { frameLength: number } | null {
+  if (offset + 4 > bytes.length || bytes[offset] !== 0xff || (bytes[offset + 1] & 0xe0) !== 0xe0) {
+    return null;
+  }
+
+  const versionBits = (bytes[offset + 1] >> 3) & 0x03;
+  const layerBits = (bytes[offset + 1] >> 1) & 0x03;
+  const bitrateIndex = (bytes[offset + 2] >> 4) & 0x0f;
+  const sampleRateIndex = (bytes[offset + 2] >> 2) & 0x03;
+  const padding = (bytes[offset + 2] >> 1) & 0x01;
+
+  if (versionBits === 0x01 || layerBits === 0 || bitrateIndex === 0 || bitrateIndex === 0x0f || sampleRateIndex === 0x03) {
+    return null;
+  }
+
+  const version = versionBits === 0x03 ? '1' : versionBits === 0x02 ? '2' : '2.5';
+  const layer = layerBits === 0x03 ? 1 : layerBits === 0x02 ? 2 : 3;
+  const bitrateKey = `${version === '1' ? 'V1' : 'V2'}L${layer}`;
+  const bitrate = mpegAudioBitratesKilobits[bitrateKey]?.[bitrateIndex] ?? 0;
+  const sampleRate = mpegAudioSampleRates[version]?.[sampleRateIndex] ?? 0;
+
+  if (!bitrate || !sampleRate) {
+    return null;
+  }
+
+  const frameLength = layer === 1
+    ? Math.floor(((12 * bitrate * 1000) / sampleRate + padding) * 4)
+    : Math.floor((((layer === 3 && version !== '1') ? 72 : 144) * bitrate * 1000) / sampleRate + padding);
+
+  if (frameLength < 24 || frameLength > 2000 || offset + frameLength > bytes.length) {
+    return null;
+  }
+
+  return { frameLength };
 }
 
 function detectAudioMime(bytes: Buffer): string {

@@ -163,7 +163,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
               <div>
                 <p className="eyebrow">Photo Wall</p>
                 <h2>{primaryGallery?.title || homePage.panelOneTitle}</h2>
-                <span>{primaryGallery?.description || homePage.panelOneDescription}</span>
+                <span>{primaryGallery?.collection || '随便拍拍'}</span>
               </div>
             </Link>
 
@@ -181,7 +181,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                   <p className="eyebrow">Moments</p>
                   <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
                   <h2>{latestNote?.title || homePage.panelTwoTitle}</h2>
-                  <p>{latestNote?.content || data.site.status}</p>
+                  <p>{latestNote ? createContentExcerpt(latestNote.content, 26) : data.site.status}</p>
                 </div>
               </Link>
 
@@ -197,7 +197,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                 <div className="xh-card-copy">
                   <p className="eyebrow">Chatter</p>
                   <h2>{latestChatter?.title || homePage.panelThreeTitle}</h2>
-                  <p>{latestChatter ? createContentExcerpt(latestChatter.content, 72) : homePage.panelThreeDescription}</p>
+                  <p>{latestChatter ? createContentExcerpt(latestChatter.content, 28) : homePage.panelThreeDescription}</p>
                 </div>
               </Link>
             </div>

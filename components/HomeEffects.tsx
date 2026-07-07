@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
@@ -143,6 +144,7 @@ function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transit
 export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
   const pathname = usePathname();
   const {
+    currentLyric,
     currentTrack,
     isLoading,
     isMuted,
@@ -150,6 +152,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     nextTrack,
     playlist,
     previousTrack,
+    progress,
     setVolume,
     toggleMute,
     togglePlaying,
@@ -536,6 +539,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const hasMusicTracks = playlist.length > 0;
   const floatingVolume = isMuted ? 0 : volume;
   const floatingVolumePercent = Math.round(floatingVolume * 100);
+  const floatingCover = floatingTrack?.cover || site.heroImage;
+  const floatingSubtitle = currentLyric || (isLoading
+    ? '音乐电台同步中'
+    : floatingTrack
+      ? `${floatingTrack.artist} / ${floatingTrack.mood || 'Focus Radio'}`
+      : '数据源可维护音乐封面与音频地址');
+  const floatingProgress = `${Math.max(3, Math.min(100, progress || 0))}%`;
 
   return (
     <>
@@ -681,52 +691,52 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       </div>
 
       {!isHome ? (
-        <>
-          <button
-            className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
-            type="button"
-            aria-pressed={nightMode}
-            aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
-            aria-live="polite"
-            data-next-mode={nextMode}
-            data-theme-phase={renderedPhase}
-            data-transitioning={isTransitioning ? 'true' : 'false'}
-            onClick={toggleTheme}
-          >
-            <span className="xh-theme-switch-orbit" aria-hidden="true">
-              <span className="xh-theme-switch-body is-sun">
-                <i />
-              </span>
-              <span className="xh-theme-switch-body is-moon">
-                <i />
-              </span>
-              <em />
-            </span>
-            <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
-            <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
-            <small>{isTransitioning ? '\u8272\u5f69\u6e10\u53d8\u8fc7\u6e21\u4e2d' : nightMode ? '\u6df1\u84dd\u6e10\u53d8\u4e0e\u4f4e\u4eae\u5ea6\u8272\u5f69' : '\u6674\u7a7a\u6e10\u53d8\u4e0e\u67d4\u548c\u8272\u5f69'}</small>
-          </button>
-
-          <button
-            className={`xh-season-switch is-${season}${isSeasonTransitioning ? ' is-transitioning' : ''}`}
-            type="button"
-            aria-label={`\u5207\u6362\u5230\u4e0b\u4e00\u4e2a\u5b63\u8282\uff0c\u5f53\u524d${seasonText.label}`}
-            data-season={season}
-            data-next-season={nextSeason}
-            data-transitioning={isSeasonTransitioning ? 'true' : 'false'}
-            onClick={toggleSeason}
-          >
-            <span className="xh-season-switch-orbit" aria-hidden="true">
-              <i />
-              <i />
+        <button
+          className={`xh-theme-switch is-${renderedMode} is-phase-${renderedPhase}${isTransitioning ? ' is-transitioning' : ''}`}
+          type="button"
+          aria-pressed={nightMode}
+          aria-label={nightMode ? '\u5207\u6362\u5230\u65e5\u95f4\u6a21\u5f0f' : '\u5207\u6362\u5230\u591c\u95f4\u6a21\u5f0f'}
+          aria-live="polite"
+          data-next-mode={nextMode}
+          data-theme-phase={renderedPhase}
+          data-transitioning={isTransitioning ? 'true' : 'false'}
+          onClick={toggleTheme}
+        >
+          <span className="xh-theme-switch-orbit" aria-hidden="true">
+            <span className="xh-theme-switch-body is-sun">
               <i />
             </span>
-            <span className="xh-season-switch-kicker">Season Field</span>
-            <strong>{isSeasonTransitioning ? nextSeasonText.label : seasonText.label}</strong>
-            <small>{isSeasonTransitioning ? '\u5b63\u8282\u98ce\u573a\u6b63\u5728\u8fc7\u6e21' : seasonSummary}</small>
-          </button>
-        </>
+            <span className="xh-theme-switch-body is-moon">
+              <i />
+            </span>
+            <em />
+          </span>
+          <span className="xh-theme-switch-kicker">{nightMode ? 'Moonlit Scene' : 'Prism Day'}</span>
+          <strong>{nightMode ? '\u591c\u8272\u573a\u666f' : '\u6668\u5149\u573a\u666f'}</strong>
+          <small>{isTransitioning ? '\u8272\u5f69\u6e10\u53d8\u8fc7\u6e21\u4e2d' : nightMode ? '\u6df1\u84dd\u6e10\u53d8\u4e0e\u4f4e\u4eae\u5ea6\u8272\u5f69' : '\u6674\u7a7a\u6e10\u53d8\u4e0e\u67d4\u548c\u8272\u5f69'}</small>
+        </button>
       ) : null}
+
+      <button
+        className={`xh-season-switch is-${season}${isSeasonTransitioning ? ' is-transitioning' : ''}`}
+        type="button"
+        aria-label={`\u5207\u6362\u5230\u4e0b\u4e00\u4e2a\u5b63\u8282\uff0c\u5f53\u524d${seasonText.label}`}
+        aria-live="polite"
+        data-season={season}
+        data-next-season={nextSeason}
+        data-transitioning={isSeasonTransitioning ? 'true' : 'false'}
+        title={isSeasonTransitioning ? `\u5207\u6362\u5230${nextSeasonText.label}` : `${seasonText.label} / ${seasonSummary}`}
+        onClick={toggleSeason}
+      >
+        <span className="xh-season-switch-orbit" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="xh-season-switch-kicker">Season Field</span>
+        <strong>{isSeasonTransitioning ? nextSeasonText.label : seasonText.label}</strong>
+        <small>{isSeasonTransitioning ? '\u5b63\u8282\u98ce\u573a\u6b63\u5728\u8fc7\u6e21' : seasonSummary}</small>
+      </button>
 
       {effects.floatingCompanion ? <PixelKurisuPet /> : null}
 
@@ -738,9 +748,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           data-loading={isLoading ? 'true' : 'false'}
         >
           <Link className="xh-floating-player-open" href="/music" aria-label="打开音乐栏目" />
-          <span>Cloud Music</span>
-          <strong>{floatingTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
-          <small>{isLoading ? '音乐电台同步中' : floatingTrack ? `${floatingTrack.artist} / ${floatingTrack.mood || 'Focus Radio'}` : '\u6570\u636e\u6e90\u53ef\u7ef4\u62a4\u97f3\u4e50\u5c01\u9762\u4e0e\u97f3\u9891\u5730\u5740'}</small>
+          <span className="xh-floating-player-cover" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
+            <Image src={floatingCover} alt="" width={56} height={56} sizes="56px" />
+          </span>
+          <div className="xh-floating-player-copy">
+            <span>夜航电台</span>
+            <strong>{floatingTrack?.title || '\u6b4c\u5355\u5f85\u8865\u5145'}</strong>
+            <small>{floatingSubtitle}</small>
+          </div>
           <div className="xh-floating-player-controls" aria-label="音乐控制">
             <button type="button" aria-label="上一首" disabled={!hasMusicTracks} onClick={previousTrack}>
               <span aria-hidden="true">‹</span>
@@ -751,6 +766,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
             <button type="button" aria-label="下一首" disabled={!hasMusicTracks} onClick={nextTrack}>
               <span aria-hidden="true">›</span>
             </button>
+          </div>
+          <div className="xh-floating-player-meter" aria-hidden="true">
+            <i style={{ width: floatingProgress }} />
           </div>
           <div className="xh-floating-player-volume" aria-label={`音量 ${floatingVolumePercent}%`}>
             <button type="button" aria-label={isMuted ? '取消静音' : '静音'} onClick={toggleMute}>

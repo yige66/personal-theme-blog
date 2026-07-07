@@ -461,7 +461,7 @@ const fallbackPages: Record<string, PageContent> = {
     eyebrow: 'Music',
     title: '星屿电台',
     description: '写作、阅读和编码时的背景歌单。',
-    signal: 'cloud music / focus radio / writing ambience',
+    signal: '夜航电台 / focus radio / writing ambience',
     statLabels: ['曲目', '可播', '用途'],
     emptyTitle: '暂无音乐',
     emptyDescription: '在后台添加曲目后，这里会成为站点电台。',

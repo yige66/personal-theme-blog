@@ -87,25 +87,61 @@ export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteCo
   const pathname = usePathname();
   const ringRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ angle: number; rotation: number } | null>(null);
+  const fadeRef = useRef(0);
   const [hidden, setHidden] = useState(false);
+  const [navFade, setNavFade] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [orbitRotation, setOrbitRotation] = useState(0);
   const [orbitDragging, setOrbitDragging] = useState(false);
   const brandTitle = cleanTitle(title);
   const brandSuffixText = cleanBrandSuffix(brandSuffix);
   const routes = navRoutes(columns);
+  const navStyle = {
+    '--nav-scroll-opacity': (1 - navFade).toFixed(3),
+    '--nav-scroll-y': `${Math.round(navFade * -34)}px`,
+    '--nav-scroll-blur': `${(navFade * 2.5).toFixed(2)}px`
+  } as CSSProperties;
 
   useEffect(() => {
     let previousY = window.scrollY;
+    let frame = 0;
 
     const handleScroll = () => {
-      const currentY = window.scrollY;
-      setHidden(currentY > previousY && currentY > 120 && !menuOpen);
-      previousY = Math.max(0, currentY);
+      if (frame) {
+        return;
+      }
+
+      frame = window.requestAnimationFrame(() => {
+        const currentY = window.scrollY;
+        const delta = currentY - previousY;
+        const nextFade = menuOpen || currentY < 24 ? 0 : Math.min(1, Math.max(0, fadeRef.current + delta / 150));
+
+        fadeRef.current = nextFade;
+        setNavFade(nextFade);
+        setHidden(nextFade > 0.96 && !menuOpen);
+        previousY = Math.max(0, currentY);
+        frame = 0;
+      });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+
+    fadeRef.current = 0;
+    setNavFade(0);
+    setHidden(false);
   }, [menuOpen]);
 
   useEffect(() => {
@@ -189,7 +225,7 @@ export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteCo
 
   return (
     <>
-      <nav className={`top-nav site-nav${hidden ? ' is-hidden' : ''}${menuOpen ? ' is-orbit-open' : ''}`} aria-label="主导航">
+      <nav className={`top-nav site-nav${hidden ? ' is-hidden' : ''}${menuOpen ? ' is-orbit-open' : ''}`} style={navStyle} aria-label="主导航">
         <Link className="brand" href="/" aria-label={`${brandTitle}${brandSuffixText} 首页`}>
           <span data-brand-suffix={brandSuffixText}>{brandTitle}</span>
           <small>Personal Blog</small>

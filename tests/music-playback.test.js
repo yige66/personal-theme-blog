@@ -126,7 +126,7 @@ describe('real music playback', () => {
       assert.equal(track.title, title);
       assert.equal(track.artist, artist);
       if (importedTrackIds.has(id)) {
-        assert.match(track.url, /^\/assets\/audio\/[\w.-]+\.(?:flac|mp3|mp4)$/);
+        assert.match(track.url, /^\/assets\/audio\/[\w.-]+\.(?:flac|m4a|mp3|mp4)$/);
       } else {
         assert.equal(track.url, '');
       }
@@ -187,6 +187,18 @@ describe('real music playback', () => {
     }
   });
 
+  it('restarts real audio playback when the playing playlist advances to another track', async () => {
+    const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
+    const playbackEffectMatch = provider.match(/useEffect\(\(\) => \{[\s\S]*?audio\.play\(\)\.catch\(handleAudioPlaybackFailure\);[\s\S]*?\}, \[([^\]]+)\]\);/);
+
+    assert.ok(playbackEffectMatch, 'expected the real audio playback effect to be present');
+    assert.match(
+      playbackEffectMatch[1],
+      /currentTrackKey/,
+      'the playback effect must rerun when the current track changes while isPlaying stays true'
+    );
+  });
+
   it('lets visitors choose local audio files and adds them to the selectable playlist', async () => {
     const [provider, studio, cloudCard, lyricStrip, globals, homeOverrides] = await Promise.all([
       readFile('components/music/MusicProvider.tsx', 'utf8'),
@@ -202,6 +214,10 @@ describe('real music playback', () => {
     assert.match(provider, /URL\.createObjectURL/);
     assert.match(provider, /URL\.revokeObjectURL/);
     assert.match(provider, /NotAllowedError/);
+    assert.match(provider, /audioRef\.current\?\.pause\(\)/);
+    assert.match(provider, /重新导入标准 MP3\/M4A\/WAV\/FLAC 文件/);
+    assert.doesNotMatch(provider, /fallbackTrackKeys/);
+    assert.doesNotMatch(provider, /降级状态/);
     assert.match(provider, /点击播放按钮/);
     assert.match(provider, /isLrcMetadataLine/);
     assert.match(provider, /isLyricPrelude/);
@@ -227,5 +243,7 @@ describe('real music playback', () => {
     assert.match(studio, /type="file"/);
     assert.match(studio, /accept="audio\/\*"/);
     assert.match(studio, /addLocalAudioFiles/);
+    assert.match(studio, /music-playback-alert/);
+    assert.match(cloudCard, /loadError \|\| formatSyncState/);
   });
 });

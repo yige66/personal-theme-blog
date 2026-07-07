@@ -18,12 +18,6 @@ function formatPostDate(value: string): string {
   }).format(new Date(value));
 }
 
-function estimateMinutes(content: string): number {
-  const cjk = content.match(/[\u4e00-\u9fa5]/g)?.length ?? 0;
-  const words = content.replace(/[\u4e00-\u9fa5]/g, ' ').match(/[A-Za-z0-9_]+/g)?.length ?? 0;
-  return Math.max(1, Math.ceil((cjk + words) / 420));
-}
-
 export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activePost = posts[activeIndex];
@@ -74,8 +68,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
         <p className="eyebrow">Latest Insight</p>
         <time>{formatPostDate(activePost.updatedAt)}</time>
         <h2>{activePost.title}</h2>
-        <span>{activePost.summary}</span>
-        <small>{estimateMinutes(activePost.content)} min read / {activePost.category}</small>
+        <small>{activePost.category}</small>
         <Link href={`/posts/${activePost.slug}`}>继续阅读</Link>
         <nav aria-label="轮播文章控制">
           {posts.map((post, index) => (

@@ -12,6 +12,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
     duration,
     isLoading,
     isPlaying,
+    loadError,
     nextTrack,
     playlist,
     previousTrack,
@@ -37,7 +38,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
         <Image src={cover} alt="" width={220} height={220} priority />
       </div>
       <div className="xh-cloud-copy">
-        <p className="eyebrow">Cloud Music</p>
+        <p className="eyebrow">夜航电台</p>
         <h2>{title}</h2>
         <p>{artist}</p>
       </div>
@@ -59,7 +60,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
         </button>
       </div>
       <p className="xh-player-sync" aria-live="polite">
-        <span>{formatSyncState(isLoading, isPlaying, Boolean(currentTrack?.url))}</span>
+        <span>{loadError || formatSyncState(isLoading, isPlaying, Boolean(currentTrack?.url))}</span>
         <small>{hasTracks ? `${playlist.length} 首` : '待同步'}</small>
       </p>
       <div className="xh-player-bars" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>

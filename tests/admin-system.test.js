@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { validateBlogDataDraft } from '../lib/blog-admin.ts';
-import { validateAdminAudioFile, validateAdminImageFile } from '../lib/admin-assets.ts';
+import { hasPlayableMp3Frames, validateAdminAudioFile, validateAdminImageFile } from '../lib/admin-assets.ts';
 
 describe('blog administration operating system', () => {
   it('ships an admin surface that can edit and persist the full blog data model', async () => {
@@ -523,5 +523,28 @@ describe('blog administration operating system', () => {
     assert.equal(validateAdminAudioFile({ name: 'my-song.wav', type: 'audio/wav', size: 5 * 1024 * 1024 }).ok, true);
     assert.equal(validateAdminAudioFile({ name: 'my-song.txt', type: 'text/plain', size: 100 }).ok, false);
     assert.equal(validateAdminAudioFile({ name: 'huge-song.mp3', type: 'audio/mpeg', size: 101 * 1024 * 1024 }).ok, false);
+    assert.equal(hasPlayableMp3Frames(createMp3ProbeFrames()), true);
+    assert.equal(hasPlayableMp3Frames(Buffer.from('ID3\x03\x00\x00\x00\x00\x00\x04APIC')), false);
+    assert.match(assetsLib, /hasPlayableMp3Frames/);
+  });
+
+  it('scopes uploaded image previews to the field path being edited', async () => {
+    const fieldEditors = await readFile('components/admin/AdminFieldEditors.tsx', 'utf8');
+
+    assert.match(fieldEditors, /type UploadedImagePreview = \{\s*path: string;\s*url: string;\s*\};/);
+    assert.match(fieldEditors, /uploadedPreview: UploadedImagePreview \| null;/);
+    assert.match(fieldEditors, /onUploaded\(savedPath, nextPreviewUrl\)/);
+    assert.match(
+      fieldEditors,
+      /const visiblePreview = cropFlow\.uploadedPreview\?\.path === currentPath\s*\?\s*cropFlow\.uploadedPreview\.url\s*:\s*'';/
+    );
+    assert.match(fieldEditors, /<img src=\{visiblePreview \|\| currentPath\}/);
+    assert.doesNotMatch(fieldEditors, /cropFlow\.preview \|\| currentPath/);
   });
 });
+
+function createMp3ProbeFrames() {
+  const header = Buffer.from([0xff, 0xfb, 0x90, 0x64]);
+  const payload = Buffer.alloc(417 - header.length);
+  return Buffer.concat(Array.from({ length: 4 }, () => Buffer.concat([header, payload])));
+}

@@ -137,7 +137,7 @@ function mapSongToTrack(song: NeteaseSongDetail, lrc: string): CloudMusicTrack |
     id: String(song.id),
     title: song.name,
     artist: artists,
-    mood: album?.name || 'Cloud Music',
+    mood: album?.name || '夜航电台',
     url: `${MEDIA_ENDPOINT}?id=${song.id}.mp3`,
     cover,
     source: 'netease-cloud',

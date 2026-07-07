@@ -122,7 +122,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock :is\(\.music-skip-button, \.music-play-toggle, \.music-mode-button, \.music-dock-volume\)::before/);
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock \.music-skip-button:not\(#xh-music-control-fix\)/);
     assert.match(css, /\.music-dock-volume label:not\(#xh-music-control-fix\)::after[\s\S]*bottom: -12px !important/);
-    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*transform: rotate\(-90deg\) !important/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*position: absolute !important/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*transform: translate\(-50%, -50%\) rotate\(-90deg\) !important/);
     assert.match(css, /width: 46px !important/);
     assert.match(css, /width: 58px !important/);
     assert.match(css, /Final music studio layout/);
@@ -130,5 +131,6 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /grid-template-columns: minmax\(300px, 420px\) minmax\(0, 1fr\)/);
     assert.match(css, /body:has\(\.music-page\) \.music-lyrics:not\(#xh-music-layout\)/);
     assert.match(css, /body:has\(\.music-page\) \.music-playlist:not\(#xh-music-layout\)/);
+    assert.match(css, /body:has\(\.music-page\) \.music-playlist button\[data-playing="true"\]::after\s*\{[^}]*position: absolute !important[^}]*pointer-events: none !important/);
   });
 });

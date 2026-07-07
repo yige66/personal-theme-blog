@@ -79,6 +79,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
     duration,
     isPlaying,
     isLoading,
+    loadError,
     isMuted,
     lyricLines,
     nextTrack,
@@ -165,7 +166,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           data-long-title={titleDensity !== 'normal' ? 'true' : undefined}
           data-title-density={titleDensity}
         >
-          <p className="eyebrow">Cloud Music</p>
+          <p className="eyebrow">夜航电台</p>
           <h2>{activeTrack.title}</h2>
           <span>{activeTrack.artist}</span>
           <small className="music-player-subtitle" data-lyric-subtitle="true">{heroLyricSubtitle}</small>
@@ -259,6 +260,8 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
             </label>
           </div>
         </div>
+
+        {loadError ? <p className="music-playback-alert" role="status" aria-live="polite">{loadError}</p> : null}
 
         <div className="music-tabs" role="tablist" aria-label="音乐信息切换">
           <button className={tab === 'lyrics' ? 'is-active' : ''} type="button" role="tab" aria-selected={tab === 'lyrics'} onClick={() => setTab('lyrics')}>歌词</button>
