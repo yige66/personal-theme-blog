@@ -579,6 +579,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /const sceneAlpha = particle\.kind === 'firefly'[\s\S]*weights\.night[\s\S]*particle\.kind === 'bug' \? weights\.day : 1/);
     assert.match(component, /const nightWeight = getThemeWeights\(now\)\.night/);
     assert.match(component, /const dayWeight = getThemeWeights\(now\)\.day/);
+    assert.doesNotMatch(component, /summer-beam/);
+    assert.doesNotMatch(component, /drawImage\(beam/);
     assert.match(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, previousSeason, season\]\);/);
     assert.doesNotMatch(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, nightMode, previousSeason, season\]\);/);
     assert.match(component, /kind: 'petal' \| 'firefly' \| 'bug' \| 'leaf' \| 'snow'/);

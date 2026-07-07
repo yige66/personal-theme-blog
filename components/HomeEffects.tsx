@@ -24,7 +24,7 @@ type Ripple = {
   speed: number;
 };
 
-type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'beam' | 'beamSoft' | 'leafPile' | 'snowbank';
+type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'leafPile' | 'snowbank';
 
 type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
 
@@ -420,8 +420,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       leafC: '/assets/seasonal/autumn-leaf-c.png',
       snow: '/assets/seasonal/winter-snowflake.png',
       heat: '/assets/seasonal/summer-heat-haze.png',
-      beam: '/assets/seasonal/summer-beam.png',
-      beamSoft: '/assets/seasonal/summer-beam-soft.png',
       leafPile: '/assets/seasonal/autumn-leaf-pile.png',
       snowbank: '/assets/seasonal/winter-snowbank.png'
     };
@@ -992,21 +990,26 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       context.save();
       context.globalCompositeOperation = 'screen';
-      const beam = sprites.beam;
-      const beamSoft = sprites.beamSoft;
-      if (beam && beamSoft) {
-        const sway = Math.sin(now * 0.00045) * 22;
-        context.globalAlpha = 0.22 * dayWeight;
-        context.filter = 'blur(1px)';
-        context.translate(width * 0.18 + sway, -height * 0.08);
-        context.rotate(-0.24);
-        context.drawImage(beam, -120, 0, width * 0.32, height * 0.84);
-        const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
-        context.setTransform(ratio, 0, 0, ratio, 0, 0);
-        context.globalAlpha = 0.18 * dayWeight;
-        context.translate(width * 0.68 - sway, -height * 0.1);
-        context.rotate(0.18);
-        context.drawImage(beamSoft, -90, 0, width * 0.34, height * 0.78);
+      const sway = Math.sin(now * 0.00045) * 22;
+      const drawSoftBeam = (x: number, y: number, beamWidth: number, beamHeight: number, angle: number, alpha: number) => {
+        context.save();
+        context.globalAlpha = alpha * dayWeight;
+        context.translate(x + sway, y);
+        context.rotate(angle);
+        context.filter = 'blur(2px)';
+        const gradient = context.createLinearGradient(0, 0, beamWidth, 0);
+        gradient.addColorStop(0, 'rgba(255, 247, 198, 0)');
+        gradient.addColorStop(0.42, 'rgba(255, 247, 198, 0.14)');
+        gradient.addColorStop(0.58, 'rgba(173, 239, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(255, 247, 198, 0)');
+        context.fillStyle = gradient;
+        context.fillRect(-beamWidth / 2, 0, beamWidth, beamHeight);
+        context.restore();
+      };
+
+      if (dayWeight > 0.04) {
+        drawSoftBeam(width * 0.22, -height * 0.08, width * 0.16, height * 0.78, -0.2, 0.45);
+        drawSoftBeam(width * 0.66, -height * 0.12, width * 0.18, height * 0.82, 0.16, 0.34);
       }
       context.restore();
 
