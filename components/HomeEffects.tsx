@@ -550,13 +550,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const getParticleSeason = () => {
       const seasonState = getSeasonState();
       if (!seasonState.transitioning) {
-        const settle = getSeasonSettleState();
-        if (settle.active) {
-          return Math.random() < settle.progress ? settle.to : settle.from;
-        }
         return seasonState.current;
       }
-      return Math.random() < smoothStep(getSeasonTransitionProgress()) ? seasonState.next : seasonState.current;
+      return seasonState.next;
     };
     const getParticleSeasonAlpha = (particleSeason: Season, now = performance.now()) => {
       const seasonState = getSeasonState();
@@ -574,7 +570,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const settle = getSeasonSettleState(now);
       if (settle.active) {
         if (particleSeason === settle.from) {
-          return (1 - settle.progress) * 0.42;
+          return 0;
         }
         if (particleSeason === settle.to) {
           return 1;
@@ -696,7 +692,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const seasonState = getSeasonState();
       const settle = getSeasonSettleState();
       if (settle.active) {
-        return Math.max(countForSeason(settle.from), countForSeason(settle.to));
+        return countForSeason(settle.to);
       }
       if (seasonState.transitioning) {
         return Math.max(countForSeason(seasonState.current), countForSeason(seasonState.next));
@@ -756,14 +752,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           || (seasonState.current === 'winter' && particle.kind === 'snow' && transitionMix < 0.72)
         );
         const particleSeasonAlpha = getParticleSeasonAlpha(particle.season);
-        const shouldSeedNextSeason = seasonState.transitioning
-          && particle.season === seasonState.current
-          && transitionMix > 0.18
-          && Math.random() < transitionMix * 0.018;
-        const shouldSeedSettleTarget = settle.active
-          && particle.season === settle.from
-          && Math.random() < settle.progress * 0.012;
-        if (shouldSeedNextSeason || shouldSeedSettleTarget || particleSeasonAlpha <= 0.015) {
+        if (particleSeasonAlpha <= 0.015) {
           resetParticle(particle, true, seasonState.transitioning ? seasonState.next : (settle.active ? settle.to : undefined));
           return;
         }
@@ -1277,7 +1266,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (!transitioning) {
         const settle = getSeasonSettleState(now);
         if (settle.active) {
-          withAlpha((1 - settle.progress) * 0.35, () => drawStableSeasonGround(settle.from, growth));
           withAlpha(1, () => drawStableSeasonGround(settle.to, growth));
           return;
         }

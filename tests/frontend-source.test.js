@@ -638,8 +638,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /withAlpha\(fadeIn, \(\) => drawLeafAccumulation\(transitionGrowth\)\)/);
     assert.match(component, /const fadeOut = transitioning \? 1 - smoothStep/);
     assert.match(component, /if \(settle\.active\) \{/);
-    assert.match(component, /withAlpha\(\(1 - settle\.progress\) \* 0\.35, \(\) => drawStableSeasonGround\(settle\.from, growth\)\)/);
     assert.match(component, /withAlpha\(1, \(\) => drawStableSeasonGround\(settle\.to, growth\)\)/);
+    assert.doesNotMatch(component, /drawStableSeasonGround\(settle\.from, growth\)/);
+    assert.doesNotMatch(component, /Math\.random\(\) < settle\.progress \? settle\.to : settle\.from/);
+    assert.doesNotMatch(component, /Math\.random\(\) < smoothStep\(getSeasonTransitionProgress\(\)\)/);
+    assert.doesNotMatch(component, /shouldSeedNextSeason|shouldSeedSettleTarget/);
     assert.match(component, /settle\.active && settle\.from === 'summer' && settle\.to === 'autumn'/);
     assert.match(component, /withAlpha\(1 - settle\.progress, \(\) => \{\s*drawSummer\(now, 1\);[\s\S]*drawTransitionLeaves\(now, 1\);[\s\S]*\}\)/);
     assert.match(component, /seasonSettleRef\.current = \{\s*active: true/);
