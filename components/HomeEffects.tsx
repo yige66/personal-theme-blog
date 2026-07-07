@@ -90,6 +90,8 @@ type SeasonSettleState = {
   duration: number;
 };
 
+type SeasonGroundLevels = Record<Season, number>;
+
 const seasonOrder: Season[] = ['spring', 'summer', 'autumn', 'winter'];
 const seasonCopy: Record<Season, { label: string; day: string; night: string }> = {
   spring: { label: '\u6625\u65e5\u82b1\u5ead', day: '\u82b1\u96e8\u4e0e\u6674\u5149', night: '\u6708\u8272\u4e0e\u591c\u6a31' },
@@ -223,6 +225,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     startedAt: 0,
     duration: seasonSettleDurationMs
   });
+  const seasonGroundLevelsRef = useRef<SeasonGroundLevels>({
+    spring: 1,
+    summer: 0,
+    autumn: 0,
+    winter: 0
+  });
   const themeBlendRef = useRef<ThemeBlendState>({
     active: false,
     from: 'day',
@@ -283,6 +291,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       startedAt: 0,
       duration: seasonSettleDurationMs
     };
+    seasonGroundLevelsRef.current = {
+      spring: initialSeason === 'spring' ? 1 : 0,
+      summer: initialSeason === 'summer' ? 1 : 0,
+      autumn: initialSeason === 'autumn' ? 1 : 0,
+      winter: initialSeason === 'winter' ? 1 : 0
+    };
     setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
     themeBlendRef.current = {
       active: false,
@@ -330,6 +344,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       to: syncedSeason,
       startedAt: 0,
       duration: seasonSettleDurationMs
+    };
+    seasonGroundLevelsRef.current = {
+      spring: syncedSeason === 'spring' ? 1 : 0,
+      summer: syncedSeason === 'summer' ? 1 : 0,
+      autumn: syncedSeason === 'autumn' ? 1 : 0,
+      winter: syncedSeason === 'winter' ? 1 : 0
     };
   }, []);
 
@@ -559,10 +579,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (seasonState.transitioning) {
         const progress = smoothStep(getSeasonTransitionProgress(now));
         if (particleSeason === seasonState.current) {
-          return 1 - smoothStep((progress - 0.58) / 0.42) * 0.58;
+          return 1 - progress;
         }
         if (particleSeason === seasonState.next) {
-          return smoothStep((progress - 0.18) / 0.82);
+          return progress;
         }
         return 0;
       }
@@ -1246,10 +1266,21 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawGround = (now: number, transitionProgress: number) => {
       const { current, next, previous, transitioning } = getSeasonState();
-      const growth = easeOut((now - effectStartedAt) / 16000);
-      const transitionGrowth = transitioning ? easeOut(transitionProgress) : growth;
+      const baseGrowth = easeOut((now - effectStartedAt) / 16000);
+      const transitionGrowth = transitioning ? easeOut(transitionProgress) : baseGrowth;
       const fadeIn = transitioning ? smoothStep(transitionProgress) : 1;
       const fadeOut = transitioning ? 1 - smoothStep(Math.max(0, (transitionProgress - 0.18) / 0.82)) : 1;
+      const groundLevels = seasonGroundLevelsRef.current;
+      if (transitioning) {
+        groundLevels[current] = Math.max(groundLevels[current], baseGrowth);
+        groundLevels[next] = Math.max(groundLevels[next], transitionGrowth);
+      } else {
+        const settle = getSeasonSettleState(now);
+        const activeSeason = settle.active ? settle.to : current;
+        groundLevels[activeSeason] = Math.max(groundLevels[activeSeason], baseGrowth);
+      }
+      const growth = Math.max(baseGrowth, groundLevels[current]);
+      const nextGrowth = Math.max(transitionGrowth, groundLevels[next]);
       const drawStableSeasonGround = (targetSeason: Season, targetGrowth: number, windAway = 0, dry = 0, melt = 0) => {
         if (targetSeason === 'spring') {
           drawSpringGround(targetGrowth * 0.75, now, false, 0);
@@ -1266,7 +1297,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (!transitioning) {
         const settle = getSeasonSettleState(now);
         if (settle.active) {
-          withAlpha(1, () => drawStableSeasonGround(settle.to, growth));
+          withAlpha(1, () => drawStableSeasonGround(settle.to, Math.max(baseGrowth, groundLevels[settle.to])));
           return;
         }
         drawStableSeasonGround(current, growth);
@@ -1287,20 +1318,20 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       if (transitioning && next === 'spring') {
         withAlpha(fadeIn, () => {
-          drawSpringGround(transitionGrowth * 0.72, now, false, 0);
-          drawPetalAccumulation(transitionGrowth, now);
+          drawSpringGround(nextGrowth * 0.72, now, false, 0);
+          drawPetalAccumulation(nextGrowth, now);
         });
       } else if (transitioning && next === 'summer') {
         drawSweptPetals(now, transitionGrowth);
-        withAlpha(fadeIn, () => drawSpringGround(transitionGrowth, now, true, 0));
+        withAlpha(fadeIn, () => drawSpringGround(nextGrowth, now, true, 0));
       } else if (transitioning && next === 'autumn') {
         if (previous === 'summer') {
           withAlpha(fadeOut, () => drawStableSeasonGround('summer', 1 - transitionGrowth * 0.28, 0, transitionGrowth));
         }
         drawTransitionLeaves(now, transitionGrowth);
-        withAlpha(fadeIn, () => drawLeafAccumulation(transitionGrowth));
+        withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth));
       } else if (transitioning && next === 'winter') {
-        withAlpha(fadeIn, () => drawSnowAccumulation(transitionGrowth));
+        withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth));
       }
     };
 
@@ -1588,6 +1619,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     seasonRef.current = currentSeason;
     previousSeasonRef.current = currentSeason;
     nextSeasonRef.current = target;
+    seasonGroundLevelsRef.current[currentSeason] = Math.max(seasonGroundLevelsRef.current[currentSeason], 1);
+    seasonGroundLevelsRef.current[target] = 0;
     setPreviousSeason(currentSeason);
     setNextSeason(target);
     setIsSeasonTransitioning(true);
@@ -1606,6 +1639,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         startedAt: performance.now(),
         duration: prefersReducedMotion() ? 420 : seasonSettleDurationMs
       };
+      seasonGroundLevelsRef.current[currentSeason] = 0;
+      seasonGroundLevelsRef.current[target] = 1;
       setSeason(currentSeason);
       setPreviousSeason(currentSeason);
       setNextSeason(target);
