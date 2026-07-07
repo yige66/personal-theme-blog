@@ -488,7 +488,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return Math.max(34, Math.round(intensity / 1.8));
       }
       if (season === 'winter') {
-        return Math.max(46, Math.round(intensity / 1.5));
+        return Math.max(24, Math.round(intensity / 3));
       }
       if (season === 'autumn') {
         return Math.max(16, Math.round(intensity / 4));
@@ -620,7 +620,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
       const level = Math.max(0, growth * (1 - windAway));
-      const pileHeight = Math.min(58, Math.max(34, height * 0.055)) * level;
+      const pileHeight = Math.min(30, Math.max(16, height * 0.028)) * level;
       if (pileHeight < 2) {
         return;
       }
@@ -628,12 +628,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       const drift = windAway * width * 0.56;
       const fade = 1 - windAway;
-      const gradient = context.createLinearGradient(0, top - 14, 0, height);
+      const gradient = context.createLinearGradient(0, top - 8, 0, height);
       gradient.addColorStop(0, 'rgba(255, 214, 234, 0)');
-      gradient.addColorStop(0.42, `rgba(255, 188, 222, ${0.3 * fade})`);
-      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.55 * fade})`);
+      gradient.addColorStop(0.48, `rgba(255, 188, 222, ${0.08 * fade})`);
+      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.18 * fade})`);
       context.fillStyle = gradient;
-      context.fillRect(0, top - 14, width, pileHeight + 18);
+      context.fillRect(0, top - 8, width, pileHeight + 10);
 
       context.beginPath();
       context.moveTo(0, height);
@@ -644,21 +644,23 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.lineTo(width, height);
       context.closePath();
-      context.fillStyle = `rgba(255, 211, 232, ${0.26 * fade})`;
+      context.fillStyle = `rgba(255, 211, 232, ${0.08 * fade})`;
       context.fill();
 
       const petal = sprites.petal;
       if (petal) {
         context.filter = 'saturate(0.98) brightness(1.04)';
-        for (let index = 0; index < 86; index += 1) {
+        for (let index = 0; index < 118; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
-          const x = ((index * 57 + frac * 170 + drift) % (width + 160)) - 80;
+          const cluster = Math.floor(index / 7);
+          const patch = Math.sin(cluster * 2.41) * 34;
+          const x = ((index * 43 + frac * 138 + patch + drift) % (width + 150)) - 75;
           const wave = Math.sin(now * 0.0012 + index) * windAway * (16 + frac * 18);
-          const y = height - (Math.pow(lane, 1.45) * pileHeight * 0.92 + 2) - windAway * (10 + frac * 36);
-          const size = (6 + frac * 8) * (0.88 + level * 0.22);
+          const y = height - (Math.pow(lane, 1.72) * pileHeight * 0.86 + 1 + seededUnit(index + 58.2) * 3) - windAway * (10 + frac * 36);
+          const size = (5 + frac * 6.5) * (0.9 + level * 0.16);
           context.save();
-          context.globalAlpha = (0.18 + frac * 0.22) * fade;
+          context.globalAlpha = (0.24 + frac * 0.28) * fade;
           context.translate(x, y + wave);
           context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
           context.drawImage(petal, -size / 2, -size / 2, size, size);
@@ -669,35 +671,35 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawSpringGround = (growth: number, now: number, summerFlowers = false, dry = 0) => {
-      const groundHeight = Math.min(70, Math.max(42, height * 0.066)) * growth;
+      const groundHeight = Math.min(56, Math.max(30, height * 0.048)) * growth;
       const top = height - groundHeight;
       context.save();
       drawSoftGroundGradient(top, [
         summerFlowers ? 'rgba(95, 178, 92, 0)' : 'rgba(126, 203, 122, 0)',
-        dry > 0.1 ? `rgba(159, 137, 64, ${0.24 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(78, 158, 86, 0.34)' : 'rgba(93, 180, 96, 0.26)'),
-        dry > 0.1 ? `rgba(94, 83, 44, ${0.44 * (1 - dry * 0.55)})` : (summerFlowers ? 'rgba(42, 112, 68, 0.62)' : 'rgba(54, 136, 74, 0.5)')
+        dry > 0.1 ? `rgba(159, 137, 64, ${0.12 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(78, 158, 86, 0.16)' : 'rgba(93, 180, 96, 0.12)'),
+        dry > 0.1 ? `rgba(94, 83, 44, ${0.22 * (1 - dry * 0.55)})` : (summerFlowers ? 'rgba(42, 112, 68, 0.28)' : 'rgba(54, 136, 74, 0.22)')
       ]);
-      const haze = context.createLinearGradient(0, top - 12, 0, height);
+      const haze = context.createLinearGradient(0, top - 6, 0, height);
       haze.addColorStop(0, 'rgba(117, 205, 113, 0)');
-      haze.addColorStop(0.58, dry > 0.2 ? `rgba(168, 146, 62, ${0.16 * (1 - dry * 0.35)})` : (summerFlowers ? 'rgba(112, 214, 122, 0.2)' : 'rgba(142, 220, 132, 0.14)'));
-      haze.addColorStop(1, dry > 0.2 ? `rgba(105, 88, 36, ${0.28 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(58, 144, 78, 0.34)' : 'rgba(79, 155, 84, 0.22)'));
+      haze.addColorStop(0.6, dry > 0.2 ? `rgba(168, 146, 62, ${0.08 * (1 - dry * 0.35)})` : (summerFlowers ? 'rgba(112, 214, 122, 0.07)' : 'rgba(142, 220, 132, 0.05)'));
+      haze.addColorStop(1, dry > 0.2 ? `rgba(105, 88, 36, ${0.14 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(58, 144, 78, 0.14)' : 'rgba(79, 155, 84, 0.1)'));
       context.fillStyle = haze;
-      context.fillRect(0, top - 12, width, groundHeight + 18);
-      const step = Math.max(12, width / 132);
+      context.fillRect(0, top - 6, width, groundHeight + 8);
+      const step = Math.max(8, width / 190);
       for (let x = -20; x < width + 20; x += step) {
         const frac = seededUnit(x);
-        const blade = (8 + frac * (summerFlowers ? 18 : 14)) * growth;
+        const blade = (9 + frac * (summerFlowers ? 26 : 18)) * growth;
         const lean = Math.sin(now * 0.0011 + x * 0.02) * (summerFlowers ? 6 : 4);
         const hue = dry > 0 ? 82 - dry * 28 + frac * 18 : (summerFlowers ? 104 + frac * 36 : 96 + frac * 28);
-        const alpha = (summerFlowers ? 0.68 : 0.58) * (1 - dry * 0.66);
+        const alpha = (summerFlowers ? 0.82 : 0.66) * (1 - dry * 0.66);
         drawGrassBlade(x, height + 3, blade * (1 - dry * 0.22), lean, `hsla(${hue}, ${44 - dry * 16}%, ${summerFlowers ? 40 : 46}%, ${alpha})`, alpha);
-        if (summerFlowers && frac > 0.82 && dry < 0.9) {
+        if (summerFlowers && frac > 0.74 && dry < 0.9) {
           context.save();
-          context.globalAlpha = (0.18 + frac * 0.18) * growth * (1 - dry);
-          context.fillStyle = frac > 0.93 ? 'rgba(255, 218, 116, 0.58)' : (frac > 0.88 ? 'rgba(164, 208, 255, 0.38)' : 'rgba(255, 154, 206, 0.44)');
+          context.globalAlpha = (0.28 + frac * 0.24) * growth * (1 - dry);
+          context.fillStyle = frac > 0.92 ? 'rgba(255, 218, 116, 0.7)' : (frac > 0.84 ? 'rgba(164, 208, 255, 0.5)' : 'rgba(255, 154, 206, 0.58)');
           const flowerY = height - blade - 4;
           context.beginPath();
-          context.arc(x + lean, flowerY, 1 + frac * 1.6, 0, Math.PI * 2);
+          context.arc(x + lean, flowerY, 1.2 + frac * 1.9, 0, Math.PI * 2);
           context.fill();
           context.restore();
         }
@@ -821,19 +823,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 160; index += 1) {
+      for (let index = 0; index < 64; index += 1) {
         const seed = seededUnit(index + 301.4);
         const lane = seededUnit(index + 18.6);
         const fall = ((now * (0.018 + seed * 0.032) + index * 47) % (height + 120)) - 70;
         const x = ((lane * width + Math.sin(now * 0.0007 + index) * (18 + seed * 42) + width) % (width + 80)) - 40;
         const y = fall;
-        const radius = 1.4 + seed * 3.2;
-        const alpha = (getNightMode() ? 0.34 : 0.42) + seed * 0.34;
+        const radius = 1.2 + seed * 2.2;
+        const alpha = (getNightMode() ? 0.28 : 0.36) + seed * 0.22;
         context.save();
         context.globalAlpha = alpha;
-        context.shadowColor = 'rgba(220, 248, 255, 0.38)';
-        context.shadowBlur = radius * 2.4;
-        context.fillStyle = 'rgba(246, 253, 255, 0.82)';
+        context.shadowColor = 'rgba(220, 248, 255, 0.18)';
+        context.shadowBlur = radius * 0.8;
+        context.fillStyle = 'rgba(246, 253, 255, 0.74)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.fill();
@@ -855,18 +857,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawSnowAccumulation = (growth: number, melt = 0) => {
       const level = Math.max(0, growth * (1 - melt));
-      const snowHeight = Math.min(66, Math.max(36, height * 0.06)) * level;
+      const snowHeight = Math.min(34, Math.max(18, height * 0.032)) * level;
       if (snowHeight < 3) {
         return;
       }
       const top = height - snowHeight;
       context.save();
-      const glow = context.createLinearGradient(0, top - 18, 0, height);
+      const glow = context.createLinearGradient(0, top - 10, 0, height);
       glow.addColorStop(0, 'rgba(235, 248, 255, 0)');
-      glow.addColorStop(0.38, getNightMode() ? 'rgba(214, 239, 255, 0.26)' : 'rgba(250, 254, 255, 0.38)');
-      glow.addColorStop(1, getNightMode() ? 'rgba(180, 218, 240, 0.6)' : 'rgba(236, 250, 255, 0.72)');
+      glow.addColorStop(0.38, getNightMode() ? 'rgba(214, 239, 255, 0.1)' : 'rgba(250, 254, 255, 0.14)');
+      glow.addColorStop(1, getNightMode() ? 'rgba(180, 218, 240, 0.22)' : 'rgba(236, 250, 255, 0.28)');
       context.fillStyle = glow;
-      context.fillRect(0, top - 18, width, snowHeight + 24);
+      context.fillRect(0, top - 10, width, snowHeight + 12);
 
       context.beginPath();
       context.moveTo(0, top + Math.sin(width * 0.001) * 4);
@@ -877,9 +879,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.lineTo(width, height);
       context.lineTo(0, height);
       context.closePath();
-      context.fillStyle = getNightMode() ? 'rgba(224, 243, 255, 0.64)' : 'rgba(252, 254, 255, 0.76)';
+      context.fillStyle = getNightMode() ? 'rgba(224, 243, 255, 0.38)' : 'rgba(252, 254, 255, 0.48)';
       context.fill();
-      context.strokeStyle = getNightMode() ? 'rgba(198, 226, 246, 0.24)' : 'rgba(255, 255, 255, 0.34)';
+      context.strokeStyle = getNightMode() ? 'rgba(198, 226, 246, 0.18)' : 'rgba(255, 255, 255, 0.26)';
       context.lineWidth = 1;
       context.stroke();
       context.restore();
@@ -947,18 +949,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
 
       context.save();
-      context.globalAlpha = 0.16 * (1 - transitionProgress * 0.55);
+      context.globalAlpha = 0.055 * (1 - transitionProgress * 0.65);
       context.globalCompositeOperation = 'screen';
-      context.filter = 'blur(8px) saturate(1.35)';
-      const bandHeight = Math.max(170, height * 0.26);
-      for (let line = 0; line < 7; line += 1) {
-        const y = height * 0.58 + line * 18 + Math.sin(now * 0.0012 + line) * 8;
-        const gradient = context.createLinearGradient(0, y, width, y + 28);
+      context.filter = 'blur(10px) saturate(1.18)';
+      const bandHeight = Math.max(42, height * 0.055);
+      for (let line = 0; line < 4; line += 1) {
+        const y = height * (0.55 + line * 0.055) + Math.sin(now * 0.0012 + line) * 7;
+        const gradient = context.createLinearGradient(0, y, width, y + 18);
         gradient.addColorStop(0, 'rgba(255, 224, 120, 0)');
-        gradient.addColorStop(0.5, 'rgba(255, 224, 120, 0.42)');
+        gradient.addColorStop(0.5, 'rgba(255, 224, 120, 0.24)');
         gradient.addColorStop(1, 'rgba(84, 199, 184, 0)');
         context.fillStyle = gradient;
-        context.fillRect(0, y, width, bandHeight / 12);
+        context.fillRect(0, y, width, bandHeight / 6);
       }
       context.restore();
     };
@@ -971,16 +973,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       const pulse = Math.sin(progress * Math.PI);
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 9; index += 1) {
+      for (let index = 0; index < 7; index += 1) {
         const lane = index / 12;
         const y = height * (0.08 + lane * 0.84) + Math.sin(now * 0.0014 + index) * 14;
         const length = width * (0.12 + pulse * 0.12);
         const x = ((now * (0.08 + index * 0.006) + index * 211) % (width + length)) - length;
         const gradient = context.createLinearGradient(x, y, x + length, y);
         gradient.addColorStop(0, 'rgba(255,255,255,0)');
-        gradient.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+        gradient.addColorStop(0.5, 'rgba(255,255,255,0.045)');
         gradient.addColorStop(1, 'rgba(255,255,255,0)');
-        context.globalAlpha = 0.055 * pulse;
+        context.globalAlpha = 0.03 * pulse;
         context.strokeStyle = gradient;
         context.lineWidth = 0.6 + (index % 3) * 0.25;
         context.beginPath();
@@ -990,8 +992,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
 
       if (previousSeason === 'spring' && nextSeason === 'summer') {
-        context.globalAlpha = pulse * 0.11;
-        context.strokeStyle = 'rgba(255, 255, 255, 0.32)';
+        context.globalAlpha = pulse * 0.055;
+        context.strokeStyle = 'rgba(255, 255, 255, 0.24)';
         context.lineWidth = 1.2;
         for (let index = 0; index < 5; index += 1) {
           const y = height * (0.22 + index * 0.12) + Math.sin(now * 0.0018 + index) * 12;

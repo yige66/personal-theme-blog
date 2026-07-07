@@ -24086,3 +24086,34 @@ body:has(.xh-clean-home) .xh-global-toolbox {
     min-height: 38px !important;
   }
 }
+
+/* Hard stop for legacy seasonal washes and summer heat rectangles. */
+html body .xh-seasonal-aura,
+html body .xh-seasonal-aura span,
+html body .xh-seasonal-aura::before,
+html body .xh-seasonal-aura::after,
+html[data-xh-theme][data-xh-season] body .xh-seasonal-aura,
+html[data-xh-theme][data-xh-season] body .xh-seasonal-aura span {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  filter: none !important;
+}
+
+html body .xh-heat-distortion,
+html[data-xh-season="summer"] body .xh-heat-distortion,
+html[data-xh-season="summer"][data-xh-theme="day"] body .xh-heat-distortion[data-season="summer"][data-scene-theme="day"],
+html[data-xh-season="summer"][data-xh-theme-phase="dawn"] body .xh-heat-distortion[data-season="summer"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  animation: none !important;
+  transform: none !important;
+}
