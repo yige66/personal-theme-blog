@@ -581,7 +581,7 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /className=\{`xh-space-rain/);
     assert.doesNotMatch(component, /effects\.fireflies \?/);
     assert.doesNotMatch(component, /effects\.petals \?/);
-    assert.match(component, /Math\.round\(intensity \/ 4\.5\)/);
+    assert.match(component, /Math\.round\(intensity \/ 3\.2\)/);
     assert.match(component, /resetParticle\(particle, true\)/);
     assert.match(component, /drawSummer\(now, transitionProgress\)/);
     assert.match(component, /drawGround\(now, transitionProgress\)/);
@@ -589,7 +589,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawSpringGround\(growth, now, true\)/);
     assert.match(component, /const growth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
-    assert.match(component, /const lane = index \/ 28/);
+    assert.match(component, /const lane = index \/ 12/);
     assert.match(homeCss, /Summer heat distortion/);
     assert.match(homeCss, /backdrop-filter: blur\(1\.2px\) saturate\(1\.06\) contrast\(1\.02\)/);
     assert.match(homeCss, /@keyframes xh-heat-refraction/);
