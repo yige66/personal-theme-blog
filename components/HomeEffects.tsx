@@ -29,7 +29,7 @@ type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'sn
 type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
 
 type SeasonalVfxParticle = {
-  kind: 'petal' | 'firefly' | 'leaf' | 'snow';
+  kind: 'petal' | 'firefly' | 'bug' | 'leaf' | 'snow';
   x: number;
   y: number;
   vx: number;
@@ -440,6 +440,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return;
       }
 
+      if (season === 'summer' && sceneMode === 'day') {
+        particle.kind = 'bug';
+        particle.sprite = 'firefly';
+        particle.size = randomBetween(5, 10) * particle.depth;
+        particle.x = randomBetween(width * 0.03, width * 0.98);
+        particle.y = initial ? randomBetween(height * 0.18, height * 0.8) : randomBetween(height * 0.22, height * 0.72);
+        particle.vx = randomBetween(-16, 18);
+        particle.vy = randomBetween(-10, 8);
+        particle.spin = randomBetween(-0.4, 0.4);
+        particle.alpha = randomBetween(0.18, 0.34);
+        return;
+      }
+
       if (season === 'autumn') {
         particle.kind = 'leaf';
         particle.sprite = chooseLeafSprite();
@@ -466,7 +479,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const targetCount = () => {
       if (season === 'summer' && !nightMode) {
-        return 0;
+        return Math.max(10, Math.round(intensity / 6));
       }
       if (season === 'spring' && nightMode) {
         return Math.max(14, Math.round(intensity / 4.4));
@@ -503,7 +516,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       particles.forEach((particle) => {
         if (
-          (season === 'summer' && !nightMode)
+          (season === 'summer' && !nightMode && particle.kind !== 'bug')
           || (season === 'spring' && nightMode && particle.kind !== 'firefly')
           || (season === 'spring' && !nightMode && particle.kind !== 'petal')
           || (season === 'autumn' && particle.kind !== 'leaf')
@@ -516,7 +529,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawSprite = (particle: SeasonalVfxParticle, now: number) => {
       const image = sprites[particle.sprite];
-      if (!image) {
+      if (!image && particle.kind !== 'bug') {
         return;
       }
 
@@ -532,6 +545,28 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.globalAlpha = Math.max(0, Math.min(0.9, alpha));
       context.translate(x, y);
       context.rotate(particle.rotation + Math.sin(now * 0.001 + particle.phase) * 0.38);
+      if (particle.kind === 'bug') {
+        const wingBeat = 0.55 + Math.sin(now * 0.017 + particle.phase) * 0.25;
+        context.globalAlpha = Math.max(0.08, particle.alpha * (0.68 + wingBeat * 0.28));
+        context.globalCompositeOperation = 'screen';
+        context.shadowColor = 'rgba(255, 238, 166, 0.22)';
+        context.shadowBlur = size * 1.1;
+        context.fillStyle = 'rgba(31, 44, 30, 0.42)';
+        context.beginPath();
+        context.ellipse(0, 0, size * 0.18, size * 0.38, 0, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = 'rgba(255, 245, 170, 0.34)';
+        context.beginPath();
+        context.ellipse(-size * 0.26, -size * 0.08, size * 0.34, size * 0.12 * wingBeat, -0.42, 0, Math.PI * 2);
+        context.ellipse(size * 0.26, -size * 0.08, size * 0.34, size * 0.12 * wingBeat, 0.42, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+        return;
+      }
+      if (!image) {
+        context.restore();
+        return;
+      }
       if (particle.kind === 'firefly') {
         context.shadowColor = 'rgba(255, 236, 116, 0.72)';
         context.shadowBlur = size * 1.6;
@@ -548,12 +583,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const easeOut = (value: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, value)), 3);
+    const seededUnit = (seed: number) => {
+      const value = Math.sin(seed * 12.9898) * 43758.5453;
+      return value - Math.floor(value);
+    };
 
     const drawGrassBlade = (x: number, baseY: number, length: number, lean: number, color: string, alpha: number) => {
       context.save();
       context.globalAlpha = alpha;
       context.strokeStyle = color;
-      context.lineWidth = Math.max(0.7, length * 0.035);
+      context.lineWidth = Math.max(0.9, length * 0.045);
       context.lineCap = 'round';
       context.beginPath();
       context.moveTo(x, baseY);
@@ -571,30 +610,86 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.fillRect(0, top, width, height - top);
     };
 
-    const drawSpringGround = (growth: number, now: number, summerFlowers = false) => {
+    const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
+      const level = Math.max(0, growth * (1 - windAway));
+      const pileHeight = Math.min(38, Math.max(20, height * 0.036)) * level;
+      if (pileHeight < 2) {
+        return;
+      }
+      const top = height - pileHeight;
+      context.save();
+      const drift = windAway * width * 0.56;
+      const fade = 1 - windAway;
+      const gradient = context.createLinearGradient(0, top - 14, 0, height);
+      gradient.addColorStop(0, 'rgba(255, 214, 234, 0)');
+      gradient.addColorStop(0.42, `rgba(255, 188, 222, ${0.2 * fade})`);
+      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.38 * fade})`);
+      context.fillStyle = gradient;
+      context.fillRect(0, top - 14, width, pileHeight + 18);
+
+      context.beginPath();
+      context.moveTo(0, height);
+      context.lineTo(0, top + Math.sin(now * 0.0005) * 1.4);
+      for (let x = 0; x <= width + 60; x += 60) {
+        const ridge = Math.sin(x * 0.018 + now * 0.00035) * 2.2 + Math.sin(x * 0.047) * 1.2;
+        context.quadraticCurveTo(x + 30, top - 3 + ridge, x + 60, top + ridge * 0.5);
+      }
+      context.lineTo(width, height);
+      context.closePath();
+      context.fillStyle = `rgba(255, 211, 232, ${0.16 * fade})`;
+      context.fill();
+
+      const petal = sprites.petal;
+      if (petal) {
+        context.filter = 'saturate(0.98) brightness(1.04)';
+        for (let index = 0; index < 86; index += 1) {
+          const frac = seededUnit(index + 9.7);
+          const lane = seededUnit(index + 31.4);
+          const x = ((index * 57 + frac * 170 + drift) % (width + 160)) - 80;
+          const wave = Math.sin(now * 0.0012 + index) * windAway * (16 + frac * 18);
+          const y = height - (Math.pow(lane, 1.45) * pileHeight * 0.92 + 2) - windAway * (10 + frac * 36);
+          const size = (6 + frac * 8) * (0.88 + level * 0.22);
+          context.save();
+          context.globalAlpha = (0.12 + frac * 0.16) * fade;
+          context.translate(x, y + wave);
+          context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
+          context.drawImage(petal, -size / 2, -size / 2, size, size);
+          context.restore();
+        }
+      }
+      context.restore();
+    };
+
+    const drawSpringGround = (growth: number, now: number, summerFlowers = false, dry = 0) => {
       const groundHeight = Math.min(46, Math.max(26, height * 0.042)) * growth;
       const top = height - groundHeight;
       context.save();
       drawSoftGroundGradient(top, [
         summerFlowers ? 'rgba(95, 178, 92, 0)' : 'rgba(126, 203, 122, 0)',
-        summerFlowers ? 'rgba(78, 158, 86, 0.16)' : 'rgba(93, 180, 96, 0.14)',
-        summerFlowers ? 'rgba(42, 112, 68, 0.34)' : 'rgba(54, 136, 74, 0.28)'
+        dry > 0.1 ? `rgba(159, 137, 64, ${0.16 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(78, 158, 86, 0.24)' : 'rgba(93, 180, 96, 0.18)'),
+        dry > 0.1 ? `rgba(94, 83, 44, ${0.3 * (1 - dry * 0.55)})` : (summerFlowers ? 'rgba(42, 112, 68, 0.44)' : 'rgba(54, 136, 74, 0.34)')
       ]);
-      const step = Math.max(18, width / 96);
+      const haze = context.createLinearGradient(0, top - 12, 0, height);
+      haze.addColorStop(0, 'rgba(117, 205, 113, 0)');
+      haze.addColorStop(0.58, dry > 0.2 ? `rgba(168, 146, 62, ${0.08 * (1 - dry * 0.35)})` : (summerFlowers ? 'rgba(112, 214, 122, 0.12)' : 'rgba(142, 220, 132, 0.08)'));
+      haze.addColorStop(1, dry > 0.2 ? `rgba(105, 88, 36, ${0.16 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(58, 144, 78, 0.22)' : 'rgba(79, 155, 84, 0.14)'));
+      context.fillStyle = haze;
+      context.fillRect(0, top - 12, width, groundHeight + 18);
+      const step = Math.max(12, width / 132);
       for (let x = -20; x < width + 20; x += step) {
-        const seed = Math.sin(x * 12.9898) * 43758.5453;
-        const frac = seed - Math.floor(seed);
+        const frac = seededUnit(x);
         const blade = (8 + frac * (summerFlowers ? 18 : 14)) * growth;
         const lean = Math.sin(now * 0.0011 + x * 0.02) * (summerFlowers ? 6 : 4);
-        const hue = summerFlowers ? 104 + frac * 36 : 96 + frac * 28;
-        drawGrassBlade(x, height + 3, blade, lean, `hsla(${hue}, 44%, ${summerFlowers ? 40 : 46}%, 0.44)`, 0.44);
-        if (summerFlowers && frac > 0.88) {
+        const hue = dry > 0 ? 82 - dry * 28 + frac * 18 : (summerFlowers ? 104 + frac * 36 : 96 + frac * 28);
+        const alpha = (summerFlowers ? 0.56 : 0.46) * (1 - dry * 0.66);
+        drawGrassBlade(x, height + 3, blade * (1 - dry * 0.22), lean, `hsla(${hue}, ${44 - dry * 16}%, ${summerFlowers ? 40 : 46}%, ${alpha})`, alpha);
+        if (summerFlowers && frac > 0.82 && dry < 0.9) {
           context.save();
-          context.globalAlpha = 0.26 * growth;
-          context.fillStyle = frac > 0.94 ? 'rgba(255, 214, 112, 0.58)' : 'rgba(255, 150, 205, 0.48)';
+          context.globalAlpha = (0.18 + frac * 0.18) * growth * (1 - dry);
+          context.fillStyle = frac > 0.93 ? 'rgba(255, 218, 116, 0.58)' : (frac > 0.88 ? 'rgba(164, 208, 255, 0.38)' : 'rgba(255, 154, 206, 0.44)');
           const flowerY = height - blade - 4;
           context.beginPath();
-          context.arc(x + lean, flowerY, 1.2 + frac * 1.4, 0, Math.PI * 2);
+          context.arc(x + lean, flowerY, 1 + frac * 1.6, 0, Math.PI * 2);
           context.fill();
           context.restore();
         }
@@ -603,20 +698,86 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawLeafAccumulation = (growth: number) => {
-      const pileHeight = Math.min(44, Math.max(22, height * 0.04)) * growth;
+      const pileHeight = Math.min(48, Math.max(24, height * 0.046)) * growth;
       if (pileHeight < 4) {
         return;
       }
       context.save();
       drawSoftGroundGradient(height - pileHeight, [
         'rgba(224, 143, 45, 0)',
-        'rgba(186, 92, 38, 0.13)',
-        'rgba(82, 42, 24, 0.28)'
+        'rgba(190, 109, 36, 0.16)',
+        'rgba(88, 48, 22, 0.32)'
       ]);
       if (sprites.leafPile) {
-        context.globalAlpha = 0.18 * growth;
-        context.filter = nightMode ? 'saturate(0.56) brightness(0.46) blur(0.7px)' : 'saturate(0.72) brightness(0.66) blur(0.45px)';
-        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.12, width, pileHeight * 1.1);
+        context.globalAlpha = 0.2 * growth;
+        context.filter = nightMode ? 'saturate(0.62) brightness(0.5) blur(0.45px)' : 'saturate(0.84) brightness(0.76) blur(0.28px)';
+        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.08, width, pileHeight * 1.04);
+      }
+      const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
+      for (let index = 0; index < 64; index += 1) {
+        const frac = seededUnit(index + 17.2);
+        const sprite = sprites[leafSprites[index % leafSprites.length]];
+        if (!sprite) {
+          continue;
+        }
+        const x = (index * 71 + frac * 160) % (width + 120) - 60;
+        const y = height - Math.pow(seededUnit(index + 82.6), 1.25) * pileHeight * 0.88 - 3;
+        const size = 9 + frac * 12;
+        context.save();
+        context.globalAlpha = (0.1 + frac * 0.14) * growth;
+        context.filter = nightMode ? 'saturate(0.58) brightness(0.52)' : 'saturate(0.86) brightness(0.84)';
+        context.translate(x, y);
+        context.rotate(frac * Math.PI * 2);
+        context.drawImage(sprite, -size / 2, -size / 2, size, size);
+        context.restore();
+      }
+      context.restore();
+    };
+
+    const drawSweptPetals = (now: number, progress: number) => {
+      const petal = sprites.petal;
+      if (!petal) {
+        return;
+      }
+      const pulse = Math.sin(progress * Math.PI);
+      context.save();
+      context.filter = 'saturate(1.04) brightness(1.06)';
+      for (let index = 0; index < 42; index += 1) {
+        const frac = seededUnit(index + 44.8);
+        const y = height * (0.38 + seededUnit(index + 12.1) * 0.5) - progress * height * (0.08 + frac * 0.16);
+        const x = -80 + progress * (width + 190) + Math.sin(now * 0.002 + index) * (28 + frac * 42) - frac * width * 0.28;
+        const size = 7 + frac * 10;
+        context.save();
+        context.globalAlpha = pulse * (0.08 + frac * 0.18);
+        context.translate(x, y);
+        context.rotate(now * 0.0018 + frac * Math.PI * 4);
+        context.drawImage(petal, -size / 2, -size / 2, size, size);
+        context.restore();
+      }
+      context.restore();
+    };
+
+    const drawTransitionLeaves = (now: number, progress: number) => {
+      const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
+      const pulse = easeOut(progress);
+      context.save();
+      for (let index = 0; index < 48; index += 1) {
+        const sprite = sprites[leafSprites[index % leafSprites.length]];
+        if (!sprite) {
+          continue;
+        }
+        const frac = seededUnit(index + 72.3);
+        const start = seededUnit(index + 22.6) * width;
+        const x = start + Math.sin(now * 0.001 + index) * 34 + progress * width * (0.12 + frac * 0.18);
+        const y = -40 + progress * (height * 0.78) + seededUnit(index + 5.8) * height * 0.38;
+        const size = 13 + frac * 16;
+        context.save();
+        context.globalAlpha = Math.min(0.62, pulse * (0.18 + frac * 0.36));
+        context.filter = nightMode ? 'saturate(0.58) brightness(0.5)' : 'saturate(0.92) brightness(0.9)';
+        context.translate(x, y);
+        context.rotate(now * 0.0009 + frac * Math.PI * 3);
+        context.drawImage(sprite, -size / 2, -size / 2, size, size);
+        context.restore();
       }
       context.restore();
     };
@@ -660,9 +821,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const transitionGrowth = isSeasonTransitioning ? easeOut(transitionProgress) : growth;
 
       if (season === 'spring') {
-        drawSpringGround(growth, now);
+        const windAway = isSeasonTransitioning && nextSeason === 'summer' ? transitionGrowth : 0;
+        drawSpringGround(growth * 0.75, now, false, 0);
+        drawPetalAccumulation(growth, now, windAway);
       } else if (season === 'summer') {
-        drawSpringGround(growth, now, true);
+        const dry = isSeasonTransitioning && nextSeason === 'autumn' ? transitionGrowth : 0;
+        drawSpringGround(growth, now, true, dry);
       } else if (isAutumn) {
         drawLeafAccumulation(growth);
       } else if (isWinter) {
@@ -671,10 +835,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       if (isSeasonTransitioning && nextSeason === 'spring') {
         drawSnowAccumulation(1, transitionGrowth);
-        drawSpringGround(transitionGrowth, now);
+        drawSpringGround(transitionGrowth * 0.72, now, false, 0);
+        drawPetalAccumulation(transitionGrowth, now);
       } else if (isSeasonTransitioning && nextSeason === 'summer') {
-        drawSpringGround(transitionGrowth, now, true);
+        drawSweptPetals(now, transitionGrowth);
+        drawSpringGround(transitionGrowth, now, true, 0);
       } else if (isSeasonTransitioning && nextSeason === 'autumn') {
+        if (previousSeason === 'summer') {
+          drawSpringGround(1 - transitionGrowth * 0.28, now, true, transitionGrowth);
+        }
+        drawTransitionLeaves(now, transitionGrowth);
         drawLeafAccumulation(transitionGrowth);
       } else if (isSeasonTransitioning && nextSeason === 'winter') {
         drawSnowAccumulation(transitionGrowth);
@@ -797,13 +967,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       drawSummer(now, transitionProgress);
 
       particles.forEach((particle) => {
-        if (particle.kind === 'firefly') {
+        if (particle.kind === 'firefly' || particle.kind === 'bug') {
           particle.x += (particle.vx + Math.sin(now * 0.001 + particle.phase) * 6) * deltaSeconds;
           particle.y += (particle.vy + Math.cos(now * 0.0011 + particle.phase) * 5) * deltaSeconds;
           if (particle.x < -40) particle.x = width + 40;
           if (particle.x > width + 40) particle.x = -40;
-          if (particle.y < height * 0.12) particle.y = height * 0.82;
-          if (particle.y > height * 0.86) particle.y = height * 0.18;
+          const topBound = particle.kind === 'bug' ? height * 0.2 : height * 0.12;
+          const bottomBound = particle.kind === 'bug' ? height * 0.76 : height * 0.86;
+          if (particle.y < topBound) particle.y = bottomBound;
+          if (particle.y > bottomBound) particle.y = topBound;
         } else {
           particle.x += (particle.vx + Math.sin(now * 0.0012 + particle.phase) * 18) * deltaSeconds;
           particle.y += particle.vy * deltaSeconds;

@@ -571,7 +571,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-danmaku-layer/);
     assert.match(component, /xh-season-vfx-canvas/);
     assert.match(component, /SeasonalVfxParticle/);
-    assert.match(component, /kind: 'petal' \| 'firefly' \| 'leaf' \| 'snow'/);
+    assert.match(component, /kind: 'petal' \| 'firefly' \| 'bug' \| 'leaf' \| 'snow'/);
     assert.match(component, /\/assets\/seasonal\/spring-petal-source\.png/);
     assert.match(component, /\/assets\/seasonal\/spring-firefly\.png/);
     assert.match(component, /\/assets\/seasonal\/autumn-leaf-pile\.png/);
@@ -586,8 +586,16 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawSummer\(now, transitionProgress\)/);
     assert.match(component, /drawGround\(now, transitionProgress\)/);
     assert.match(component, /drawTransition\(now, transitionProgress\)/);
+    assert.match(component, /drawPetalAccumulation\(growth, now, windAway\)/);
+    assert.match(component, /particle\.kind = 'bug'/);
+    assert.match(component, /const wingBeat = 0\.55 \+ Math\.sin\(now \* 0\.017 \+ particle\.phase\) \* 0\.25/);
+    assert.match(component, /drawSpringGround\(growth \* 0\.75, now, false, 0\)/);
+    assert.match(component, /drawSweptPetals\(now, transitionGrowth\)/);
+    assert.match(component, /drawTransitionLeaves\(now, transitionGrowth\)/);
+    assert.match(component, /drawSpringGround\(1 - transitionGrowth \* 0\.28, now, true, transitionGrowth\)/);
+    assert.match(component, /drawLeafAccumulation\(transitionGrowth\)/);
     assert.match(component, /xh-heat-distortion/);
-    assert.match(component, /drawSpringGround\(growth, now, true\)/);
+    assert.match(component, /drawSpringGround\(growth, now, true, dry\)/);
     assert.match(component, /const growth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.match(component, /const lane = index \/ 12/);
     assert.match(homeCss, /Summer heat distortion/);
