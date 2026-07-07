@@ -24117,3 +24117,70 @@ html[data-xh-season="summer"][data-xh-theme-phase="dawn"] body .xh-heat-distorti
   animation: none !important;
   transform: none !important;
 }
+
+/* Absolute final seasonal compositor lock: canvas only, no legacy curtains or ground washes. */
+html[data-xh-season-transition] body .xh-season-transition,
+html[data-xh-season-transition="active"] body .xh-season-transition,
+html[data-xh-season-transition="active"][data-xh-season][data-xh-season-next] body .xh-season-transition,
+html[data-xh-season-transition="active"][data-xh-season][data-xh-season-next] body .xh-season-transition.xh-season-transition,
+html[data-xh-season-transition="active"][data-xh-season][data-xh-season-next] body .xh-season-transition.xh-season-transition.is-active,
+body .xh-season-transition,
+body .xh-season-transition.is-active,
+body .xh-season-transition[data-season-from][data-season-to],
+body .xh-season-transition[data-season-from][data-season-to].is-active {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+html[data-xh-season-transition] body .xh-season-transition::before,
+html[data-xh-season-transition] body .xh-season-transition::after,
+html[data-xh-season-transition] body .xh-season-transition span,
+body .xh-season-transition::before,
+body .xh-season-transition::after,
+body .xh-season-transition span,
+body .xh-season-transition[data-season-from][data-season-to]::before,
+body .xh-season-transition[data-season-from][data-season-to]::after,
+body .xh-season-transition[data-season-from][data-season-to] span,
+body .xh-season-transition[data-season-from][data-season-to].is-active::before,
+body .xh-season-transition[data-season-from][data-season-to].is-active::after,
+body .xh-season-transition[data-season-from][data-season-to].is-active span {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+html[data-xh-season] body .xh-season-ground,
+html[data-xh-season] body .xh-season-ground[data-season],
+html[data-xh-season="autumn"] body .xh-season-ground[data-season="autumn"],
+html[data-xh-season="winter"] body .xh-season-ground[data-season="winter"],
+body .xh-season-ground,
+body .xh-season-ground[data-season],
+body .xh-season-ground span,
+body .xh-season-ground::before,
+body .xh-season-ground::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+}

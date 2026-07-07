@@ -591,6 +591,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawSummer\(now, transitionProgress\)/);
     assert.match(component, /drawGround\(now, transitionProgress\)/);
     assert.match(component, /drawTransition\(now, transitionProgress\)/);
+    assert.doesNotMatch(component, /className=\{`xh-season-transition/);
+    assert.doesNotMatch(component, /className="xh-seasonal-aura"/);
     assert.match(component, /drawPetalAccumulation\(growth, now, windAway\)/);
     assert.match(component, /particle\.kind = 'bug'/);
     assert.match(component, /const wingBeat = 0\.55 \+ Math\.sin\(now \* 0\.017 \+ particle\.phase\) \* 0\.25/);
@@ -614,8 +616,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeCss, /@keyframes xh-heat-refraction/);
     assert.match(homeCss, /Final seasonal quality pass/);
     assert.match(homeCss, /Hard stop for legacy seasonal washes and summer heat rectangles/);
+    assert.match(homeCss, /Absolute final seasonal compositor lock/);
     assert.match(homeCss, /html body \.xh-heat-distortion[\s\S]*display: none !important/);
     assert.match(homeCss, /html body \.xh-seasonal-aura[\s\S]*display: none !important/);
+    assert.match(homeCss, /body \.xh-season-transition\[data-season-from\]\[data-season-to\]\.is-active::after[\s\S]*display: none !important/);
+    assert.match(homeCss, /html\[data-xh-season\] body \.xh-season-ground[\s\S]*display: none !important/);
     assert.match(homeCss, /backdrop-filter: none !important/);
     assert.match(homeCss, /\.xh-season-transition,\s*[\s\S]*\.xh-season-transition\.is-active\s*\{[\s\S]*display: none !important/);
     assert.match(homeCss, /body:has\(\.xh-clean-home\) \.xh-season-switch[\s\S]*bottom: clamp\(238px, 26vh, 286px\)/);

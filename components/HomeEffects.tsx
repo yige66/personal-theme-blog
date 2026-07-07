@@ -1242,32 +1242,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <span />
       </div>
 
-      <div
-        className={`xh-season-transition${isSeasonTransitioning ? ' is-active' : ''}`}
-        data-season-from={previousSeason}
-        data-season-to={nextSeason}
-        aria-hidden="true"
-      >
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-
-      <div className="xh-seasonal-aura" data-season={season} aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-
       {messages.length > 0 ? (
         <div className="xh-danmaku-layer" aria-label={'\u7ad9\u70b9\u5f39\u5e55'}>
           {messages.map((message, index) => (
