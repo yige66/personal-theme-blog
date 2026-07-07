@@ -60,7 +60,13 @@ function getSeason(): Season {
   if (typeof document === 'undefined') {
     return 'spring';
   }
-  const season = document.documentElement.dataset.xhSeason;
+  const root = document.documentElement;
+  const isSeasonSettling = root.dataset.xhSeasonSettle === 'active';
+  const isSeasonTransitioning = root.dataset.xhSeasonTransition === 'active';
+  const heldSeason = isSeasonSettling || isSeasonTransitioning
+    ? root.dataset.xhSeasonPrevious || root.dataset.xhSeason
+    : root.dataset.xhSeason;
+  const season = heldSeason;
   return season === 'summer' || season === 'autumn' || season === 'winter' ? season : 'spring';
 }
 
@@ -158,7 +164,7 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
 
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-xh-theme', 'data-xh-theme-next', 'data-xh-theme-transition', 'data-xh-theme-phase', 'data-xh-season']
+      attributeFilter: ['data-xh-theme', 'data-xh-theme-next', 'data-xh-theme-transition', 'data-xh-theme-phase', 'data-xh-season', 'data-xh-season-previous', 'data-xh-season-transition', 'data-xh-season-settle']
     });
 
     return () => observer.disconnect();
