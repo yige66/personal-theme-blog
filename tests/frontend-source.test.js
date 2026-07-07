@@ -612,14 +612,14 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 36/);
-    assert.match(component, /index < 72/);
+    assert.match(component, /index < 112/);
     assert.match(component, /drawSpringGround\(1 - transitionGrowth \* 0\.28, now, true, transitionGrowth\)/);
     assert.match(component, /drawLeafAccumulation\(transitionGrowth\)/);
     assert.match(component, /particle\.kind = 'petal'[\s\S]*randomBetween\(18, 34\)/);
     assert.match(component, /particle\.kind = 'snow'[\s\S]*randomBetween\(7, 18\)/);
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawSpringGround\(growth, now, true, dry\)/);
-    assert.match(component, /const pileHeight = Math\.min\(30, Math\.max\(16, height \* 0\.028\)\) \* level/);
+    assert.match(component, /const pileHeight = Math\.min\(46, Math\.max\(26, height \* 0\.042\)\) \* level/);
     assert.match(component, /const snowHeight = Math\.min\(34, Math\.max\(18, height \* 0\.032\)\) \* level/);
     assert.match(component, /const growth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.match(component, /const lane = index \/ 12/);

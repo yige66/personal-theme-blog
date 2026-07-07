@@ -680,7 +680,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
       const level = Math.max(0, growth * (1 - windAway));
-      const pileHeight = Math.min(30, Math.max(16, height * 0.028)) * level;
+      const pileHeight = Math.min(46, Math.max(26, height * 0.042)) * level;
       if (pileHeight < 2) {
         return;
       }
@@ -690,38 +690,50 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const fade = 1 - windAway;
       const gradient = context.createLinearGradient(0, top - 8, 0, height);
       gradient.addColorStop(0, 'rgba(255, 214, 234, 0)');
-      gradient.addColorStop(0.48, `rgba(255, 188, 222, ${0.08 * fade})`);
-      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.18 * fade})`);
+      gradient.addColorStop(0.36, `rgba(255, 188, 222, ${0.12 * fade})`);
+      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.28 * fade})`);
       context.fillStyle = gradient;
-      context.fillRect(0, top - 8, width, pileHeight + 10);
+      context.fillRect(0, top - 10, width, pileHeight + 12);
 
       context.beginPath();
       context.moveTo(0, height);
       context.lineTo(0, top + Math.sin(now * 0.0005) * 1.4);
-      for (let x = 0; x <= width + 60; x += 60) {
-        const ridge = Math.sin(x * 0.018 + now * 0.00035) * 2.2 + Math.sin(x * 0.047) * 1.2;
-        context.quadraticCurveTo(x + 30, top - 3 + ridge, x + 60, top + ridge * 0.5);
+      for (let x = 0; x <= width + 54; x += 54) {
+        const ridge = Math.sin(x * 0.018 + now * 0.00035) * 3.4 + Math.sin(x * 0.047) * 1.8;
+        context.quadraticCurveTo(x + 27, top - 5 + ridge, x + 54, top + ridge * 0.5);
       }
       context.lineTo(width, height);
       context.closePath();
-      context.fillStyle = `rgba(255, 211, 232, ${0.08 * fade})`;
+      context.fillStyle = `rgba(255, 211, 232, ${0.16 * fade})`;
       context.fill();
 
       const petal = sprites.petal;
       if (petal) {
-        for (let index = 0; index < 72; index += 1) {
+        for (let index = 0; index < 112; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
-          const cluster = Math.floor(index / 7);
-          const patch = Math.sin(cluster * 2.41) * 34;
-          const x = ((index * 43 + frac * 138 + patch + drift) % (width + 150)) - 75;
-          const wave = Math.sin(now * 0.0012 + index) * windAway * (16 + frac * 18);
-          const y = height - (Math.pow(lane, 1.72) * pileHeight * 0.86 + 1 + seededUnit(index + 58.2) * 3) - windAway * (10 + frac * 36);
-          const size = (5 + frac * 6.5) * (0.9 + level * 0.16);
+          const cluster = Math.floor(index / 8);
+          const patch = Math.sin(cluster * 2.41) * 44;
+          const x = ((index * 37 + frac * 168 + patch + drift) % (width + 170)) - 85;
+          const wave = Math.sin(now * 0.0012 + index) * windAway * (18 + frac * 24);
+          const y = height - (Math.pow(lane, 1.52) * pileHeight * 0.92 + 1 + seededUnit(index + 58.2) * 5) - windAway * (12 + frac * 42);
+          const size = (5.5 + frac * 8.5) * (0.96 + level * 0.18);
           context.save();
-          context.globalAlpha = (0.24 + frac * 0.28) * fade;
+          context.globalAlpha = (0.3 + frac * 0.34) * fade;
           context.translate(x, y + wave);
           context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
+          context.drawImage(petal, -size / 2, -size / 2, size, size);
+          context.restore();
+        }
+        for (let index = 0; index < 28; index += 1) {
+          const frac = seededUnit(index + 211.3);
+          const x = ((index * 91 + frac * 210 + drift * 0.8) % (width + 120)) - 60;
+          const y = height - (4 + Math.pow(seededUnit(index + 19.6), 1.18) * pileHeight * 0.62) - windAway * (18 + frac * 52);
+          const size = 10 + frac * 11;
+          context.save();
+          context.globalAlpha = (0.22 + frac * 0.2) * fade * level;
+          context.translate(x, y + Math.sin(now * 0.001 + index) * windAway * 20);
+          context.rotate(frac * Math.PI * 2.8 + windAway * 1.5);
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
