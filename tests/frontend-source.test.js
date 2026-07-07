@@ -585,8 +585,10 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /className=\{`xh-space-rain/);
     assert.doesNotMatch(component, /effects\.fireflies \?/);
     assert.doesNotMatch(component, /effects\.petals \?/);
-    assert.match(component, /Math\.round\(intensity \/ 3\)/);
-    assert.match(component, /Math\.round\(intensity \/ 1\.8\)/);
+    assert.match(component, /const frameIntervalMs = 1000 \/ 30/);
+    assert.match(component, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.35\)/);
+    assert.match(component, /Math\.round\(intensity \/ 4\.5\)/);
+    assert.match(component, /Math\.round\(intensity \/ 2\.8\)/);
     assert.match(component, /resetParticle\(particle, true\)/);
     assert.match(component, /drawSummer\(now, transitionProgress\)/);
     assert.match(component, /drawGround\(now, transitionProgress\)/);
@@ -601,7 +603,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawTransitionLeaves\(now, transitionGrowth\)/);
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
-    assert.match(component, /index < 64/);
+    assert.match(component, /index < 36/);
+    assert.match(component, /index < 72/);
     assert.match(component, /drawSpringGround\(1 - transitionGrowth \* 0\.28, now, true, transitionGrowth\)/);
     assert.match(component, /drawLeafAccumulation\(transitionGrowth\)/);
     assert.match(component, /particle\.kind = 'petal'[\s\S]*randomBetween\(18, 34\)/);

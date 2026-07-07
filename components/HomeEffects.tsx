@@ -297,7 +297,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     let animationId = 0;
 
     const resize = () => {
-      const ratio = window.devicePixelRatio || 1;
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
       canvas.width = Math.floor(window.innerWidth * ratio);
       canvas.height = Math.floor(window.innerHeight * ratio);
       canvas.style.width = `${window.innerWidth}px`;
@@ -397,6 +397,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     let width = window.innerWidth;
     let height = window.innerHeight;
     let lastTime = performance.now();
+    let lastFrameAt = 0;
+    const frameIntervalMs = 1000 / 30;
     const effectStartedAt = performance.now();
     const particles: SeasonalVfxParticle[] = [];
     const transitionStartedAt = isSeasonTransitioning ? performance.now() : 0;
@@ -482,22 +484,22 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const targetCount = () => {
       if (season === 'summer' && !getNightMode()) {
-        return Math.max(8, Math.round(intensity / 8));
+        return Math.max(6, Math.round(intensity / 10));
       }
       if (season === 'spring') {
-        return Math.max(34, Math.round(intensity / 1.8));
+        return Math.max(24, Math.round(intensity / 2.8));
       }
       if (season === 'winter') {
-        return Math.max(24, Math.round(intensity / 3));
+        return Math.max(18, Math.round(intensity / 4.5));
       }
       if (season === 'autumn') {
-        return Math.max(16, Math.round(intensity / 4));
+        return Math.max(12, Math.round(intensity / 6));
       }
-      return Math.max(16, Math.round(intensity / 4));
+      return Math.max(12, Math.round(intensity / 6));
     };
 
     const resize = () => {
-      const ratio = window.devicePixelRatio || 1;
+      const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.floor(width * ratio);
@@ -573,18 +575,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       if (particle.kind === 'firefly') {
         context.shadowColor = 'rgba(255, 236, 116, 0.72)';
-        context.shadowBlur = size * 1.6;
+        context.shadowBlur = size * 0.75;
         context.globalCompositeOperation = 'screen';
       }
       if (particle.kind === 'snow') {
         context.globalCompositeOperation = 'screen';
-        context.shadowColor = 'rgba(222, 247, 255, 0.42)';
-        context.shadowBlur = size * 0.5;
-        context.filter = 'brightness(1.7) saturate(0.42)';
-      } else if (particle.kind === 'leaf') {
-        context.filter = 'saturate(0.92) brightness(0.96)';
-      } else if (particle.kind === 'petal') {
-        context.filter = getNightMode() ? 'saturate(0.88) brightness(1.08)' : 'saturate(1.08) brightness(1.04)';
+        context.shadowColor = 'rgba(222, 247, 255, 0.18)';
+        context.shadowBlur = size * 0.18;
       }
       context.drawImage(image, -size / 2, -size / 2, size, size);
       context.restore();
@@ -649,8 +646,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       const petal = sprites.petal;
       if (petal) {
-        context.filter = 'saturate(0.98) brightness(1.04)';
-        for (let index = 0; index < 118; index += 1) {
+        for (let index = 0; index < 72; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
           const cluster = Math.floor(index / 7);
@@ -720,7 +716,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       ]);
       if (sprites.leafPile) {
         context.globalAlpha = 0.34 * growth;
-        context.filter = getNightMode() ? 'saturate(0.62) brightness(0.5) blur(0.45px)' : 'saturate(0.84) brightness(0.76) blur(0.28px)';
         context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.08, width, pileHeight * 1.04);
       }
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
@@ -735,7 +730,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const size = 9 + frac * 12;
         context.save();
         context.globalAlpha = (0.16 + frac * 0.2) * growth;
-        context.filter = getNightMode() ? 'saturate(0.58) brightness(0.52)' : 'saturate(0.86) brightness(0.84)';
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -751,8 +745,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       const pulse = Math.sin(progress * Math.PI);
       context.save();
-      context.filter = 'saturate(1.04) brightness(1.06)';
-      for (let index = 0; index < 42; index += 1) {
+      for (let index = 0; index < 30; index += 1) {
         const frac = seededUnit(index + 44.8);
         const y = height * (0.38 + seededUnit(index + 12.1) * 0.5) - progress * height * (0.08 + frac * 0.16);
         const x = -80 + progress * (width + 190) + Math.sin(now * 0.002 + index) * (28 + frac * 42) - frac * width * 0.28;
@@ -771,7 +764,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
       const pulse = easeOut(progress);
       context.save();
-      for (let index = 0; index < 48; index += 1) {
+      for (let index = 0; index < 34; index += 1) {
         const sprite = sprites[leafSprites[index % leafSprites.length]];
         if (!sprite) {
           continue;
@@ -783,7 +776,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const size = 13 + frac * 16;
         context.save();
         context.globalAlpha = Math.min(0.62, pulse * (0.18 + frac * 0.36));
-        context.filter = getNightMode() ? 'saturate(0.58) brightness(0.5)' : 'saturate(0.92) brightness(0.9)';
         context.translate(x, y);
         context.rotate(now * 0.0009 + frac * Math.PI * 3);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -798,7 +790,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 18; index += 1) {
+      for (let index = 0; index < 12; index += 1) {
         const seed = seededUnit(index + 135.7);
         const drift = Math.sin(now * 0.0007 + index * 1.7);
         const x = width * (0.08 + seededUnit(index + 21.9) * 0.84) + drift * (24 + seed * 36);
@@ -823,7 +815,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 64; index += 1) {
+      for (let index = 0; index < 36; index += 1) {
         const seed = seededUnit(index + 301.4);
         const lane = seededUnit(index + 18.6);
         const fall = ((now * (0.018 + seed * 0.032) + index * 47) % (height + 120)) - 70;
@@ -833,8 +825,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const alpha = (getNightMode() ? 0.28 : 0.36) + seed * 0.22;
         context.save();
         context.globalAlpha = alpha;
-        context.shadowColor = 'rgba(220, 248, 255, 0.18)';
-        context.shadowBlur = radius * 0.8;
+        context.shadowColor = 'rgba(220, 248, 255, 0.1)';
+        context.shadowBlur = radius * 0.25;
         context.fillStyle = 'rgba(246, 253, 255, 0.74)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
@@ -936,11 +928,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (beam && beamSoft) {
         const sway = Math.sin(now * 0.00045) * 22;
         context.globalAlpha = 0.22;
-        context.filter = 'blur(2px) saturate(1.28)';
+        context.filter = 'blur(1px)';
         context.translate(width * 0.18 + sway, -height * 0.08);
         context.rotate(-0.24);
         context.drawImage(beam, -120, 0, width * 0.32, height * 0.84);
-        context.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+        const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
         context.globalAlpha = 0.18;
         context.translate(width * 0.68 - sway, -height * 0.1);
         context.rotate(0.18);
@@ -951,7 +944,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       context.globalAlpha = 0.055 * (1 - transitionProgress * 0.65);
       context.globalCompositeOperation = 'screen';
-      context.filter = 'blur(10px) saturate(1.18)';
+      context.filter = 'blur(4px)';
       const bandHeight = Math.max(42, height * 0.055);
       for (let line = 0; line < 4; line += 1) {
         const y = height * (0.55 + line * 0.055) + Math.sin(now * 0.0012 + line) * 7;
@@ -1016,6 +1009,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const draw = (now: number) => {
+      if (now - lastFrameAt < frameIntervalMs) {
+        animationId = window.requestAnimationFrame(draw);
+        return;
+      }
+      lastFrameAt = now;
       const deltaSeconds = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
       context.clearRect(0, 0, width, height);
