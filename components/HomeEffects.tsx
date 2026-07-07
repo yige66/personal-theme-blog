@@ -24,6 +24,25 @@ type Ripple = {
   speed: number;
 };
 
+type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'beam' | 'beamSoft' | 'leafPile' | 'snowbank';
+
+type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
+
+type SeasonalVfxParticle = {
+  kind: 'petal' | 'firefly' | 'leaf' | 'snow';
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  rotation: number;
+  spin: number;
+  alpha: number;
+  phase: number;
+  depth: number;
+  sprite: SeasonalSpriteKey;
+};
+
 const dailyDanmaku = [
   '\u4eca\u5929\u4e5f\u6709\u8ba4\u771f\u66f4\u65b0',
   'BGM \u6b63\u5728\u5faa\u73af\u4e2d',
@@ -159,6 +178,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     volume
   } = useMusic();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const seasonCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
   const seasonTransitionTimerRef = useRef<number | null>(null);
@@ -185,88 +205,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     return uniqueMessages([...configured, ...dailyDanmaku, ...postTitles, ...noteLines, site.status]);
   }, [effects.danmaku, notes, posts, site.status]);
 
-  const fireflies = useMemo(() => Array.from({ length: Math.round(intensity / 3) }, (_item, index) => {
-    const driftX = ((index % 5) - 2) * 22;
-    const driftY = -28 - (index % 7) * 8;
-    const scale = 0.72 + (index % 4) * 0.16;
-
-    return {
-      id: `firefly-${index}`,
-      left: `${(index * 17 + 9) % 100}%`,
-      top: `${(index * 29 + 14) % 82}%`,
-      delay: `${(index % 8) * 0.62}s`,
-      glowDelay: `${(index % 8) * -0.34}s`,
-      duration: `${7 + (index % 6)}s`,
-      driftX: `${driftX}px`,
-      driftY: `${driftY}px`,
-      driftXStart: `${driftX * -0.45}px`,
-      driftYStart: `${driftY * 0.42}px`,
-      driftXMid: `${driftX * 0.72}px`,
-      driftYMid: `${driftY * -0.18}px`,
-      scale: `${scale}`,
-      scaleBright: `${scale * 1.22}`,
-      scaleDim: `${scale * 0.92}`,
-      scaleEnd: `${scale * 1.28}`
-    };
-  }), [intensity]);
-
-  const petals = useMemo(() => Array.from({ length: Math.round(intensity / 2.75) }, (_item, index) => {
-    const drift = 36 + (index % 6) * 18;
-    const rotate = (index % 2 === 0 ? 1 : -1) * (220 + (index % 5) * 34);
-    const size = 18 + (index % 4) * 2;
-
-    return {
-      id: `petal-${index}`,
-      left: `${(index * 23 + 4) % 100}%`,
-      drift: `${drift}px`,
-      driftStart: `${drift * -0.42}px`,
-      driftMid: `${drift * 0.72}px`,
-      delay: `${(index % 10) * 0.72}s`,
-      duration: `${10 + (index % 7)}s`,
-      rotate: `${rotate}deg`,
-      rotateStart: `${rotate * 0.36}deg`,
-      rotateMid: `${rotate * 0.72}deg`,
-      size: `${size}px`,
-      height: `${size * 0.72}px`
-    };
-  }), [intensity]);
-
   const sparkles = useMemo(() => Array.from({ length: 10 }, (_item, index) => ({
     id: `sparkle-${index}`,
     left: `${(index * 19 + 11) % 100}%`,
     top: `${(index * 31 + 8) % 88}%`,
     delay: `${(index % 6) * 0.54}s`
   })), []);
-
-  const seasonalParticles = useMemo(() => Array.from({ length: Math.round(intensity / 1.15) + 18 }, (_item, index) => {
-    const drift = 72 + (index % 10) * 18;
-    const size = 11 + (index % 7) * 3;
-    const rotate = (index % 2 === 0 ? 1 : -1) * (150 + (index % 7) * 24);
-    const depth = index % 3;
-
-    return {
-      id: `seasonal-${index}`,
-      left: `${(index * 17 + 5) % 104 - 2}%`,
-      top: `${(index * 29 + 9) % 118 - 18}vh`,
-      drift: `${drift}px`,
-      driftMid: `${drift * -0.48}px`,
-      delay: `${(index % 18) * -0.58}s`,
-      duration: `${8.4 + (index % 10) * 0.74}s`,
-      rotate: `${rotate}deg`,
-      size: `${size}px`,
-      depth: `${depth}`,
-      blur: `${depth * 0.45}px`,
-      alpha: `${0.68 + depth * 0.12}`
-    };
-  }), [intensity]);
-
-  const rainDrops = useMemo(() => Array.from({ length: Math.round(intensity / 4) }, (_item, index) => ({
-    id: `rain-${index}`,
-    left: `${(index * 13 + 7) % 100}%`,
-    delay: `${(index % 12) * -0.22}s`,
-    duration: `${0.82 + (index % 7) * 0.08}s`,
-    height: `${38 + (index % 6) * 8}px`
-  })), [intensity]);
 
   useEffect(() => {
     const savedMode = window.localStorage.getItem('xh-theme-mode');
@@ -419,6 +363,482 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
   }, [effects.enabled]);
 
+  useEffect(() => {
+    if (!effects.enabled || prefersReducedMotion()) {
+      return undefined;
+    }
+
+    const canvas = seasonCanvasRef.current;
+    const context = canvas?.getContext('2d');
+    if (!canvas || !context) {
+      return undefined;
+    }
+
+    const assetPaths: Record<SeasonalSpriteKey, string> = {
+      petal: '/assets/seasonal/spring-petal-source.png',
+      firefly: '/assets/seasonal/spring-firefly.png',
+      leafA: '/assets/seasonal/autumn-leaf-a.png',
+      leafB: '/assets/seasonal/autumn-leaf-b.png',
+      leafC: '/assets/seasonal/autumn-leaf-c.png',
+      snow: '/assets/seasonal/winter-snowflake.png',
+      heat: '/assets/seasonal/summer-heat-haze.png',
+      beam: '/assets/seasonal/summer-beam.png',
+      beamSoft: '/assets/seasonal/summer-beam-soft.png',
+      leafPile: '/assets/seasonal/autumn-leaf-pile.png',
+      snowbank: '/assets/seasonal/winter-snowbank.png'
+    };
+    const sprites: SeasonalSpriteMap = {};
+    const spriteKeys = Object.keys(assetPaths) as SeasonalSpriteKey[];
+    let loadedSprites = 0;
+    let isDisposed = false;
+    let animationId = 0;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let lastTime = performance.now();
+    const effectStartedAt = performance.now();
+    const particles: SeasonalVfxParticle[] = [];
+    const transitionStartedAt = isSeasonTransitioning ? performance.now() : 0;
+
+    const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
+    const chooseLeafSprite = (): SeasonalSpriteKey => {
+      const roll = Math.random();
+      if (roll < 0.42) {
+        return 'leafA';
+      }
+      return roll < 0.82 ? 'leafB' : 'leafC';
+    };
+
+    const resetParticle = (particle: SeasonalVfxParticle, initial = false) => {
+      const sceneMode = nightMode ? 'night' : 'day';
+      particle.phase = randomBetween(0, Math.PI * 2);
+      particle.depth = randomBetween(0.68, 1.26);
+      particle.rotation = randomBetween(-Math.PI, Math.PI);
+
+      if (season === 'spring' && sceneMode === 'day') {
+        particle.kind = 'petal';
+        particle.sprite = 'petal';
+        particle.size = randomBetween(18, 34) * particle.depth;
+        particle.x = randomBetween(-width * 0.12, width * 1.02);
+        particle.y = initial ? randomBetween(-height * 0.08, height * 0.92) : randomBetween(-120, -24);
+        particle.vx = randomBetween(8, 28) * particle.depth;
+        particle.vy = randomBetween(18, 46) * particle.depth;
+        particle.spin = randomBetween(-0.9, 1.1);
+        particle.alpha = randomBetween(0.5, 0.78);
+        return;
+      }
+
+      if ((season === 'spring' && sceneMode === 'night') || (season === 'summer' && sceneMode === 'night')) {
+        particle.kind = 'firefly';
+        particle.sprite = 'firefly';
+        particle.size = randomBetween(10, 22) * particle.depth;
+        particle.x = randomBetween(width * 0.04, width * 0.96);
+        particle.y = randomBetween(height * 0.18, height * 0.82);
+        particle.vx = randomBetween(-10, 12);
+        particle.vy = randomBetween(-8, 9);
+        particle.spin = randomBetween(-0.3, 0.3);
+        particle.alpha = randomBetween(0.38, 0.72);
+        return;
+      }
+
+      if (season === 'autumn') {
+        particle.kind = 'leaf';
+        particle.sprite = chooseLeafSprite();
+        particle.size = randomBetween(22, 46) * particle.depth;
+        particle.x = randomBetween(-width * 0.08, width * 1.06);
+        particle.y = initial ? randomBetween(-height * 0.1, height * 0.86) : randomBetween(-140, -32);
+        particle.vx = randomBetween(-18, 34) * particle.depth;
+        particle.vy = randomBetween(22, 54) * particle.depth;
+        particle.spin = randomBetween(-1.2, 1.4);
+        particle.alpha = randomBetween(0.48, 0.76);
+        return;
+      }
+
+      particle.kind = 'snow';
+      particle.sprite = 'snow';
+      particle.size = randomBetween(8, 20) * particle.depth;
+      particle.x = randomBetween(-width * 0.08, width * 1.08);
+      particle.y = initial ? randomBetween(-height * 0.1, height * 0.92) : randomBetween(-120, -18);
+      particle.vx = randomBetween(-8, 12) * particle.depth;
+      particle.vy = randomBetween(20, 48) * particle.depth;
+      particle.spin = randomBetween(-0.35, 0.35);
+      particle.alpha = randomBetween(0.42, 0.78);
+    };
+
+    const targetCount = () => {
+      if (season === 'summer' && !nightMode) {
+        return 0;
+      }
+      if (season === 'spring' && nightMode) {
+        return Math.max(10, Math.round(intensity / 5));
+      }
+      return Math.max(12, Math.round(intensity / 4.5));
+    };
+
+    const resize = () => {
+      const ratio = window.devicePixelRatio || 1;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * ratio);
+      canvas.height = Math.floor(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
+
+    const reconcileParticles = () => {
+      const count = targetCount();
+      while (particles.length < count) {
+        const particle = {} as SeasonalVfxParticle;
+        resetParticle(particle, true);
+        particles.push(particle);
+      }
+      if (particles.length > count) {
+        particles.splice(count);
+      }
+      particles.forEach((particle) => {
+        if (
+          (season === 'summer' && !nightMode)
+          || (season === 'spring' && nightMode && particle.kind !== 'firefly')
+          || (season === 'spring' && !nightMode && particle.kind !== 'petal')
+          || (season === 'autumn' && particle.kind !== 'leaf')
+          || (season === 'winter' && particle.kind !== 'snow')
+        ) {
+          resetParticle(particle, true);
+        }
+      });
+    };
+
+    const drawSprite = (particle: SeasonalVfxParticle, now: number) => {
+      const image = sprites[particle.sprite];
+      if (!image) {
+        return;
+      }
+
+      const bob = Math.sin(now * 0.0014 + particle.phase);
+      const x = particle.x + bob * 18 * particle.depth;
+      const y = particle.y;
+      const size = particle.size * (particle.kind === 'leaf' ? 1.18 : 1);
+      const alpha = particle.kind === 'firefly'
+        ? particle.alpha * (0.58 + Math.sin(now * 0.003 + particle.phase) * 0.28 + 0.28)
+        : particle.alpha;
+
+      context.save();
+      context.globalAlpha = Math.max(0, Math.min(0.9, alpha));
+      context.translate(x, y);
+      context.rotate(particle.rotation + Math.sin(now * 0.001 + particle.phase) * 0.38);
+      if (particle.kind === 'firefly') {
+        context.shadowColor = 'rgba(255, 236, 116, 0.72)';
+        context.shadowBlur = size * 1.6;
+        context.globalCompositeOperation = 'screen';
+      }
+      if (particle.kind === 'snow') {
+        context.globalCompositeOperation = 'screen';
+        context.filter = 'brightness(1.45) saturate(0.5)';
+      } else if (particle.kind === 'leaf') {
+        context.filter = 'saturate(0.92) brightness(0.96)';
+      }
+      context.drawImage(image, -size / 2, -size / 2, size, size);
+      context.restore();
+    };
+
+    const easeOut = (value: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, value)), 3);
+
+    const drawGrassBlade = (x: number, baseY: number, length: number, lean: number, color: string, alpha: number) => {
+      context.save();
+      context.globalAlpha = alpha;
+      context.strokeStyle = color;
+      context.lineWidth = Math.max(1, length * 0.08);
+      context.lineCap = 'round';
+      context.beginPath();
+      context.moveTo(x, baseY);
+      context.quadraticCurveTo(x + lean * 0.42, baseY - length * 0.58, x + lean, baseY - length);
+      context.stroke();
+      context.restore();
+    };
+
+    const drawSoftGroundGradient = (top: number, colors: [string, string, string]) => {
+      const gradient = context.createLinearGradient(0, top, 0, height);
+      gradient.addColorStop(0, colors[0]);
+      gradient.addColorStop(0.42, colors[1]);
+      gradient.addColorStop(1, colors[2]);
+      context.fillStyle = gradient;
+      context.fillRect(0, top, width, height - top);
+    };
+
+    const drawSpringGround = (growth: number, now: number, summerFlowers = false) => {
+      const groundHeight = Math.min(92, Math.max(54, height * 0.08)) * growth;
+      const top = height - groundHeight;
+      context.save();
+      drawSoftGroundGradient(top, [
+        summerFlowers ? 'rgba(95, 178, 92, 0)' : 'rgba(126, 203, 122, 0)',
+        summerFlowers ? 'rgba(78, 158, 86, 0.34)' : 'rgba(93, 180, 96, 0.34)',
+        summerFlowers ? 'rgba(42, 112, 68, 0.64)' : 'rgba(54, 136, 74, 0.58)'
+      ]);
+      const step = Math.max(11, width / 150);
+      for (let x = -20; x < width + 20; x += step) {
+        const seed = Math.sin(x * 12.9898) * 43758.5453;
+        const frac = seed - Math.floor(seed);
+        const blade = (18 + frac * (summerFlowers ? 30 : 22)) * growth;
+        const lean = Math.sin(now * 0.0016 + x * 0.02) * (summerFlowers ? 10 : 7);
+        const hue = summerFlowers ? 104 + frac * 36 : 96 + frac * 28;
+        drawGrassBlade(x, height + 4, blade, lean, `hsla(${hue}, 48%, ${summerFlowers ? 42 : 48}%, 0.72)`, 0.72);
+        if (summerFlowers && frac > 0.82) {
+          context.save();
+          context.globalAlpha = 0.52 * growth;
+          context.fillStyle = frac > 0.92 ? 'rgba(255, 214, 112, 0.82)' : 'rgba(255, 150, 205, 0.76)';
+          const flowerY = height - blade - 4;
+          context.beginPath();
+          context.arc(x + lean, flowerY, 2.4 + frac * 2.2, 0, Math.PI * 2);
+          context.fill();
+          context.restore();
+        }
+      }
+      context.restore();
+    };
+
+    const drawLeafAccumulation = (growth: number) => {
+      const pileHeight = Math.min(92, Math.max(50, height * 0.075)) * growth;
+      if (pileHeight < 4) {
+        return;
+      }
+      context.save();
+      drawSoftGroundGradient(height - pileHeight, [
+        'rgba(224, 143, 45, 0)',
+        'rgba(186, 92, 38, 0.3)',
+        'rgba(82, 42, 24, 0.58)'
+      ]);
+      if (sprites.leafPile) {
+        context.globalAlpha = 0.42 * growth;
+        context.filter = nightMode ? 'saturate(0.68) brightness(0.58)' : 'saturate(0.8) brightness(0.78)';
+        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.15, width, pileHeight * 1.18);
+      }
+      context.restore();
+    };
+
+    const drawSnowAccumulation = (growth: number, melt = 0) => {
+      const level = Math.max(0, growth * (1 - melt));
+      const snowHeight = Math.min(82, Math.max(42, height * 0.068)) * level;
+      if (snowHeight < 3) {
+        return;
+      }
+      const top = height - snowHeight;
+      context.save();
+      const glow = context.createLinearGradient(0, top - 18, 0, height);
+      glow.addColorStop(0, 'rgba(235, 248, 255, 0)');
+      glow.addColorStop(0.38, nightMode ? 'rgba(214, 239, 255, 0.34)' : 'rgba(250, 254, 255, 0.52)');
+      glow.addColorStop(1, nightMode ? 'rgba(180, 218, 240, 0.72)' : 'rgba(236, 250, 255, 0.82)');
+      context.fillStyle = glow;
+      context.fillRect(0, top - 18, width, snowHeight + 24);
+
+      context.beginPath();
+      context.moveTo(0, top + Math.sin(width * 0.001) * 4);
+      for (let x = 0; x <= width; x += 90) {
+        const y = top + Math.sin(x * 0.008 + level * 2.4) * 7 + Math.sin(x * 0.021) * 3;
+        context.lineTo(x, y);
+      }
+      context.lineTo(width, height);
+      context.lineTo(0, height);
+      context.closePath();
+      context.fillStyle = nightMode ? 'rgba(224, 243, 255, 0.74)' : 'rgba(252, 254, 255, 0.82)';
+      context.fill();
+      context.strokeStyle = nightMode ? 'rgba(198, 226, 246, 0.45)' : 'rgba(255, 255, 255, 0.64)';
+      context.lineWidth = 2;
+      context.stroke();
+      context.restore();
+    };
+
+    const drawGround = (now: number, transitionProgress: number) => {
+      const isAutumn = season === 'autumn';
+      const isWinter = season === 'winter';
+      const growth = easeOut((now - effectStartedAt) / 16000);
+      const transitionGrowth = isSeasonTransitioning ? easeOut(transitionProgress) : growth;
+
+      if (season === 'spring') {
+        drawSpringGround(growth, now);
+      } else if (season === 'summer') {
+        drawSpringGround(growth, now, true);
+      } else if (isAutumn) {
+        drawLeafAccumulation(growth);
+      } else if (isWinter) {
+        drawSnowAccumulation(growth);
+      }
+
+      if (isSeasonTransitioning && nextSeason === 'spring') {
+        drawSnowAccumulation(1, transitionGrowth);
+        drawSpringGround(transitionGrowth, now);
+      } else if (isSeasonTransitioning && nextSeason === 'summer') {
+        drawSpringGround(transitionGrowth, now, true);
+      } else if (isSeasonTransitioning && nextSeason === 'autumn') {
+        drawLeafAccumulation(transitionGrowth);
+      } else if (isSeasonTransitioning && nextSeason === 'winter') {
+        drawSnowAccumulation(transitionGrowth);
+      }
+    };
+
+    const drawSummer = (now: number, transitionProgress: number) => {
+      if (season !== 'summer' || nightMode) {
+        return;
+      }
+
+      context.save();
+      context.globalCompositeOperation = 'screen';
+      const beam = sprites.beam;
+      const beamSoft = sprites.beamSoft;
+      if (beam && beamSoft) {
+        const sway = Math.sin(now * 0.00045) * 22;
+        context.globalAlpha = 0.22;
+        context.filter = 'blur(2px) saturate(1.28)';
+        context.translate(width * 0.18 + sway, -height * 0.08);
+        context.rotate(-0.24);
+        context.drawImage(beam, -120, 0, width * 0.32, height * 0.84);
+        context.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+        context.globalAlpha = 0.18;
+        context.translate(width * 0.68 - sway, -height * 0.1);
+        context.rotate(0.18);
+        context.drawImage(beamSoft, -90, 0, width * 0.34, height * 0.78);
+      }
+      context.restore();
+
+      context.save();
+      context.globalAlpha = 0.16 * (1 - transitionProgress * 0.55);
+      context.globalCompositeOperation = 'screen';
+      context.filter = 'blur(8px) saturate(1.35)';
+      const bandHeight = Math.max(170, height * 0.26);
+      for (let line = 0; line < 7; line += 1) {
+        const y = height * 0.58 + line * 18 + Math.sin(now * 0.0012 + line) * 8;
+        const gradient = context.createLinearGradient(0, y, width, y + 28);
+        gradient.addColorStop(0, 'rgba(255, 224, 120, 0)');
+        gradient.addColorStop(0.5, 'rgba(255, 224, 120, 0.42)');
+        gradient.addColorStop(1, 'rgba(84, 199, 184, 0)');
+        context.fillStyle = gradient;
+        context.fillRect(0, y, width, bandHeight / 12);
+      }
+      context.restore();
+    };
+
+    const drawTransition = (now: number, progress: number) => {
+      if (!isSeasonTransitioning) {
+        return;
+      }
+
+      context.save();
+      const pulse = Math.sin(progress * Math.PI);
+      context.globalCompositeOperation = 'screen';
+      for (let index = 0; index < 28; index += 1) {
+        const lane = index / 28;
+        const y = height * lane + Math.sin(now * 0.004 + index) * 26;
+        const length = width * (0.18 + pulse * 0.34);
+        const x = ((now * (0.22 + index * 0.015) + index * 173) % (width + length)) - length;
+        const gradient = context.createLinearGradient(x, y, x + length, y);
+        gradient.addColorStop(0, 'rgba(255,255,255,0)');
+        gradient.addColorStop(0.5, 'rgba(255,255,255,0.32)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        context.globalAlpha = 0.18 * pulse;
+        context.strokeStyle = gradient;
+        context.lineWidth = 1 + (index % 4) * 0.6;
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(x + length, y + Math.sin(index) * 12);
+        context.stroke();
+      }
+
+      context.globalCompositeOperation = 'source-over';
+      context.globalAlpha = 0.18 * pulse;
+      const band = context.createLinearGradient(0, 0, width, height);
+      band.addColorStop(0, 'rgba(126, 217, 255, 0.18)');
+      band.addColorStop(0.48, 'rgba(255, 226, 138, 0.14)');
+      band.addColorStop(1, 'rgba(255, 143, 199, 0.18)');
+      context.fillStyle = band;
+      context.fillRect(0, 0, width, height);
+
+      if (previousSeason === 'spring' && nextSeason === 'summer') {
+        context.globalAlpha = Math.sin(progress * Math.PI) * 0.38;
+        context.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+        context.lineWidth = 2;
+        for (let index = 0; index < 9; index += 1) {
+          const y = height * (0.18 + index * 0.075) + Math.sin(now * 0.004 + index) * 18;
+          context.beginPath();
+          context.moveTo(-width * 0.12 + progress * width * 0.7, y);
+          context.bezierCurveTo(width * 0.18, y - 42, width * 0.46, y + 36, width * (0.86 + progress * 0.32), y - 8);
+          context.stroke();
+        }
+      }
+
+      if (previousSeason === 'summer' && nextSeason === 'autumn') {
+        drawSummer(now, progress);
+        context.globalAlpha = Math.sin(progress * Math.PI) * 0.28;
+        context.fillStyle = 'rgba(210, 120, 54, 0.42)';
+        context.fillRect(0, 0, width, height);
+      }
+
+      if (previousSeason === 'winter' && nextSeason === 'spring') {
+        context.globalAlpha = Math.sin(progress * Math.PI) * 0.24;
+        context.fillStyle = 'rgba(255, 170, 206, 0.5)';
+        context.fillRect(0, height * 0.74, width, height * 0.26);
+      }
+      context.restore();
+    };
+
+    const draw = (now: number) => {
+      const deltaSeconds = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      context.clearRect(0, 0, width, height);
+      reconcileParticles();
+      const transitionProgress = isSeasonTransitioning
+        ? Math.min(1, (now - transitionStartedAt) / seasonTransitionDurationMs)
+        : 0;
+
+      drawSummer(now, transitionProgress);
+
+      particles.forEach((particle) => {
+        if (particle.kind === 'firefly') {
+          particle.x += (particle.vx + Math.sin(now * 0.001 + particle.phase) * 6) * deltaSeconds;
+          particle.y += (particle.vy + Math.cos(now * 0.0011 + particle.phase) * 5) * deltaSeconds;
+          if (particle.x < -40) particle.x = width + 40;
+          if (particle.x > width + 40) particle.x = -40;
+          if (particle.y < height * 0.12) particle.y = height * 0.82;
+          if (particle.y > height * 0.86) particle.y = height * 0.18;
+        } else {
+          particle.x += (particle.vx + Math.sin(now * 0.0012 + particle.phase) * 18) * deltaSeconds;
+          particle.y += particle.vy * deltaSeconds;
+          particle.rotation += particle.spin * deltaSeconds;
+          if (particle.y > height + 80 || particle.x < -160 || particle.x > width + 180) {
+            resetParticle(particle);
+          }
+        }
+        drawSprite(particle, now);
+      });
+
+      drawGround(now, transitionProgress);
+      drawTransition(now, transitionProgress);
+      animationId = window.requestAnimationFrame(draw);
+    };
+
+    spriteKeys.forEach((key) => {
+      const image = new window.Image();
+      image.onload = () => {
+        loadedSprites += 1;
+        if (!isDisposed && loadedSprites === spriteKeys.length) {
+          resize();
+          reconcileParticles();
+          lastTime = performance.now();
+          animationId = window.requestAnimationFrame(draw);
+        }
+      };
+      image.src = assetPaths[key];
+      sprites[key] = image;
+    });
+
+    resize();
+    window.addEventListener('resize', resize);
+
+    return () => {
+      isDisposed = true;
+      window.cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resize);
+    };
+  }, [effects.enabled, intensity, isSeasonTransitioning, nextSeason, nightMode, previousSeason, season]);
+
   const startThemeTransition = useCallback(() => {
     if (isTransitioningRef.current) {
       return;
@@ -566,6 +986,16 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       <div className="xh-room-vignette" aria-hidden="true" />
 
+      <canvas
+        className="xh-season-vfx-canvas"
+        ref={seasonCanvasRef}
+        data-season={season}
+        data-scene-theme={renderedMode}
+        aria-hidden="true"
+      />
+
+      <div className="xh-heat-distortion" data-season={season} data-scene-theme={renderedMode} aria-hidden="true" />
+
       <div className={`xh-theme-transition${isTransitioning ? ' is-active' : ''}`} data-mode={nextMode} data-phase={renderedPhase} aria-hidden="true">
         <span />
         <span />
@@ -598,41 +1028,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         <span />
       </div>
 
-      <div className="xh-seasonal-layer" data-season={season} data-scene-theme={renderedMode} aria-hidden="true">
-        {seasonalParticles.map((item) => (
-          <i
-            key={item.id}
-            style={{
-              left: item.left,
-              top: item.top,
-              '--season-delay': item.delay,
-              '--season-duration': item.duration,
-              '--season-drift': item.drift,
-              '--season-drift-mid': item.driftMid,
-              '--season-rotate': item.rotate,
-              '--season-size': item.size,
-              '--season-depth': item.depth,
-              '--season-blur': item.blur,
-              '--season-alpha': item.alpha
-            } as CSSProperties}
-          />
-        ))}
-      </div>
-
-      <div className={`xh-space-rain${nightMode ? ' is-visible' : ''}`} aria-hidden="true">
-        {rainDrops.map((item) => (
-          <i
-            key={item.id}
-            style={{
-              '--rain-left': item.left,
-              '--rain-delay': item.delay,
-              '--rain-duration': item.duration,
-              '--rain-height': item.height
-            } as CSSProperties}
-          />
-        ))}
-      </div>
-
       {messages.length > 0 ? (
         <div className="xh-danmaku-layer" aria-label={'\u7ad9\u70b9\u5f39\u5e55'}>
           {messages.map((message, index) => (
@@ -650,54 +1045,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           ))}
         </div>
       ) : null}
-
-      <div className="xh-firefly-layer" aria-hidden="true">
-        {fireflies.map((item) => (
-          <i
-            key={item.id}
-            style={{
-              left: item.left,
-              top: item.top,
-              '--firefly-delay': item.delay,
-              '--firefly-glow-delay': item.glowDelay,
-              '--firefly-duration': item.duration,
-              '--firefly-drift-x': item.driftX,
-              '--firefly-drift-y': item.driftY,
-              '--firefly-drift-x-start': item.driftXStart,
-              '--firefly-drift-y-start': item.driftYStart,
-              '--firefly-drift-x-mid': item.driftXMid,
-              '--firefly-drift-y-mid': item.driftYMid,
-              '--firefly-scale': item.scale,
-              '--firefly-scale-bright': item.scaleBright,
-              '--firefly-scale-dim': item.scaleDim,
-              '--firefly-scale-end': item.scaleEnd
-            } as CSSProperties}
-          />
-        ))}
-      </div>
-
-      <div className="xh-petal-layer" aria-hidden="true">
-        {petals.map((item) => (
-          <i
-            key={item.id}
-            style={{
-              left: item.left,
-              '--petal-delay': item.delay,
-              '--petal-duration': item.duration,
-              '--petal-drift': item.drift,
-              '--petal-drift-start': item.driftStart,
-              '--petal-drift-mid': item.driftMid,
-              '--petal-rotate': item.rotate,
-              '--petal-rotate-start': item.rotateStart,
-              '--petal-rotate-mid': item.rotateMid,
-              '--petal-size': item.size,
-              '--petal-height': item.height
-            } as CSSProperties}
-          />
-        ))}
-      </div>
-
-      {effects.grass ? <div className="xh-grass-layer" data-season={season} aria-hidden="true" /> : null}
 
       <div className="xh-kirakira-layer" aria-hidden="true">
         {sparkles.map((item) => (
