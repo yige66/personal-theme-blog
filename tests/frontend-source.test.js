@@ -571,6 +571,10 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-danmaku-layer/);
     assert.match(component, /xh-season-vfx-canvas/);
     assert.match(component, /SeasonalVfxParticle/);
+    assert.match(component, /nightModeRef\.current = nightMode/);
+    assert.match(component, /const getNightMode = \(\) => nightModeRef\.current/);
+    assert.match(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, previousSeason, season\]\);/);
+    assert.doesNotMatch(component, /\}, \[effects\.enabled, intensity, isSeasonTransitioning, nextSeason, nightMode, previousSeason, season\]\);/);
     assert.match(component, /kind: 'petal' \| 'firefly' \| 'bug' \| 'leaf' \| 'snow'/);
     assert.match(component, /\/assets\/seasonal\/spring-petal-source\.png/);
     assert.match(component, /\/assets\/seasonal\/spring-firefly\.png/);
@@ -581,7 +585,8 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /className=\{`xh-space-rain/);
     assert.doesNotMatch(component, /effects\.fireflies \?/);
     assert.doesNotMatch(component, /effects\.petals \?/);
-    assert.match(component, /Math\.round\(intensity \/ 3\.2\)/);
+    assert.match(component, /Math\.round\(intensity \/ 1\.5\)/);
+    assert.match(component, /Math\.round\(intensity \/ 1\.8\)/);
     assert.match(component, /resetParticle\(particle, true\)/);
     assert.match(component, /drawSummer\(now, transitionProgress\)/);
     assert.match(component, /drawGround\(now, transitionProgress\)/);
@@ -592,8 +597,12 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawSpringGround\(growth \* 0\.75, now, false, 0\)/);
     assert.match(component, /drawSweptPetals\(now, transitionGrowth\)/);
     assert.match(component, /drawTransitionLeaves\(now, transitionGrowth\)/);
+    assert.match(component, /drawNightFireflies\(now\)/);
+    assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /drawSpringGround\(1 - transitionGrowth \* 0\.28, now, true, transitionGrowth\)/);
     assert.match(component, /drawLeafAccumulation\(transitionGrowth\)/);
+    assert.match(component, /particle\.kind = 'petal'[\s\S]*randomBetween\(18, 34\)/);
+    assert.match(component, /particle\.kind = 'snow'[\s\S]*randomBetween\(7, 18\)/);
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawSpringGround\(growth, now, true, dry\)/);
     assert.match(component, /const growth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
@@ -601,6 +610,10 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeCss, /Summer heat distortion/);
     assert.match(homeCss, /backdrop-filter: blur\(1\.2px\) saturate\(1\.06\) contrast\(1\.02\)/);
     assert.match(homeCss, /@keyframes xh-heat-refraction/);
+    assert.match(homeCss, /Final seasonal quality pass/);
+    assert.match(homeCss, /\.xh-season-transition,\s*[\s\S]*\.xh-season-transition\.is-active\s*\{[\s\S]*display: none !important/);
+    assert.match(homeCss, /body:has\(\.xh-clean-home\) \.xh-season-switch[\s\S]*bottom: clamp\(238px, 26vh, 286px\)/);
+    assert.match(homeCss, /\.xh-season-switch :is\(\.xh-season-switch-kicker, strong, small\)[\s\S]*clip: rect\(0 0 0 0\)/);
     assert.match(component, /xh-click-canvas/);
     assert.doesNotMatch(component, /pointermove|xh-cursor-canvas/);
     assert.match(motion, /gsap/);

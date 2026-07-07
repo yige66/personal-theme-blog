@@ -23958,3 +23958,131 @@ html[data-xh-season="summer"][data-xh-theme="day"] body .xh-heat-distortion[data
   backdrop-filter: blur(1.2px) saturate(1.06) contrast(1.02) !important;
   -webkit-backdrop-filter: blur(1.2px) saturate(1.06) contrast(1.02) !important;
 }
+
+/* Final seasonal quality pass: canvas owns natural season transfer; no full-screen color curtains. */
+html[data-xh-season-transition="active"] body .xh-season-transition,
+.xh-season-transition,
+.xh-season-transition.is-active {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.xh-season-transition::before,
+.xh-season-transition::after,
+.xh-season-transition span {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+.xh-season-vfx-canvas {
+  z-index: 11 !important;
+  opacity: 1 !important;
+}
+
+.xh-seasonal-aura {
+  z-index: 6 !important;
+  opacity: 0.18 !important;
+  filter: blur(28px) saturate(0.72) !important;
+}
+
+html[data-xh-season="summer"][data-xh-theme="day"] .xh-heat-distortion[data-season="summer"][data-scene-theme="day"],
+html[data-xh-season="summer"][data-xh-theme-phase="dawn"] .xh-heat-distortion[data-season="summer"] {
+  opacity: 0.16 !important;
+  backdrop-filter: blur(0.6px) saturate(1.025) contrast(1.01) !important;
+  -webkit-backdrop-filter: blur(0.6px) saturate(1.025) contrast(1.01) !important;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 238, 166, 0.035) 0 1px, transparent 1px 42px),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(255, 255, 255, 0.035) 34px 35px, transparent 35px 78px) !important;
+  mask-image: linear-gradient(180deg, transparent 0 36%, #000 56% 92%, transparent 100%) !important;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0 36%, #000 56% 92%, transparent 100%) !important;
+}
+
+.xh-season-switch {
+  right: clamp(18px, 2.4vw, 34px) !important;
+  bottom: clamp(226px, 25vh, 270px) !important;
+  z-index: 132 !important;
+  display: grid !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  place-items: center !important;
+  padding: 5px !important;
+  border-radius: 999px !important;
+  overflow: visible !important;
+  transition:
+    transform 620ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    box-shadow 620ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    background 620ms cubic-bezier(0.2, 0.86, 0.22, 1) !important;
+}
+
+.xh-season-switch :is(.xh-season-switch-kicker, strong, small) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+.xh-season-switch-orbit {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+}
+
+.xh-season-switch.is-transitioning {
+  transform: translate3d(0, -4px, 0) scale(1.04) !important;
+}
+
+.xh-season-switch.is-transitioning .xh-season-switch-orbit {
+  animation: none !important;
+  transform: rotate(72deg) scale(1.04) !important;
+}
+
+body:has(.xh-clean-home) .xh-season-switch {
+  right: clamp(20px, 2.8vw, 38px) !important;
+  bottom: clamp(238px, 26vh, 286px) !important;
+}
+
+body:has(:is(.subpage, .music-page)) .xh-season-switch,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch {
+  right: var(--xh-float-right, clamp(12px, 2vw, 24px)) !important;
+  bottom: calc(var(--xh-float-bottom, 16px) + var(--xh-player-height, 78px) + 132px) !important;
+}
+
+body:has(.xh-clean-home) .xh-pixel-kurisu-pet {
+  right: clamp(12px, 1.8vw, 22px) !important;
+  bottom: clamp(14px, 2vw, 26px) !important;
+  z-index: 126 !important;
+}
+
+body:has(.xh-clean-home) .xh-global-toolbox {
+  left: clamp(14px, 2vw, 24px) !important;
+  bottom: clamp(16px, 2vw, 24px) !important;
+  top: auto !important;
+  transform: none !important;
+}
+
+@media (max-width: 760px) {
+  .xh-season-switch,
+  body:has(.xh-clean-home) .xh-season-switch,
+  body:has(:is(.subpage, .music-page)) .xh-season-switch {
+    right: 14px !important;
+    bottom: 188px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  .xh-season-switch-orbit {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+}
