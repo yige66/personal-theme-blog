@@ -56,18 +56,20 @@ function getThemePhase(): ThemePhase {
   return phase === 'dusk' || phase === 'dawn' || phase === 'night' ? phase : 'day';
 }
 
+function parseSeason(value: string | null | undefined): Season | null {
+  return value === 'spring' || value === 'summer' || value === 'autumn' || value === 'winter' ? value : null;
+}
+
 function getSeason(): Season {
   if (typeof document === 'undefined') {
     return 'spring';
   }
   const root = document.documentElement;
-  const isSeasonSettling = root.dataset.xhSeasonSettle === 'active';
   const isSeasonTransitioning = root.dataset.xhSeasonTransition === 'active';
-  const heldSeason = isSeasonSettling || isSeasonTransitioning
-    ? root.dataset.xhSeasonPrevious || root.dataset.xhSeason
-    : root.dataset.xhSeason;
-  const season = heldSeason;
-  return season === 'summer' || season === 'autumn' || season === 'winter' ? season : 'spring';
+  const currentSeason = parseSeason(root.dataset.xhSeason) ?? 'spring';
+  const nextSeason = parseSeason(root.dataset.xhSeasonNext);
+
+  return isSeasonTransitioning && nextSeason ? nextSeason : currentSeason;
 }
 
 function getVisibleThemeMode(): ThemeMode {

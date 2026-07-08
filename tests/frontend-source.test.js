@@ -473,9 +473,10 @@ describe('target-inspired homepage portal', () => {
     assert.match(background, /data-theme-transitioning/);
     assert.match(background, /!themeTransitionActive && index === exitingIndex/);
     assert.match(background, /MutationObserver/);
-    assert.match(background, /root\.dataset\.xhSeasonSettle === 'active'/);
+    assert.match(background, /parseSeason/);
     assert.match(background, /root\.dataset\.xhSeasonTransition === 'active'/);
-    assert.match(background, /root\.dataset\.xhSeasonPrevious \|\| root\.dataset\.xhSeason/);
+    assert.match(background, /root\.dataset\.xhSeasonNext/);
+    assert.doesNotMatch(background, /root\.dataset\.xhSeasonPrevious \|\| root\.dataset\.xhSeason/);
     assert.match(background, /'data-xh-season-settle'/);
     assert.match(background, /data-scene-theme/);
     assert.match(background, /ib-scene-shell/);
@@ -687,7 +688,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /const baseGrowth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.doesNotMatch(component, /withAlpha\(next === 'winter' \? Math\.max\(0\.38, fadeOut\) : 1, \(\) => drawLeafAccumulation\(growth\)\)/);
     assert.match(component, /if \(next !== 'winter'\) \{\s*withAlpha\(1, \(\) => drawLeafAccumulation\(growth\)\)/);
-    assert.match(component, /const leafCoverFade = 1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.22\) \/ 0\.78\)\)/);
+    assert.match(component, /const leafCoverProgress = smoothStep\(Math\.min\(1, Math\.max\(0, transitionProgress \/ 0\.82\)\)\)/);
+    assert.match(component, /drawLeafAccumulation\(growth, leafCoverProgress\)/);
+    assert.doesNotMatch(component, /const leafCoverFade = 1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.22\) \/ 0\.78\)\)/);
     assert.doesNotMatch(component, /1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.64\) \/ 0\.36\)\)/);
     assert.match(component, /resetParticle\(particle, false, particleAlpha > 0\.02 && particle\.season === activeSeason \? particle\.season : activeSeason\)/);
     assert.match(component, /const lane = index \/ 12/);

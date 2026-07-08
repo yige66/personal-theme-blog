@@ -1019,15 +1019,17 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
     };
 
-    const drawLeafAccumulation = (growth: number) => {
+    const drawLeafAccumulation = (growth: number, sink = 0) => {
       const pileHeight = Math.min(72, Math.max(34, height * 0.06)) * growth;
       if (pileHeight < 4) {
         return;
       }
+      const sinkOffset = Math.min(34, Math.max(12, height * 0.026)) * smoothStep(sink);
       context.save();
+      context.translate(0, sinkOffset);
       const groundShadow = context.createLinearGradient(0, height - pileHeight * 0.78, 0, height);
       groundShadow.addColorStop(0, 'rgba(224, 143, 45, 0)');
-      groundShadow.addColorStop(1, `rgba(91, 47, 22, ${0.08 * growth})`);
+      groundShadow.addColorStop(1, `rgba(91, 47, 22, ${0.08 * growth * (1 - smoothStep(sink))})`);
       context.fillStyle = groundShadow;
       context.fillRect(0, height - pileHeight * 0.78, width, pileHeight * 0.78);
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
@@ -1044,7 +1046,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const y = height - Math.pow(lane, 2.35) * pileHeight * 0.66 - 2 - seededUnit(index + 49.4) * 4;
         const size = 7 + frac * 11.5;
         context.save();
-        context.globalAlpha = (0.38 + frac * 0.4) * growth;
+        context.globalAlpha = (0.38 + frac * 0.4) * growth * (1 - smoothStep(sink));
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -1318,8 +1320,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth));
       } else if (transitioning && next === 'winter') {
         if (previous === 'autumn') {
-          const leafCoverFade = 1 - smoothStep(Math.max(0, (transitionProgress - 0.22) / 0.78));
-          withAlpha(leafCoverFade, () => drawLeafAccumulation(growth));
+          const leafCoverProgress = smoothStep(Math.min(1, Math.max(0, transitionProgress / 0.82)));
+          withAlpha(1 - leafCoverProgress, () => drawLeafAccumulation(growth, leafCoverProgress));
         }
         withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth));
       }
