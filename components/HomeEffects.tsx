@@ -1033,18 +1033,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawLeafAccumulation = (growth: number) => {
-      const pileHeight = Math.min(82, Math.max(42, height * 0.078)) * growth;
+      const pileHeight = Math.min(72, Math.max(34, height * 0.06)) * growth;
       if (pileHeight < 4) {
         return;
       }
       context.save();
-      drawSoftGroundGradient(height - pileHeight, [
-        'rgba(224, 143, 45, 0)',
-        'rgba(190, 109, 36, 0.09)',
-        'rgba(88, 48, 22, 0.16)'
-      ]);
+      const groundShadow = context.createLinearGradient(0, height - pileHeight * 0.78, 0, height);
+      groundShadow.addColorStop(0, 'rgba(224, 143, 45, 0)');
+      groundShadow.addColorStop(1, `rgba(91, 47, 22, ${0.08 * growth})`);
+      context.fillStyle = groundShadow;
+      context.fillRect(0, height - pileHeight * 0.78, width, pileHeight * 0.78);
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
-      for (let index = 0; index < 260; index += 1) {
+      for (let index = 0; index < 360; index += 1) {
         const frac = seededUnit(index + 17.2);
         const lane = seededUnit(index + 82.6);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
@@ -1054,10 +1054,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const cluster = Math.floor(index / 10);
         const patch = Math.sin(cluster * 2.17) * 36;
         const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
-        const y = height - Math.pow(lane, 2.18) * pileHeight * 0.7 - 2 - seededUnit(index + 49.4) * 4;
-        const size = 7.5 + frac * 12.5;
+        const y = height - Math.pow(lane, 2.35) * pileHeight * 0.66 - 2 - seededUnit(index + 49.4) * 4;
+        const size = 7 + frac * 11.5;
         context.save();
-        context.globalAlpha = (0.34 + frac * 0.34) * growth;
+        context.globalAlpha = (0.38 + frac * 0.4) * growth;
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -1301,9 +1301,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (!transitioning) {
         const settle = getSeasonSettleState(now);
         if (settle.active) {
-          if (settle.from === 'autumn' && settle.to === 'winter') {
-            withAlpha(1 - settle.progress, () => drawLeafAccumulation(Math.max(baseGrowth, groundLevels[settle.from])));
-          }
           withAlpha(1, () => drawStableSeasonGround(settle.to, Math.max(baseGrowth, groundLevels[settle.to])));
           return;
         }
@@ -1656,7 +1653,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         startedAt: performance.now(),
         duration: prefersReducedMotion() ? 420 : seasonSettleDurationMs
       };
-      seasonGroundLevelsRef.current[currentSeason] = currentSeason === 'autumn' && target === 'winter' ? 1 : 0;
+      seasonGroundLevelsRef.current[currentSeason] = 0;
       seasonGroundLevelsRef.current[target] = 1;
       setSeason(target);
       setPreviousSeason(currentSeason);

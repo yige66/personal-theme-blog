@@ -638,7 +638,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
-    assert.match(component, /index < 260/);
+    assert.match(component, /index < 360/);
     assert.match(component, /index < 460/);
     assert.match(component, /index < 180/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);
@@ -648,8 +648,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /withAlpha\(fadeIn, \(\) => drawLeafAccumulation\(nextGrowth\)\)/);
     assert.match(component, /const fadeOut = transitioning \? 1 - smoothStep/);
     assert.match(component, /if \(settle\.active\) \{/);
-    assert.match(component, /settle\.from === 'autumn' && settle\.to === 'winter'/);
-    assert.match(component, /withAlpha\(1 - settle\.progress, \(\) => drawLeafAccumulation\(Math\.max\(baseGrowth, groundLevels\[settle\.from\]\)\)\)/);
+    assert.doesNotMatch(component, /settle\.from === 'autumn' && settle\.to === 'winter'/);
+    assert.doesNotMatch(component, /drawLeafAccumulation\(Math\.max\(baseGrowth, groundLevels\[settle\.from\]\)\)/);
     assert.match(component, /withAlpha\(1, \(\) => drawStableSeasonGround\(settle\.to, Math\.max\(baseGrowth, groundLevels\[settle\.to\]\)\)\)/);
     assert.doesNotMatch(component, /drawStableSeasonGround\(settle\.from, growth\)/);
     assert.doesNotMatch(component, /const transitionGrowth = transitioning \? easeOut\(transitionProgress\) : growth/);
@@ -666,7 +666,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /const currentSeason = seasonRef\.current/);
     assert.doesNotMatch(component, /const currentSeason = season;/);
     assert.match(component, /seasonRef\.current = target/);
-    assert.match(component, /seasonGroundLevelsRef\.current\[currentSeason\] = currentSeason === 'autumn' && target === 'winter' \? 1 : 0/);
+    assert.match(component, /seasonGroundLevelsRef\.current\[currentSeason\] = 0/);
+    assert.doesNotMatch(component, /currentSeason === 'autumn' && target === 'winter' \? 1 : 0/);
     assert.match(component, /seasonGroundLevelsRef\.current\[target\] = 1/);
     assert.match(component, /setSeason\(target\)/);
     assert.match(component, /setSeasonAttributes\(target, target, 'idle', currentSeason, 'active'\)/);
