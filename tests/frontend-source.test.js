@@ -618,7 +618,8 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /effects\.petals \?/);
     assert.match(component, /const frameIntervalMs = 1000 \/ 30/);
     assert.match(component, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.35\)/);
-    assert.match(component, /Math\.round\(intensity \/ 3\.5\)/);
+    assert.match(component, /Math\.round\(intensity \/ 3\)/);
+    assert.match(component, /Math\.round\(intensity \/ 2\.4\)/);
     assert.match(component, /Math\.round\(intensity \/ 2\.2\)/);
     assert.match(component, /resetParticle\(particle, true\)/);
     assert.match(component, /particle\.season = activeSeason/);
@@ -639,7 +640,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
-    assert.match(component, /index < 360/);
+    assert.match(component, /const drawLeafAccumulation[\s\S]*index < 760/);
+    assert.match(component, /sepia\(0\.72\) saturate\(1\.28\) hue-rotate\(-18deg\) brightness\(0\.84\)/);
+    assert.match(component, /particle\.kind === 'leaf'[\s\S]*sepia\(0\.72\) saturate\(1\.24\) hue-rotate\(-18deg\) brightness\(0\.86\)/);
     assert.match(component, /index < 620/);
     assert.match(component, /index < 260/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);
@@ -681,7 +684,10 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawStableSeasonGround\('summer', growth, 0, dry\)/);
     assert.match(component, /const pileHeight = Math\.min\(54, Math\.max\(24, height \* 0\.044\)\) \* level/);
-    assert.match(component, /const snowHeight = Math\.min\(38, Math\.max\(18, height \* 0\.034\)\) \* level/);
+    assert.match(component, /const snowHeight = Math\.min\(66, Math\.max\(34, height \* 0\.058\)\) \* level/);
+    assert.match(component, /const pileHeight = Math\.min\(96, Math\.max\(46, height \* 0\.082\)\) \* growth/);
+    assert.match(component, /context\.globalCompositeOperation = 'multiply'/);
+    assert.match(component, /index < 220/);
     assert.doesNotMatch(component, /drawImage\(sprites\.snowbank/);
     assert.doesNotMatch(component, /fillRect\(0, top - 10, width, snowHeight \+ 12\)/);
     assert.doesNotMatch(component, /rgba\(244, 252, 255, \$\{0\.48/);

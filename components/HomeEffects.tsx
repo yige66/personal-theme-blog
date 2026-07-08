@@ -702,10 +702,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         return Math.max(32, Math.round(intensity / 2.2));
       }
       if (targetSeason === 'winter') {
-        return Math.max(24, Math.round(intensity / 3.5));
+        return Math.max(30, Math.round(intensity / 3));
       }
       if (targetSeason === 'autumn') {
-        return Math.max(22, Math.round(intensity / 3.4));
+        return Math.max(34, Math.round(intensity / 2.4));
       }
       return Math.max(12, Math.round(intensity / 6));
     };
@@ -899,6 +899,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.fill();
         context.globalAlpha *= 0.35;
       }
+      if (particle.kind === 'leaf') {
+        context.filter = 'sepia(0.72) saturate(1.24) hue-rotate(-18deg) brightness(0.86)';
+      }
       context.drawImage(image, -size / 2, -size / 2, size, size);
       context.restore();
     };
@@ -1020,7 +1023,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawLeafAccumulation = (growth: number, sink = 0) => {
-      const pileHeight = Math.min(72, Math.max(34, height * 0.06)) * growth;
+      const pileHeight = Math.min(96, Math.max(46, height * 0.082)) * growth;
       if (pileHeight < 4) {
         return;
       }
@@ -1029,11 +1032,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.translate(0, sinkOffset);
       const groundShadow = context.createLinearGradient(0, height - pileHeight * 0.78, 0, height);
       groundShadow.addColorStop(0, 'rgba(224, 143, 45, 0)');
-      groundShadow.addColorStop(1, `rgba(91, 47, 22, ${0.08 * growth * (1 - smoothStep(sink))})`);
+      groundShadow.addColorStop(0.58, `rgba(143, 73, 28, ${0.1 * growth * (1 - smoothStep(sink))})`);
+      groundShadow.addColorStop(1, `rgba(66, 31, 16, ${0.2 * growth * (1 - smoothStep(sink))})`);
       context.fillStyle = groundShadow;
       context.fillRect(0, height - pileHeight * 0.78, width, pileHeight * 0.78);
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
-      for (let index = 0; index < 360; index += 1) {
+      for (let index = 0; index < 760; index += 1) {
         const frac = seededUnit(index + 17.2);
         const lane = seededUnit(index + 82.6);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
@@ -1043,15 +1047,42 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const cluster = Math.floor(index / 10);
         const patch = Math.sin(cluster * 2.17) * 36;
         const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
-        const y = height - Math.pow(lane, 2.35) * pileHeight * 0.66 - 2 - seededUnit(index + 49.4) * 4;
-        const size = 7 + frac * 11.5;
+        const y = height - Math.pow(lane, 2.08) * pileHeight * 0.76 - 2 - seededUnit(index + 49.4) * 5;
+        const size = 8.5 + frac * 14;
         context.save();
-        context.globalAlpha = (0.38 + frac * 0.4) * growth * (1 - smoothStep(sink));
+        context.globalAlpha = (0.52 + frac * 0.4) * growth * (1 - smoothStep(sink));
+        context.filter = 'sepia(0.72) saturate(1.28) hue-rotate(-18deg) brightness(0.84)';
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
         context.restore();
       }
+      context.save();
+      context.globalCompositeOperation = 'multiply';
+      for (let index = 0; index < 280; index += 1) {
+        const frac = seededUnit(index + 419.5);
+        const x = ((index * 83 + frac * 160) % (width + 96)) - 48;
+        const y = height - Math.pow(seededUnit(index + 122.4), 1.8) * pileHeight * 0.54 - 1;
+        context.globalAlpha = (0.1 + frac * 0.16) * growth * (1 - smoothStep(sink));
+        context.fillStyle = frac > 0.55 ? 'rgba(92, 38, 18, 0.82)' : 'rgba(150, 72, 25, 0.7)';
+        context.beginPath();
+        context.ellipse(x, y, 2.8 + frac * 5.8, 1 + frac * 2.2, frac * Math.PI, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.restore();
+      context.save();
+      context.globalCompositeOperation = 'source-over';
+      for (let index = 0; index < 180; index += 1) {
+        const frac = seededUnit(index + 642.6);
+        const x = ((index * 109 + frac * 190) % (width + 110)) - 55;
+        const y = height - Math.pow(seededUnit(index + 314.8), 2.2) * pileHeight * 0.72 - 2;
+        context.globalAlpha = (0.08 + frac * 0.16) * growth * (1 - smoothStep(sink));
+        context.fillStyle = frac > 0.62 ? 'rgba(190, 111, 35, 0.72)' : 'rgba(118, 55, 22, 0.68)';
+        context.beginPath();
+        context.ellipse(x, y, 3 + frac * 6.5, 1.4 + frac * 2.6, frac * Math.PI * 1.6, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.restore();
       context.restore();
     };
 
@@ -1093,6 +1124,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const size = 13 + frac * 16;
         context.save();
         context.globalAlpha = Math.min(0.62, pulse * (0.18 + frac * 0.36));
+        context.filter = 'sepia(0.72) saturate(1.24) hue-rotate(-18deg) brightness(0.86)';
         context.translate(x, y);
         context.rotate(now * 0.0009 + frac * Math.PI * 3);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
@@ -1196,7 +1228,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawSnowAccumulation = (growth: number, melt = 0) => {
       const level = Math.max(0, growth * (1 - melt));
-      const snowHeight = Math.min(38, Math.max(18, height * 0.034)) * level;
+      const snowHeight = Math.min(66, Math.max(34, height * 0.058)) * level;
       if (snowHeight < 3) {
         return;
       }
@@ -1205,14 +1237,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       const glow = context.createLinearGradient(0, height - snowHeight * 0.9, 0, height);
       glow.addColorStop(0, 'rgba(235, 248, 255, 0)');
-      glow.addColorStop(0.68, `rgba(235, 248, 255, ${0.045 * weights.day + 0.04 * weights.night})`);
-      glow.addColorStop(1, `rgba(226, 244, 252, ${0.1 * weights.day + 0.08 * weights.night})`);
+      glow.addColorStop(0.34, `rgba(219, 238, 247, ${0.085 * weights.day + 0.07 * weights.night})`);
+      glow.addColorStop(0.74, `rgba(184, 213, 232, ${0.2 * weights.day + 0.16 * weights.night})`);
+      glow.addColorStop(1, `rgba(134, 164, 190, ${0.26 * weights.day + 0.2 * weights.night})`);
       context.fillStyle = glow;
       context.fillRect(0, height - snowHeight * 0.9, width, snowHeight * 0.9);
 
       if (sprites.snowMist) {
         context.save();
-        context.globalAlpha = (0.055 * weights.day + 0.07 * weights.night) * level;
+        context.globalAlpha = (0.09 * weights.day + 0.1 * weights.night) * level;
         context.globalCompositeOperation = 'screen';
         context.drawImage(sprites.snowMist, -width * 0.03, height - snowHeight * 1.12, width * 1.06, snowHeight * 0.86);
         context.restore();
@@ -1227,21 +1260,42 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       }
       context.lineTo(width, height);
       context.closePath();
-      context.fillStyle = `rgba(246, 253, 255, ${0.16 * weights.day + 0.13 * weights.night})`;
+      context.fillStyle = `rgba(232, 245, 252, ${0.36 * weights.day + 0.28 * weights.night})`;
       context.fill();
-      context.strokeStyle = `rgba(235, 246, 255, ${0.11 * weights.day + 0.08 * weights.night})`;
-      context.lineWidth = 1;
+      context.strokeStyle = `rgba(255, 255, 255, ${0.32 * weights.day + 0.22 * weights.night})`;
+      context.lineWidth = 1.4;
       context.stroke();
 
       context.save();
+      context.globalCompositeOperation = 'multiply';
+      for (let band = 0; band < 4; band += 1) {
+        const bandY = top + snowHeight * (0.22 + band * 0.17);
+        const shade = context.createLinearGradient(0, bandY - 4, 0, bandY + 10);
+        shade.addColorStop(0, 'rgba(138, 166, 190, 0)');
+        shade.addColorStop(0.56, `rgba(120, 149, 174, ${0.045 * level})`);
+        shade.addColorStop(1, 'rgba(138, 166, 190, 0)');
+        context.fillStyle = shade;
+        context.beginPath();
+        context.moveTo(0, bandY);
+        for (let x = 0; x <= width + 36; x += 36) {
+          context.lineTo(x, bandY + Math.sin(x * 0.018 + band * 1.7) * 2.6);
+        }
+        context.lineTo(width, bandY + 14);
+        context.lineTo(0, bandY + 14);
+        context.closePath();
+        context.fill();
+      }
+      context.restore();
+
+      context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 132; index += 1) {
+      for (let index = 0; index < 220; index += 1) {
         const frac = seededUnit(index + 511.8);
         const x = (index * 67 + frac * 180) % (width + 100) - 50;
-        const y = height - Math.pow(seededUnit(index + 44.1), 1.8) * snowHeight * 0.9 - 1;
-        const radius = 0.45 + frac * 1.35;
-        context.globalAlpha = (0.08 + frac * 0.16) * level;
-        context.fillStyle = 'rgba(255, 255, 255, 0.84)';
+        const y = height - Math.pow(seededUnit(index + 44.1), 1.55) * snowHeight * 0.92 - 1;
+        const radius = 0.55 + frac * 1.8;
+        context.globalAlpha = (0.14 + frac * 0.22) * level;
+        context.fillStyle = frac > 0.72 ? 'rgba(255, 255, 255, 0.9)' : 'rgba(223, 241, 250, 0.82)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.fill();
