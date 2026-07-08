@@ -1303,6 +1303,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (!transitioning) {
         const settle = getSeasonSettleState(now);
         if (settle.active) {
+          if (settle.from === 'autumn' && settle.to === 'winter') {
+            withAlpha(1 - settle.progress, () => drawLeafAccumulation(Math.max(baseGrowth, groundLevels[settle.from])));
+          }
           withAlpha(1, () => drawStableSeasonGround(settle.to, Math.max(baseGrowth, groundLevels[settle.to])));
           return;
         }
@@ -1624,7 +1627,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       seasonSettleTimerRef.current = null;
     }
 
-    const currentSeason = season;
+    const currentSeason = seasonRef.current;
     const target = targetSeason ?? getNextSeason(currentSeason);
     if (target === currentSeason) {
       return;
@@ -1643,7 +1646,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setSeasonAttributes(currentSeason, target, 'active', currentSeason);
 
     seasonTransitionTimerRef.current = window.setTimeout(() => {
-      seasonRef.current = currentSeason;
+      seasonRef.current = target;
       previousSeasonRef.current = currentSeason;
       nextSeasonRef.current = target;
       isSeasonTransitioningRef.current = false;
@@ -1655,13 +1658,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         startedAt: performance.now(),
         duration: prefersReducedMotion() ? 420 : seasonSettleDurationMs
       };
-      seasonGroundLevelsRef.current[currentSeason] = 0;
+      seasonGroundLevelsRef.current[currentSeason] = currentSeason === 'autumn' && target === 'winter' ? 1 : 0;
       seasonGroundLevelsRef.current[target] = 1;
-      setSeason(currentSeason);
+      setSeason(target);
       setPreviousSeason(currentSeason);
       setNextSeason(target);
       setIsSeasonTransitioning(false);
-      setSeasonAttributes(currentSeason, target, 'idle', currentSeason, 'active');
+      setSeasonAttributes(target, target, 'idle', currentSeason, 'active');
       seasonTransitionTimerRef.current = null;
 
       seasonSettleTimerRef.current = window.setTimeout(() => {
@@ -1675,6 +1678,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           startedAt: 0,
           duration: seasonSettleDurationMs
         };
+        seasonGroundLevelsRef.current[currentSeason] = 0;
+        seasonGroundLevelsRef.current[target] = 1;
         setSeason(target);
         setPreviousSeason(target);
         setNextSeason(target);

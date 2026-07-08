@@ -646,6 +646,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /withAlpha\(fadeIn, \(\) => drawLeafAccumulation\(nextGrowth\)\)/);
     assert.match(component, /const fadeOut = transitioning \? 1 - smoothStep/);
     assert.match(component, /if \(settle\.active\) \{/);
+    assert.match(component, /settle\.from === 'autumn' && settle\.to === 'winter'/);
+    assert.match(component, /withAlpha\(1 - settle\.progress, \(\) => drawLeafAccumulation\(Math\.max\(baseGrowth, groundLevels\[settle\.from\]\)\)\)/);
     assert.match(component, /withAlpha\(1, \(\) => drawStableSeasonGround\(settle\.to, Math\.max\(baseGrowth, groundLevels\[settle\.to\]\)\)\)/);
     assert.doesNotMatch(component, /drawStableSeasonGround\(settle\.from, growth\)/);
     assert.doesNotMatch(component, /const transitionGrowth = transitioning \? easeOut\(transitionProgress\) : growth/);
@@ -659,10 +661,15 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /settle\.active && settle\.from === 'summer' && settle\.to === 'autumn'/);
     assert.match(component, /withAlpha\(1 - settle\.progress, \(\) => \{\s*drawSummer\(now, 1\);[\s\S]*drawTransitionLeaves\(now, 1\);[\s\S]*\}\)/);
     assert.match(component, /seasonSettleRef\.current = \{\s*active: true/);
-    assert.match(component, /seasonGroundLevelsRef\.current\[currentSeason\] = 0/);
+    assert.match(component, /const currentSeason = seasonRef\.current/);
+    assert.doesNotMatch(component, /const currentSeason = season;/);
+    assert.match(component, /seasonRef\.current = target/);
+    assert.match(component, /seasonGroundLevelsRef\.current\[currentSeason\] = currentSeason === 'autumn' && target === 'winter' \? 1 : 0/);
     assert.match(component, /seasonGroundLevelsRef\.current\[target\] = 1/);
-    assert.match(component, /setSeasonAttributes\(currentSeason, target, 'idle', currentSeason, 'active'\)/);
+    assert.match(component, /setSeason\(target\)/);
+    assert.match(component, /setSeasonAttributes\(target, target, 'idle', currentSeason, 'active'\)/);
     assert.match(component, /seasonSettleTimerRef\.current = window\.setTimeout/);
+    assert.match(component, /seasonGroundLevelsRef\.current\[currentSeason\] = 0/);
     assert.match(component, /setSeasonAttributes\(target, target, 'idle', target, 'idle'\)/);
     assert.match(component, /const summerWeight = seasonState\.transitioning/);
     assert.match(component, /particle\.kind = 'petal'[\s\S]*randomBetween\(18, 34\)/);
