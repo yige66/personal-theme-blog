@@ -605,7 +605,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /kind: 'petal' \| 'firefly' \| 'bug' \| 'leaf' \| 'snow'/);
     assert.match(component, /\/assets\/seasonal\/spring-petal-source\.png/);
     assert.match(component, /\/assets\/seasonal\/spring-firefly\.png/);
-    assert.match(component, /\/assets\/seasonal\/autumn-leaf-pile\.png/);
+    assert.doesNotMatch(component, /leafPile/);
+    assert.doesNotMatch(component, /autumn-leaf-pile\.png/);
+    assert.doesNotMatch(component, /drawImage\(sprites\.leafPile/);
     assert.match(component, /\/assets\/seasonal\/winter-snow-mist\.png/);
     assert.match(component, /\/assets\/seasonal\/winter-snowbank\.png/);
     assert.doesNotMatch(component, /className="xh-firefly-layer"/);
@@ -636,7 +638,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
-    assert.match(component, /index < 104/);
+    assert.match(component, /index < 260/);
     assert.match(component, /index < 460/);
     assert.match(component, /index < 180/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);

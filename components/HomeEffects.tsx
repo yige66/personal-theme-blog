@@ -24,7 +24,7 @@ type Ripple = {
   speed: number;
 };
 
-type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'snowMist' | 'leafPile' | 'snowbank';
+type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'snowMist' | 'snowbank';
 
 type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
 
@@ -501,7 +501,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       snow: '/assets/seasonal/winter-snowflake.png',
       heat: '/assets/seasonal/summer-heat-haze.png',
       snowMist: '/assets/seasonal/winter-snow-mist.png',
-      leafPile: '/assets/seasonal/autumn-leaf-pile.png',
       snowbank: '/assets/seasonal/winter-snowbank.png'
     };
     const sprites: SeasonalSpriteMap = {};
@@ -1041,25 +1040,24 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       drawSoftGroundGradient(height - pileHeight, [
         'rgba(224, 143, 45, 0)',
-        'rgba(190, 109, 36, 0.24)',
-        'rgba(88, 48, 22, 0.44)'
+        'rgba(190, 109, 36, 0.09)',
+        'rgba(88, 48, 22, 0.16)'
       ]);
-      if (sprites.leafPile) {
-        context.globalAlpha = 0.46 * growth;
-        context.drawImage(sprites.leafPile, 0, height - pileHeight * 1.12, width, pileHeight * 1.12);
-      }
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
-      for (let index = 0; index < 104; index += 1) {
+      for (let index = 0; index < 260; index += 1) {
         const frac = seededUnit(index + 17.2);
+        const lane = seededUnit(index + 82.6);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
         if (!sprite) {
           continue;
         }
-        const x = (index * 71 + frac * 160) % (width + 120) - 60;
-        const y = height - Math.pow(seededUnit(index + 82.6), 1.25) * pileHeight * 0.88 - 3;
-        const size = 10 + frac * 15;
+        const cluster = Math.floor(index / 10);
+        const patch = Math.sin(cluster * 2.17) * 36;
+        const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
+        const y = height - Math.pow(lane, 2.18) * pileHeight * 0.7 - 2 - seededUnit(index + 49.4) * 4;
+        const size = 7.5 + frac * 12.5;
         context.save();
-        context.globalAlpha = (0.22 + frac * 0.28) * growth;
+        context.globalAlpha = (0.34 + frac * 0.34) * growth;
         context.translate(x, y);
         context.rotate(frac * Math.PI * 2);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
