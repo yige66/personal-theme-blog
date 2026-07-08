@@ -933,7 +933,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
       const level = Math.max(0, growth * (1 - windAway));
-      const pileHeight = Math.min(72, Math.max(42, height * 0.062)) * level;
+      const pileHeight = Math.min(54, Math.max(24, height * 0.044)) * level;
       if (pileHeight < 2) {
         return;
       }
@@ -941,50 +941,37 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.save();
       const drift = windAway * width * 0.56;
       const fade = 1 - windAway;
-      const gradient = context.createLinearGradient(0, top - 8, 0, height);
-      gradient.addColorStop(0, 'rgba(255, 214, 234, 0)');
-      gradient.addColorStop(0.34, `rgba(255, 188, 222, ${0.06 * fade})`);
-      gradient.addColorStop(1, `rgba(255, 229, 242, ${0.16 * fade})`);
-      context.fillStyle = gradient;
-      context.fillRect(0, top - 6, width, pileHeight + 8);
-
-      context.beginPath();
-      context.moveTo(0, height);
-      context.lineTo(0, top + Math.sin(now * 0.0005) * 1.4);
-      for (let x = 0; x <= width + 54; x += 54) {
-        const ridge = Math.sin(x * 0.018 + now * 0.00035) * 3.4 + Math.sin(x * 0.047) * 1.8;
-        context.quadraticCurveTo(x + 27, top - 5 + ridge, x + 54, top + ridge * 0.5);
-      }
-      context.lineTo(width, height);
-      context.closePath();
-      context.fillStyle = `rgba(255, 211, 232, ${0.08 * fade})`;
-      context.fill();
+      const petalShadow = context.createLinearGradient(0, height - pileHeight * 0.72, 0, height);
+      petalShadow.addColorStop(0, 'rgba(255, 214, 234, 0)');
+      petalShadow.addColorStop(1, `rgba(255, 220, 236, ${0.055 * fade})`);
+      context.fillStyle = petalShadow;
+      context.fillRect(0, height - pileHeight * 0.72, width, pileHeight * 0.72);
 
       const petal = sprites.petal;
       if (petal) {
-        for (let index = 0; index < 460; index += 1) {
+        for (let index = 0; index < 620; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
           const cluster = Math.floor(index / 8);
           const patch = Math.sin(cluster * 2.41) * 44;
           const x = ((index * 37 + frac * 168 + patch + drift) % (width + 170)) - 85;
           const wave = Math.sin(now * 0.0012 + index) * windAway * (18 + frac * 24);
-          const y = height - (Math.pow(lane, 2.25) * pileHeight * 0.72 + 1 + seededUnit(index + 58.2) * 4) - windAway * (12 + frac * 42);
-          const size = (5.2 + frac * 8.6) * (1 + level * 0.18);
+          const y = height - (Math.pow(lane, 2.55) * pileHeight * 0.82 + 1 + seededUnit(index + 58.2) * 3) - windAway * (12 + frac * 42);
+          const size = (4.6 + frac * 7.4) * (1 + level * 0.12);
           context.save();
-          context.globalAlpha = (0.52 + frac * 0.42) * fade;
+          context.globalAlpha = (0.42 + frac * 0.38) * fade;
           context.translate(x, y + wave);
           context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
-        for (let index = 0; index < 180; index += 1) {
+        for (let index = 0; index < 260; index += 1) {
           const frac = seededUnit(index + 211.3);
           const x = ((index * 91 + frac * 210 + drift * 0.8) % (width + 120)) - 60;
-          const y = height - (3 + Math.pow(seededUnit(index + 19.6), 2.1) * pileHeight * 0.48) - windAway * (18 + frac * 52);
-          const size = 8 + frac * 9.5;
+          const y = height - (2 + Math.pow(seededUnit(index + 19.6), 2.35) * pileHeight * 0.54) - windAway * (18 + frac * 52);
+          const size = 6.5 + frac * 8.2;
           context.save();
-          context.globalAlpha = (0.48 + frac * 0.36) * fade * level;
+          context.globalAlpha = (0.44 + frac * 0.34) * fade * level;
           context.translate(x, y + Math.sin(now * 0.001 + index) * windAway * 20);
           context.rotate(frac * Math.PI * 2.8 + windAway * 1.5);
           context.drawImage(petal, -size / 2, -size / 2, size, size);
@@ -1207,58 +1194,51 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawSnowAccumulation = (growth: number, melt = 0) => {
       const level = Math.max(0, growth * (1 - melt));
-      const snowHeight = Math.min(58, Math.max(32, height * 0.052)) * level;
+      const snowHeight = Math.min(38, Math.max(18, height * 0.034)) * level;
       if (snowHeight < 3) {
         return;
       }
       const top = height - snowHeight;
       const weights = getThemeWeights();
       context.save();
-      const glow = context.createLinearGradient(0, top - 10, 0, height);
+      const glow = context.createLinearGradient(0, height - snowHeight * 0.9, 0, height);
       glow.addColorStop(0, 'rgba(235, 248, 255, 0)');
-      glow.addColorStop(0.38, `rgba(235, 248, 255, ${0.14 * weights.day + 0.1 * weights.night})`);
-      glow.addColorStop(1, `rgba(218, 240, 250, ${0.28 * weights.day + 0.22 * weights.night})`);
+      glow.addColorStop(0.68, `rgba(235, 248, 255, ${0.045 * weights.day + 0.04 * weights.night})`);
+      glow.addColorStop(1, `rgba(226, 244, 252, ${0.1 * weights.day + 0.08 * weights.night})`);
       context.fillStyle = glow;
-      context.fillRect(0, top - 10, width, snowHeight + 12);
+      context.fillRect(0, height - snowHeight * 0.9, width, snowHeight * 0.9);
 
       if (sprites.snowMist) {
         context.save();
-        context.globalAlpha = (0.16 * weights.day + 0.2 * weights.night) * level;
+        context.globalAlpha = (0.055 * weights.day + 0.07 * weights.night) * level;
         context.globalCompositeOperation = 'screen';
-        context.drawImage(sprites.snowMist, -width * 0.04, top - snowHeight * 0.58, width * 1.08, snowHeight * 1.4);
-        context.restore();
-      }
-
-      if (sprites.snowbank) {
-        context.save();
-        context.globalAlpha = (0.42 * weights.day + 0.34 * weights.night) * level;
-        context.drawImage(sprites.snowbank, 0, height - snowHeight * 1.18, width, snowHeight * 1.18);
+        context.drawImage(sprites.snowMist, -width * 0.03, height - snowHeight * 1.12, width * 1.06, snowHeight * 0.86);
         context.restore();
       }
 
       context.beginPath();
-      context.moveTo(0, top + Math.sin(width * 0.001) * 4);
-      for (let x = 0; x <= width; x += 58) {
-        const y = top + Math.sin(x * 0.008 + level * 2.4) * 4.6 + Math.sin(x * 0.021) * 2.4;
+      context.moveTo(0, height);
+      context.lineTo(0, top + Math.sin(width * 0.001) * 1.4);
+      for (let x = 0; x <= width + 48; x += 48) {
+        const y = top + Math.sin(x * 0.009 + level * 2.4) * 1.8 + Math.sin(x * 0.023) * 0.9;
         context.lineTo(x, y);
       }
       context.lineTo(width, height);
-      context.lineTo(0, height);
       context.closePath();
-      context.fillStyle = `rgba(244, 252, 255, ${0.48 * weights.day + 0.38 * weights.night})`;
+      context.fillStyle = `rgba(246, 253, 255, ${0.16 * weights.day + 0.13 * weights.night})`;
       context.fill();
-      context.strokeStyle = `rgba(235, 246, 255, ${0.26 * weights.day + 0.18 * weights.night})`;
+      context.strokeStyle = `rgba(235, 246, 255, ${0.11 * weights.day + 0.08 * weights.night})`;
       context.lineWidth = 1;
       context.stroke();
 
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 72; index += 1) {
+      for (let index = 0; index < 132; index += 1) {
         const frac = seededUnit(index + 511.8);
         const x = (index * 67 + frac * 180) % (width + 100) - 50;
-        const y = height - Math.pow(seededUnit(index + 44.1), 1.36) * snowHeight * 0.82 - 2;
-        const radius = 0.7 + frac * 1.9;
-        context.globalAlpha = (0.12 + frac * 0.22) * level;
+        const y = height - Math.pow(seededUnit(index + 44.1), 1.8) * snowHeight * 0.9 - 1;
+        const radius = 0.45 + frac * 1.35;
+        context.globalAlpha = (0.08 + frac * 0.16) * level;
         context.fillStyle = 'rgba(255, 255, 255, 0.84)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);

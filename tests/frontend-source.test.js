@@ -639,8 +639,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
     assert.match(component, /index < 360/);
-    assert.match(component, /index < 460/);
-    assert.match(component, /index < 180/);
+    assert.match(component, /index < 620/);
+    assert.match(component, /index < 260/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);
     assert.match(component, /const groundLevels = seasonGroundLevelsRef\.current/);
     assert.match(component, /groundLevels\[next\] = Math\.max\(groundLevels\[next\], transitionGrowth\)/);
@@ -679,8 +679,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /particle\.kind = 'snow'[\s\S]*randomBetween\(7, 18\)/);
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawStableSeasonGround\('summer', growth, 0, dry\)/);
-    assert.match(component, /const pileHeight = Math\.min\(72, Math\.max\(42, height \* 0\.062\)\) \* level/);
-    assert.match(component, /const snowHeight = Math\.min\(58, Math\.max\(32, height \* 0\.052\)\) \* level/);
+    assert.match(component, /const pileHeight = Math\.min\(54, Math\.max\(24, height \* 0\.044\)\) \* level/);
+    assert.match(component, /const snowHeight = Math\.min\(38, Math\.max\(18, height \* 0\.034\)\) \* level/);
+    assert.doesNotMatch(component, /drawImage\(sprites\.snowbank/);
+    assert.doesNotMatch(component, /fillRect\(0, top - 10, width, snowHeight \+ 12\)/);
+    assert.doesNotMatch(component, /rgba\(244, 252, 255, \$\{0\.48/);
     assert.match(component, /const baseGrowth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.doesNotMatch(component, /withAlpha\(next === 'winter' \? Math\.max\(0\.38, fadeOut\) : 1, \(\) => drawLeafAccumulation\(growth\)\)/);
     assert.match(component, /if \(next !== 'winter'\) \{\s*withAlpha\(1, \(\) => drawLeafAccumulation\(growth\)\)/);
