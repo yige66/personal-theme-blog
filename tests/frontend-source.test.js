@@ -637,8 +637,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
     assert.match(component, /index < 104/);
-    assert.match(component, /index < 280/);
-    assert.match(component, /index < 92/);
+    assert.match(component, /index < 460/);
+    assert.match(component, /index < 180/);
     assert.match(component, /withAlpha\(fadeOut, \(\) => drawStableSeasonGround\('summer', 1 - transitionGrowth \* 0\.28, 0, transitionGrowth\)\)/);
     assert.match(component, /const groundLevels = seasonGroundLevelsRef\.current/);
     assert.match(component, /groundLevels\[next\] = Math\.max\(groundLevels\[next\], transitionGrowth\)/);
@@ -676,7 +676,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /particle\.kind = 'snow'[\s\S]*randomBetween\(7, 18\)/);
     assert.match(component, /xh-heat-distortion/);
     assert.match(component, /drawStableSeasonGround\('summer', growth, 0, dry\)/);
-    assert.match(component, /const pileHeight = Math\.min\(96, Math\.max\(58, height \* 0\.088\)\) \* level/);
+    assert.match(component, /const pileHeight = Math\.min\(72, Math\.max\(42, height \* 0\.062\)\) \* level/);
     assert.match(component, /const snowHeight = Math\.min\(58, Math\.max\(32, height \* 0\.052\)\) \* level/);
     assert.match(component, /const baseGrowth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.doesNotMatch(component, /withAlpha\(next === 'winter' \? Math\.max\(0\.38, fadeOut\) : 1, \(\) => drawLeafAccumulation\(growth\)\)/);
