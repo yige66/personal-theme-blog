@@ -1030,12 +1030,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const sinkOffset = Math.min(34, Math.max(12, height * 0.026)) * smoothStep(sink);
       context.save();
       context.translate(0, sinkOffset);
-      const groundShadow = context.createLinearGradient(0, height - pileHeight * 0.78, 0, height);
+      const groundShadow = context.createLinearGradient(0, height - pileHeight * 0.56, 0, height);
       groundShadow.addColorStop(0, 'rgba(224, 143, 45, 0)');
       groundShadow.addColorStop(0.58, `rgba(143, 73, 28, ${0.1 * growth * (1 - smoothStep(sink))})`);
       groundShadow.addColorStop(1, `rgba(66, 31, 16, ${0.2 * growth * (1 - smoothStep(sink))})`);
       context.fillStyle = groundShadow;
-      context.fillRect(0, height - pileHeight * 0.78, width, pileHeight * 0.78);
+      context.fillRect(0, height - pileHeight * 0.56, width, pileHeight * 0.56);
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
       for (let index = 0; index < 280; index += 1) {
         const frac = seededUnit(index + 17.2);
@@ -1047,7 +1047,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const cluster = Math.floor(index / 10);
         const patch = Math.sin(cluster * 2.17) * 36;
         const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
-        const y = height - Math.pow(lane, 2.08) * pileHeight * 0.76 - 2 - seededUnit(index + 49.4) * 5;
+        const y = height - Math.pow(lane, 2.85) * pileHeight * 0.58 - 1 - seededUnit(index + 49.4) * 3.4;
         const size = 8.5 + frac * 14;
         context.save();
         context.globalAlpha = (0.52 + frac * 0.4) * growth * (1 - smoothStep(sink));
@@ -1062,7 +1062,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       for (let index = 0; index < 130; index += 1) {
         const frac = seededUnit(index + 419.5);
         const x = ((index * 83 + frac * 160) % (width + 96)) - 48;
-        const y = height - Math.pow(seededUnit(index + 122.4), 1.8) * pileHeight * 0.54 - 1;
+        const y = height - Math.pow(seededUnit(index + 122.4), 2.55) * pileHeight * 0.42 - 1;
         context.globalAlpha = (0.1 + frac * 0.16) * growth * (1 - smoothStep(sink));
         context.fillStyle = frac > 0.55 ? 'rgba(92, 38, 18, 0.82)' : 'rgba(150, 72, 25, 0.7)';
         context.beginPath();
@@ -1075,7 +1075,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       for (let index = 0; index < 70; index += 1) {
         const frac = seededUnit(index + 642.6);
         const x = ((index * 109 + frac * 190) % (width + 110)) - 55;
-        const y = height - Math.pow(seededUnit(index + 314.8), 2.2) * pileHeight * 0.72 - 2;
+        const y = height - Math.pow(seededUnit(index + 314.8), 2.95) * pileHeight * 0.52 - 1.5;
         context.globalAlpha = (0.08 + frac * 0.16) * growth * (1 - smoothStep(sink));
         context.fillStyle = frac > 0.62 ? 'rgba(190, 111, 35, 0.72)' : 'rgba(118, 55, 22, 0.68)';
         context.beginPath();
@@ -1128,6 +1128,56 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.translate(x, y);
         context.rotate(now * 0.0009 + frac * Math.PI * 3);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
+        context.restore();
+      }
+      context.restore();
+    };
+
+    const drawColdLeafSnowWind = (now: number, progress: number) => {
+      const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
+      const gust = Math.sin(Math.min(1, progress) * Math.PI);
+      if (gust <= 0.02) {
+        return;
+      }
+
+      context.save();
+      context.globalCompositeOperation = 'screen';
+      for (let index = 0; index < 42; index += 1) {
+        const seed = seededUnit(index + 811.2);
+        const y = height * (0.42 + seededUnit(index + 27.3) * 0.48) + Math.sin(now * 0.0012 + index) * 10;
+        const x = -80 + progress * (width + 210) + seed * width * 0.42 + Math.sin(now * 0.002 + index) * 28;
+        const length = 18 + seed * 64;
+        const gradient = context.createLinearGradient(x, y, x + length, y - 10);
+        gradient.addColorStop(0, 'rgba(231, 245, 255, 0)');
+        gradient.addColorStop(0.5, `rgba(231, 245, 255, ${0.1 + seed * 0.12})`);
+        gradient.addColorStop(1, 'rgba(231, 245, 255, 0)');
+        context.globalAlpha = gust * (0.18 + seed * 0.22);
+        context.strokeStyle = gradient;
+        context.lineWidth = 0.7 + seed * 0.8;
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(x + length, y - 8 - seed * 8);
+        context.stroke();
+      }
+      context.restore();
+
+      context.save();
+      for (let index = 0; index < 22; index += 1) {
+        const sprite = leafSprites[index % leafSprites.length];
+        const image = sprites[sprite];
+        if (!image) {
+          continue;
+        }
+        const seed = seededUnit(index + 906.4);
+        const x = -60 + progress * (width + 170) + seededUnit(index + 19.5) * width * 0.32;
+        const y = height * (0.52 + seededUnit(index + 53.8) * 0.34) - progress * (28 + seed * 44);
+        const size = 8 + seed * 13;
+        context.save();
+        context.globalAlpha = gust * (0.16 + seed * 0.28);
+        context.filter = 'sepia(0.72) saturate(1.24) hue-rotate(-18deg) brightness(0.86)';
+        context.translate(x + Math.sin(now * 0.0018 + index) * 24, y);
+        context.rotate(now * 0.0014 + seed * Math.PI * 4);
+        context.drawImage(image, -size / 2, -size / 2, size, size);
         context.restore();
       }
       context.restore();
@@ -1388,9 +1438,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth));
       } else if (transitioning && next === 'winter') {
         if (previous === 'autumn') {
-          const snowCoverProgress = smoothStep(Math.min(1, Math.max(0, transitionProgress / 0.72)));
-          withAlpha(1, () => drawLeafAccumulation(growth, 0));
-          withAlpha(1, () => drawSnowAccumulation(nextGrowth, 0, snowCoverProgress));
+          const snowCoverProgress = smoothStep(Math.min(1, Math.max(0, transitionProgress / 0.58)));
+          const leafVanishProgress = smoothStep(Math.min(1, Math.max(0, (transitionProgress - 0.68) / 0.32)));
+          const coveredSnowGrowth = Math.max(nextGrowth, snowCoverProgress * 0.96);
+          withAlpha(1, () => drawLeafAccumulation(growth, leafVanishProgress));
+          withAlpha(1, () => drawSnowAccumulation(coveredSnowGrowth, 0, snowCoverProgress));
+          drawColdLeafSnowWind(now, transitionProgress);
           return;
         }
         withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth));

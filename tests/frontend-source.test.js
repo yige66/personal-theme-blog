@@ -637,6 +637,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /drawSpringGround\(targetGrowth \* 0\.75, now, false, 0\)/);
     assert.match(component, /drawSweptPetals\(now, transitionGrowth\)/);
     assert.match(component, /drawTransitionLeaves\(now, transitionGrowth\)/);
+    assert.match(component, /drawColdLeafSnowWind\(now, transitionProgress\)/);
     assert.match(component, /drawNightFireflies\(now\)/);
     assert.match(component, /drawWinterFlurries\(now\)/);
     assert.match(component, /index < 42/);
@@ -699,9 +700,13 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /const baseGrowth = easeOut\(\(now - effectStartedAt\) \/ 16000\)/);
     assert.doesNotMatch(component, /withAlpha\(next === 'winter' \? Math\.max\(0\.38, fadeOut\) : 1, \(\) => drawLeafAccumulation\(growth\)\)/);
     assert.match(component, /if \(next !== 'winter'\) \{\s*withAlpha\(1, \(\) => drawLeafAccumulation\(growth\)\)/);
-    assert.match(component, /const snowCoverProgress = smoothStep\(Math\.min\(1, Math\.max\(0, transitionProgress \/ 0\.72\)\)\)/);
-    assert.match(component, /drawLeafAccumulation\(growth, 0\)/);
-    assert.match(component, /withAlpha\(1, \(\) => drawSnowAccumulation\(nextGrowth, 0, snowCoverProgress\)\)/);
+    assert.match(component, /const snowCoverProgress = smoothStep\(Math\.min\(1, Math\.max\(0, transitionProgress \/ 0\.58\)\)\)/);
+    assert.match(component, /const leafVanishProgress = smoothStep\(Math\.min\(1, Math\.max\(0, \(transitionProgress - 0\.68\) \/ 0\.32\)\)\)/);
+    assert.match(component, /const coveredSnowGrowth = Math\.max\(nextGrowth, snowCoverProgress \* 0\.96\)/);
+    assert.match(component, /drawLeafAccumulation\(growth, leafVanishProgress\)/);
+    assert.match(component, /withAlpha\(1, \(\) => drawSnowAccumulation\(coveredSnowGrowth, 0, snowCoverProgress\)\)/);
+    assert.match(component, /for \(let index = 0; index < 42; index \+= 1\)/);
+    assert.match(component, /for \(let index = 0; index < 22; index \+= 1\)/);
     assert.doesNotMatch(component, /const leafCoverFade = 1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.22\) \/ 0\.78\)\)/);
     assert.doesNotMatch(component, /1 - smoothStep\(Math\.max\(0, \(transitionProgress - 0\.64\) \/ 0\.36\)\)/);
     assert.match(component, /resetParticle\(particle, false, particleAlpha > 0\.02 && particle\.season === activeSeason \? particle\.season : activeSeason\)/);
