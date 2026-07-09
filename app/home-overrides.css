@@ -25010,3 +25010,244 @@ body .xh-theme-switch-kicker {
     bottom: auto !important;
   }
 }
+
+/* Final badge material polish: compact, layered, and readable while states crossfade. */
+html body .xh-theme-switch,
+html body .xh-season-switch {
+  --xh-badge-a: rgba(48, 55, 108, 0.78);
+  --xh-badge-b: rgba(24, 28, 66, 0.86);
+  --xh-badge-c: rgba(101, 151, 255, 0.18);
+  --xh-badge-next-a: var(--xh-badge-a);
+  --xh-badge-next-b: var(--xh-badge-b);
+  --xh-badge-next-c: var(--xh-badge-c);
+  grid-template-columns: 46px minmax(82px, 1fr) !important;
+  grid-template-rows: 12px 18px 12px !important;
+  width: 164px !important;
+  min-width: 164px !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  padding: 7px 11px 7px 7px !important;
+  column-gap: 8px !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  box-shadow:
+    0 14px 28px rgba(13, 13, 31, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -12px 24px rgba(19, 17, 48, 0.26) !important;
+}
+
+html body .xh-theme-switch::before,
+html body .xh-season-switch::before,
+html body .xh-theme-switch::after,
+html body .xh-season-switch::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: -2 !important;
+}
+
+html body .xh-theme-switch::before,
+html body .xh-season-switch::before {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.24), transparent 26px),
+    linear-gradient(120deg, var(--xh-badge-a), var(--xh-badge-b) 64%, var(--xh-badge-c)) !important;
+  opacity: 1 !important;
+}
+
+html body .xh-theme-switch::after,
+html body .xh-season-switch::after {
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.24), transparent 26px),
+    linear-gradient(120deg, var(--xh-badge-next-a), var(--xh-badge-next-b) 64%, var(--xh-badge-next-c)) !important;
+  opacity: 0 !important;
+}
+
+html body .xh-theme-switch[data-next-mode="night"],
+html body .xh-theme-switch.is-night {
+  --xh-badge-a: rgba(44, 51, 109, 0.86);
+  --xh-badge-b: rgba(22, 27, 66, 0.9);
+  --xh-badge-c: rgba(99, 136, 255, 0.2);
+}
+
+html body .xh-theme-switch[data-next-mode="day"] {
+  --xh-badge-next-a: rgba(116, 177, 232, 0.82);
+  --xh-badge-next-b: rgba(68, 112, 168, 0.88);
+  --xh-badge-next-c: rgba(255, 234, 144, 0.2);
+}
+
+html body .xh-theme-switch[data-next-mode="night"] {
+  --xh-badge-next-a: rgba(38, 44, 104, 0.86);
+  --xh-badge-next-b: rgba(19, 24, 63, 0.92);
+  --xh-badge-next-c: rgba(100, 125, 255, 0.24);
+}
+
+html body .xh-theme-switch.is-transitioning[data-next-mode="night"]::before,
+html body .xh-theme-switch.is-transitioning[data-next-mode="day"]::before,
+html body .xh-season-switch.is-transitioning::before {
+  animation: xh-switch-current-bg-fade 1800ms cubic-bezier(0.2, 0.86, 0.22, 1) both !important;
+}
+
+html body .xh-theme-switch.is-transitioning[data-next-mode="night"]::after,
+html body .xh-theme-switch.is-transitioning[data-next-mode="day"]::after,
+html body .xh-season-switch.is-transitioning::after {
+  animation: xh-switch-next-bg-fade 1800ms cubic-bezier(0.2, 0.86, 0.22, 1) both !important;
+}
+
+html body .xh-season-switch[data-season="spring"] {
+  --xh-badge-a: rgba(157, 103, 145, 0.78);
+  --xh-badge-b: rgba(77, 91, 112, 0.82);
+  --xh-badge-c: rgba(255, 163, 211, 0.28);
+}
+
+html body .xh-season-switch[data-season="summer"] {
+  --xh-badge-a: rgba(58, 131, 111, 0.78);
+  --xh-badge-b: rgba(32, 91, 98, 0.86);
+  --xh-badge-c: rgba(255, 228, 112, 0.24);
+}
+
+html body .xh-season-switch[data-season="autumn"] {
+  --xh-badge-a: rgba(146, 75, 46, 0.82);
+  --xh-badge-b: rgba(82, 54, 67, 0.88);
+  --xh-badge-c: rgba(255, 168, 66, 0.24);
+}
+
+html body .xh-season-switch[data-season="winter"] {
+  --xh-badge-a: rgba(86, 122, 154, 0.78);
+  --xh-badge-b: rgba(43, 67, 101, 0.88);
+  --xh-badge-c: rgba(190, 238, 255, 0.26);
+}
+
+html body .xh-season-switch[data-next-season="spring"] {
+  --xh-badge-next-a: rgba(157, 103, 145, 0.78);
+  --xh-badge-next-b: rgba(77, 91, 112, 0.82);
+  --xh-badge-next-c: rgba(255, 163, 211, 0.28);
+}
+
+html body .xh-season-switch[data-next-season="summer"] {
+  --xh-badge-next-a: rgba(58, 131, 111, 0.78);
+  --xh-badge-next-b: rgba(32, 91, 98, 0.86);
+  --xh-badge-next-c: rgba(255, 228, 112, 0.24);
+}
+
+html body .xh-season-switch[data-next-season="autumn"] {
+  --xh-badge-next-a: rgba(146, 75, 46, 0.82);
+  --xh-badge-next-b: rgba(82, 54, 67, 0.88);
+  --xh-badge-next-c: rgba(255, 168, 66, 0.24);
+}
+
+html body .xh-season-switch[data-next-season="winter"] {
+  --xh-badge-next-a: rgba(86, 122, 154, 0.78);
+  --xh-badge-next-b: rgba(43, 67, 101, 0.88);
+  --xh-badge-next-c: rgba(190, 238, 255, 0.26);
+}
+
+html body .xh-theme-switch-orbit,
+html body .xh-season-switch-orbit {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 15px !important;
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.9), transparent 13px),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(53, 56, 112, 0.34)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.52),
+    inset 0 -9px 18px rgba(36, 30, 75, 0.22),
+    0 0 20px color-mix(in srgb, var(--xh-season-accent, #9bd8ff), transparent 44%) !important;
+}
+
+html body .xh-season-switch.is-transitioning .xh-season-switch-orbit,
+html body .xh-theme-switch.is-transitioning .xh-theme-switch-orbit {
+  transform: scale(1.03) !important;
+  transition: transform 500ms ease, box-shadow 900ms ease !important;
+}
+
+html body .xh-season-switch-icon {
+  width: 27px !important;
+  height: 27px !important;
+  margin: -13.5px 0 0 -13.5px !important;
+}
+
+html body .xh-season-switch-kicker,
+html body .xh-theme-switch-kicker {
+  font-size: 10.25px !important;
+  letter-spacing: 0 !important;
+  opacity: 0.84 !important;
+}
+
+html body .xh-switch-label-stack {
+  height: 18px !important;
+  overflow: hidden !important;
+}
+
+html body .xh-switch-label-stack > strong {
+  font-size: 14px !important;
+  line-height: 1.08 !important;
+  white-space: nowrap !important;
+}
+
+html body .xh-switch-label-stack > strong.is-current,
+html body .xh-switch-label-stack > strong.is-next {
+  will-change: opacity, transform !important;
+}
+
+html body .xh-theme-switch:not(.is-transitioning) .xh-switch-label-stack > strong.is-current,
+html body .xh-season-switch:not(.is-transitioning) .xh-switch-label-stack > strong.is-current {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+html body .xh-theme-switch:not(.is-transitioning) .xh-switch-label-stack > strong.is-next,
+html body .xh-season-switch:not(.is-transitioning) .xh-switch-label-stack > strong.is-next {
+  opacity: 0 !important;
+  transform: translate3d(0, 9px, 0) !important;
+}
+
+html body .xh-theme-switch small,
+html body .xh-season-switch small {
+  font-size: 9.5px !important;
+  opacity: 0.9 !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+@media (max-width: 760px) {
+  html body .xh-theme-switch,
+  html body .xh-season-switch,
+  html body:has(.xh-clean-home) .xh-season-switch,
+  html body:has(:is(.subpage, .music-page)) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch {
+    grid-template-columns: 42px minmax(70px, 1fr) !important;
+    width: 148px !important;
+    min-width: 148px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    padding: 7px 9px 7px 7px !important;
+  }
+
+  html body .xh-theme-switch-orbit,
+  html body .xh-season-switch-orbit {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+
+  html body .xh-season-switch-icon {
+    width: 25px !important;
+    height: 25px !important;
+    margin: -12.5px 0 0 -12.5px !important;
+  }
+
+  html body .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch {
+    top: auto !important;
+    right: 12px !important;
+    bottom: 222px !important;
+  }
+}

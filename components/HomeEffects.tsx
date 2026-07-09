@@ -936,7 +936,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     const drawPetalAccumulation = (growth: number, now: number, windAway = 0) => {
       const level = Math.max(0, growth * (1 - windAway));
-      const pileHeight = Math.min(54, Math.max(24, height * 0.044)) * level;
+      const pileHeight = Math.min(118, Math.max(56, height * 0.092)) * level;
       if (pileHeight < 2) {
         return;
       }
@@ -952,27 +952,27 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       const petal = sprites.petal;
       if (petal) {
-        for (let index = 0; index < 620; index += 1) {
+        for (let index = 0; index < 1040; index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
           const cluster = Math.floor(index / 8);
           const patch = Math.sin(cluster * 2.41) * 44;
           const x = ((index * 37 + frac * 168 + patch + drift) % (width + 170)) - 85;
           const wave = Math.sin(now * 0.0012 + index) * windAway * (18 + frac * 24);
-          const y = height - (Math.pow(lane, 2.55) * pileHeight * 0.82 + 1 + seededUnit(index + 58.2) * 3) - windAway * (12 + frac * 42);
-          const size = (4.6 + frac * 7.4) * (1 + level * 0.12);
+          const y = height - (Math.pow(lane, 1.42) * pileHeight * 0.98 + 1 + seededUnit(index + 58.2) * 7) - windAway * (12 + frac * 42);
+          const size = (5.2 + frac * 8.8) * (1 + level * 0.16);
           context.save();
-          context.globalAlpha = (0.42 + frac * 0.38) * fade;
+          context.globalAlpha = (0.46 + frac * 0.4) * fade;
           context.translate(x, y + wave);
           context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
-        for (let index = 0; index < 260; index += 1) {
+        for (let index = 0; index < 460; index += 1) {
           const frac = seededUnit(index + 211.3);
           const x = ((index * 91 + frac * 210 + drift * 0.8) % (width + 120)) - 60;
-          const y = height - (2 + Math.pow(seededUnit(index + 19.6), 2.35) * pileHeight * 0.54) - windAway * (18 + frac * 52);
-          const size = 6.5 + frac * 8.2;
+          const y = height - (2 + Math.pow(seededUnit(index + 19.6), 1.5) * pileHeight * 0.9) - windAway * (18 + frac * 52);
+          const size = 7 + frac * 9.4;
           context.save();
           context.globalAlpha = (0.44 + frac * 0.34) * fade * level;
           context.translate(x, y + Math.sin(now * 0.001 + index) * windAway * 20);
@@ -981,6 +981,73 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           context.restore();
         }
       }
+      context.restore();
+    };
+
+    const drawFallenLeafShape = (x: number, y: number, size: number, rotation: number, variant: number, alpha: number) => {
+      const palette = [
+        ['rgba(238, 103, 32, 0.92)', 'rgba(94, 35, 17, 0.76)'],
+        ['rgba(255, 165, 45, 0.9)', 'rgba(125, 58, 19, 0.72)'],
+        ['rgba(163, 55, 27, 0.9)', 'rgba(67, 28, 14, 0.76)'],
+        ['rgba(209, 82, 34, 0.9)', 'rgba(86, 34, 16, 0.74)'],
+        ['rgba(243, 132, 42, 0.88)', 'rgba(106, 42, 18, 0.7)']
+      ];
+      const [fill, stroke] = palette[variant % palette.length];
+      context.save();
+      context.globalAlpha *= alpha;
+      context.translate(x, y);
+      context.rotate(rotation);
+      const leafGradient = context.createLinearGradient(-size * 0.45, -size * 0.45, size * 0.42, size * 0.44);
+      leafGradient.addColorStop(0, 'rgba(255, 214, 96, 0.88)');
+      leafGradient.addColorStop(0.42, fill);
+      leafGradient.addColorStop(1, 'rgba(103, 38, 18, 0.84)');
+      context.fillStyle = leafGradient;
+      context.strokeStyle = stroke;
+      context.lineWidth = Math.max(0.45, size * 0.045);
+      context.beginPath();
+      if (variant % 4 === 0) {
+        const points = [
+          [0, -0.54], [0.14, -0.22], [0.48, -0.36], [0.32, -0.04], [0.62, 0.08],
+          [0.22, 0.16], [0.34, 0.5], [0.02, 0.27], [-0.28, 0.54], [-0.22, 0.18],
+          [-0.6, 0.06], [-0.28, -0.08], [-0.46, -0.34], [-0.14, -0.22]
+        ];
+        points.forEach(([px, py], pointIndex) => {
+          const sx = px * size;
+          const sy = py * size;
+          if (pointIndex === 0) {
+            context.moveTo(sx, sy);
+          } else {
+            context.lineTo(sx, sy);
+          }
+        });
+        context.closePath();
+      } else if (variant % 4 === 1) {
+        context.ellipse(0, 0, size * 0.46, size * 0.18, 0, 0, Math.PI * 2);
+      } else if (variant % 4 === 2) {
+        context.moveTo(0, -size * 0.5);
+        context.bezierCurveTo(size * 0.42, -size * 0.24, size * 0.44, size * 0.28, 0, size * 0.52);
+        context.bezierCurveTo(-size * 0.42, size * 0.24, -size * 0.44, -size * 0.28, 0, -size * 0.5);
+      } else {
+        context.moveTo(-size * 0.5, -size * 0.08);
+        context.bezierCurveTo(-size * 0.18, -size * 0.46, size * 0.42, -size * 0.34, size * 0.52, 0);
+        context.bezierCurveTo(size * 0.2, size * 0.38, -size * 0.34, size * 0.34, -size * 0.5, -size * 0.08);
+      }
+      context.fill();
+      context.stroke();
+      context.globalAlpha *= 0.5;
+      context.beginPath();
+      context.moveTo(0, -size * 0.42);
+      context.lineTo(0, size * 0.42);
+      context.stroke();
+      context.globalAlpha *= 0.52;
+      context.beginPath();
+      context.moveTo(0, -size * 0.08);
+      context.lineTo(size * 0.34, -size * 0.24);
+      context.moveTo(0, size * 0.06);
+      context.lineTo(-size * 0.34, -size * 0.12);
+      context.moveTo(0, size * 0.16);
+      context.lineTo(size * 0.28, size * 0.3);
+      context.stroke();
       context.restore();
     };
 
@@ -1023,7 +1090,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const drawLeafAccumulation = (growth: number, sink = 0) => {
-      const pileHeight = Math.min(96, Math.max(46, height * 0.082)) * growth;
+      const pileHeight = Math.min(104, Math.max(50, height * 0.088)) * growth;
       if (pileHeight < 4) {
         return;
       }
@@ -1040,22 +1107,20 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       context.save();
       context.globalCompositeOperation = 'source-over';
-      for (let index = 0; index < 88; index += 1) {
+      for (let index = 0; index < 142; index += 1) {
         const frac = seededUnit(index + 274.9);
-        const x = ((index * 41 + frac * 128) % (width + 80)) - 40;
-        const y = height - Math.pow(seededUnit(index + 183.7), 3.2) * pileHeight * 0.38 - 0.8;
-        context.globalAlpha = (0.2 + frac * 0.24) * leafAlpha;
-        context.fillStyle = frac > 0.58 ? 'rgba(166, 76, 24, 0.76)' : 'rgba(94, 43, 19, 0.72)';
-        context.beginPath();
-        context.ellipse(x, y, 7.2 + frac * 13.4, 2.2 + frac * 4.8, frac * Math.PI, 0, Math.PI * 2);
-        context.fill();
+        const cluster = seededUnit(Math.floor(index / 6) + 78.4);
+        const x = ((index * 37 + frac * 118 + Math.sin(cluster * 11.4) * 42) % (width + 80)) - 40;
+        const y = height - Math.pow(seededUnit(index + 183.7), 2.55) * pileHeight * 0.5 - 0.8;
+        const size = 12 + frac * 22;
+        drawFallenLeafShape(x, y, size, frac * Math.PI * 2.4, index, (0.28 + frac * 0.32) * leafAlpha);
       }
       context.restore();
 
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
       context.save();
       context.filter = 'sepia(0.72) saturate(1.28) hue-rotate(-18deg) brightness(0.84)';
-      for (let index = 0; index < 46; index += 1) {
+      for (let index = 0; index < 58; index += 1) {
         const frac = seededUnit(index + 17.2);
         const lane = seededUnit(index + 82.6);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
@@ -1065,8 +1130,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const cluster = Math.floor(index / 10);
         const patch = Math.sin(cluster * 2.17) * 36;
         const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
-        const y = height - Math.pow(lane, 3.15) * pileHeight * 0.44 - 1 - seededUnit(index + 49.4) * 2.6;
-        const size = 9.5 + frac * 15;
+        const y = height - Math.pow(lane, 2.35) * pileHeight * 0.58 - 1 - seededUnit(index + 49.4) * 3.4;
+        const size = 14 + frac * 24;
         context.save();
         context.globalAlpha = (0.56 + frac * 0.4) * leafAlpha;
         context.translate(x, y);
@@ -1077,28 +1142,20 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
       context.save();
       context.globalCompositeOperation = 'multiply';
-      for (let index = 0; index < 58; index += 1) {
+      for (let index = 0; index < 64; index += 1) {
         const frac = seededUnit(index + 419.5);
         const x = ((index * 83 + frac * 160) % (width + 96)) - 48;
-        const y = height - Math.pow(seededUnit(index + 122.4), 2.9) * pileHeight * 0.34 - 1;
-        context.globalAlpha = (0.15 + frac * 0.2) * leafAlpha;
-        context.fillStyle = frac > 0.55 ? 'rgba(92, 38, 18, 0.82)' : 'rgba(150, 72, 25, 0.7)';
-        context.beginPath();
-        context.ellipse(x, y, 4 + frac * 7.4, 1.4 + frac * 2.8, frac * Math.PI, 0, Math.PI * 2);
-        context.fill();
+        const y = height - Math.pow(seededUnit(index + 122.4), 2.65) * pileHeight * 0.42 - 1;
+        drawFallenLeafShape(x, y, 10 + frac * 18, frac * Math.PI * 2, index + 40, (0.11 + frac * 0.16) * leafAlpha);
       }
       context.restore();
       context.save();
       context.globalCompositeOperation = 'source-over';
-      for (let index = 0; index < 32; index += 1) {
+      for (let index = 0; index < 40; index += 1) {
         const frac = seededUnit(index + 642.6);
         const x = ((index * 109 + frac * 190) % (width + 110)) - 55;
-        const y = height - Math.pow(seededUnit(index + 314.8), 3.25) * pileHeight * 0.42 - 1.2;
-        context.globalAlpha = (0.1 + frac * 0.17) * leafAlpha;
-        context.fillStyle = frac > 0.62 ? 'rgba(190, 111, 35, 0.72)' : 'rgba(118, 55, 22, 0.68)';
-        context.beginPath();
-        context.ellipse(x, y, 4.6 + frac * 8.4, 1.8 + frac * 3.2, frac * Math.PI * 1.6, 0, Math.PI * 2);
-        context.fill();
+        const y = height - Math.pow(seededUnit(index + 314.8), 2.7) * pileHeight * 0.46 - 1.2;
+        drawFallenLeafShape(x, y, 8 + frac * 14, frac * Math.PI * 1.6, index + 80, (0.1 + frac * 0.15) * leafAlpha);
       }
       context.restore();
       context.restore();
