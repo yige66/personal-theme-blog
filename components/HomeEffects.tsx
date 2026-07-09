@@ -1197,6 +1197,36 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
 
       context.save();
+      context.globalCompositeOperation = 'screen';
+      const snowImage = sprites.snow;
+      for (let index = 0; index < 22; index += 1) {
+        const seed = seededUnit(index + 1028.6);
+        const x = windFront - width * 0.18 + seededUnit(index + 67.7) * width * 0.48 + Math.sin(now * 0.0022 + index) * 28;
+        const y = height * (0.7 + seededUnit(index + 91.4) * 0.24) - progress * (18 + seed * 46);
+        const size = 5 + seed * 9;
+        context.save();
+        context.globalAlpha = gust * (0.22 + seed * 0.3);
+        context.translate(x, y);
+        context.rotate(now * 0.002 + seed * Math.PI * 4);
+        if (snowImage) {
+          context.filter = 'brightness(1.24) drop-shadow(0 0 4px rgba(222, 247, 255, 0.42))';
+          context.drawImage(snowImage, -size / 2, -size / 2, size, size);
+        } else {
+          context.strokeStyle = 'rgba(235, 248, 255, 0.76)';
+          context.lineWidth = Math.max(0.5, size * 0.07);
+          context.beginPath();
+          for (let arm = 0; arm < 6; arm += 1) {
+            const angle = (Math.PI * 2 * arm) / 6;
+            context.moveTo(Math.cos(angle) * size * 0.16, Math.sin(angle) * size * 0.16);
+            context.lineTo(Math.cos(angle) * size * 0.5, Math.sin(angle) * size * 0.5);
+          }
+          context.stroke();
+        }
+        context.restore();
+      }
+      context.restore();
+
+      context.save();
       for (let index = 0; index < 36; index += 1) {
         const sprite = leafSprites[index % leafSprites.length];
         const image = sprites[sprite];
@@ -1463,20 +1493,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const settle = getSeasonSettleState(now);
         if (settle.active) {
           if (settle.from === 'autumn' && settle.to === 'winter') {
-            const leafSettleSink = smoothStep(Math.min(1, Math.max(0, (settle.progress - 0.08) / 0.92)));
-            const snowSettleCover = Math.max(0.88, 1 - smoothStep(settle.progress) * 0.12);
-            withAlpha(1, () => drawLeafAccumulation(1, leafSettleSink));
-            withAlpha(1, () => drawSnowAccumulation(Math.max(1, groundLevels[settle.to]), 0, snowSettleCover));
-            withAlpha(1 - smoothStep(settle.progress), () => drawColdLeafSnowWind(now, 0.54 + settle.progress * 0.28));
+            withAlpha(1, () => drawSnowAccumulation(Math.max(1, groundLevels[settle.to]), 0, 0.94));
             return;
           }
           if (settle.from === 'winter' && settle.to === 'spring') {
-            const thawProgress = smoothStep(settle.progress);
             withAlpha(1, () => {
-              drawSpringGround(Math.max(baseGrowth, groundLevels[settle.to]) * (0.46 + thawProgress * 0.34), now, false, 0);
-              drawPetalAccumulation(Math.max(baseGrowth, groundLevels[settle.to]) * thawProgress * 0.72, now);
+              const settledGrowth = Math.max(baseGrowth, groundLevels[settle.to]);
+              drawSpringGround(settledGrowth * 0.8, now, false, 0);
+              drawPetalAccumulation(settledGrowth * 0.72, now);
             });
-            withAlpha(1 - thawProgress * 0.38, () => drawSnowAccumulation(1, thawProgress, 0.88 * (1 - thawProgress), thawProgress));
             return;
           }
           withAlpha(1, () => drawStableSeasonGround(settle.to, Math.max(baseGrowth, groundLevels[settle.to])));
@@ -1604,9 +1629,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
             drawSummer(now, 1);
             drawTransitionLeaves(now, 1);
           });
-        }
-        if (settle.active && settle.from === 'winter' && settle.to === 'spring') {
-          withAlpha(1 - settle.progress, () => drawSweptPetals(now, 1));
         }
         return;
       }
