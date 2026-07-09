@@ -76,6 +76,9 @@ function getVisibleThemeMode(): ThemeMode {
   if (typeof document === 'undefined') {
     return 'day';
   }
+  if (document.documentElement.dataset.xhThemeTransition === 'active') {
+    return document.documentElement.dataset.xhThemeNext === 'night' ? 'night' : 'day';
+  }
   return getThemeMode();
 }
 

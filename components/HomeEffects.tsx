@@ -1617,11 +1617,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
             return;
           }
           if (settle.from === 'winter' && settle.to === 'spring') {
-            withAlpha(1, () => {
-              const settledGrowth = Math.max(baseGrowth, groundLevels[settle.to]);
-              drawSpringGround(settledGrowth * 0.8, now, false, 0);
-              drawPetalAccumulation(settledGrowth * 0.72, now);
-            });
+            withAlpha(1, () => drawStableSeasonGround('spring', Math.max(baseGrowth, groundLevels[settle.to])));
             return;
           }
           withAlpha(1, () => drawStableSeasonGround(settle.to, Math.max(baseGrowth, groundLevels[settle.to])));
@@ -1889,15 +1885,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     const currentMode: ThemeMode = nightMode ? 'night' : 'day';
     const targetMode: ThemeMode = nightMode ? 'day' : 'night';
     isTransitioningRef.current = true;
-    setThemeAttributes(currentMode, targetMode, 'active', currentMode);
-    setThemePhase(currentMode);
-    const phaseCommitDelay = prefersReducedMotion() ? 0 : 80;
-    commitTimerRef.current = window.setTimeout(() => {
-      const activePhase = getThemePhase(currentMode, targetMode, 'active');
-      setThemeAttributes(currentMode, targetMode, 'active', activePhase);
-      setThemePhase(activePhase);
-      commitTimerRef.current = null;
-    }, phaseCommitDelay);
+    const activePhase = getThemePhase(currentMode, targetMode, 'active');
+    setThemeAttributes(currentMode, targetMode, 'active', activePhase);
+    setThemePhase(activePhase);
     setNextMode(targetMode);
     setIsTransitioning(true);
 
@@ -1968,29 +1958,35 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setSeasonAttributes(currentSeason, target, 'active', currentSeason);
 
     seasonTransitionTimerRef.current = window.setTimeout(() => {
+      const skipVisibleSettle = currentSeason === 'autumn' && target === 'winter';
       seasonRef.current = target;
-      previousSeasonRef.current = currentSeason;
+      previousSeasonRef.current = skipVisibleSettle ? target : currentSeason;
       nextSeasonRef.current = target;
       isSeasonTransitioningRef.current = false;
       seasonTransitionStartedAtRef.current = 0;
       seasonSettleRef.current = {
-        active: true,
-        from: currentSeason,
+        active: !skipVisibleSettle,
+        from: skipVisibleSettle ? target : currentSeason,
         to: target,
-        startedAt: performance.now(),
+        startedAt: skipVisibleSettle ? 0 : performance.now(),
         duration: prefersReducedMotion() ? 420 : seasonSettleDurationMs
       };
-      const preservedCurrentGround = currentSeason === 'autumn' && target === 'winter'
-        ? 1
-        : 0.72;
-      seasonGroundLevelsRef.current[currentSeason] = Math.max(seasonGroundLevelsRef.current[currentSeason], preservedCurrentGround);
+      const preservedCurrentGround = skipVisibleSettle ? 0 : 0.72;
+      seasonGroundLevelsRef.current[currentSeason] = skipVisibleSettle
+        ? 0
+        : Math.max(seasonGroundLevelsRef.current[currentSeason], preservedCurrentGround);
       seasonGroundLevelsRef.current[target] = 1;
       setSeason(target);
-      setPreviousSeason(currentSeason);
+      setPreviousSeason(skipVisibleSettle ? target : currentSeason);
       setNextSeason(target);
       setIsSeasonTransitioning(false);
-      setSeasonAttributes(target, target, 'idle', currentSeason, 'active');
+      setSeasonAttributes(target, target, 'idle', skipVisibleSettle ? target : currentSeason, skipVisibleSettle ? 'idle' : 'active');
       seasonTransitionTimerRef.current = null;
+
+      if (skipVisibleSettle) {
+        window.localStorage.setItem('xh-season-mode', target);
+        return;
+      }
 
       seasonSettleTimerRef.current = window.setTimeout(() => {
         seasonRef.current = target;
@@ -2129,6 +2125,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         data-next-mode={nextMode}
         data-theme-phase={renderedPhase}
         data-transitioning={isTransitioning ? 'true' : 'false'}
+        data-current-label={nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}
+        data-next-label={nextMode === 'night' ? '\u591c\u8272' : '\u65e5\u95f4'}
+        data-action-label={isTransitioning ? '\u6e10\u53d8\u4e2d' : nightMode ? '\u5207\u5230\u65e5\u95f4' : '\u5207\u5230\u591c\u95f4'}
         onClick={toggleTheme}
       >
         <span className="xh-theme-switch-orbit" aria-hidden="true">
@@ -2140,12 +2139,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           </span>
           <em />
         </span>
-        <span className="xh-theme-switch-kicker">昼夜切换</span>
-        <span className="xh-switch-label-stack" aria-hidden="true">
-          <strong className="is-current">{nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
-          <strong className="is-next">{nextMode === 'night' ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+        <span className="xh-switch-info-card" aria-hidden="true">
+          <span>{'\u663c\u591c\u5207\u6362'}</span>
+          <strong>{nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+          <small>{isTransitioning ? '\u6e10\u53d8\u4e2d' : nightMode ? '\u5207\u5230\u65e5\u95f4' : '\u5207\u5230\u591c\u95f4'}</small>
         </span>
-        <small>{isTransitioning ? '\u6e10\u53d8\u4e2d' : nightMode ? '\u70b9\u51fb\u5207\u5230\u65e5\u95f4' : '\u70b9\u51fb\u5207\u5230\u591c\u95f4'}</small>
       </button>
 
       <button
@@ -2156,6 +2154,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         data-season={season}
         data-next-season={nextSeason}
         data-transitioning={isSeasonTransitioning ? 'true' : 'false'}
+        data-current-label={seasonText.label}
+        data-next-label={nextSeasonText.label}
+        data-action-label={isSeasonTransitioning ? `\u8fc7\u6e21\u5230${nextSeasonText.label}` : '\u5207\u6362\u5b63\u8282'}
+        data-summary={seasonSummary}
         title={isSeasonTransitioning ? `\u5207\u6362\u5230${nextSeasonText.label}` : `${seasonText.label} / ${seasonSummary}`}
         onClick={toggleSeason}
       >
@@ -2166,12 +2168,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           <i />
           <i />
         </span>
-        <span className="xh-season-switch-kicker">四季轮转</span>
-        <span className="xh-switch-label-stack xh-season-label-stack" aria-hidden="true">
-          <strong className="is-current">{seasonText.label}</strong>
-          <strong className="is-next">{nextSeasonText.label}</strong>
+        <span className="xh-switch-info-card" aria-hidden="true">
+          <span>{'\u56db\u5b63\u8f6e\u8f6c'}</span>
+          <strong>{seasonText.label}</strong>
+          <small>{isSeasonTransitioning ? `\u8fc7\u6e21\u5230${nextSeasonText.label}` : seasonSummary}</small>
         </span>
-        <small>{isSeasonTransitioning ? '\u5b63\u8282\u98ce\u573a\u6b63\u5728\u8fc7\u6e21' : seasonSummary}</small>
       </button>
 
       {effects.floatingCompanion ? <PixelKurisuPet /> : null}
