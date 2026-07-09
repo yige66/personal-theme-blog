@@ -25155,7 +25155,15 @@ html body .xh-season-switch[data-next-season="winter"] {
 }
 
 html body .xh-theme-switch-orbit,
-html body .xh-season-switch-orbit {
+html body .xh-season-switch-orbit,
+html body:has(.xh-clean-home) .xh-theme-switch-orbit,
+html body:has(.xh-clean-home) .xh-season-switch-orbit,
+html body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
+html body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit,
+html[data-xh-theme] body .xh-theme-switch-orbit,
+html[data-xh-theme] body .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch-orbit {
   width: 40px !important;
   height: 40px !important;
   min-width: 40px !important;
@@ -25285,7 +25293,7 @@ html body .xh-season-switch.is-transitioning::after {
   filter: saturate(1.08) brightness(1.04) !important;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 520px) {
   html body .xh-theme-switch,
   html body .xh-season-switch,
   html body:has(.xh-clean-home) .xh-season-switch,
@@ -25911,6 +25919,22 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-
   bottom: auto !important;
 }
 
+@media (min-width: 761px) and (min-height: 720px) {
+  html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+  html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch {
+    top: clamp(260px, 32vh, 430px) !important;
+    bottom: auto !important;
+  }
+
+  html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+  html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch {
+    top: clamp(332px, calc(32vh + 72px), 502px) !important;
+    bottom: auto !important;
+  }
+}
+
 @media (max-width: 760px) {
   html body:has(.xh-floating-player) {
     --xh-assistant-rail-base: max(150px, calc(env(safe-area-inset-bottom) + 150px));
@@ -25941,5 +25965,391 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-
   html body .xh-season-switch > .xh-switch-info-card > span,
   html body .xh-season-switch > .xh-switch-info-card > small {
     font-size: 9.5px !important;
+  }
+}
+
+/* Final switch label and emblem correction: keep the floating rail compact,
+   but give the badges enough room for readable state text and richer icons. */
+html body .xh-theme-switch > .xh-switch-info-card,
+html body .xh-season-switch > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+html body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme] body .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch > .xh-switch-info-card {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  grid-template-rows: 20px 18px !important;
+  align-content: center !important;
+  align-items: center !important;
+  column-gap: 7px !important;
+  row-gap: 2px !important;
+  inset: auto 70px auto auto !important;
+  top: 50% !important;
+  width: 168px !important;
+  min-width: 168px !important;
+  max-width: 168px !important;
+  min-height: 60px !important;
+  padding: 10px 14px 9px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 24%),
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.22), transparent 22px),
+    linear-gradient(135deg, rgba(30, 34, 70, 0.78), rgba(52, 43, 76, 0.82)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -10px 18px rgba(10, 13, 34, 0.12),
+    0 12px 26px rgba(18, 16, 38, 0.24) !important;
+}
+
+html body .xh-theme-switch > .xh-switch-info-card > span,
+html body .xh-season-switch > .xh-switch-info-card > span {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  font-size: 11.5px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  opacity: 0.82 !important;
+}
+
+html body .xh-theme-switch > .xh-switch-info-card > strong,
+html body .xh-season-switch > .xh-switch-info-card > strong {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  justify-self: start !important;
+  min-width: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.02 !important;
+  font-weight: 950 !important;
+}
+
+html body .xh-theme-switch > .xh-switch-info-card > small,
+html body .xh-season-switch > .xh-switch-info-card > small {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  font-size: 11.5px !important;
+  line-height: 1.15 !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+  opacity: 0.9 !important;
+}
+
+html body .xh-season-switch.is-spring > .xh-switch-info-card {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 24%),
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.26), transparent 22px),
+    linear-gradient(135deg, rgba(96, 130, 91, 0.76), rgba(184, 105, 137, 0.76)) !important;
+}
+
+html body .xh-season-switch.is-summer > .xh-switch-info-card {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 24%),
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.24), transparent 22px),
+    linear-gradient(135deg, rgba(54, 132, 100, 0.76), rgba(68, 145, 146, 0.76)) !important;
+}
+
+html body .xh-season-switch.is-autumn > .xh-switch-info-card {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 24%),
+    radial-gradient(circle at 12% 18%, rgba(255, 238, 196, 0.22), transparent 22px),
+    linear-gradient(135deg, rgba(133, 72, 45, 0.8), rgba(116, 75, 48, 0.82)) !important;
+}
+
+html body .xh-season-switch.is-winter > .xh-switch-info-card {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 24%),
+    radial-gradient(circle at 12% 18%, rgba(246, 253, 255, 0.28), transparent 22px),
+    linear-gradient(135deg, rgba(62, 92, 124, 0.78), rgba(72, 82, 120, 0.8)) !important;
+}
+
+html body .xh-theme-switch-orbit,
+html body .xh-season-switch-orbit {
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  border-radius: 18px !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -12px 18px rgba(15, 20, 46, 0.22),
+    0 10px 24px rgba(16, 20, 44, 0.24) !important;
+}
+
+html body .xh-theme-switch-orbit::before,
+html body .xh-season-switch-orbit::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 5px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.32), transparent 35%),
+    radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.52), transparent 5px) !important;
+  pointer-events: none !important;
+  z-index: 3 !important;
+}
+
+html body .xh-season-switch-orbit > .xh-season-switch-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 14px !important;
+  transform: translate3d(-50%, -50%, 0) scale(0.98) rotate(0deg) !important;
+  filter: drop-shadow(0 3px 8px rgba(8, 10, 28, 0.2)) !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(246, 210, 224, 0.88), rgba(124, 170, 116, 0.78)),
+    linear-gradient(45deg, transparent 46%, rgba(255, 255, 255, 0.2) 47% 53%, transparent 54%) !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-icon.is-current {
+  background:
+    radial-gradient(ellipse at 36% 38%, rgba(255, 216, 232, 0.98) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 60% 34%, rgba(255, 182, 213, 0.96) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 45% 64%, rgba(255, 240, 247, 0.95) 0 14%, transparent 15%),
+    radial-gradient(circle at 51% 49%, rgba(255, 224, 150, 0.92) 0 9%, transparent 10%),
+    linear-gradient(145deg, #7bbd78, #f2a8c6) !important;
+}
+
+html body .xh-season-switch.is-summer .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(108, 196, 126, 0.88), rgba(79, 169, 174, 0.82)),
+    radial-gradient(circle at 70% 25%, rgba(255, 243, 138, 0.42), transparent 17px) !important;
+}
+
+html body .xh-season-switch.is-summer .xh-season-switch-icon.is-current {
+  background:
+    radial-gradient(circle at 35% 62%, rgba(255, 236, 98, 0.98) 0 9%, transparent 10%),
+    radial-gradient(circle at 57% 45%, rgba(255, 255, 176, 0.96) 0 8%, transparent 9%),
+    radial-gradient(circle at 66% 67%, rgba(177, 255, 174, 0.88) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 33% 35%, rgba(142, 232, 142, 0.92) 0 11%, transparent 12%),
+    linear-gradient(145deg, #4fb075, #88d7c6) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(202, 115, 47, 0.9), rgba(104, 55, 45, 0.86)),
+    radial-gradient(circle at 72% 24%, rgba(255, 212, 110, 0.44), transparent 16px) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-icon.is-current {
+  background:
+    radial-gradient(ellipse at 37% 38%, rgba(255, 194, 72, 0.98) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 62% 42%, rgba(226, 91, 40, 0.96) 0 14%, transparent 15%),
+    linear-gradient(52deg, transparent 45%, rgba(255, 236, 168, 0.82) 46% 52%, transparent 53%),
+    radial-gradient(ellipse at 48% 66%, rgba(154, 63, 45, 0.98) 0 15%, transparent 16%),
+    linear-gradient(145deg, #7e3f30, #e88d32) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(150, 194, 222, 0.88), rgba(67, 94, 134, 0.84)),
+    linear-gradient(45deg, transparent 46%, rgba(255, 255, 255, 0.22) 47% 53%, transparent 54%) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-icon.is-current {
+  background:
+    linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, 0.88) 46% 54%, transparent 55%),
+    linear-gradient(30deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
+    linear-gradient(150deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
+    radial-gradient(circle at 51% 49%, rgba(255, 255, 255, 0.96) 0 16%, transparent 17%),
+    linear-gradient(145deg, #78aed0, #edf9ff) !important;
+}
+
+html body .xh-season-switch-orbit > i {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  opacity: 0.9 !important;
+  z-index: 4 !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.34) !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-orbit > i,
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
+  border-radius: 80% 8% 80% 8% !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-orbit > i {
+  background: linear-gradient(135deg, #fff0f7, #f7a8c8) !important;
+}
+
+html body .xh-season-switch.is-summer .xh-season-switch-orbit > i {
+  background: radial-gradient(circle, #fff79a 0 35%, #8af0a2 36% 72%, transparent 73%) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
+  background: linear-gradient(135deg, #ffd06a, #d95d31 58%, #7d3f2a) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-orbit > i {
+  background:
+    linear-gradient(90deg, transparent 42%, #f7fdff 43% 57%, transparent 58%),
+    linear-gradient(45deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
+    linear-gradient(135deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
+    radial-gradient(circle, #ffffff 0 28%, transparent 30%) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(1) {
+  left: 14px !important;
+  top: 16px !important;
+  transform: rotate(-26deg) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(2) {
+  left: 33px !important;
+  top: 18px !important;
+  transform: rotate(28deg) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(3) {
+  left: 25px !important;
+  top: 35px !important;
+  transform: rotate(8deg) !important;
+}
+
+html body .xh-theme-switch.is-day .xh-theme-switch-orbit,
+html body .xh-theme-switch.is-phase-dawn .xh-theme-switch-orbit {
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 247, 128, 0.58), transparent 18px),
+    linear-gradient(145deg, rgba(255, 225, 140, 0.9), rgba(107, 177, 208, 0.82)) !important;
+}
+
+html body .xh-theme-switch.is-night .xh-theme-switch-orbit,
+html body .xh-theme-switch.is-phase-dusk .xh-theme-switch-orbit {
+  background:
+    radial-gradient(circle at 58% 34%, rgba(255, 255, 255, 0.28), transparent 15px),
+    linear-gradient(145deg, rgba(33, 39, 82, 0.94), rgba(21, 27, 57, 0.9)) !important;
+}
+
+@media (max-width: 760px) {
+  html body .xh-theme-switch > .xh-switch-info-card,
+  html body .xh-season-switch > .xh-switch-info-card,
+  html body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme] body .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch > .xh-switch-info-card {
+    grid-template-rows: 17px 15px !important;
+    column-gap: 6px !important;
+    right: 62px !important;
+    width: min(142px, calc(100vw - 82px)) !important;
+    min-width: 0 !important;
+    max-width: min(142px, calc(100vw - 82px)) !important;
+    min-height: 52px !important;
+    padding: 8px 11px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > strong,
+  html body .xh-season-switch > .xh-switch-info-card > strong {
+    font-size: 13.5px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > span,
+  html body .xh-season-switch > .xh-switch-info-card > span {
+    font-size: 10.5px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > small,
+  html body .xh-season-switch > .xh-switch-info-card > small {
+    font-size: 9.5px !important;
+  }
+}
+
+/* Specificity repair for routes that carry both html state attributes and
+   page marker classes; older route-safe rules were still winning there. */
+html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  grid-template-rows: 20px 18px !important;
+  column-gap: 7px !important;
+  inset: auto 70px auto auto !important;
+  top: 50% !important;
+  width: 168px !important;
+  min-width: 168px !important;
+  max-width: 168px !important;
+  min-height: 60px !important;
+  padding: 10px 14px 9px !important;
+}
+
+html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch-orbit,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit {
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  border-radius: 18px !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+}
+
+@media (max-width: 520px) {
+  html body .xh-season-switch,
+  html body:has(.xh-clean-home) .xh-season-switch,
+  html body:has(:is(.subpage, .music-page)) .xh-season-switch,
+  html[data-xh-theme] body .xh-season-switch,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch {
+    top: max(76px, calc(env(safe-area-inset-top) + 76px)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: auto !important;
+  }
+
+  html body .xh-theme-switch,
+  html body:has(.xh-clean-home) .xh-theme-switch,
+  html body:has(:is(.subpage, .music-page)) .xh-theme-switch,
+  html[data-xh-theme] body .xh-theme-switch,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch {
+    top: max(140px, calc(env(safe-area-inset-top) + 140px)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: auto !important;
+  }
+
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
+    grid-template-rows: 17px 15px !important;
+    column-gap: 6px !important;
+    inset: auto 62px auto auto !important;
+    top: 50% !important;
+    width: min(142px, calc(100vw - 82px)) !important;
+    min-width: 0 !important;
+    max-width: min(142px, calc(100vw - 82px)) !important;
+    min-height: 52px !important;
+    padding: 8px 11px !important;
   }
 }
