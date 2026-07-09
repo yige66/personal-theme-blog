@@ -1996,7 +1996,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           <em />
         </span>
         <span className="xh-theme-switch-kicker">昼夜切换</span>
-        <strong>{nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+        <span className="xh-switch-label-stack" aria-hidden="true">
+          <strong className="is-current">{nightMode ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+          <strong className="is-next">{nextMode === 'night' ? '\u591c\u8272' : '\u65e5\u95f4'}</strong>
+        </span>
         <small>{isTransitioning ? '\u6e10\u53d8\u4e2d' : nightMode ? '\u70b9\u51fb\u5207\u5230\u65e5\u95f4' : '\u70b9\u51fb\u5207\u5230\u591c\u95f4'}</small>
       </button>
 
@@ -2018,8 +2021,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           <i />
           <i />
         </span>
-        <span className="xh-season-switch-kicker">Season Field</span>
-        <strong>{isSeasonTransitioning ? nextSeasonText.label : seasonText.label}</strong>
+        <span className="xh-season-switch-kicker">四季轮转</span>
+        <span className="xh-switch-label-stack xh-season-label-stack" aria-hidden="true">
+          <strong className="is-current">{seasonText.label}</strong>
+          <strong className="is-next">{nextSeasonText.label}</strong>
+        </span>
         <small>{isSeasonTransitioning ? '\u5b63\u8282\u98ce\u573a\u6b63\u5728\u8fc7\u6e21' : seasonSummary}</small>
       </button>
 
