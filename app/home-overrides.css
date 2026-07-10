@@ -26119,6 +26119,1878 @@ html body .xh-season-switch.is-spring .xh-season-switch-icon.is-current {
     linear-gradient(145deg, #7bbd78, #f2a8c6) !important;
 }
 
+
+/* Final homepage assistant control rail: keep theme and season switches directly above Kurisu, with the chat toggle beside her. */
+html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch {
+  top: auto !important;
+  right: clamp(30px, calc(env(safe-area-inset-right) + 3vw), 42px) !important;
+  bottom: calc(env(safe-area-inset-bottom) + 226px) !important;
+}
+
+html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch {
+  top: auto !important;
+  right: clamp(30px, calc(env(safe-area-inset-right) + 3vw), 42px) !important;
+  bottom: calc(env(safe-area-inset-bottom) + 290px) !important;
+}
+
+body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle {
+  right: 96px !important;
+  bottom: 54px !important;
+}
+
+@media (max-width: 720px) {
+  body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-pixel-kurisu-pet .xh-kurisu-chat-toggle {
+    right: 90px !important;
+    bottom: 50px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+  html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch {
+    top: auto !important;
+    right: max(30px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 214px) !important;
+  }
+
+  html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+  html[data-xh-theme] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-season-switch {
+    top: auto !important;
+    right: max(30px, env(safe-area-inset-right)) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 276px) !important;
+  }
+}
+
+/* Hover-reveal switch labels and readable season dial. */
+html body .xh-theme-switch > .xh-switch-info-card,
+html body .xh-season-switch > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme] body .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch > .xh-switch-info-card {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translate3d(8px, -50%, 0) scale(0.96) !important;
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease !important;
+}
+
+html body .xh-theme-switch:hover > .xh-switch-info-card,
+html body .xh-theme-switch:focus-visible > .xh-switch-info-card,
+html body .xh-season-switch:hover > .xh-switch-info-card,
+html body .xh-season-switch:focus-visible > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-theme-switch:hover > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-theme-switch:focus-visible > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-season-switch:hover > .xh-switch-info-card,
+html body:has(.xh-clean-home) .xh-season-switch:focus-visible > .xh-switch-info-card,
+html[data-xh-theme] body .xh-theme-switch:hover > .xh-switch-info-card,
+html[data-xh-theme] body .xh-theme-switch:focus-visible > .xh-switch-info-card,
+html[data-xh-theme] body .xh-season-switch:hover > .xh-switch-info-card,
+html[data-xh-theme] body .xh-season-switch:focus-visible > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch:hover > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch:focus-visible > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch:hover > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch:focus-visible > .xh-switch-info-card {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate3d(0, -50%, 0) scale(1) !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit {
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(32, 30, 58, 0.72) 0 35%, transparent 36%),
+    conic-gradient(from -35deg, #f7a6c9 0 25%, #78d389 0 50%, #e59a47 0 75%, #9fd7f2 0 100%) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+    inset 0 -10px 18px rgba(12, 16, 38, 0.24),
+    0 12px 28px rgba(18, 16, 38, 0.26) !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit::before,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::before {
+  inset: 7px !important;
+  border-radius: 999px !important;
+  background: rgba(18, 20, 44, 0.62) !important;
+  box-shadow: inset 0 1px 8px rgba(255, 255, 255, 0.22) !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit::after,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after {
+  content: "?" !important;
+  position: absolute !important;
+  right: 5px !important;
+  bottom: 4px !important;
+  z-index: 8 !important;
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: rgba(34, 31, 58, 0.88) !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 15px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 10px rgba(10, 12, 30, 0.24) !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit > i,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit > i,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit > i {
+  z-index: 6 !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 999px !important;
+  background: currentColor !important;
+  box-shadow: 0 0 8px currentColor !important;
+  opacity: 0.86 !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit > i:nth-of-type(1) {
+  color: #f7a6c9 !important;
+  left: 50% !important;
+  top: 8px !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit > i:nth-of-type(2) {
+  color: #78d389 !important;
+  left: auto !important;
+  right: 8px !important;
+  top: 50% !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-orbit > i:nth-of-type(3) {
+  color: #e59a47 !important;
+  left: 50% !important;
+  top: auto !important;
+  bottom: 8px !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-icon.is-next,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-icon.is-next,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+  display: none !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current {
+  z-index: 9 !important;
+  display: grid !important;
+  width: 32px !important;
+  height: 32px !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.58)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 6px 14px rgba(11, 12, 30, 0.24) !important;
+  filter: none !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch-icon.is-current::before,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current::before {
+  display: block !important;
+  color: rgba(35, 31, 58, 0.9) !important;
+  -webkit-text-fill-color: currentColor !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+}
+
+html body:has(.xh-clean-home) .xh-season-switch.is-spring .xh-season-switch-icon.is-current::before { content: "\6625" !important; }
+html body:has(.xh-clean-home) .xh-season-switch.is-summer .xh-season-switch-icon.is-current::before { content: "\590f" !important; }
+html body:has(.xh-clean-home) .xh-season-switch.is-autumn .xh-season-switch-icon.is-current::before { content: "\79cb" !important; }
+html body:has(.xh-clean-home) .xh-season-switch.is-winter .xh-season-switch-icon.is-current::before { content: "\51ac" !important; }
+
+/* Refined four-season compass: layered glass, clear seasonal identity, and a synchronized crossfade. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch {
+  --xh-dial-current-a: #ffb8d7;
+  --xh-dial-current-b: #82cf98;
+  --xh-dial-next-a: var(--xh-dial-current-a);
+  --xh-dial-next-b: var(--xh-dial-current-b);
+  --xh-dial-angle: 0deg;
+  --xh-dial-next-angle: 90deg;
+  width: 76px !important;
+  min-width: 76px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  padding: 7px !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, 0.64) !important;
+  border-radius: 26px !important;
+  background: rgba(24, 25, 52, 0.28) !important;
+  box-shadow:
+    0 18px 42px rgba(18, 17, 42, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -12px 24px rgba(20, 19, 50, 0.18) !important;
+  backdrop-filter: blur(18px) saturate(1.18) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.18) !important;
+  transition:
+    transform 480ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    border-color 480ms ease,
+    box-shadow 680ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-season="spring"] {
+  --xh-dial-current-a: #ffb5d7;
+  --xh-dial-current-b: #7fcf97;
+  --xh-dial-angle: 0deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-season="summer"] {
+  --xh-dial-current-a: #ffe779;
+  --xh-dial-current-b: #4dbe84;
+  --xh-dial-angle: 90deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-season="autumn"] {
+  --xh-dial-current-a: #ffc568;
+  --xh-dial-current-b: #c85f35;
+  --xh-dial-angle: 180deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-season="winter"] {
+  --xh-dial-current-a: #e8f9ff;
+  --xh-dial-current-b: #7fbce3;
+  --xh-dial-angle: 270deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="spring"] {
+  --xh-dial-next-a: #ffb5d7;
+  --xh-dial-next-b: #7fcf97;
+  --xh-dial-next-angle: 0deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-season="winter"][data-next-season="spring"] {
+  --xh-dial-next-angle: 360deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="summer"] {
+  --xh-dial-next-a: #ffe779;
+  --xh-dial-next-b: #4dbe84;
+  --xh-dial-next-angle: 90deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="autumn"] {
+  --xh-dial-next-a: #ffc568;
+  --xh-dial-next-b: #c85f35;
+  --xh-dial-next-angle: 180deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="winter"] {
+  --xh-dial-next-a: #e8f9ff;
+  --xh-dial-next-b: #7fbce3;
+  --xh-dial-next-angle: 270deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after {
+  inset: 3px !important;
+  z-index: 0 !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 27% 18%, rgba(255, 255, 255, 0.72), transparent 28%),
+    linear-gradient(145deg, color-mix(in srgb, var(--xh-dial-current-a), transparent 18%), color-mix(in srgb, var(--xh-dial-current-b), #30355f 48%)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+  filter: saturate(0.92) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after {
+  background:
+    radial-gradient(circle at 27% 18%, rgba(255, 255, 255, 0.76), transparent 28%),
+    linear-gradient(145deg, color-mix(in srgb, var(--xh-dial-next-a), transparent 18%), color-mix(in srgb, var(--xh-dial-next-b), #30355f 48%)) !important;
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch:hover,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch:focus-visible {
+  border-color: rgba(255, 255, 255, 0.92) !important;
+  box-shadow:
+    0 22px 52px rgba(18, 17, 42, 0.36),
+    0 0 28px color-mix(in srgb, var(--xh-dial-current-a), transparent 52%),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+  transform: translate3d(-2px, -3px, 0) scale(1.045) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit {
+  z-index: 2 !important;
+  width: 60px !important;
+  min-width: 60px !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, 0.66) !important;
+  background:
+    conic-gradient(from -45deg,
+      #f7a6c9 0deg 82deg,
+      rgba(255,255,255,0.74) 86deg 90deg,
+      #70d18e 94deg 172deg,
+      rgba(255,255,255,0.74) 176deg 180deg,
+      #e89a49 184deg 262deg,
+      rgba(255,255,255,0.74) 266deg 270deg,
+      #9fd7f2 274deg 352deg,
+      rgba(255,255,255,0.74) 356deg 360deg) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    inset 0 -14px 22px rgba(14, 17, 42, 0.2),
+    0 10px 24px rgba(16, 16, 38, 0.3) !important;
+  transform: none !important;
+  transition: transform 520ms cubic-bezier(0.2, 0.86, 0.22, 1), filter 520ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::before {
+  inset: 8px !important;
+  z-index: 1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.52) !important;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.42), transparent 34%),
+    rgba(25, 26, 55, 0.78) !important;
+  box-shadow:
+    inset 0 1px 10px rgba(255, 255, 255, 0.18),
+    inset 0 -10px 18px rgba(8, 10, 30, 0.28) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after {
+  content: "" !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 7 !important;
+  width: 8px !important;
+  height: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  box-shadow:
+    0 0 0 2px rgba(25, 27, 56, 0.34),
+    0 0 12px rgba(255, 255, 255, 0.86) !important;
+  transform: translate(-50%, -50%) rotate(var(--xh-dial-angle)) translateY(-25px) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit > i {
+  display: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 5 !important;
+  display: grid !important;
+  width: 34px !important;
+  height: 34px !important;
+  place-items: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border-radius: 13px !important;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.74) 38%, transparent 39%),
+    linear-gradient(145deg, var(--xh-dial-current-a), var(--xh-dial-current-b)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 8px 16px rgba(8, 10, 28, 0.32) !important;
+  clip-path: none !important;
+  filter: none !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+  z-index: 6 !important;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.74) 38%, transparent 39%),
+    linear-gradient(145deg, var(--xh-dial-next-a), var(--xh-dial-next-b)) !important;
+  opacity: 0 !important;
+  transform: translate(-50%, -42%) rotate(-18deg) scale(0.72) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon::before {
+  inset: auto !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  color: rgba(35, 31, 58, 0.9) !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.48) !important;
+  transform: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon::after {
+  inset: 3px !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.38), transparent 44%) !important;
+  transform: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next::before { content: "\6625" !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next::before { content: "\590f" !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next::before { content: "\79cb" !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next::before { content: "\51ac" !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning {
+  transform: translate3d(-2px, -3px, 0) scale(1.035) !important;
+  box-shadow:
+    0 24px 58px rgba(18, 17, 42, 0.38),
+    0 0 34px color-mix(in srgb, var(--xh-dial-next-a), transparent 42%),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning::before {
+  animation: xh-season-dial-current 4200ms cubic-bezier(0.16, 0.76, 0.22, 1) both !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning::after {
+  animation: xh-season-dial-next 4200ms cubic-bezier(0.16, 0.76, 0.22, 1) both !important;
+}
+
+@keyframes xh-season-dial-current {
+  0%, 18% { opacity: 1; filter: saturate(0.92); }
+  62% { opacity: 0.34; filter: saturate(0.72) brightness(0.92); }
+  100% { opacity: 0; filter: saturate(0.8) brightness(0.96); }
+}
+
+@keyframes xh-season-dial-next {
+  0%, 16% { opacity: 0; filter: saturate(0.7) brightness(0.9); }
+  58% { opacity: 0.72; filter: saturate(0.94) brightness(1.02); }
+  100% { opacity: 1; filter: saturate(1) brightness(1); }
+}
+
+@keyframes xh-season-dial-breathe {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  48% { transform: scale(1.07); filter: brightness(1.12); }
+}
+
+@keyframes xh-season-dial-marker {
+  from { transform: translate(-50%, -50%) rotate(var(--xh-dial-angle)) translateY(-25px); }
+  to { transform: translate(-50%, -50%) rotate(var(--xh-dial-next-angle)) translateY(-25px); }
+}
+
+@keyframes xh-season-dial-icon-out {
+  0%, 18% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  58% { opacity: 0.18; transform: translate(-50%, -58%) rotate(18deg) scale(0.78); }
+  100% { opacity: 0; transform: translate(-50%, -64%) rotate(28deg) scale(0.64); }
+}
+
+@keyframes xh-season-dial-icon-in {
+  0%, 18% { opacity: 0; transform: translate(-50%, -38%) rotate(-24deg) scale(0.68); }
+  58% { opacity: 0.76; transform: translate(-50%, -48%) rotate(-5deg) scale(0.94); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch {
+    width: 68px !important;
+    min-width: 68px !important;
+    height: 68px !important;
+    min-height: 68px !important;
+    padding: 6px !important;
+    border-radius: 23px !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit {
+    width: 54px !important;
+    min-width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after {
+    transform: translate(-50%, -50%) rotate(var(--xh-dial-angle)) translateY(-22px) !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-orbit::after {
+    animation-name: xh-season-dial-marker-mobile !important;
+  }
+}
+
+@keyframes xh-season-dial-marker-mobile {
+  from { transform: translate(-50%, -50%) rotate(var(--xh-dial-angle)) translateY(-22px); }
+  to { transform: translate(-50%, -50%) rotate(var(--xh-dial-next-angle)) translateY(-22px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon {
+    animation-duration: 240ms !important;
+    transition-duration: 160ms !important;
+  }
+}
+
+/* The existing cascade uses !important state values; transitions keep those states interpolated reliably. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after {
+  animation: none !important;
+  transition: opacity 4200ms cubic-bezier(0.16, 0.76, 0.22, 1), filter 4200ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit {
+  animation: none !important;
+  transition: transform 2100ms cubic-bezier(0.16, 0.76, 0.22, 1), filter 2100ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after {
+  animation: none !important;
+  transition: transform 4200ms cubic-bezier(0.16, 0.76, 0.22, 1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+  animation: none !important;
+  transition:
+    opacity 4200ms cubic-bezier(0.16, 0.76, 0.22, 1),
+    transform 4200ms cubic-bezier(0.16, 0.76, 0.22, 1),
+    filter 4200ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning::before {
+  opacity: 0 !important;
+  filter: saturate(0.8) brightness(0.96) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning::after {
+  opacity: 1 !important;
+  filter: saturate(1) brightness(1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-orbit {
+  animation: none !important;
+  transform: scale(1.045) !important;
+  filter: brightness(1.1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-orbit::after {
+  animation: none !important;
+  transform: translate(-50%, -50%) rotate(var(--xh-dial-next-angle)) translateY(-25px) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-current {
+  animation: none !important;
+  opacity: 0 !important;
+  transform: translate(-50%, -64%) rotate(28deg) scale(0.64) !important;
+  filter: blur(1.2px) saturate(0.72) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-next {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+  filter: blur(0) saturate(1) !important;
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch.is-transitioning .xh-season-switch-orbit::after {
+    transform: translate(-50%, -50%) rotate(var(--xh-dial-next-angle)) translateY(-22px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+    transition-duration: 180ms !important;
+  }
+}
+
+/* Keep the visual blend perceptually even across the full season transition. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after {
+  transition-timing-function: linear, linear !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-icon.is-next {
+  transition-timing-function: cubic-bezier(0.37, 0, 0.63, 1) !important;
+}
+
+/* Keep the outer shell neutral; the seasonal color change happens inside the dial without a backdrop flash. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch::after {
+  background:
+    radial-gradient(circle at 27% 18%, rgba(255, 255, 255, 0.58), transparent 29%),
+    linear-gradient(145deg, rgba(73, 73, 119, 0.72), rgba(28, 30, 66, 0.82)) !important;
+}
+
+/* Unified RPG relic controls: one frame system for season and day/night artifacts. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) {
+  --xh-relic-size: 76px;
+  --xh-relic-orbit: 60px;
+  --xh-relic-core: 34px;
+  display: grid !important;
+  grid-template: 1fr / 1fr !important;
+  place-items: center !important;
+  width: var(--xh-relic-size) !important;
+  min-width: var(--xh-relic-size) !important;
+  height: var(--xh-relic-size) !important;
+  min-height: var(--xh-relic-size) !important;
+  padding: 7px !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  border: 1px solid rgba(241, 237, 255, 0.68) !important;
+  border-radius: 26px !important;
+  background: rgba(30, 31, 65, 0.34) !important;
+  box-shadow:
+    0 18px 42px rgba(13, 14, 34, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    inset 0 -14px 24px rgba(14, 15, 42, 0.22) !important;
+  backdrop-filter: blur(18px) saturate(1.16) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.16) !important;
+  transition:
+    transform 460ms cubic-bezier(0.2, 0.86, 0.22, 1),
+    border-color 460ms ease,
+    box-shadow 620ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch)::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch)::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 3px !important;
+  z-index: 0 !important;
+  display: block !important;
+  border-radius: 22px !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.6), transparent 28%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 8px),
+    linear-gradient(145deg, rgba(78, 77, 126, 0.78), rgba(27, 29, 65, 0.9)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+    inset 0 -12px 24px rgba(10, 12, 34, 0.2) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  animation: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch)::after {
+  inset: 7px !important;
+  z-index: 1 !important;
+  border-radius: 19px !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 46%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch):hover,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch):focus-visible {
+  border-color: rgba(255, 255, 255, 0.94) !important;
+  box-shadow:
+    0 22px 52px rgba(13, 14, 34, 0.38),
+    0 0 30px var(--xh-relic-glow, rgba(160, 188, 255, 0.34)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88) !important;
+  transform: translate3d(-2px, -3px, 0) scale(1.045) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch):focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.92) !important;
+  outline-offset: 3px !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-season-switch-orbit {
+  position: relative !important;
+  z-index: 3 !important;
+  grid-area: 1 / 1 !important;
+  display: grid !important;
+  width: var(--xh-relic-orbit) !important;
+  min-width: var(--xh-relic-orbit) !important;
+  height: var(--xh-relic-orbit) !important;
+  min-height: var(--xh-relic-orbit) !important;
+  place-items: center !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.26),
+    inset 0 -14px 22px rgba(13, 15, 42, 0.24),
+    0 10px 24px rgba(12, 13, 34, 0.34) !important;
+  transform: none !important;
+  transition: transform 720ms cubic-bezier(0.2, 0.86, 0.22, 1), filter 720ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch-orbit, .xh-season-switch-orbit)::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 8px !important;
+  z-index: 1 !important;
+  display: block !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.38), transparent 34%),
+    rgba(23, 25, 55, 0.82) !important;
+  box-shadow:
+    inset 0 1px 10px rgba(255, 255, 255, 0.17),
+    inset 0 -10px 18px rgba(8, 10, 30, 0.3) !important;
+  pointer-events: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch {
+  --xh-relic-glow: rgba(130, 182, 255, 0.4);
+  --xh-theme-marker-angle: 90deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night {
+  --xh-relic-glow: rgba(144, 137, 255, 0.42);
+  --xh-theme-marker-angle: 270deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="day"] {
+  --xh-theme-next-marker-angle: 450deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="night"] {
+  --xh-theme-next-marker-angle: 270deg;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit {
+  background:
+    conic-gradient(from -90deg,
+      #ffd873 0deg 172deg,
+      rgba(255, 255, 255, 0.8) 176deg 180deg,
+      #6f7ec7 184deg 352deg,
+      rgba(255, 255, 255, 0.8) 356deg 360deg) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 8 !important;
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 2px rgba(25, 27, 56, 0.35), 0 0 12px rgba(255, 255, 255, 0.88) !important;
+  transform: translate(-50%, -50%) rotate(var(--xh-theme-marker-angle)) translateY(-25px) !important;
+  transition: transform 3400ms cubic-bezier(0.37, 0, 0.63, 1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 5 !important;
+  display: grid !important;
+  width: var(--xh-relic-core) !important;
+  height: var(--xh-relic-core) !important;
+  place-items: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border-radius: 13px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 8px 16px rgba(8, 10, 28, 0.32) !important;
+  clip-path: none !important;
+  filter: none !important;
+  animation: none !important;
+  transition:
+    opacity 3400ms cubic-bezier(0.37, 0, 0.63, 1),
+    transform 3400ms cubic-bezier(0.37, 0, 0.63, 1),
+    filter 3400ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-sun {
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.72) 38%, transparent 39%),
+    linear-gradient(145deg, #fff08f, #e6b84e 58%, #54b99d) !important;
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-moon {
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.76), transparent 38%),
+    linear-gradient(145deg, #9db6ed, #5865a7 58%, #303865) !important;
+  opacity: 0 !important;
+  transform: translate(-50%, -42%) rotate(-18deg) scale(0.72) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night .xh-theme-switch-body.is-sun {
+  opacity: 0 !important;
+  transform: translate(-50%, -62%) rotate(24deg) scale(0.66) !important;
+  filter: blur(1px) saturate(0.72) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night .xh-theme-switch-body.is-moon {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body > i {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  margin: 0 !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-sun > i {
+  width: 14px !important;
+  height: 14px !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle at 36% 30%, #fff, #fff08a 48%, #f5c944 74%) !important;
+  box-shadow: 0 0 0 3px rgba(255, 231, 105, 0.18), 0 0 12px rgba(255, 231, 105, 0.9) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-moon > i {
+  width: 16px !important;
+  height: 16px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: -5px 2px 0 0 #f3f7ff, -8px 4px 10px rgba(198, 218, 255, 0.46) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit {
+  transform: scale(1.045) !important;
+  filter: brightness(1.1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit::after {
+  transform: translate(-50%, -50%) rotate(var(--xh-theme-next-marker-angle)) translateY(-25px) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-sun,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-moon {
+  opacity: 0 !important;
+  transform: translate(-50%, -62%) rotate(24deg) scale(0.66) !important;
+  filter: blur(1px) saturate(0.72) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-moon,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-sun {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+  filter: blur(0) saturate(1) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch {
+  --xh-relic-glow: color-mix(in srgb, var(--xh-dial-current-a), transparent 52%);
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-orbit {
+  width: var(--xh-relic-orbit) !important;
+  min-width: var(--xh-relic-orbit) !important;
+  height: var(--xh-relic-orbit) !important;
+  min-height: var(--xh-relic-orbit) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon.is-next {
+  width: var(--xh-relic-core) !important;
+  height: var(--xh-relic-core) !important;
+  border-radius: 13px !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) > .xh-switch-info-card {
+  left: auto !important;
+  right: calc(100% + 12px) !important;
+  top: 50% !important;
+  width: 138px !important;
+  min-width: 138px !important;
+  min-height: 58px !important;
+  padding: 9px 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.44) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.22), transparent 34%),
+    linear-gradient(145deg, rgba(58, 60, 108, 0.9), rgba(25, 27, 63, 0.94)) !important;
+  box-shadow: 0 14px 32px rgba(12, 13, 34, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #f7f4ff !important;
+  backdrop-filter: blur(16px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.12) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) > .xh-switch-info-card > span {
+  color: rgba(226, 223, 255, 0.68) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.08em !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) > .xh-switch-info-card > strong {
+  color: #fff !important;
+  font-size: 14px !important;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) > .xh-switch-info-card > small {
+  color: rgba(234, 232, 255, 0.76) !important;
+  font-size: 10px !important;
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) {
+    --xh-relic-size: 68px;
+    --xh-relic-orbit: 54px;
+    --xh-relic-core: 32px;
+    padding: 6px !important;
+    border-radius: 23px !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch) > .xh-switch-info-card {
+    display: none !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit::after {
+    transform: translate(-50%, -50%) rotate(var(--xh-theme-marker-angle)) translateY(-22px) !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit::after {
+    transform: translate(-50%, -50%) rotate(var(--xh-theme-next-marker-angle)) translateY(-22px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch),
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch-orbit, .xh-season-switch-orbit),
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit::after,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body {
+    transition-duration: 180ms !important;
+  }
+}
+
+/* Shared rail rhythm: equal 76px relics with a 10px visual gap. */
+@media (min-width: 521px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-floating-player):has(.xh-clean-home) .xh-season-switch {
+    bottom: calc(var(--xh-assistant-rail-base) + 302px) !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)):not(:has(.xh-floating-player)) .xh-season-switch {
+    bottom: calc(env(safe-area-inset-bottom) + 312px) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch {
+    top: max(76px, calc(env(safe-area-inset-top) + 76px)) !important;
+    bottom: auto !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch {
+    top: max(154px, calc(env(safe-area-inset-top) + 154px)) !important;
+    bottom: auto !important;
+  }
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)):not(:has(.xh-floating-player)) .xh-season-switch {
+    top: auto !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)):not(:has(.xh-floating-player)) .xh-theme-switch {
+    top: auto !important;
+    bottom: calc(env(safe-area-inset-bottom) + 244px) !important;
+  }
+}
+
+/* Theme relic uses its existing em layer as a radial target-mode reveal, avoiding icon snaps. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  z-index: 7 !important;
+  display: grid !important;
+  width: var(--xh-relic-core) !important;
+  height: var(--xh-relic-core) !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border-radius: 13px !important;
+  background: linear-gradient(145deg, #9db6ed, #5865a7 58%, #303865) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 8px 16px rgba(8, 10, 28, 0.32) !important;
+  opacity: 1 !important;
+  clip-path: circle(0% at 50% 50%) !important;
+  transform: translate(-50%, -50%) !important;
+  transition: clip-path 3400ms linear !important;
+  pointer-events: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="day"] .xh-theme-switch-orbit > em {
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.72) 38%, transparent 39%),
+    linear-gradient(145deg, #fff08f, #e6b84e 58%, #54b99d) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="night"] .xh-theme-switch-orbit > em {
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.76), transparent 38%),
+    linear-gradient(145deg, #9db6ed, #5865a7 58%, #303865) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em::before {
+  content: "" !important;
+  position: relative !important;
+  display: block !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="day"] .xh-theme-switch-orbit > em::before {
+  width: 14px !important;
+  height: 14px !important;
+  border: 2px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle at 36% 30%, #fff, #fff08a 48%, #f5c944 74%) !important;
+  box-shadow: 0 0 0 3px rgba(255, 231, 105, 0.18), 0 0 12px rgba(255, 231, 105, 0.9) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="night"] .xh-theme-switch-orbit > em::before {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: -5px 2px 0 0 #f3f7ff, -8px 4px 10px rgba(198, 218, 255, 0.46) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit > em {
+  clip-path: circle(74% at 50% 50%) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-sun {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+  filter: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-moon {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-moon {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(1) !important;
+  filter: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-sun {
+  opacity: 0 !important;
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)):not(:has(.xh-floating-player)) .xh-season-switch {
+    bottom: calc(env(safe-area-inset-bottom) + 322px) !important;
+  }
+
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-floating-player):has(.xh-clean-home) .xh-season-switch {
+    bottom: calc(var(--xh-assistant-rail-base) + 294px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em {
+    transition-duration: 180ms !important;
+  }
+}
+
+/* Pure pictogram season gems: no text glyphs inside the control. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon::after {
+  content: "" !important;
+  position: absolute !important;
+  display: block !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-shadow: none !important;
+}
+
+/* Spring: five-petal blossom. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="spring"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next::before {
+  inset: 5px !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 50% 16%, #fff 0 2px, #ffafd1 3px 5px, transparent 6px),
+    radial-gradient(circle at 82% 40%, #fff 0 2px, #f894c2 3px 5px, transparent 6px),
+    radial-gradient(circle at 70% 78%, #fff 0 2px, #ff9bc7 3px 5px, transparent 6px),
+    radial-gradient(circle at 30% 78%, #fff 0 2px, #ffb2d3 3px 5px, transparent 6px),
+    radial-gradient(circle at 18% 40%, #fff 0 2px, #ef8ebd 3px 5px, transparent 6px) !important;
+  filter: drop-shadow(0 2px 4px rgba(154, 58, 105, 0.28)) !important;
+  transform: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="spring"] .xh-season-switch-icon.is-current::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next::after {
+  left: 50% !important;
+  top: 50% !important;
+  inset: auto !important;
+  width: 7px !important;
+  height: 7px !important;
+  border: 1px solid rgba(255, 255, 255, 0.82) !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle at 35% 30%, #fff7b6, #f2bd4f 72%) !important;
+  box-shadow: 0 0 7px rgba(255, 216, 99, 0.72) !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Summer: radiant sun with a small green leaf accent. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="summer"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next::before {
+  left: 50% !important;
+  top: 50% !important;
+  inset: auto !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle, #fffbd1 0 4px, #ffe45c 5px 8px, transparent 9px),
+    repeating-conic-gradient(from 0deg, #ffd54e 0deg 10deg, transparent 10deg 30deg) !important;
+  filter: drop-shadow(0 0 6px rgba(255, 222, 76, 0.72)) !important;
+  transform: translate(-50%, -50%) rotate(8deg) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="summer"] .xh-season-switch-icon.is-current::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next::after {
+  right: 4px !important;
+  bottom: 5px !important;
+  left: auto !important;
+  top: auto !important;
+  inset: auto 4px 5px auto !important;
+  width: 9px !important;
+  height: 6px !important;
+  border: 1px solid rgba(232, 255, 225, 0.7) !important;
+  border-radius: 90% 12% 90% 12% !important;
+  background: linear-gradient(135deg, #b9ec8f, #4ab878) !important;
+  box-shadow: 0 2px 5px rgba(31, 107, 70, 0.3) !important;
+  transform: rotate(-28deg) !important;
+}
+
+/* Autumn: maple-like leaf with a highlighted central vein. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="autumn"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next::before {
+  left: 50% !important;
+  top: 48% !important;
+  inset: auto !important;
+  width: 22px !important;
+  height: 23px !important;
+  border-radius: 0 !important;
+  background: linear-gradient(145deg, #ffd36d 0%, #ef9141 45%, #b9472e 100%) !important;
+  clip-path: polygon(50% 0, 61% 23%, 88% 13%, 76% 40%, 100% 52%, 70% 61%, 68% 91%, 50% 72%, 32% 91%, 30% 61%, 0 52%, 24% 40%, 12% 13%, 39% 23%) !important;
+  filter: drop-shadow(0 3px 4px rgba(112, 47, 25, 0.36)) !important;
+  transform: translate(-50%, -50%) rotate(-7deg) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="autumn"] .xh-season-switch-icon.is-current::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next::after {
+  left: 50% !important;
+  top: 48% !important;
+  inset: auto !important;
+  width: 2px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 235, 160, 0.72) !important;
+  box-shadow: 0 0 4px rgba(255, 224, 126, 0.48) !important;
+  transform: translate(-50%, -38%) rotate(-7deg) !important;
+}
+
+/* Winter: six-arm crystalline snowflake. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="winter"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next::before {
+  left: 50% !important;
+  top: 50% !important;
+  inset: auto !important;
+  width: 23px !important;
+  height: 23px !important;
+  border-radius: 0 !important;
+  background:
+    linear-gradient(90deg, transparent 45%, #f7fdff 46% 54%, transparent 55%),
+    linear-gradient(30deg, transparent 45%, #d8f4ff 46% 54%, transparent 55%),
+    linear-gradient(-30deg, transparent 45%, #f7fdff 46% 54%, transparent 55%) !important;
+  filter: drop-shadow(0 0 5px rgba(196, 239, 255, 0.86)) !important;
+  transform: translate(-50%, -50%) rotate(0deg) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="winter"] .xh-season-switch-icon.is-current::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next::after {
+  left: 50% !important;
+  top: 50% !important;
+  inset: auto !important;
+  width: 7px !important;
+  height: 7px !important;
+  border: 1px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle at 35% 30%, #fff, #b9eaff 74%) !important;
+  box-shadow: 0 0 8px rgba(207, 245, 255, 0.92) !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Day/night control remains visible and interactive through every committed phase. */
+html.xh-splash-seen[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch,
+html.xh-splash-seen[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure the hidden next-season gem can never inherit legacy Chinese glyph content. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="spring"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="summer"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="autumn"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="winter"] .xh-season-switch-icon.is-current::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next::before {
+  content: "" !important;
+}
+
+/* Reset the radial veil immediately after commit so the reverse direction always starts at zero. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch:not(.is-transitioning) .xh-theme-switch-orbit > em {
+  clip-path: circle(0% at 50% 50%) !important;
+  transition: none !important;
+}
+
+/* Gallery-grade inline SVG relic artwork; all state changes stay inside the central gem. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph {
+  position: relative !important;
+  z-index: 3 !important;
+  display: block !important;
+  width: 27px !important;
+  height: 27px !important;
+  overflow: visible !important;
+  filter: drop-shadow(0 2px 3px rgba(12, 13, 32, 0.28)) !important;
+  transform: none !important;
+  transform-origin: center !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph .xh-glyph-line {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2.4 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph .xh-glyph-primary,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph .xh-glyph-secondary,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph .xh-glyph-accent {
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-spring {
+  color: #8d3d6a !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-spring .xh-glyph-primary { fill: #fff0f7 !important; stroke: #e56aa6 !important; stroke-width: 1.2 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-spring .xh-glyph-secondary { fill: #70b782 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-spring .xh-glyph-accent { fill: #f3bd55 !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer {
+  color: #fff6a7 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-primary { fill: #ffd94f !important; stroke: #fff5a0 !important; stroke-width: 1.4 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-secondary { fill: #64bf77 !important; stroke: #d8f2a4 !important; stroke-width: 1 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-accent { fill: rgba(255, 255, 255, 0.66) !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-autumn {
+  color: #7a321f !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-autumn .xh-glyph-primary { fill: #dc6936 !important; stroke: #ffd079 !important; stroke-width: 1.3 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-autumn .xh-glyph-secondary { fill: #f3a64e !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-autumn .xh-glyph-accent { fill: #8b3b28 !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-winter {
+  color: #eefcff !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-winter .xh-glyph-primary { fill: #bcecff !important; stroke: #fff !important; stroke-width: 1.2 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-winter .xh-glyph-secondary { fill: none !important; stroke: #c7f1ff !important; stroke-width: 1.8 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-winter .xh-glyph-accent { fill: #fff !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-day {
+  color: #fff4a3 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-day .xh-glyph-primary { fill: #ffe15d !important; stroke: #fff7b0 !important; stroke-width: 1.4 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-day .xh-glyph-secondary { fill: #7ccaa1 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-day .xh-glyph-accent { fill: rgba(255, 255, 255, 0.72) !important; }
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-night {
+  color: #dce9ff !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-night .xh-glyph-primary { fill: #e7efff !important; stroke: #fff !important; stroke-width: 1.2 !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-night .xh-glyph-secondary { fill: #a9c5ff !important; }
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-night .xh-glyph-accent { fill: #fff4b8 !important; }
+
+/* Retire all legacy pseudo glyphs now that the artwork is real SVG. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body::after,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em::before,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-orbit > i,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body > i {
+  display: none !important;
+}
+
+/* In-place season blend: opacity only, no translation or rotation. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch-icon.is-next,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-next {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  filter: none !important;
+  animation: none !important;
+  transition: opacity 4200ms linear, filter 4200ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-current {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch.is-transitioning .xh-season-switch-icon.is-next {
+  opacity: 1 !important;
+}
+
+/* Day/night artwork never leaves the gem: current stays centered while target reveals in place. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-body {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  filter: none !important;
+  animation: none !important;
+  transition: opacity 260ms ease !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day .xh-theme-switch-body.is-sun,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning .xh-theme-switch-body.is-sun {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day .xh-theme-switch-body.is-moon,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning .xh-theme-switch-body.is-moon {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night .xh-theme-switch-body.is-moon,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning .xh-theme-switch-body.is-moon {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night .xh-theme-switch-body.is-sun,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning .xh-theme-switch-body.is-sun {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit > em {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  filter: none !important;
+  animation: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em .xh-relic-glyph {
+  width: 27px !important;
+  height: 27px !important;
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em .xh-relic-glyph {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}
+
+/* Reset independent transform longhands inherited from legacy keyframes; SVG layers remain perfectly centered. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit > em {
+  inset: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit {
+  transform: none !important;
+  filter: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-orbit > em {
+  translate: 0 0 !important;
+  rotate: 0deg !important;
+  scale: 1 !important;
+}
+
+/* Anime-fantasy aura backplates replace the segmented color wheels. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-season-switch-orbit {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(73, 83, 138, 0.36) 0 42%, rgba(20, 23, 57, 0.9) 72%),
+    linear-gradient(145deg, rgba(55, 60, 108, 0.94), rgba(20, 23, 57, 0.96)) !important;
+  border-color: rgba(226, 226, 255, 0.68) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 -12px 20px rgba(7, 9, 29, 0.34),
+    0 10px 24px rgba(12, 13, 34, 0.34),
+    0 0 18px rgba(139, 154, 255, 0.16) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch-orbit, .xh-season-switch-orbit)::before {
+  inset: 3px !important;
+  z-index: 1 !important;
+  border-color: rgba(240, 238, 255, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.12), transparent 42%),
+    rgba(18, 21, 52, 0.34) !important;
+  box-shadow: inset 0 0 16px rgba(160, 180, 255, 0.12) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch-orbit, .xh-season-switch-orbit)::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura-layer {
+  position: absolute !important;
+  inset: 1px !important;
+  z-index: 2 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  translate: 0 0 !important;
+  rotate: 0deg !important;
+  scale: 1 !important;
+  transform: none !important;
+  animation: none !important;
+  will-change: opacity !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura-layer.is-current {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura-layer.is-next {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-relic-aura-layer {
+  transition: opacity 4200ms linear !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch .xh-relic-aura-layer {
+  transition: opacity 3400ms linear !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-season-switch, .xh-theme-switch).is-transitioning .xh-relic-aura-layer.is-current {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-season-switch, .xh-theme-switch).is-transitioning .xh-relic-aura-layer.is-next {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura {
+  display: block !important;
+  width: 58px !important;
+  height: 58px !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  filter:
+    drop-shadow(0 0 4px color-mix(in srgb, var(--xh-aura-primary) 58%, transparent))
+    drop-shadow(0 0 9px color-mix(in srgb, var(--xh-aura-secondary) 34%, transparent)) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-spring {
+  --xh-aura-primary: #ff9bc9;
+  --xh-aura-secondary: #7fe0b1;
+  --xh-aura-accent: #fff0b2;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-summer {
+  --xh-aura-primary: #ffe170;
+  --xh-aura-secondary: #69d5cc;
+  --xh-aura-accent: #fff8c8;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-autumn {
+  --xh-aura-primary: #f29a52;
+  --xh-aura-secondary: #c26a8e;
+  --xh-aura-accent: #ffd58c;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-winter {
+  --xh-aura-primary: #b9efff;
+  --xh-aura-secondary: #aaa8f2;
+  --xh-aura-accent: #ffffff;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-day {
+  --xh-aura-primary: #ffe27c;
+  --xh-aura-secondary: #76cfe1;
+  --xh-aura-accent: #fff8c9;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura.is-night {
+  --xh-aura-primary: #b9c9ff;
+  --xh-aura-secondary: #a689eb;
+  --xh-aura-accent: #fff0bd;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-disc {
+  fill: color-mix(in srgb, var(--xh-aura-secondary) 16%, rgba(19, 22, 55, 0.84)) !important;
+  stroke: color-mix(in srgb, var(--xh-aura-primary) 52%, rgba(255, 255, 255, 0.38)) !important;
+  stroke-width: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-ring {
+  fill: none !important;
+  stroke-linecap: round !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-ring.is-outer {
+  stroke: color-mix(in srgb, var(--xh-aura-primary) 72%, #ffffff 28%) !important;
+  stroke-width: 1.25 !important;
+  stroke-dasharray: 3 2.2 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-ring.is-inner {
+  stroke: color-mix(in srgb, var(--xh-aura-secondary) 68%, #ffffff 32%) !important;
+  stroke-width: 0.9 !important;
+  stroke-dasharray: 1.4 2.8 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-filigree,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-diamond,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-wings {
+  fill: none !important;
+  stroke: color-mix(in srgb, var(--xh-aura-primary) 72%, #ffffff 28%) !important;
+  stroke-width: 0.75 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  opacity: 0.74 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-diamond {
+  stroke: color-mix(in srgb, var(--xh-aura-secondary) 72%, #ffffff 28%) !important;
+  stroke-dasharray: 2 2 !important;
+  opacity: 0.62 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-stars {
+  fill: var(--xh-aura-accent) !important;
+  opacity: 0.92 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura .xh-aura-motif {
+  fill: color-mix(in srgb, var(--xh-aura-primary) 18%, transparent) !important;
+  stroke: var(--xh-aura-accent) !important;
+  stroke-width: 0.95 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  opacity: 0.84 !important;
+}
+
+/* Central gems remain above the fantasy aura and crossfade in exactly the same place. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-season-switch-icon, .xh-theme-switch-body, .xh-theme-switch-orbit > em) {
+  z-index: 5 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-orbit > em {
+  z-index: 6 !important;
+}
+
+@media (max-width: 520px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura {
+    width: 52px !important;
+    height: 52px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-aura-layer {
+    transition-duration: 180ms !important;
+  }
+}
+
+/* Japanese fantasy crest polish: no top-left square glare, no shared summer/day jewel. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch)::before {
+  background:
+    linear-gradient(180deg, rgba(78, 78, 128, 0.82), rgba(39, 42, 88, 0.9) 48%, rgba(22, 25, 61, 0.96)) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-theme-switch, .xh-season-switch)::after {
+  background: transparent !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 -8px 18px rgba(10, 12, 36, 0.18),
+    0 0 12px rgba(146, 157, 255, 0.08) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) :is(.xh-season-switch-icon, .xh-theme-switch-body, .xh-theme-switch-orbit > em) {
+  overflow: hidden !important;
+  border: 1px solid rgba(250, 248, 255, 0.78) !important;
+  border-radius: 999px !important;
+  clip-path: circle(50% at 50% 50%) !important;
+  background: linear-gradient(160deg, #edf1ff, #8d96c8 54%, #4c527f) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.18),
+    inset 0 -7px 12px rgba(26, 28, 66, 0.2),
+    0 0 0 2px rgba(26, 28, 64, 0.46),
+    0 5px 12px rgba(8, 10, 29, 0.3),
+    0 0 12px rgba(149, 165, 255, 0.2) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="spring"] .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="spring"] .xh-season-switch-icon.is-next {
+  background: linear-gradient(155deg, #fff3fa 0%, #efb1d1 48%, #78b99e 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.24),
+    inset 0 -7px 12px rgba(113, 52, 92, 0.15),
+    0 0 0 2px rgba(84, 62, 105, 0.38),
+    0 5px 12px rgba(40, 20, 52, 0.26),
+    0 0 14px rgba(255, 143, 199, 0.34) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="summer"] .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="summer"] .xh-season-switch-icon.is-next {
+  background: linear-gradient(155deg, #e7fcff 0%, #7bd8d6 48%, #3c8db2 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.26),
+    inset 0 -7px 12px rgba(22, 92, 119, 0.18),
+    0 0 0 2px rgba(38, 82, 112, 0.4),
+    0 5px 12px rgba(12, 48, 67, 0.28),
+    0 0 14px rgba(90, 225, 220, 0.36) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="autumn"] .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="autumn"] .xh-season-switch-icon.is-next {
+  background: linear-gradient(155deg, #ffe9b3 0%, #df8c4e 48%, #8f456e 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.2),
+    inset 0 -7px 12px rgba(99, 41, 45, 0.2),
+    0 0 0 2px rgba(91, 50, 72, 0.4),
+    0 5px 12px rgba(50, 21, 33, 0.28),
+    0 0 14px rgba(239, 146, 72, 0.34) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season="winter"] .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season="winter"] .xh-season-switch-icon.is-next {
+  background: linear-gradient(155deg, #fbfeff 0%, #b6e7f4 46%, #8d8bd2 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.28),
+    inset 0 -7px 12px rgba(71, 83, 137, 0.16),
+    0 0 0 2px rgba(70, 79, 128, 0.38),
+    0 5px 12px rgba(25, 33, 60, 0.28),
+    0 0 14px rgba(174, 235, 255, 0.4) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-sun,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="day"] .xh-theme-switch-orbit > em {
+  background: linear-gradient(155deg, #fffbd7 0%, #f3cf6b 48%, #db855c 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.28),
+    inset 0 -7px 12px rgba(144, 83, 31, 0.16),
+    0 0 0 2px rgba(112, 74, 58, 0.38),
+    0 5px 12px rgba(61, 36, 26, 0.26),
+    0 0 14px rgba(255, 217, 96, 0.42) !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body.is-moon,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch[data-next-mode="night"] .xh-theme-switch-orbit > em {
+  background: linear-gradient(155deg, #f1f4ff 0%, #8b9bd7 46%, #584b91 100%) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.24),
+    inset 0 -7px 12px rgba(46, 43, 99, 0.2),
+    0 0 0 2px rgba(56, 52, 103, 0.42),
+    0 5px 12px rgba(24, 22, 57, 0.3),
+    0 0 14px rgba(143, 158, 255, 0.4) !important;
+}
+
+/* Summer is a cool wind-chime/water crest, intentionally distinct from the golden daytime sun. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer {
+  color: #eaffff !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-primary {
+  fill: rgba(228, 252, 255, 0.72) !important;
+  stroke: #f7ffff !important;
+  stroke-width: 1.3 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-secondary {
+  fill: #ff9fba !important;
+  stroke: #fff0f6 !important;
+  stroke-width: 0.9 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-relic-glyph.is-summer .xh-glyph-accent {
+  fill: #ffe27e !important;
+  stroke: rgba(255, 255, 255, 0.72) !important;
+  stroke-width: 0.7 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-season] .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch[data-next-season] .xh-season-switch-icon.is-next {
+  border-radius: 999px !important;
+  clip-path: circle(50% at 50% 50%) !important;
+}
+
+/* Seamless theme commit: centered sun/moon crossfade replaces the radial handoff layer. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch-body,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning .xh-theme-switch-body {
+  translate: 0 0 !important;
+  rotate: 0deg !important;
+  scale: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  filter: none !important;
+  animation: none !important;
+  transition: opacity 3400ms linear !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-sun {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-moon {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-sun {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-moon {
+  opacity: 0 !important;
+}
+
+/* At commit both aura SVGs already represent the target mode; swap their ownership without a second fade. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch:not(.is-transitioning) .xh-relic-aura-layer {
+  transition: none !important;
+}
+
+/* Current-mode-qualified selectors override legacy hold rules, so the target icon is already final before commit. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-sun {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-day.is-transitioning[data-next-mode="night"] .xh-theme-switch-body.is-moon {
+  opacity: 1 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-moon {
+  opacity: 0 !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch.is-night.is-transitioning[data-next-mode="day"] .xh-theme-switch-body.is-sun {
+  opacity: 1 !important;
+}
+/* Final relic core alignment: explicitly center both cores and their SVG artwork. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-season-switch-icon.is-current,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-season-switch-icon.is-next,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch .xh-theme-switch-body {
+  position: absolute !important;
+  inset: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  translate: 0 0 !important;
+  rotate: 0deg !important;
+  scale: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transform-origin: center !important;
+}
+
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-season-switch .xh-season-switch-icon > .xh-relic-glyph,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.xh-clean-home, .subpage)) .xh-theme-switch .xh-theme-switch-body > .xh-relic-glyph {
+  position: absolute !important;
+  inset: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 50% !important;
+  bottom: auto !important;
+  margin: 0 !important;
+  translate: 0 0 !important;
+  rotate: 0deg !important;
+  scale: 1 !important;
+  transform: translate(-50%, -50%) !important;
+  transform-origin: center !important;
+}
+/* Subpage relic spacing: preserve the floating rail while preventing 76px controls from overlapping. */
+@media (min-width: 761px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage) .xh-season-switch {
+    translate: 0 -22px !important;
+  }
+}
 html body .xh-season-switch.is-summer .xh-season-switch-orbit {
   background:
     linear-gradient(140deg, rgba(108, 196, 126, 0.88), rgba(79, 169, 174, 0.82)),

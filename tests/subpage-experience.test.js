@@ -430,4 +430,31 @@ describe('subpage experience surfaces', () => {
     assert.doesNotMatch(momentsBoard, /星屿手记/);
     assert.doesNotMatch(momentsBoard, /长沙 \/ Changsha|moment-location/);
   });
+  it('shares the home relic controls with subpages while keeping page-specific positioning separate', async () => {
+    const css = await readFile('app/home-overrides.css', 'utf8');
+    const sharedScope = 'body:has(:is(.xh-clean-home, .subpage))';
+    const sharedRelicStart = css.indexOf('/* Unified RPG relic controls: one frame system for season and day/night artifacts. */');
+
+    assert.notEqual(sharedRelicStart, -1, 'Missing shared relic controls section');
+    const sharedRelicCss = css.slice(sharedRelicStart);
+
+    assert.match(sharedRelicCss, new RegExp(sharedScope.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(sharedRelicCss, /--xh-relic-size: 76px/);
+    assert.match(sharedRelicCss, /--xh-relic-orbit: 60px/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) :is\(\.xh-theme-switch, \.xh-season-switch\) > \.xh-switch-info-card/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-relic-glyph/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-relic-aura-layer/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-theme-switch-body/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-season-switch-icon/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-theme-switch\.is-transitioning\[data-next-mode="night"\]/);
+    assert.match(sharedRelicCss, /body:has\(:is\(\.xh-clean-home, \.subpage\)\) \.xh-theme-switch \.xh-theme-switch-orbit/);
+    assert.match(sharedRelicCss, /Final relic core alignment: explicitly center both cores and their SVG artwork/);
+    assert.match(sharedRelicCss, /\.xh-season-switch \.xh-season-switch-icon\.is-current,[\s\S]*\.xh-season-switch \.xh-season-switch-icon\.is-next,[\s\S]*\.xh-theme-switch \.xh-theme-switch-body[\s\S]*inset: auto !important;[\s\S]*right: auto !important;[\s\S]*bottom: auto !important;[\s\S]*place-items: center !important;[\s\S]*transform: translate\(-50%, -50%\) !important/);
+    assert.match(sharedRelicCss, /\.xh-season-switch \.xh-season-switch-icon > \.xh-relic-glyph,[\s\S]*\.xh-theme-switch \.xh-theme-switch-body > \.xh-relic-glyph[\s\S]*position: absolute !important;[\s\S]*right: auto !important;[\s\S]*bottom: auto !important;[\s\S]*transform: translate\(-50%, -50%\) !important/);
+    assert.match(sharedRelicCss, /@media \(max-width: 520px\)[\s\S]*--xh-relic-size: 68px;[\s\S]*--xh-relic-orbit: 54px/);
+    assert.match(sharedRelicCss, /@media \(max-width: 520px\)[\s\S]*\.xh-season-switch[\s\S]*top: max\(76px,[\s\S]*\.xh-theme-switch[\s\S]*top: max\(154px,/);
+    assert.match(sharedRelicCss, /Subpage relic spacing: preserve the floating rail while preventing 76px controls from overlapping/);
+    assert.match(sharedRelicCss, /@media \(min-width: 761px\)[\s\S]*body:has\(\.subpage\) \.xh-season-switch[\s\S]*translate: 0 -22px !important/);
+    assert.match(css, /body:has\(\.admin-private-page\) \.xh-season-switch,[^}]*display: none !important/);
+  });
 });

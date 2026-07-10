@@ -171,6 +171,148 @@ function setSeasonAttributes(
   });
 }
 
+function SeasonGlyph({ season }: { season: Season }) {
+  if (season === 'spring') {
+    return (
+      <svg className="xh-relic-glyph is-spring" viewBox="0 0 48 48" aria-hidden="true">
+        <path className="xh-glyph-line" d="M12 39C17 31 23 25 35 12" />
+        <path className="xh-glyph-secondary" d="M18 31c-5-1-8 1-9 5 5 1 8-1 9-5Zm8-8c-1-5 1-8 5-9 1 5-1 8-5 9Z" />
+        <g className="xh-glyph-primary">
+          <path d="M34 8c3 0 4 3 2 6 4-2 7-1 7 2 0 3-3 4-7 3 2 3 1 6-2 7-3 0-4-3-3-6-2 3-5 4-7 2-2-3 0-5 4-7-4-1-6-4-4-7 2-2 5-1 7 2 0-4 1-7 4-7Z" />
+          <path d="M20 18c2 0 3 2 2 4 3-1 5 0 5 2s-2 3-5 2c1 3 0 5-2 5s-3-2-2-5c-2 2-5 2-6 0-1-2 1-4 4-4-2-2-1-5 1-6 2-1 4 0 3 2Z" />
+        </g>
+        <circle className="xh-glyph-accent" cx="34" cy="17" r="3" />
+        <circle className="xh-glyph-accent" cx="20" cy="24" r="2" />
+      </svg>
+    );
+  }
+
+  if (season === 'summer') {
+    return (
+      <svg className="xh-relic-glyph is-summer" viewBox="0 0 48 48" aria-hidden="true">
+        <path className="xh-glyph-primary" d="M14 20c1-8 19-8 20 0l-3 5H17Z" />
+        <path className="xh-glyph-line" d="M18 20c2-5 10-5 12 0M24 25v8" />
+        <circle className="xh-glyph-accent" cx="24" cy="30" r="2.5" />
+        <path className="xh-glyph-secondary" d="m22 33 4 0 3 10-5-3-5 3Z" />
+        <path className="xh-glyph-line" d="M7 36c5-5 10-5 15 0s10 5 19 0M9 41c5-3 9-3 13 0 5 3 10 3 17-1" />
+        <path className="xh-glyph-accent" d="M37 14c3 4 3 7 0 9-3-2-3-5 0-9Z" />
+      </svg>
+    );
+  }
+
+  if (season === 'autumn') {
+    return (
+      <svg className="xh-relic-glyph is-autumn" viewBox="0 0 48 48" aria-hidden="true">
+        <path className="xh-glyph-primary" d="m24 5 4 9 8-5-2 10 9 2-8 7 5 7-11-2-5 10-4-10-11 2 5-7-8-7 9-2-2-10 8 5 3-9Z" />
+        <path className="xh-glyph-line" d="M24 12v29M16 21l8 7 9-8M15 30l9 4 10-4" />
+        <path className="xh-glyph-accent" d="M24 33c3 2 5 5 5 9h-5Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="xh-relic-glyph is-winter" viewBox="0 0 48 48" aria-hidden="true">
+      <path className="xh-glyph-line" d="M24 5v38M7.5 14.5l33 19M7.5 33.5l33-19" />
+      <path className="xh-glyph-secondary" d="m24 10-5 5m5-5 5 5m-5 23-5-5m5 5 5-5M12 17l2 7m-2-7 7-2m17 18-2-7m2 7-7 2m7-20-7-2m7 2-2 7M12 31l7 2m-7-2 2-7" />
+      <path className="xh-glyph-primary" d="m24 17 6 3v8l-6 3-6-3v-8Z" />
+      <circle className="xh-glyph-accent" cx="24" cy="24" r="3" />
+    </svg>
+  );
+}
+
+function ThemeGlyph({ mode }: { mode: ThemeMode }) {
+  if (mode === 'day') {
+    return (
+      <svg className="xh-relic-glyph is-day" viewBox="0 0 48 48" aria-hidden="true">
+        <path className="xh-glyph-line" d="M24 5v5m0 28v5M5 24h5m28 0h5M10.5 10.5l4 4m19 19 4 4m0-27-4 4m-19 19-4 4" />
+        <circle className="xh-glyph-primary" cx="24" cy="24" r="11" />
+        <circle className="xh-glyph-accent" cx="20" cy="20" r="4" />
+        <path className="xh-glyph-secondary" d="M13 35c4-4 8-4 11 0 4-3 8-2 11 1H13Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="xh-relic-glyph is-night" viewBox="0 0 48 48" aria-hidden="true">
+      <path className="xh-glyph-primary" d="M34 34C22 35 15 28 16 18c1-6 5-10 10-12-2 10 4 19 14 21-1 3-3 5-6 7Z" />
+      <path className="xh-glyph-accent" d="m34 9 1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5Z" />
+      <path className="xh-glyph-secondary" d="m11 27 1 2.8 2.8 1-2.8 1-1 2.8-1-2.8-2.8-1 2.8-1Z" />
+      <path className="xh-glyph-line" d="M20 12c-2 3-3 6-3 9" />
+    </svg>
+  );
+}
+
+function SeasonAura({ season }: { season: Season }) {
+  return (
+    <svg className={`xh-relic-aura is-${season}`} viewBox="0 0 64 64" aria-hidden="true">
+      <circle className="xh-aura-disc" cx="32" cy="32" r="29" />
+      <circle className="xh-aura-ring is-outer" cx="32" cy="32" r="27" />
+      <circle className="xh-aura-ring is-inner" cx="32" cy="32" r="21" />
+      <path className="xh-aura-filigree" d="M32 4 37 10 45 9 46 17 54 20 50 27 58 32 50 37 54 44 46 47 45 55 37 54 32 60 27 54 19 55 18 47 10 44 14 37 6 32 14 27 10 20 18 17 19 9 27 10Z" />
+      <path className="xh-aura-diamond" d="m32 13 7 12 12 7-12 7-7 12-7-12-12-7 12-7Z" />
+      <g className="xh-aura-stars">
+        <path d="m32 6 1.4 3.2L37 10.5 33.4 12 32 15l-1.4-3-3.6-1.5 3.6-1.3Z" />
+        <path d="m58 32-3.2 1.4-1.3 3.6-1.5-3.6-3-1.4 3-1.4 1.5-3.6 1.3 3.6Z" />
+        <path d="m32 58-1.4-3.2-3.6-1.3 3.6-1.5 1.4-3 1.4 3 3.6 1.5-3.6 1.3Z" />
+        <path d="m6 32 3.2-1.4 1.3-3.6 1.5 3.6 3 1.4-3 1.4-1.5 3.6-1.3-3.6Z" />
+      </g>
+      {season === 'spring' ? (
+        <g className="xh-aura-motif">
+          <path d="M13 23c5-6 10-9 16-10M35 51c7-2 12-6 16-12" />
+          <path d="M17 17c3-4 7-3 7 1 3-3 7 0 5 3 4 0 5 5 1 6 1 4-4 6-6 2-3 3-7 0-5-3-4 0-6-5-2-7-2-3 2-7 5-5Z" />
+          <path d="M42 38c2-3 6-2 6 1 3-2 6 1 4 4 3 1 3 5 0 6 0 3-4 4-6 1-3 2-6-1-4-4-3-1-4-5-1-6-1-3 2-5 5-3Z" />
+        </g>
+      ) : null}
+      {season === 'summer' ? (
+        <g className="xh-aura-motif">
+          <path d="M24 17c1-7 15-7 16 0l-3 5H27Z" />
+          <path d="M32 22v11m-3 0h6l3 11-6-4-6 4Z" />
+          <path d="M11 38c6-5 11-5 16 0s11 5 26-1M13 45c5-3 10-3 15 0 6 3 12 2 21-2" />
+          <path d="M17 18c-3 3-5 6-6 10m36-10c3 3 5 6 6 10" />
+        </g>
+      ) : null}
+      {season === 'autumn' ? (
+        <g className="xh-aura-motif">
+          <path d="M21 14c2 6 6 10 12 13-4 4-9 5-15 3 3 5 3 10 0 15" />
+          <path d="m19 16 3 5 5-3-2 6 6 1-5 4 3 5-7-2-3 7-2-7-7 2 3-5-5-4 6-1-2-6 5 3Z" />
+          <path d="m44 31 2 4 4-2-1 5 5 1-4 3 2 4-5-2-3 6-2-6-6 2 3-4-4-3 5-1-2-5 4 2Z" />
+        </g>
+      ) : null}
+      {season === 'winter' ? (
+        <g className="xh-aura-motif">
+          <path d="M32 13v38M15.5 22.5l33 19M15.5 41.5l33-19" />
+          <path d="m32 18-4 4m4-4 4 4m-4 24-4-4m4 4 4-4M20 25l1 6m-1-6 6-1m18 15-1-6m1 6-6 1m6-15-6-1m6 1-1 6M20 39l6 1m-6-1 1-6" />
+        </g>
+      ) : null}
+    </svg>
+  );
+}
+
+function ThemeAura({ mode }: { mode: ThemeMode }) {
+  return (
+    <svg className={`xh-relic-aura is-${mode}`} viewBox="0 0 64 64" aria-hidden="true">
+      <circle className="xh-aura-disc" cx="32" cy="32" r="29" />
+      <circle className="xh-aura-ring is-outer" cx="32" cy="32" r="27" />
+      <circle className="xh-aura-ring is-inner" cx="32" cy="32" r="21" />
+      <path className="xh-aura-filigree" d="M32 4 38 11 47 10 47 19 55 24 50 32 55 40 47 45 47 54 38 53 32 60 26 53 17 54 17 45 9 40 14 32 9 24 17 19 17 10 26 11Z" />
+      <path className="xh-aura-wings" d="M28 31C20 23 15 20 9 21c3 8 8 13 17 15M36 31c8-8 13-11 19-10-3 8-8 13-17 15" />
+      {mode === 'day' ? (
+        <g className="xh-aura-motif">
+          <circle cx="32" cy="31" r="9" />
+          <path d="M32 13v7m0 22v7M14 31h7m22 0h7M19 18l5 5m16 16 5 5m0-26-5 5M24 39l-5 5" />
+          <path d="M18 45c5-4 10-4 14 0 5-4 10-4 14 0" />
+        </g>
+      ) : (
+        <g className="xh-aura-motif">
+          <path d="M39 41c-10 2-18-5-17-15 1-6 5-10 10-12-2 10 4 19 14 21-1 3-3 5-7 6Z" />
+          <path d="m43 14 1.4 3.6L48 19l-3.6 1.4L43 24l-1.4-3.6L38 19l3.6-1.4ZM16 35l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z" />
+          <path d="M18 20c4-5 9-8 14-9M45 42c-4 4-8 6-13 7" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
 function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition, phaseOverride?: ThemePhase) {
   const phase = phaseOverride ?? getThemePhase(currentMode, nextMode, transition);
   const root = document.documentElement;
@@ -2131,13 +2273,19 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         onClick={toggleTheme}
       >
         <span className="xh-theme-switch-orbit" aria-hidden="true">
+          <span className="xh-relic-aura-layer is-current">
+            <ThemeAura mode={renderedMode} />
+          </span>
+          <span className="xh-relic-aura-layer is-next">
+            <ThemeAura mode={nextMode} />
+          </span>
           <span className="xh-theme-switch-body is-sun">
-            <i />
+            <ThemeGlyph mode="day" />
           </span>
           <span className="xh-theme-switch-body is-moon">
-            <i />
+            <ThemeGlyph mode="night" />
           </span>
-          <em />
+
         </span>
         <span className="xh-switch-info-card" aria-hidden="true">
           <span>{'\u663c\u591c\u5207\u6362'}</span>
@@ -2162,11 +2310,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         onClick={toggleSeason}
       >
         <span className="xh-season-switch-orbit" aria-hidden="true">
-          <b className="xh-season-switch-icon is-current" />
-          <b className="xh-season-switch-icon is-next" />
-          <i />
-          <i />
-          <i />
+          <span className="xh-relic-aura-layer is-current">
+            <SeasonAura season={season} />
+          </span>
+          <span className="xh-relic-aura-layer is-next">
+            <SeasonAura season={nextSeason} />
+          </span>
+          <b className="xh-season-switch-icon is-current">
+            <SeasonGlyph season={season} />
+          </b>
+          <b className="xh-season-switch-icon is-next">
+            <SeasonGlyph season={nextSeason} />
+          </b>
         </span>
         <span className="xh-switch-info-card" aria-hidden="true">
           <span>{'\u56db\u5b63\u8f6e\u8f6c'}</span>
