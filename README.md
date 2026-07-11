@@ -1,4 +1,4 @@
-# 星屿手记 Personal Theme Blog
+#  Personal Theme Blog
 
 一个向个人博客系统：前台已升级为可部署的 Next.js App Router 博客，后台保留本地控制台用于文章、草稿、动态、友链、站点资料和备份管理。
 
