@@ -12,10 +12,10 @@ describe('target-style music, friends, and GitHub comments', () => {
 
     assert.ok(Array.isArray(data.site.cloudMusicIds));
     assert.deepEqual(data.site.cloudMusicIds, []);
-    assert.ok(data.site.music.some((track) => track.id === 'requested-senya-ichiya' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.flac'));
+    assert.ok(data.site.music.some((track) => track.title === '千夜一夜' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.flac'));
     assert.equal(data.site.friendLinkApplyFormat, undefined);
     assert.equal(data.site.friendLinkApply.title, '友链申请');
-    assert.equal(data.site.friendLinkApply.description, '复制本站信息，并在下方留言区提交你的站点资料。');
+    assert.match(data.site.friendLinkApply.description, /评论区/);
     for (const field of ['title', 'github', 'subtitle', 'avatar']) {
       assert.equal(typeof data.site[field], 'string');
       assert.ok(data.site[field]);

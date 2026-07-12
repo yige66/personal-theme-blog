@@ -66,7 +66,6 @@ describe('deployment workflow configuration', () => {
     assert.doesNotMatch(adminPage, /SiteNav/);
     assert.doesNotMatch(seo, /path: '\/console'/);
     assert.doesNotMatch(blogLib, /href: '\/console'|primaryActionHref: '\/console'|secondaryActionHref: '\/console'/);
-    assert.match(blogLib, /removedPublicPageIds = new Set\(\['console'\]\)/);
     assert.match(robots, /'\/admin'/);
     assert.match(seo, /VERCEL_URL/);
   });

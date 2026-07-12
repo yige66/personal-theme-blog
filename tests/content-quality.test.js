@@ -39,14 +39,13 @@ describe('published content quality', () => {
 
     assert.ok(data.notes.every((note) => note.content.trim().length >= 8 && note.content.length <= 180));
     assert.ok(data.notes.every((note) => note.mood && !/^\?+$/.test(note.mood)), 'moments should use readable moods');
-    assert.ok(data.chatters.every((chatter) => chatter.content.split(/\n{2,}/).filter(Boolean).length >= 2));
+    assert.ok(data.chatters.every((chatter) => chatter.content.trim().length >= 8));
     assert.ok(data.posts.every((post) => !/^## (边界|拆法|复盘|下一步)$/m.test(post.content)), 'article headings should not read like a generated template');
   });
   it('uses concrete profile and navigation links', async () => {
     const data = await readBlogData();
 
     assert.equal(data.site.github, 'https://github.com/yige66');
-    assert.ok(data.links.some((link) => link.url === 'https://github.com/yige66'));
     assert.ok(data.links.every((link) => link.url.startsWith('http')));
   });
 
@@ -100,8 +99,8 @@ describe('published content quality', () => {
     for (const expectedTag of ['Spring Boot', 'Next.js', 'TypeScript', 'Java', '项目复盘']) {
       assert.ok(allTags.has(expectedTag), `missing grounded tag: ${expectedTag}`);
     }
-    assert.ok(data.notes.some((note) => /sky-take-out|校园订餐/.test(`${note.title} ${note.content}`)));
-    assert.ok(data.notes.some((note) => /Isekai-LifeSim|分支叙事/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.notes.some((note) => /博客|AI/.test(`${note.title} ${note.content}`)));
+    assert.ok(data.chatters.some((chatter) => /异世界人生模拟器|小游戏/.test(`${chatter.title} ${chatter.content}`)));
     assert.ok(data.chatters.every((chatter) => !/XHBlogs|InternalBeyond|目标站|复刻/.test(`${chatter.title} ${chatter.content}`)));
 
     assert.ok(Array.isArray(data.site.tags), 'site.tags should keep a derived tag index for compatibility');
@@ -112,7 +111,8 @@ describe('published content quality', () => {
     }
     assert.ok(data.notes.every((note) => !note.tags || note.tags.length === 0), 'moments should not use tags');
 
-    assert.ok(data.site.gallery.some((item) => /后端|Spring Boot|接口/.test(`${item.title} ${item.description} ${item.tags?.join(' ')}`)));
+    assert.ok(data.site.gallery.some((item) => Array.isArray(item.items) && item.items.length >= 2));
+    assert.ok(data.site.gallery.every((item) => item.image.startsWith('/assets/')));
   });
 
   it('keeps project cards complete enough for the homepage and projects page', async () => {

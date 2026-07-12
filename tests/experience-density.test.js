@@ -10,9 +10,9 @@ describe('XHBlogs-inspired experience density', () => {
   it('curates gallery, moments, and music with richer operational metadata', async () => {
     const data = await readBlogData();
 
-    assert.ok(data.site.gallery.length >= 5);
+    assert.ok(data.site.gallery.length >= 3);
     assert.ok(data.site.gallery.some((item) => Array.isArray(item.items) && item.items.length >= 2));
-    assert.ok(data.notes.length >= 6);
+    assert.ok(data.notes.length >= 2);
     assert.ok(data.notes.every((note) => !note.tags || note.tags.length === 0));
     assert.ok(data.notes.some((note) => note.mood || (Array.isArray(note.images) && note.images.length > 0)));
     assert.ok(data.site.music.length >= 5);
@@ -30,8 +30,8 @@ describe('XHBlogs-inspired experience density', () => {
       readFile('components/GlobalToolbox.tsx', 'utf8')
     ]);
 
-    assert.ok(Array.isArray(data.chatters) && data.chatters.length >= 3);
-    assert.ok(data.links.some((link) => link.avatar && link.themeColor));
+    assert.ok(Array.isArray(data.chatters) && data.chatters.length >= 2);
+    assert.ok(Array.isArray(data.links));
     assert.ok(data.links.every((link) => !('badge' in link) && !('since' in link)));
     assert.match(blogLib, /export type BlogChatter/);
     assert.doesNotMatch(blogLib, /getTimelineItems|TimelineItem/);

@@ -159,7 +159,7 @@ describe('subpage experience surfaces', () => {
     assert.match(planetaryOrbitMap, /data-active/);
     assert.doesNotMatch(planetaryOrbitMap, /shouldUseReadableAtlas/);
     assert.match(planetaryOrbitMap, /const layoutMode = getLayoutMode\(items\.length\);/);
-    assert.match(planetaryOrbitMap, /mode === 'detail' && \(density === 'dense' \|\| items\.length > 5\)/);
+    assert.match(planetaryOrbitMap, /const usesDetailOrbit = mode === 'detail' && layoutMode === 'orbit';/);
     assert.match(planetaryOrbitMap, /data-layout=\{layoutMode\}/);
     assert.match(planetaryOrbitMap, /data-ring-count=\{orbitProfiles\.length\}/);
     assert.match(planetaryOrbitMap, /data-zoom/);
@@ -418,7 +418,7 @@ describe('subpage experience surfaces', () => {
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*brightness\(0\.68\)/);
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-slider \.ib-scene-vignette/);
     assert.match(css, /body:has\(\.archive-page\) \.xh-background-slider \.ib-scene-vignette[\s\S]*mix-blend-mode: multiply !important/);
-    assert.doesNotMatch(css, /body:has\(\.archive-page\) \.xh-background-image\.is-active\s*\{[\s\S]*blur\(12px\)/);
+    assert.doesNotMatch(extractCssRule(css, 'body:has(.archive-page) .xh-background-image.is-active'), /blur\(12px\)/);
     assert.doesNotMatch(css, /body:has\(\.archive-page\) \.archive-xh-timeline \.archive-timeline-view\s*\{[\s\S]*margin-top: clamp\(260px, 34vh, 390px\) !important/);
     assert.match(css, /body:has\(\.archive-page\) \.archive-card-view\s*\{[\s\S]*margin: 0 auto 96px !important/);
     assert.match(css, /Final archive toolbar sync/);
