@@ -5,18 +5,11 @@ const postStatusOptions = [
   { label: '草稿', value: 'draft' }
 ];
 
-const linkStatusOptions = [
-  { label: '已互链', value: 'active' },
-  { label: '申请中', value: 'pending' },
-  { label: '暂停展示', value: 'paused' }
-];
-
 const columnSectionTargets = [
   { id: 'home', label: '首页栏目', frontendLabel: '首页', href: '/', dataPath: 'site.columns[home] / site.pages.home' },
   { id: 'projects', label: '项目栏目', frontendLabel: '项目页', href: '/projects', dataPath: 'site.columns[projects] / site.pages.projects' },
   { id: 'archive', label: '文章栏目', frontendLabel: '归档页', href: '/archive', dataPath: 'site.columns[archive] / site.pages.archive' },
   { id: 'photowall', label: '照片墙栏目', frontendLabel: '照片墙', href: '/photowall', dataPath: 'site.columns[photowall] / site.pages.photowall' },
-  { id: 'gallery', label: '画廊栏目', frontendLabel: '画廊页', href: '/gallery', dataPath: 'site.pages.gallery' },
   { id: 'music', label: '音乐栏目', frontendLabel: '音乐页', href: '/music', dataPath: 'site.columns[music] / site.pages.music' },
   { id: 'moments', label: '动态栏目', frontendLabel: '动态页', href: '/moments', dataPath: 'site.columns[moments] / site.pages.moments' },
   { id: 'chatter', label: '杂谈栏目', frontendLabel: '杂谈页', href: '/chatter', dataPath: 'site.columns[chatter] / site.pages.chatter' },
@@ -171,7 +164,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       label: '照片墙与画廊',
       routes: [
         { label: '照片墙', href: '/photowall' },
-        { label: '画廊', href: '/gallery' }
       ],
       dataPath: 'site.gallery[]',
       impact: '同步相册主图、子图、地点、图集标签和两套视觉展示入口。'
@@ -199,8 +191,8 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       routes: [
         { label: '友链', href: '/friends' }
       ],
-      dataPath: 'links[] / site.friendLinkApplyFormat',
-      impact: '同步朋友站点卡片、头像、主题色和友链申请展示信息。'
+      dataPath: 'links[] / site.title / site.github / site.subtitle / site.avatar',
+      impact: '同步朋友站点卡片，以及本站用于友链申请的名称、链接、简介和头像。'
     }
   },
   {
@@ -249,8 +241,21 @@ export const siteProfileFields: PathFieldConfig[] = [
   { path: ['site', 'experience'], key: 'experience', label: '经验值', kind: 'number', advanced: true },
   { path: ['site', 'streak'], key: 'streak', label: '连续更新天数', kind: 'number', advanced: true },
   { path: ['site', 'assistantName'], key: 'assistantName', label: '助手名称', advanced: true },
-  { path: ['site', 'assistantPrompt'], key: 'assistantPrompt', label: '助手提示语', kind: 'textarea', rows: 3, advanced: true },
-  { path: ['site', 'friendLinkApplyFormat'], key: 'friendLinkApplyFormat', label: '友链申请信息', kind: 'textarea', rows: 5, advanced: true }
+  { path: ['site', 'assistantPrompt'], key: 'assistantPrompt', label: '助手提示语', kind: 'textarea', rows: 3, advanced: true }
+];
+
+export const friendLinkApplicationFields: PathFieldConfig[] = [
+  { path: ['site', 'title'], key: 'title', label: '本站名称', help: '申请区的「名称」字段会自动同步这里。' },
+  { path: ['site', 'brandSuffix'], key: 'brandSuffix', label: '名称后缀', help: '会拼接在本站名称后，留空即可不显示。' },
+  { path: ['site', 'github'], key: 'github', label: '本站链接', help: '申请区的「链接」字段会自动同步这里。' },
+  { path: ['site', 'subtitle'], key: 'subtitle', label: '本站简介', kind: 'textarea', rows: 2, help: '申请区的「简介」字段会自动同步这里。' },
+  { path: ['site', 'avatar'], key: 'avatar', label: '本站头像', kind: 'image', cropAspect: 1, help: '申请区的「头像」字段会自动同步这里。' },
+  { path: ['site', 'friendLinkApply', 'title'], key: 'application-title', label: '申请区标题' },
+  { path: ['site', 'friendLinkApply', 'description'], key: 'application-description', label: '申请区说明', kind: 'textarea', rows: 2 },
+  { path: ['site', 'friendLinkApply', 'copyLabel'], key: 'application-copy-label', label: '复制按钮文字' },
+  { path: ['site', 'friendLinkApply', 'copiedLabel'], key: 'application-copied-label', label: '复制成功文字' },
+  { path: ['site', 'friendLinkApply', 'copyErrorLabel'], key: 'application-copy-error-label', label: '复制失败文字' },
+  { path: ['site', 'friendLinkApply', 'commentLabel'], key: 'application-comment-label', label: '留言按钮文字' },
 ];
 
 export const visualFields: PathFieldConfig[] = [
@@ -365,10 +370,8 @@ export const linkFields: FieldConfig[] = [
   { key: 'url', label: '链接' },
   { key: 'category', label: '分类', placeholder: '个人站 / 技术博客 / 项目入口' },
   { key: 'owner', label: '站长或署名', placeholder: '对方公开署名，可留空' },
-  { key: 'status', label: '状态', kind: 'select', options: linkStatusOptions },
   { key: 'description', label: '简介', kind: 'textarea', rows: 3 },
   { key: 'avatar', label: '头像', kind: 'image', cropAspect: 1 },
-  { key: 'reciprocal', label: '对方已回链', kind: 'boolean' },
   { key: 'addedAt', label: '收录日期', kind: 'date', advanced: true },
   { key: 'note', label: '维护备注', kind: 'textarea', rows: 3, advanced: true },
   { key: 'themeColor', label: '主题色', advanced: true }

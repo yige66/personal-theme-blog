@@ -18,7 +18,7 @@ export function StatPortal({ stats }: { stats: BlogStats }) {
     { href: '/archive', label: '文章', value: stats.posts },
     { href: '/tags', label: '标签', value: stats.tags },
     { href: '/projects', label: '项目', value: stats.projects },
-    { href: '/gallery', label: '相册', value: stats.gallery },
+    { href: '/photowall', label: '相册', value: stats.gallery },
     { href: '/music', label: '音乐', value: stats.tracks },
     { href: '/moments', label: '动态', value: stats.notes }
   ];

@@ -301,14 +301,8 @@ function validateLinks(items: unknown[], errors: string[]): void {
     if (link.note !== undefined) {
       validateBoundedOptionalString(link.note, `links[${index}].note`, errors, 240);
     }
-    if (link.status !== undefined && !['active', 'pending', 'paused'].includes(String(link.status))) {
-      errors.push(`links[${index}].status 必须是 "active"、"pending" 或 "paused"。`);
-    }
     if (link.addedAt !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(String(link.addedAt))) {
       errors.push(`links[${index}].addedAt 必须是 YYYY-MM-DD 格式的日期。`);
-    }
-    if (link.reciprocal !== undefined && typeof link.reciprocal !== 'boolean') {
-      errors.push(`links[${index}].reciprocal 填写时必须是布尔值。`);
     }
   });
 }

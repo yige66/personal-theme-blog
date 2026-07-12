@@ -10,6 +10,7 @@ import {
   createColumnFields,
   createPageContentFields,
   entryRootFields,
+  friendLinkApplicationFields,
   galleryFields,
   linkFields,
   musicFields,
@@ -252,23 +253,7 @@ const columnWorkspaces: AdminWorkspace[] = [
       recordKind: 'gallery'
     }
   },
-  {
-    id: 'gallery',
-    label: '画廊',
-    group: '素材管理',
-    route: '/gallery',
-    pageId: 'gallery',
-    dataPath: 'site.gallery[] / site.pages.gallery',
-    purpose: '画廊与照片墙共用同一套图片素材。',
-    support: ['照片墙共用', '图集搜索', '图片说明'],
-    content: {
-      title: '画廊素材',
-      description: '这里维护的图片会同步影响画廊和照片墙。',
-      path: ['site', 'gallery'],
-      fields: galleryFields,
-      recordKind: 'gallery'
-    }
-  },
+
   {
     id: 'music',
     label: '音乐',
@@ -336,9 +321,9 @@ const columnWorkspaces: AdminWorkspace[] = [
     group: '互动管理',
     route: '/friends',
     pageId: 'friends',
-    dataPath: 'links[] / site.friendLinkApplyFormat',
-    purpose: '维护朋友站点卡片、申请格式和评论标题。',
-    support: ['友链卡片', '申请格式', '朋友头像'],
+    dataPath: 'links[] / site.title / site.github / site.subtitle / site.avatar',
+    purpose: '维护朋友站点卡片、本站申请资料和评论标题。',
+    support: ['友链卡片', '本站申请资料', '朋友头像'],
     content: {
       title: '友链卡片',
       description: '维护朋友站点名称、链接、简介、头像和主题色。',
@@ -1039,6 +1024,31 @@ function AdminToolPanel({
 
     if (workspace.id === 'projects') {
       return <ProjectGitHubSourcePanel data={data} onChange={onChange} onWorkspaceJump={onWorkspaceJump} />;
+    }
+
+    if (workspace.id === 'friends' && workspace.content) {
+      return (
+        <>
+          <PathFieldPanel
+            data={data}
+            description="申请区会自动使用这里的本站名称、链接、简介和头像，不再维护独立的静态文本。"
+            fields={friendLinkApplicationFields}
+            title="本站友链资料"
+            uploadImage={uploadImage}
+            onChange={onChange}
+          />
+          <RecordListEditor
+            data={data}
+            description={workspace.content.description}
+            fields={workspace.content.fields}
+            path={workspace.content.path}
+            recordKind={workspace.content.recordKind}
+            title={workspace.content.title}
+            uploadImage={uploadImage}
+            onChange={onChange}
+          />
+        </>
+      );
     }
 
     if (!workspace.content) {

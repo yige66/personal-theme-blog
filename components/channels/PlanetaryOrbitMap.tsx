@@ -140,6 +140,119 @@ function getCameraProfile(total: number, profiles = getOrbitProfiles(total), lay
   };
 }
 
+function getDetailTextUnits(item: PlanetaryOrbitItem) {
+  const labelUnits = Array.from(item.label).length;
+  const metaUnits = Math.ceil(Array.from(item.meta).length * 0.6);
+  const detailUnits = Math.ceil(Array.from(item.detail).length * 0.58);
+  const tagUnits = Math.ceil((item.tags?.join('').length ?? 0) * 0.25);
+  return labelUnits + metaUnits + detailUnits + tagUnits;
+}
+
+function getDetailOrbitProfiles(items: PlanetaryOrbitItem[]): OrbitProfile[] {
+  const total = items.length;
+
+  if (total === 0) {
+    return [];
+  }
+
+  const weights = items.map(getDetailTextUnits);
+  const longest = Math.max(...weights);
+  const average = weights.reduce((sum, weight) => sum + weight, 0) / total;
+  const baseCapacity = clamp(Math.round(6 - average / 22 - longest / 90), 3, 5);
+  const profiles: OrbitProfile[] = [];
+  let start = 0;
+  let ring = 0;
+
+  while (start < total) {
+    const capacity = Math.min(total - start, baseCapacity + (ring > 1 ? 1 : 0));
+
+    profiles.push({
+      capacity,
+      radiusX: clamp(20 + ring * 7 + longest * 0.035, 20, 33),
+      radiusY: clamp(16 + ring * 7 + longest * 0.025, 16, 30),
+      ring,
+      size: capacity,
+      start
+    });
+
+    start += capacity;
+    ring += 1;
+  }
+
+  return profiles;
+}
+
+function getDetailMapHeight(profiles: OrbitProfile[], items: PlanetaryOrbitItem[], longest = Math.max(0, ...items.map(getDetailTextUnits))) {
+  return Math.min(1900, 760 + profiles.length * 190 + Math.round(longest * 4));
+}
+
+function getDetailNodeSide(x: number, y: number) {
+  const horizontalDistance = Math.abs(x - 50);
+  const verticalDistance = Math.abs(y - 50);
+  if (horizontalDistance >= verticalDistance) {
+    return x < 50 ? 'left' : 'right';
+  }
+
+  return y < 50 ? 'above' : 'below';
+}
+
+function getDetailCardMetrics(item: PlanetaryOrbitItem) {
+  const units = getDetailTextUnits(item);
+  return { cardHeight: clamp(118 + units * 2.25, 132, 220), cardWidth: clamp(176 + units * 2.2, 184, 236) };
+}
+
+type DetailSlot = {
+  cardHeight: number;
+  cardWidth: number;
+  side: 'above' | 'below' | 'left' | 'right';
+  x: string;
+  y: string;
+};
+
+function getDetailSlots(items: PlanetaryOrbitItem[], minimumHeight = 0) {
+  const groups = { above: [] as PlanetaryOrbitItem[], below: [] as PlanetaryOrbitItem[], left: [] as PlanetaryOrbitItem[], right: [] as PlanetaryOrbitItem[] };
+  const horizontalCount = Math.min(2, Math.floor(items.length / 4));
+  let cursor = 0;
+  for (; cursor < horizontalCount; cursor += 1) {
+    groups.above.push(items[cursor]);
+  }
+  for (let index = 0; index < horizontalCount; index += 1, cursor += 1) {
+    groups.below.push(items[cursor]);
+  }
+  items.slice(cursor).forEach((item, index) => {
+    const side = index % 2 === 0 ? 'left' : 'right';
+    groups[side].push(item);
+  });
+
+  const metrics = new Map(items.map((item) => [item.id, getDetailCardMetrics(item)]));
+  const verticalGap = 32;
+  const stackHeight = (group: PlanetaryOrbitItem[]) => group.reduce((sum, item) => sum + (metrics.get(item.id)?.cardHeight ?? 0), 0) + Math.max(0, group.length - 1) * verticalGap;
+  const tallestVerticalStack = Math.max(stackHeight(groups.left), stackHeight(groups.right));
+  const mapHeight = clamp(Math.max(1060, minimumHeight, tallestVerticalStack + 420), 1060, 2200);
+  const slots = new Map<string, DetailSlot>();
+
+  for (const side of ['left', 'right'] as const) {
+    const group = groups[side];
+    const totalHeight = stackHeight(group);
+    let y = (mapHeight - totalHeight) / 2;
+    for (const item of group) {
+      const metric = metrics.get(item.id)!;
+      slots.set(item.id, { ...metric, side, x: side === 'left' ? '24%' : '76%', y: `${Math.round(y + metric.cardHeight / 2)}px` });
+      y += metric.cardHeight + verticalGap;
+    }
+  }
+
+  for (const side of ['above', 'below'] as const) {
+    const group = groups[side];
+    group.forEach((item, index) => {
+      const metric = metrics.get(item.id)!;
+      const x = group.length === 1 ? 50 : 38 + (24 * index) / (group.length - 1);
+      slots.set(item.id, { ...metric, side, x: `${x}%`, y: side === 'above' ? '260px' : `calc(${mapHeight}px - 260px)` });
+    });
+  }
+
+  return { mapHeight, slots };
+}
 function getOrbitSlot(index: number, total: number, profiles = getOrbitProfiles(total)) {
   const profile = profiles.find((candidate) => index >= candidate.start && index < candidate.start + candidate.size) ?? profiles[0];
   const ring = profile?.ring ?? 0;
@@ -201,9 +314,12 @@ function getNodeSide(x: number, y: number) {
 export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orbit', items, subtitle, title, variant }: PlanetaryOrbitMapProps) {
   const [mode, setMode] = useState<'minimal' | 'detail'>('minimal');
   const [activeId, setActiveId] = useState<string | null>(items[0]?.id ?? null);
-  const shouldUseReadableAtlas = mode === 'detail' && (density === 'dense' || items.length > 5);
-  const layoutMode = shouldUseReadableAtlas ? 'atlas' : getLayoutMode(items.length);
-  const orbitProfiles = useMemo(() => getOrbitProfiles(items.length), [items.length]);
+  const layoutMode = getLayoutMode(items.length);
+  const usesDetailOrbit = mode === 'detail' && layoutMode === 'orbit';
+  const detailTextUnits = useMemo(() => Math.max(0, ...items.map(getDetailTextUnits)), [items]);
+  const orbitProfiles = useMemo(() => usesDetailOrbit ? getDetailOrbitProfiles(items) : getOrbitProfiles(items.length), [items, usesDetailOrbit]);
+  const detailMapHeight = usesDetailOrbit ? getDetailMapHeight(orbitProfiles, items, detailTextUnits) : 0;
+  const detailLayout = useMemo(() => usesDetailOrbit ? getDetailSlots(items, detailMapHeight) : null, [detailMapHeight, items, usesDetailOrbit]);
   const nodes = useMemo(() => items.map((item, index) => ({
     ...item,
     palette: planetPalettes[index % planetPalettes.length],
@@ -213,13 +329,14 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
   const activeNodeId = nodes.some((item) => item.id === activeId) ? activeId : nodes[0]?.id ?? null;
   const resolvedDensity = layoutMode === 'atlas' || density === 'dense' || items.length > 18 ? 'dense' : 'orbit';
   const camera = getCameraProfile(items.length, orbitProfiles, layoutMode);
+  const mapHeight = detailLayout?.mapHeight ?? camera.mapHeight;
   const readableScale = layoutMode === 'atlas' ? 1 : clamp(1 / camera.cameraScale, 1, 1.32);
   const mapStyle = {
     '--planet-camera-scale': camera.cameraScale.toFixed(3),
     '--planet-core-scale': camera.coreScale.toFixed(3),
     '--planet-core-sprite': `url("${corePlanetSprites[variant]}")`,
     '--planet-info-scale': readableScale.toFixed(3),
-    '--planet-map-height': `${camera.mapHeight}px`
+    '--planet-map-height': `${mapHeight}px`
   } as CSSProperties;
 
   return (
@@ -274,6 +391,8 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
 
         <div className="planetary-node-layer" aria-label={`${title} 小星球`}>
           {nodes.map((item, index) => {
+            const detailSlot = detailLayout?.slots.get(item.id);
+            const nodeSide = detailSlot?.side ?? (usesDetailOrbit ? getDetailNodeSide(item.slot.x, item.slot.y) : getNodeSide(item.slot.x, item.slot.y));
             const style = {
               '--planet-a': item.palette.a,
               '--planet-b': item.palette.b,
@@ -283,9 +402,10 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
               '--planet-index': index,
               '--planet-land': item.palette.land,
               '--planet-size': `${item.slot.size}px`,
+              '--planet-node-info-width': detailSlot ? `${detailSlot.cardWidth}px` : undefined,
               '--planet-sprite': `url("${item.sprite}")`,
-              '--planet-x': `${item.slot.x}%`,
-              '--planet-y': `${item.slot.y}%`,
+              '--planet-x': detailSlot?.x ?? `${item.slot.x}%`,
+              '--planet-y': detailSlot?.y ?? `${item.slot.y}%`,
               '--planet-angle': `${item.slot.angle}deg`,
               '--planet-delay': `${index * 72}ms`,
               '--planet-float': `${6 + (index % 4) * 0.7}s`,
@@ -333,7 +453,7 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
                   href={item.href}
                   key={item.id}
                   style={style}
-                  data-side={getNodeSide(item.slot.x, item.slot.y)}
+                  data-side={nodeSide}
                   aria-label={`${item.label}，${item.meta}，${item.detail}`}
                   {...interactionProps}
                 >
@@ -348,7 +468,7 @@ export function PlanetaryOrbitMap({ className, count, countLabel, density = 'orb
                 href={item.href}
                 key={item.id}
                 style={style}
-                data-side={getNodeSide(item.slot.x, item.slot.y)}
+                data-side={nodeSide}
                 aria-label={`${item.label}，${item.meta}，${item.detail}`}
                 {...interactionProps}
               >

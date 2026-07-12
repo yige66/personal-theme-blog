@@ -7,12 +7,19 @@ async function readBlogData() {
 }
 
 describe('target-style music, friends, and GitHub comments', () => {
-  it('allows the cloud music id list to be empty while keeping friend and comment settings', async () => {
+  it('keeps cloud ids empty when requested songs are managed locally while preserving friend and comment settings', async () => {
     const data = await readBlogData();
 
     assert.ok(Array.isArray(data.site.cloudMusicIds));
     assert.deepEqual(data.site.cloudMusicIds, []);
-    assert.match(data.site.friendLinkApplyFormat, /名称：/);
+    assert.ok(data.site.music.some((track) => track.id === 'requested-senya-ichiya' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.flac'));
+    assert.equal(data.site.friendLinkApplyFormat, undefined);
+    assert.equal(data.site.friendLinkApply.title, '友链申请');
+    assert.equal(data.site.friendLinkApply.description, '复制本站信息，并在下方留言区提交你的站点资料。');
+    for (const field of ['title', 'github', 'subtitle', 'avatar']) {
+      assert.equal(typeof data.site[field], 'string');
+      assert.ok(data.site[field]);
+    }
     assert.equal(data.site.comments.enabled, true);
     assert.equal(data.site.comments.provider, 'gitalk');
     assert.match(data.site.comments.repo, /^[\w.-]+$/);
@@ -42,7 +49,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(provider, /localStorage/);
     assert.match(provider, /sessionStorage/);
     assert.match(provider, /CLOUD_CACHE_KEY/);
-    assert.match(provider, /reloadCloudMusic/);
+    assert.doesNotMatch(provider, /reloadCloudMusic/);
+    assert.doesNotMatch(provider, /syncNonce/);
     assert.match(provider, /type PlayMode = 'list' \| 'repeat-one' \| 'shuffle'/);
     assert.match(provider, /PLAY_MODE_SEQUENCE = \['list', 'repeat-one', 'shuffle'\]/);
     assert.match(provider, /mode === 'loop' \|\| mode === 'repeat-all'[\s\S]*return 'shuffle'/);
@@ -59,6 +67,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(apiRoute, /MAX_IDS = 20/);
     assert.match(apiRoute, /AbortController/);
     assert.match(apiRoute, /music\.163\.com/);
+    assert.match(apiRoute, /tlyric/);
+    assert.match(apiRoute, /mergeTranslatedLyrics/);
     assert.match(studio, /music-cloud-count/);
     assert.match(studio, /music-player-dock/);
     assert.match(studio, /music-dock-volume/);
@@ -115,17 +125,20 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(aboutPage, /GitHubComments/);
     assert.match(aboutPage, /about-joined-panel/);
     assert.match(aboutPage, /term="\/about"/);
-    assert.match(friendsClient, /friends-board-grid/);
-    assert.match(friendsClient, /friend-node-card/);
-    assert.match(friendsClient, /friend-link-search/);
-    assert.match(friendsClient, /friend-category-tabs/);
-    assert.match(friendsClient, /friend-apply-form/);
-    assert.match(friendsClient, /new URL\(form\.url\)/);
+    assert.match(friendsClient, /siteName = \[site\.title, site\.brandSuffix\]/);
+    assert.match(friendsClient, /名称：\$\{siteName\}/);
+    assert.match(friendsClient, /链接：\$\{site\.github\}/);
+    assert.match(friendsClient, /简介：\$\{site\.subtitle\}/);
+    assert.match(friendsClient, /头像：\$\{site\.avatar\}/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
-    assert.match(friendsClient, /friend-apply-console/);
-    assert.match(friendsClient, /申请友链/);
+    assert.match(friendsClient, /applyPanel/);
     assert.match(friendsClient, /#gitalk-container/);
-    assert.doesNotMatch(friendsClient, /friends-command-panel|friend-filter-rail|friend-constellation-stage|friend-star-node|--node-inverse/);
+    assert.match(friendsClient, /application\.title/);
+    assert.match(friendsClient, /application\.description/);
+    assert.match(friendsClient, /application\.copyLabel/);
+    assert.match(friendsClient, /application\.commentLabel/);
+    assert.match(friendsClient, /styles\.empty/);
+    assert.doesNotMatch(friendsClient, /friendLinkApplyFormat|friend-apply-form/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);
     assert.match(comments, /GITALK_STYLE_HREF/);

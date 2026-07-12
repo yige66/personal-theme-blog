@@ -38,11 +38,11 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
     return (
       <section className="xh-latest-card xh-latest-carousel is-empty" data-motion="stack-card" aria-label="最新文章">
         <Image src={fallbackImage} alt="博客文章默认封面" width={960} height={720} loading="eager" data-motion="image-scale" />
-        <div>
+        <div className="xh-latest-carousel-copy">
           <p className="eyebrow">Latest Post</p>
           <h2>第一篇文章正在准备中</h2>
-          <span>等待内容发布后，这里会变成可轮播的阅读入口。</span>
-          <Link href="/archive">前往归档</Link>
+          <span>等待内容发布</span>
+          <Link href="/archive">文章归档</Link>
         </div>
       </section>
     );
@@ -50,7 +50,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
 
   return (
     <section className="xh-latest-card xh-latest-carousel" data-motion="stack-card" aria-label="最新文章轮播">
-      <Link className="xh-latest-main-link" href={`/posts/${activePost.slug}`} aria-label={`继续阅读 ${activePost.title}`} />
+      <Link className="xh-latest-main-link" href={`/posts/${activePost.slug}`} aria-label={`阅读 ${activePost.title}`} />
       {posts.map((post, index) => (
         <Image
           className={index === activeIndex ? 'is-active' : ''}
@@ -69,8 +69,10 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
         <time>{formatPostDate(activePost.updatedAt)}</time>
         <h2>{activePost.title}</h2>
         <small>{activePost.category}</small>
-        <Link href={`/posts/${activePost.slug}`}>继续阅读</Link>
-        <nav aria-label="轮播文章控制">
+      </div>
+
+      {posts.length > 1 ? (
+        <nav className="xh-carousel-dots" aria-label="轮播文章控制">
           {posts.map((post, index) => (
             <button
               className={index === activeIndex ? 'is-active' : ''}
@@ -88,7 +90,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
             </button>
           ))}
         </nav>
-      </div>
+      ) : null}
     </section>
   );
 }

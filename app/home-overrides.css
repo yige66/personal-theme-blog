@@ -19,7 +19,6 @@ body:has(.xh-clean-home) {
   overflow-x: hidden;
 }
 
-body:has(.xh-clean-home) .xh-danmaku-layer,
 body:has(.xh-clean-home) .xh-floating-companion,
 body:has(.xh-clean-home) .xh-global-toolbox {
   display: none !important;
@@ -847,12 +846,6 @@ body:has(.subpage) .xh-global-toolbox {
   font-weight: 900;
 }
 
-.photowall-album-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
 .photowall-album-card {
   display: grid;
   gap: 10px;
@@ -864,50 +857,6 @@ body:has(.subpage) .xh-global-toolbox {
   color: var(--xh-ink);
   text-align: left;
   box-shadow: 0 12px 34px rgba(116, 66, 132, 0.1);
-}
-
-.photowall-album-stack {
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-}
-
-.photowall-album-stack img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 6px solid rgba(255, 255, 255, 0.78);
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 18px 32px rgba(65, 43, 80, 0.18);
-  transition: transform 320ms var(--xh-ease);
-}
-
-.photowall-album-stack img:nth-child(1) {
-  z-index: 3;
-}
-
-.photowall-album-stack img:nth-child(2) {
-  z-index: 2;
-  filter: grayscale(0.3);
-  transform: rotate(-4deg) translate(-8px, 8px);
-}
-
-.photowall-album-stack img:nth-child(3) {
-  z-index: 1;
-  filter: grayscale(0.55);
-  transform: rotate(6deg) translate(10px, 12px);
-}
-
-.photowall-album-card:hover .photowall-album-stack img:nth-child(1) {
-  transform: translateY(-5px) scale(1.02);
-}
-
-.photowall-album-card strong {
-  color: var(--xh-ink);
-  font-size: 19px;
 }
 
 .photowall-album-card small,
@@ -1014,11 +963,6 @@ body:has(.subpage) .xh-global-toolbox {
   box-shadow: 0 12px 34px rgba(116, 66, 132, 0.1);
 }
 
-.photowall-masonry img {
-  width: 100%;
-  height: auto;
-}
-
 .photowall-masonry span {
   position: absolute;
   left: 10px;
@@ -1119,7 +1063,6 @@ html[data-xh-theme="night"] .photowall-masonry button {
 
 .archive-timeline-view,
 .archive-card-view,
-.friends-board-grid,
 .gallery-album-overview,
 .gallery-polaroid-wall,
 .moments-stream,
@@ -1182,14 +1125,6 @@ html[data-xh-theme="night"] .tag-cloud-card {
   padding: 18px !important;
 }
 
-.friends-board-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-}
-
-.friend-apply-console {
-  border-radius: 18px !important;
-}
-
 .music-studio {
   grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr) !important;
   gap: 18px !important;
@@ -1239,8 +1174,7 @@ html[data-xh-theme="night"] .tag-cloud-card {
   }
 
   .xh-clean-dashboard .xh-site-dashboard,
-  .page-scene-compact .page-scene-stats,
-  .friends-board-grid {
+  .page-scene-compact .page-scene-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
@@ -1333,8 +1267,7 @@ html[data-xh-theme="night"] .tag-cloud-card {
 
   .xh-clean-routes,
   .xh-clean-dashboard .xh-site-dashboard,
-  .page-scene-compact .page-scene-stats,
-  .friends-board-grid {
+  .page-scene-compact .page-scene-stats {
     grid-template-columns: 1fr !important;
   }
 
@@ -2877,10 +2810,6 @@ html[data-xh-theme="night"] .archive-card {
   .timeline-node-cover {
     height: 170px;
   }
-
-  .archive-row-xh {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Final reference-alignment overrides: keep the subpage surface open and let
@@ -3189,10 +3118,6 @@ html[data-xh-theme="night"] body:has(.subpage) .xh-floating-player {
 
 .friends-board-client {
   width: min(1180px, calc(100% - 44px)) !important;
-}
-
-.friends-board-grid {
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
 }
 
 body:has(.subpage) .xh-floating-player {
@@ -3743,10 +3668,6 @@ body:has(.subpage) .xh-floating-player small {
 
 .archive-year::before {
   left: -56px !important;
-}
-
-.archive-row-xh {
-  grid-template-columns: minmax(42px, auto) minmax(0, 1fr) minmax(138px, auto) !important;
 }
 
 .archive-row-xh .row-meta {
@@ -4876,66 +4797,6 @@ body:has(.subpage) .xh-floating-player small {
   }
 }
 
-/* Actual final overrides: appended after every legacy block. */
-body:has(.xh-clean-home) .xh-clean-home {
-  width: min(1320px, calc(100vw - 56px)) !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-home__identity {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 26px !important;
-  align-items: start !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-profile,
-body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card {
-  height: clamp(450px, 34vw, 520px) !important;
-  min-height: 0 !important;
-  padding: clamp(22px, 2.2vw, 34px) !important;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.50), rgba(203, 219, 239, 0.25) 42%, rgba(35, 39, 70, 0.34)),
-    rgba(35, 38, 68, 0.38) !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-profile {
-  grid-template-rows: auto auto auto auto 1fr auto auto !important;
-  gap: 10px !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-profile h1 {
-  font-size: clamp(50px, 4.4vw, 74px) !important;
-  line-height: 0.94 !important;
-}
-
-body:has(.xh-clean-home) .xh-profile-stats span {
-  min-height: 74px !important;
-  padding: 12px 14px !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-home .xh-cloud-player-card {
-  grid-template-columns: minmax(126px, 0.42fr) minmax(0, 0.58fr) !important;
-  place-items: center start !important;
-  column-gap: clamp(18px, 3vw, 42px) !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-home .xh-disc-cover {
-  justify-self: end !important;
-  width: clamp(112px, 12vw, 164px) !important;
-  height: clamp(112px, 12vw, 164px) !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-home .xh-cloud-copy {
-  justify-self: start !important;
-  text-align: left !important;
-}
-
-body:has(.xh-clean-home) .xh-clean-home .xh-player-progress,
-body:has(.xh-clean-home) .xh-clean-home .xh-player-controls {
-  grid-column: 1 / -1 !important;
-  width: min(560px, 88%) !important;
-  justify-self: center !important;
-}
-
 body:has(.tags-page) .tag-nebula-world,
 body:has(.moments-page) .moment-constellation {
   min-height: 560px !important;
@@ -5050,8 +4911,7 @@ body:has(.projects-page) .project-world .project-status-rack {
 }
 
 /* Source-level layout repair: the final pass must win over legacy height locks. */
-body:has(.xh-clean-home) .xh-danmaku-layer,
-body:has(.subpage) .xh-danmaku-layer {
+body:has(.xh-clean-home) .xh-danmaku-layer {
   display: block !important;
   visibility: visible !important;
   opacity: 0.22 !important;
@@ -6157,36 +6017,6 @@ body:has(.archive-page) .archive-search label {
   z-index: 2;
 }
 
-body:has(.archive-page) .archive-search label span {
-  position: static !important;
-  display: block !important;
-  width: 22px !important;
-  height: 22px !important;
-  overflow: hidden;
-  color: transparent !important;
-  font-size: 0 !important;
-}
-
-body:has(.archive-page) .archive-search label span::before {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 3px solid currentColor;
-  border-radius: 999px;
-  transform: translate(-3px, -2px);
-}
-
-body:has(.archive-page) .archive-search label span::after {
-  content: "";
-  position: absolute;
-  width: 10px;
-  height: 3px;
-  border-radius: 999px;
-  background: currentColor;
-  transform: translate(8px, 9px) rotate(45deg);
-}
-
 body:has(.archive-page) .archive-search input {
   width: 100% !important;
   min-height: 70px !important;
@@ -6818,8 +6648,7 @@ html[data-xh-theme="night"] body:has(.archive-page) .archive-search-results {
 }
 
 /* Keep ambient effects out of the hero text zone. */
-body:has(.xh-clean-home) .xh-danmaku-layer,
-body:has(.subpage) .xh-danmaku-layer {
+body:has(.xh-clean-home) .xh-danmaku-layer {
   display: none !important;
 }
 
@@ -7676,24 +7505,24 @@ body:has(main.article-page:not(.admin-os):not(.console-page)) .xh-background-sli
 
 html[data-xh-theme="night"] body:has(.subpage),
 html[data-xh-theme="night"] body:has(.xh-clean-home) {
-  background-color: #190e24 !important;
+  background-color: #241532 !important;
   transition: background-color 2600ms linear;
 }
 
 html:not([data-xh-theme="night"]) body:has(.subpage),
 html:not([data-xh-theme="night"]) body:has(.xh-clean-home) {
-  background-color: #d0a1c1 !important;
+  background-color: #c894b9 !important;
   transition: background-color 2600ms linear;
 }
 
 html[data-xh-theme-phase="dusk"] body:has(.subpage),
 html[data-xh-theme-phase="dusk"] body:has(.xh-clean-home) {
-  background-color: #190e24 !important;
+  background-color: #241532 !important;
 }
 
 html[data-xh-theme-phase="dawn"] body:has(.subpage),
 html[data-xh-theme-phase="dawn"] body:has(.xh-clean-home) {
-  background-color: #d0a1c1 !important;
+  background-color: #c894b9 !important;
 }
 
 html[data-xh-theme="night"]:not([data-xh-theme-phase="dawn"]) body:has(.subpage) .xh-background-slider,
@@ -9740,7 +9569,7 @@ html[data-xh-theme-transition="active"] body:has(:is(.xh-home, .subpage, .archiv
 :root,
 html[data-xh-theme="day"],
 html[data-xh-theme-phase="day"] {
-  --xh-phase-duration: 2600ms;
+  --xh-phase-duration: 3400ms;
   --xh-phase-body-bg: rgb(200, 148, 185);
   --xh-phase-slider-bg: rgb(190, 134, 170);
   --xh-phase-slider-filter: saturate(1) brightness(1) contrast(1);
@@ -12825,11 +12654,11 @@ html[data-xh-theme="night"][data-xh-theme-next="day"][data-xh-theme-transition="
 }
 
 html[data-xh-theme="day"][data-xh-theme-next="night"][data-xh-theme-transition="active"][data-xh-theme-phase="dusk"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) {
-  background-color: #190e24 !important;
+  background-color: #241532 !important;
 }
 
 html[data-xh-theme="night"][data-xh-theme-next="day"][data-xh-theme-transition="active"][data-xh-theme-phase="dawn"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) {
-  background-color: #d0a1c1 !important;
+  background-color: #c894b9 !important;
 }
 
 html[data-xh-theme="day"][data-xh-theme-next="night"][data-xh-theme-transition="active"][data-xh-theme-phase="dusk"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) .xh-background-slider,
@@ -12850,7 +12679,7 @@ html[data-xh-theme="day"][data-xh-theme-next="night"][data-xh-theme-transition="
 }
 
 html[data-xh-theme="night"][data-xh-theme-next="day"][data-xh-theme-transition="active"][data-xh-theme-phase="dawn"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) .xh-background-slider {
-  background-color: rgba(190, 134, 170, 0.2) !important;
+  background-color: rgb(190, 134, 170) !important;
   filter: saturate(1) brightness(1) contrast(1) !important;
 }
 
@@ -12948,7 +12777,7 @@ html[data-xh-theme="day"][data-xh-theme-next="night"][data-xh-theme-transition="
 
 html[data-xh-theme="night"][data-xh-theme-next="day"][data-xh-theme-transition="active"][data-xh-theme-phase="dawn"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) .xh-background-slider::before {
   background-color: rgb(255, 182, 222) !important;
-  opacity: 0.1 !important;
+  opacity: 0.12 !important;
 }
 
 html[data-xh-theme="night"][data-xh-theme-next="day"][data-xh-theme-transition="active"][data-xh-theme-phase="dawn"] body:has(:is(.xh-home, .xh-clean-home, .subpage, .archive-page, .article-page, .console-page)) .xh-background-slider::after {
@@ -14982,7 +14811,7 @@ body:has(.music-page) .music-command-bar > label:not(#xh-music-layout) {
   min-width: 0 !important;
 }
 
-body:has(.music-page) .music-command-bar input:not(#xh-music-layout) {
+body:has(.music-page) .music-search-field input:not(#xh-music-layout) {
   min-height: 42px !important;
   border-color: rgba(255, 238, 249, 0.42) !important;
   background: rgba(255, 255, 255, 0.22) !important;
@@ -15228,11 +15057,17 @@ body:has(.music-page) :is(.music-progress, .music-status-row, .music-sync-note, 
   width: min(360px, 100%) !important;
 }
 
-body:has(.music-page) .music-progress input:not(#xh-music-player-polish),
+body:has(.music-page) .music-progress input:not(#xh-music-player-polish) {
+  height: 24px !important;
+  min-height: 24px !important;
+  background: linear-gradient(90deg, #f29ad6 0 var(--progress, 62%), rgba(255, 255, 255, 0.2) var(--progress, 62%) 100%) center / 100% 8px no-repeat !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+
 body:has(.music-page) .music-volume-cluster input:not(#xh-music-player-polish) {
-  height: 9px !important;
-  background:
-    linear-gradient(90deg, #f29ad6 0 var(--progress, 62%), rgba(255, 255, 255, 0.2) var(--progress, 62%) 100%) !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  background: linear-gradient(90deg, #f29ad6 0 var(--volume, 84%), rgba(255, 255, 255, 0.2) var(--volume, 84%) 100%) center / 100% 8px no-repeat !important;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
 }
 
@@ -15287,7 +15122,7 @@ body:has(.music-page) .music-command-bar label span:not(#xh-music-player-polish)
   color: rgba(255, 238, 249, 0.76) !important;
 }
 
-body:has(.music-page) .music-command-bar input:not(#xh-music-player-polish) {
+body:has(.music-page) .music-search-field input:not(#xh-music-player-polish) {
   min-height: 48px !important;
   border-color: rgba(255, 238, 249, 0.26) !important;
   background: rgba(255, 255, 255, 0.14) !important;
@@ -15295,7 +15130,7 @@ body:has(.music-page) .music-command-bar input:not(#xh-music-player-polish) {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
-body:has(.music-page) .music-command-bar input:not(#xh-music-player-polish)::placeholder {
+body:has(.music-page) .music-search-field input:not(#xh-music-player-polish)::placeholder {
   color: rgba(255, 248, 254, 0.58) !important;
 }
 
@@ -15640,7 +15475,7 @@ body:has(.music-page) .music-search-field::after {
   pointer-events: none;
 }
 
-body:has(.music-page) .music-command-bar input:not(#xh-music-compact-pass) {
+body:has(.music-page) .music-search-field input:not(#xh-music-compact-pass) {
   min-height: 34px !important;
   padding: 0 14px 0 38px !important;
   border-color: rgba(255, 238, 249, 0.18) !important;
@@ -15687,10 +15522,6 @@ body:has(.music-page) .music-route-chip:not(#xh-music-compact-pass) {
   padding: 0 !important;
   border-radius: 999px !important;
   font-size: 13px !important;
-}
-
-body:has(.music-page) .music-volume-cluster input:not(#xh-music-compact-pass) {
-  height: 6px !important;
 }
 
 body:has(.music-page) .music-tabs:not(#xh-music-compact-pass) {
@@ -16057,47 +15888,6 @@ body:has(.music-page) .music-sync-note:not(#xh-music-final-layout) {
   font-size: 12px !important;
 }
 
-body:has(.music-page) .music-stage-volume:not(#xh-music-final-layout) {
-  display: grid !important;
-  grid-template-columns: 38px minmax(0, 1fr) 42px !important;
-  gap: 8px !important;
-  align-items: center !important;
-  min-height: 36px !important;
-  margin: -2px 0 0 !important;
-  padding: 0 2px !important;
-  justify-self: stretch !important;
-}
-
-body:has(.music-page) .music-stage-volume .music-route-chip:not(#xh-music-final-layout) {
-  min-height: 34px !important;
-  width: 34px !important;
-  padding: 0 !important;
-  border-radius: 999px !important;
-}
-
-body:has(.music-page) .music-stage-volume label:not(#xh-music-final-layout) {
-  display: grid !important;
-  min-width: 0 !important;
-}
-
-body:has(.music-page) .music-stage-volume input:not(#xh-music-final-layout) {
-  width: 100% !important;
-  height: 8px !important;
-  min-height: 8px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background:
-    linear-gradient(90deg, #7fd7ff 0 var(--volume, 84%), rgba(255, 238, 249, 0.32) var(--volume, 84%) 100%) !important;
-}
-
-body:has(.music-page) .music-stage-volume-value:not(#xh-music-final-layout) {
-  color: rgba(247, 250, 255, 0.76) !important;
-  font-size: 11px !important;
-  font-weight: 950 !important;
-  line-height: 1 !important;
-  text-align: right !important;
-  white-space: nowrap !important;
-}
 
 body:has(.music-page) .music-orbit-controls:not(#xh-music-final-layout) {
   grid-template-columns: 1fr 58px 1fr !important;
@@ -16127,7 +15917,7 @@ body:has(.music-page) .music-command-bar:not(#xh-music-final-layout) {
   border-radius: 999px !important;
 }
 
-body:has(.music-page) .music-command-bar input:not(#xh-music-final-layout) {
+body:has(.music-page) .music-search-field input:not(#xh-music-final-layout) {
   min-height: 32px !important;
   font-size: 12px !important;
 }
@@ -16668,9 +16458,9 @@ body:has(.music-page) .music-player-dock .music-dock-volume input:not(#xh-music-
   top: 50% !important;
   display: block !important;
   width: 106px !important;
-  height: 8px !important;
+  height: 24px !important;
   min-width: 106px !important;
-  min-height: 8px !important;
+  min-height: 24px !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -16680,6 +16470,9 @@ body:has(.music-page) .music-player-dock .music-dock-volume input:not(#xh-music-
     linear-gradient(90deg, #79dcff 0 var(--volume, 84%), rgba(255, 255, 255, 0.28) var(--volume, 84%) 100%) !important;
   transform: translate(-50%, -50%) rotate(-90deg) !important;
   transform-origin: center center !important;
+  background-size: 100% 8px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 body:has(.music-page) .music-player-dock :is(.music-skip-button, .music-play-toggle, .music-mode-button, .music-volume-button):is(:hover, :focus-visible):not(#xh-music-control-fix) {
@@ -18930,7 +18723,7 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
   top: var(--planet-y) !important;
   z-index: calc(8 + var(--planet-ring, 0)) !important;
   display: grid !important;
-  --planet-info-width: clamp(188px, 16vw, 252px) !important;
+  --planet-info-width: var(--planet-node-info-width, clamp(188px, 16vw, 252px)) !important;
   grid-template-columns: var(--planet-size) var(--planet-info-width) !important;
   align-items: center !important;
   gap: 10px !important;
@@ -19219,6 +19012,14 @@ body:has(.music-page) .music-current .music-player-subtitle:not(#xh-music-card-l
   transform: translateY(10px) scale(var(--planet-info-scale, 1)) !important;
 }
 
+.planetary-orbit-map[data-mode="minimal"] .planetary-node {
+  pointer-events: none !important;
+}
+
+.planetary-orbit-map[data-mode="minimal"] .planetary-mini-planet {
+  pointer-events: auto !important;
+}
+
 .planetary-orbit-map[data-mode="minimal"] .planetary-node:is(:hover, :focus-visible) .planetary-node-info,
 .planetary-orbit-map[data-mode="detail"] .planetary-node-info {
   opacity: 1 !important;
@@ -19415,15 +19216,6 @@ body:has(.moments-page) .moments-board .planetary-orbit-map.moment-constellation
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
   line-clamp: unset !important;
-}
-
-.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info span,
-.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info em {
-  display: none !important;
-}
-
-.planetary-orbit-map[data-layout="atlas"][data-mode="minimal"] .planetary-node-info {
-  opacity: 1 !important;
 }
 
 body:has(.tags-page) .planetary-orbit-map.tag-nebula-world {
@@ -19760,15 +19552,6 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.tag
   .planetary-orbit-map[data-zoom="deep"] .planetary-node-info {
     width: auto !important;
     min-width: 0 !important;
-  }
-
-  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info span,
-  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info em {
-    display: none !important;
-  }
-
-  .planetary-orbit-map[data-mode="minimal"] .planetary-node-info {
-    opacity: 1 !important;
   }
 
   body:has(:is(.tags-page, .moments-page)) .xh-floating-player,
@@ -22173,8 +21956,8 @@ body:has(:is(.subpage, .music-page)) .xh-floating-player-volume label {
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-floating-player-volume input,
 body:has(:is(.subpage, .music-page)) .xh-floating-player-volume input {
   width: 100% !important;
-  height: 6px !important;
-  min-height: 6px !important;
+  height: 24px !important;
+  min-height: 24px !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 999px !important;
@@ -22182,6 +21965,9 @@ body:has(:is(.subpage, .music-page)) .xh-floating-player-volume input {
   background:
     linear-gradient(90deg, #8edcff 0 var(--floating-volume, 84%), rgba(255, 255, 255, 0.18) var(--floating-volume, 84%) 100%) !important;
   cursor: pointer !important;
+  background-size: 100% 6px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-floating-player-volume input::-webkit-slider-thumb,
@@ -23177,6 +22963,47 @@ body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .
   width: auto !important;
   gap: 8px !important;
   margin: 0 !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button.is-active {
+  width: 44px !important;
+  background: transparent !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button::after {
+  content: "" !important;
+  display: block !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.62) !important;
+  transition: width 220ms ease, background 220ms ease !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button.is-active::after {
+  width: 34px !important;
+  background: linear-gradient(90deg, var(--xh-violet), var(--xh-cyan)) !important;
+}
+
+body:has(.xh-clean-home) .xh-clean-home.xh-clean-home :is(.xh-latest-carousel, .xh-home-media-carousel) .xh-carousel-dots button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.94) !important;
+  outline-offset: 2px !important;
 }
 
 @media (max-width: 760px) {
@@ -24367,14 +24194,6 @@ body .xh-season-switch small {
     padding: 6px 8px 6px 6px !important;
   }
 
-  body .xh-theme-switch-orbit,
-  body .xh-season-switch-orbit {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-  }
-
   body .xh-theme-switch strong,
   body .xh-season-switch strong {
     font-size: 12px !important;
@@ -25181,19 +25000,6 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-seas
     0 0 18px color-mix(in srgb, var(--xh-season-accent, #9bd8ff), transparent 48%) !important;
 }
 
-html body .xh-theme-switch-orbit::before,
-html body .xh-season-switch-orbit::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 4px !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 48%),
-    radial-gradient(circle at 52% 48%, rgba(255, 255, 255, 0.16), transparent 62%) !important;
-  pointer-events: none !important;
-}
-
 html body .xh-season-switch.is-transitioning .xh-season-switch-orbit,
 html body .xh-theme-switch.is-transitioning .xh-theme-switch-orbit {
   transform: scale(1.02) !important;
@@ -25804,30 +25610,6 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-seas
   z-index: 8 !important;
 }
 
-html body .xh-season-switch.is-spring > .xh-switch-info-card {
-  background:
-    radial-gradient(circle at 13% 17%, rgba(255, 255, 255, 0.3), transparent 24px),
-    linear-gradient(135deg, rgba(92, 126, 88, 0.72), rgba(178, 104, 135, 0.72)) !important;
-}
-
-html body .xh-season-switch.is-summer > .xh-switch-info-card {
-  background:
-    radial-gradient(circle at 13% 17%, rgba(255, 255, 255, 0.28), transparent 24px),
-    linear-gradient(135deg, rgba(57, 132, 100, 0.72), rgba(78, 144, 146, 0.72)) !important;
-}
-
-html body .xh-season-switch.is-autumn > .xh-switch-info-card {
-  background:
-    radial-gradient(circle at 13% 17%, rgba(255, 255, 255, 0.24), transparent 24px),
-    linear-gradient(135deg, rgba(126, 71, 48, 0.76), rgba(122, 85, 48, 0.76)) !important;
-}
-
-html body .xh-season-switch.is-winter > .xh-switch-info-card {
-  background:
-    radial-gradient(circle at 13% 17%, rgba(255, 255, 255, 0.32), transparent 24px),
-    linear-gradient(135deg, rgba(62, 92, 124, 0.72), rgba(76, 82, 120, 0.76)) !important;
-}
-
 html body .xh-theme-switch > .xh-switch-info-card > span,
 html body .xh-theme-switch > .xh-switch-info-card > strong,
 html body .xh-theme-switch > .xh-switch-info-card > small,
@@ -25859,27 +25641,6 @@ html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card > small {
   visibility: visible !important;
   opacity: 1 !important;
   transform: none !important;
-}
-
-html body .xh-theme-switch > .xh-switch-info-card > span,
-html body .xh-season-switch > .xh-switch-info-card > span {
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: 0.03em !important;
-  opacity: 0.76 !important;
-}
-
-html body .xh-theme-switch > .xh-switch-info-card > strong,
-html body .xh-season-switch > .xh-switch-info-card > strong {
-  font-size: 14px !important;
-  font-weight: 950 !important;
-}
-
-html body .xh-theme-switch > .xh-switch-info-card > small,
-html body .xh-season-switch > .xh-switch-info-card > small {
-  font-size: 11px !important;
-  font-weight: 760 !important;
-  opacity: 0.84 !important;
 }
 
 html body:has(.xh-floating-player) .xh-pixel-kurisu-pet,
@@ -25953,11 +25714,6 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-
     min-height: 48px !important;
     padding: 6px 8px 6px 10px !important;
     border-radius: 15px !important;
-  }
-
-  html body .xh-theme-switch > .xh-switch-info-card > strong,
-  html body .xh-season-switch > .xh-switch-info-card > strong {
-    font-size: 13px !important;
   }
 
   html body .xh-theme-switch > .xh-switch-info-card > span,
@@ -26119,6 +25875,240 @@ html body .xh-season-switch.is-spring .xh-season-switch-icon.is-current {
     linear-gradient(145deg, #7bbd78, #f2a8c6) !important;
 }
 
+html body .xh-season-switch.is-summer .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(108, 196, 126, 0.88), rgba(79, 169, 174, 0.82)),
+    radial-gradient(circle at 70% 25%, rgba(255, 243, 138, 0.42), transparent 17px) !important;
+}
+
+html body .xh-season-switch.is-summer .xh-season-switch-icon.is-current {
+  background:
+    radial-gradient(circle at 35% 62%, rgba(255, 236, 98, 0.98) 0 9%, transparent 10%),
+    radial-gradient(circle at 57% 45%, rgba(255, 255, 176, 0.96) 0 8%, transparent 9%),
+    radial-gradient(circle at 66% 67%, rgba(177, 255, 174, 0.88) 0 7%, transparent 8%),
+    radial-gradient(ellipse at 33% 35%, rgba(142, 232, 142, 0.92) 0 11%, transparent 12%),
+    linear-gradient(145deg, #4fb075, #88d7c6) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(202, 115, 47, 0.9), rgba(104, 55, 45, 0.86)),
+    radial-gradient(circle at 72% 24%, rgba(255, 212, 110, 0.44), transparent 16px) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-icon.is-current {
+  background:
+    radial-gradient(ellipse at 37% 38%, rgba(255, 194, 72, 0.98) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 62% 42%, rgba(226, 91, 40, 0.96) 0 14%, transparent 15%),
+    linear-gradient(52deg, transparent 45%, rgba(255, 236, 168, 0.82) 46% 52%, transparent 53%),
+    radial-gradient(ellipse at 48% 66%, rgba(154, 63, 45, 0.98) 0 15%, transparent 16%),
+    linear-gradient(145deg, #7e3f30, #e88d32) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-orbit {
+  background:
+    linear-gradient(140deg, rgba(150, 194, 222, 0.88), rgba(67, 94, 134, 0.84)),
+    linear-gradient(45deg, transparent 46%, rgba(255, 255, 255, 0.22) 47% 53%, transparent 54%) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-icon.is-current {
+  background:
+    linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, 0.88) 46% 54%, transparent 55%),
+    linear-gradient(30deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
+    linear-gradient(150deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
+    radial-gradient(circle at 51% 49%, rgba(255, 255, 255, 0.96) 0 16%, transparent 17%),
+    linear-gradient(145deg, #78aed0, #edf9ff) !important;
+}
+
+html body .xh-season-switch-orbit > i {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  opacity: 0.9 !important;
+  z-index: 4 !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.34) !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-orbit > i,
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
+  border-radius: 80% 8% 80% 8% !important;
+}
+
+html body .xh-season-switch.is-spring .xh-season-switch-orbit > i {
+  background: linear-gradient(135deg, #fff0f7, #f7a8c8) !important;
+}
+
+html body .xh-season-switch.is-summer .xh-season-switch-orbit > i {
+  background: radial-gradient(circle, #fff79a 0 35%, #8af0a2 36% 72%, transparent 73%) !important;
+}
+
+html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
+  background: linear-gradient(135deg, #ffd06a, #d95d31 58%, #7d3f2a) !important;
+}
+
+html body .xh-season-switch.is-winter .xh-season-switch-orbit > i {
+  background:
+    linear-gradient(90deg, transparent 42%, #f7fdff 43% 57%, transparent 58%),
+    linear-gradient(45deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
+    linear-gradient(135deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
+    radial-gradient(circle, #ffffff 0 28%, transparent 30%) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(1) {
+  left: 14px !important;
+  top: 16px !important;
+  transform: rotate(-26deg) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(2) {
+  left: 33px !important;
+  top: 18px !important;
+  transform: rotate(28deg) !important;
+}
+
+html body .xh-season-switch-orbit > i:nth-of-type(3) {
+  left: 25px !important;
+  top: 35px !important;
+  transform: rotate(8deg) !important;
+}
+
+html body .xh-theme-switch.is-day .xh-theme-switch-orbit,
+html body .xh-theme-switch.is-phase-dawn .xh-theme-switch-orbit {
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 247, 128, 0.58), transparent 18px),
+    linear-gradient(145deg, rgba(255, 225, 140, 0.9), rgba(107, 177, 208, 0.82)) !important;
+}
+
+html body .xh-theme-switch.is-night .xh-theme-switch-orbit,
+html body .xh-theme-switch.is-phase-dusk .xh-theme-switch-orbit {
+  background:
+    radial-gradient(circle at 58% 34%, rgba(255, 255, 255, 0.28), transparent 15px),
+    linear-gradient(145deg, rgba(33, 39, 82, 0.94), rgba(21, 27, 57, 0.9)) !important;
+}
+
+@media (max-width: 760px) {
+  html body .xh-theme-switch > .xh-switch-info-card,
+  html body .xh-season-switch > .xh-switch-info-card,
+  html body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme] body .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch > .xh-switch-info-card {
+    grid-template-rows: 17px 15px !important;
+    column-gap: 6px !important;
+    right: 62px !important;
+    width: min(142px, calc(100vw - 82px)) !important;
+    min-width: 0 !important;
+    max-width: min(142px, calc(100vw - 82px)) !important;
+    min-height: 52px !important;
+    padding: 8px 11px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > strong,
+  html body .xh-season-switch > .xh-switch-info-card > strong {
+    font-size: 13.5px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > span,
+  html body .xh-season-switch > .xh-switch-info-card > span {
+    font-size: 10.5px !important;
+  }
+
+  html body .xh-theme-switch > .xh-switch-info-card > small,
+  html body .xh-season-switch > .xh-switch-info-card > small {
+    font-size: 9.5px !important;
+  }
+}
+
+/* Specificity repair for routes that carry both html state attributes and
+   page marker classes; older route-safe rules were still winning there. */
+html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  grid-template-rows: 20px 18px !important;
+  column-gap: 7px !important;
+  inset: auto 70px auto auto !important;
+  top: 50% !important;
+  width: 168px !important;
+  min-width: 168px !important;
+  max-width: 168px !important;
+  min-height: 60px !important;
+  padding: 10px 14px 9px !important;
+}
+
+html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch-orbit,
+html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
+html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit {
+  width: 52px !important;
+  min-width: 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  border-radius: 18px !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+}
+
+@media (max-width: 520px) {
+  html body .xh-season-switch,
+  html body:has(.xh-clean-home) .xh-season-switch,
+  html body:has(:is(.subpage, .music-page)) .xh-season-switch,
+  html[data-xh-theme] body .xh-season-switch,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch {
+    top: max(76px, calc(env(safe-area-inset-top) + 76px)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: auto !important;
+  }
+
+  html body .xh-theme-switch,
+  html body:has(.xh-clean-home) .xh-theme-switch,
+  html body:has(:is(.subpage, .music-page)) .xh-theme-switch,
+  html[data-xh-theme] body .xh-theme-switch,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch {
+    top: max(140px, calc(env(safe-area-inset-top) + 140px)) !important;
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: auto !important;
+  }
+
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
+    grid-template-rows: 17px 15px !important;
+    column-gap: 6px !important;
+    inset: auto 62px auto auto !important;
+    top: 50% !important;
+    width: min(142px, calc(100vw - 82px)) !important;
+    min-width: 0 !important;
+    max-width: min(142px, calc(100vw - 82px)) !important;
+    min-height: 52px !important;
+    padding: 8px 11px !important;
+  }
+}
 
 /* Final homepage assistant control rail: keep theme and season switches directly above Kurisu, with the chat toggle beside her. */
 html body:has(.xh-clean-home):not(:has(.xh-floating-player)) .xh-theme-switch,
@@ -27991,237 +27981,194 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(
     translate: 0 -22px !important;
   }
 }
-html body .xh-season-switch.is-summer .xh-season-switch-orbit {
-  background:
-    linear-gradient(140deg, rgba(108, 196, 126, 0.88), rgba(79, 169, 174, 0.82)),
-    radial-gradient(circle at 70% 25%, rgba(255, 243, 138, 0.42), transparent 17px) !important;
+/* Moment image lightbox */
+.moment-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 3vw, 36px);
+  background: rgba(7, 8, 18, 0.9);
+  backdrop-filter: blur(18px);
 }
 
-html body .xh-season-switch.is-summer .xh-season-switch-icon.is-current {
-  background:
-    radial-gradient(circle at 35% 62%, rgba(255, 236, 98, 0.98) 0 9%, transparent 10%),
-    radial-gradient(circle at 57% 45%, rgba(255, 255, 176, 0.96) 0 8%, transparent 9%),
-    radial-gradient(circle at 66% 67%, rgba(177, 255, 174, 0.88) 0 7%, transparent 8%),
-    radial-gradient(ellipse at 33% 35%, rgba(142, 232, 142, 0.92) 0 11%, transparent 12%),
-    linear-gradient(145deg, #4fb075, #88d7c6) !important;
+.moment-lightbox__stage {
+  display: grid;
+  width: min(1180px, 92vw);
+  height: min(820px, 82vh);
+  place-items: center;
+  overflow: hidden;
 }
 
-html body .xh-season-switch.is-autumn .xh-season-switch-orbit {
-  background:
-    linear-gradient(140deg, rgba(202, 115, 47, 0.9), rgba(104, 55, 45, 0.86)),
-    radial-gradient(circle at 72% 24%, rgba(255, 212, 110, 0.44), transparent 16px) !important;
+.moment-lightbox .moment-lightbox__image {
+  display: block !important;
+  position: relative !important;
+  inset: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  transform: scale(var(--moment-zoom-scale, 1));
+  transition: transform 180ms ease;
+  border-radius: 8px;
+  box-shadow: 0 28px 100px rgba(0, 0, 0, 0.5);
 }
 
-html body .xh-season-switch.is-autumn .xh-season-switch-icon.is-current {
-  background:
-    radial-gradient(ellipse at 37% 38%, rgba(255, 194, 72, 0.98) 0 12%, transparent 13%),
-    radial-gradient(ellipse at 62% 42%, rgba(226, 91, 40, 0.96) 0 14%, transparent 15%),
-    linear-gradient(52deg, transparent 45%, rgba(255, 236, 168, 0.82) 46% 52%, transparent 53%),
-    radial-gradient(ellipse at 48% 66%, rgba(154, 63, 45, 0.98) 0 15%, transparent 16%),
-    linear-gradient(145deg, #7e3f30, #e88d32) !important;
+.moment-lightbox__close,
+.moment-lightbox__nav {
+  position: absolute;
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(20, 22, 38, 0.72);
+  color: #fff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
 }
 
-html body .xh-season-switch.is-winter .xh-season-switch-orbit {
-  background:
-    linear-gradient(140deg, rgba(150, 194, 222, 0.88), rgba(67, 94, 134, 0.84)),
-    linear-gradient(45deg, transparent 46%, rgba(255, 255, 255, 0.22) 47% 53%, transparent 54%) !important;
+.moment-lightbox__close {
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 900;
 }
 
-html body .xh-season-switch.is-winter .xh-season-switch-icon.is-current {
-  background:
-    linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, 0.88) 46% 54%, transparent 55%),
-    linear-gradient(30deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
-    linear-gradient(150deg, transparent 45%, rgba(225, 247, 255, 0.86) 46% 54%, transparent 55%),
-    radial-gradient(circle at 51% 49%, rgba(255, 255, 255, 0.96) 0 16%, transparent 17%),
-    linear-gradient(145deg, #78aed0, #edf9ff) !important;
+.moment-lightbox__zoom {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  left: 50%;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(20, 22, 38, 0.72);
+  color: #fff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
 }
 
-html body .xh-season-switch-orbit > i {
-  width: 8px !important;
-  height: 8px !important;
-  border-radius: 999px !important;
-  opacity: 0.9 !important;
-  z-index: 4 !important;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.34) !important;
+.moment-lightbox__zoom button {
+  display: grid;
+  width: 44px;
+  min-height: 42px;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 21px;
 }
 
-html body .xh-season-switch.is-spring .xh-season-switch-orbit > i,
-html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
-  border-radius: 80% 8% 80% 8% !important;
+.moment-lightbox__zoom button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
-html body .xh-season-switch.is-spring .xh-season-switch-orbit > i {
-  background: linear-gradient(135deg, #fff0f7, #f7a8c8) !important;
+.moment-lightbox__zoom output {
+  min-width: 56px;
+  color: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  text-align: center;
 }
 
-html body .xh-season-switch.is-summer .xh-season-switch-orbit > i {
-  background: radial-gradient(circle, #fff79a 0 35%, #8af0a2 36% 72%, transparent 73%) !important;
+.moment-lightbox__nav {
+  top: 50%;
+  width: 52px;
+  height: 64px;
+  border-radius: 8px;
+  font-size: 38px;
+  line-height: 1;
+  transform: translateY(-50%);
 }
 
-html body .xh-season-switch.is-autumn .xh-season-switch-orbit > i {
-  background: linear-gradient(135deg, #ffd06a, #d95d31 58%, #7d3f2a) !important;
+.moment-lightbox__previous {
+  left: max(16px, env(safe-area-inset-left));
 }
 
-html body .xh-season-switch.is-winter .xh-season-switch-orbit > i {
-  background:
-    linear-gradient(90deg, transparent 42%, #f7fdff 43% 57%, transparent 58%),
-    linear-gradient(45deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
-    linear-gradient(135deg, transparent 42%, #d8f3ff 43% 57%, transparent 58%),
-    radial-gradient(circle, #ffffff 0 28%, transparent 30%) !important;
+.moment-lightbox__next {
+  right: max(16px, env(safe-area-inset-right));
 }
 
-html body .xh-season-switch-orbit > i:nth-of-type(1) {
-  left: 14px !important;
-  top: 16px !important;
-  transform: rotate(-26deg) !important;
+.moment-lightbox__caption {
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  display: flex;
+  max-width: min(760px, calc(100vw - 32px));
+  gap: 12px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(20, 22, 38, 0.72);
+  color: #fff;
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
 }
 
-html body .xh-season-switch-orbit > i:nth-of-type(2) {
-  left: 33px !important;
-  top: 18px !important;
-  transform: rotate(28deg) !important;
+.moment-lightbox__caption strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-html body .xh-season-switch-orbit > i:nth-of-type(3) {
-  left: 25px !important;
-  top: 35px !important;
-  transform: rotate(8deg) !important;
+.moment-lightbox__caption span {
+  flex: none;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-html body .xh-theme-switch.is-day .xh-theme-switch-orbit,
-html body .xh-theme-switch.is-phase-dawn .xh-theme-switch-orbit {
-  background:
-    radial-gradient(circle at 50% 52%, rgba(255, 247, 128, 0.58), transparent 18px),
-    linear-gradient(145deg, rgba(255, 225, 140, 0.9), rgba(107, 177, 208, 0.82)) !important;
+.moment-image-grid button {
+  cursor: zoom-in;
 }
 
-html body .xh-theme-switch.is-night .xh-theme-switch-orbit,
-html body .xh-theme-switch.is-phase-dusk .xh-theme-switch-orbit {
-  background:
-    radial-gradient(circle at 58% 34%, rgba(255, 255, 255, 0.28), transparent 15px),
-    linear-gradient(145deg, rgba(33, 39, 82, 0.94), rgba(21, 27, 57, 0.9)) !important;
-}
-
-@media (max-width: 760px) {
-  html body .xh-theme-switch > .xh-switch-info-card,
-  html body .xh-season-switch > .xh-switch-info-card,
-  html body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
-  html body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
-  html body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
-  html body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
-  html[data-xh-theme] body .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme] body .xh-season-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch > .xh-switch-info-card {
-    grid-template-rows: 17px 15px !important;
-    column-gap: 6px !important;
-    right: 62px !important;
-    width: min(142px, calc(100vw - 82px)) !important;
-    min-width: 0 !important;
-    max-width: min(142px, calc(100vw - 82px)) !important;
-    min-height: 52px !important;
-    padding: 8px 11px !important;
+@media (max-width: 640px) {
+  .moment-lightbox {
+    padding: 64px 12px 84px;
   }
 
-  html body .xh-theme-switch > .xh-switch-info-card > strong,
-  html body .xh-season-switch > .xh-switch-info-card > strong {
-    font-size: 13.5px !important;
+  .moment-lightbox__stage {
+    width: 100%;
+    height: 100%;
   }
 
-  html body .xh-theme-switch > .xh-switch-info-card > span,
-  html body .xh-season-switch > .xh-switch-info-card > span {
-    font-size: 10.5px !important;
+  .moment-lightbox__zoom {
+    top: 68px;
   }
 
-  html body .xh-theme-switch > .xh-switch-info-card > small,
-  html body .xh-season-switch > .xh-switch-info-card > small {
-    font-size: 9.5px !important;
-  }
-}
-
-/* Specificity repair for routes that carry both html state attributes and
-   page marker classes; older route-safe rules were still winning there. */
-html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
-html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
-html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
-html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
-  grid-template-columns: max-content minmax(0, 1fr) !important;
-  grid-template-rows: 20px 18px !important;
-  column-gap: 7px !important;
-  inset: auto 70px auto auto !important;
-  top: 50% !important;
-  width: 168px !important;
-  min-width: 168px !important;
-  max-width: 168px !important;
-  min-height: 60px !important;
-  padding: 10px 14px 9px !important;
-}
-
-html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch-orbit,
-html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch-orbit,
-html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
-html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch-orbit,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch-orbit,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch-orbit,
-html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch-orbit {
-  width: 52px !important;
-  min-width: 52px !important;
-  height: 52px !important;
-  min-height: 52px !important;
-  border-radius: 18px !important;
-  transform: translate3d(0, 0, 0) scale(1) !important;
-}
-
-@media (max-width: 520px) {
-  html body .xh-season-switch,
-  html body:has(.xh-clean-home) .xh-season-switch,
-  html body:has(:is(.subpage, .music-page)) .xh-season-switch,
-  html[data-xh-theme] body .xh-season-switch,
-  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch,
-  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-season-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch {
-    top: max(76px, calc(env(safe-area-inset-top) + 76px)) !important;
-    right: max(12px, env(safe-area-inset-right)) !important;
-    bottom: auto !important;
+  .moment-lightbox__zoom button {
+    width: 40px;
+    min-height: 40px;
   }
 
-  html body .xh-theme-switch,
-  html body:has(.xh-clean-home) .xh-theme-switch,
-  html body:has(:is(.subpage, .music-page)) .xh-theme-switch,
-  html[data-xh-theme] body .xh-theme-switch,
-  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch,
-  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body .xh-theme-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch {
-    top: max(140px, calc(env(safe-area-inset-top) + 140px)) !important;
-    right: max(12px, env(safe-area-inset-right)) !important;
-    bottom: auto !important;
+  .moment-lightbox__nav {
+    top: auto;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    width: 48px;
+    height: 48px;
+    transform: none;
   }
 
-  html[data-xh-theme] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
-  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-clean-home) .xh-season-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-theme-switch > .xh-switch-info-card,
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(.subpage, .music-page)) .xh-season-switch > .xh-switch-info-card {
-    grid-template-rows: 17px 15px !important;
-    column-gap: 6px !important;
-    inset: auto 62px auto auto !important;
-    top: 50% !important;
-    width: min(142px, calc(100vw - 82px)) !important;
-    min-width: 0 !important;
-    max-width: min(142px, calc(100vw - 82px)) !important;
-    min-height: 52px !important;
-    padding: 8px 11px !important;
+  .moment-lightbox__previous {
+    left: max(12px, env(safe-area-inset-left));
+  }
+
+  .moment-lightbox__next {
+    right: max(12px, env(safe-area-inset-right));
+  }
+
+  .moment-lightbox__caption {
+    bottom: max(20px, env(safe-area-inset-bottom));
+    max-width: calc(100vw - 136px);
+    padding: 8px 12px;
   }
 }

@@ -145,7 +145,7 @@ describe('blog administration operating system', () => {
     assert.match(adminConfig, /projects/);
     assert.match(adminConfig, /GitHub 同步/);
     assert.match(adminConfig, /site\.github \/ GitHub 公开仓库 \/ site\.pages\.projects/);
-    assert.match(adminConfig, /gallery/);
+    assert.doesNotMatch(adminConfig, /href: '\/gallery'/);
     assert.match(adminConfig, /links/);
     assert.match(adminConfig, /advanced: true/);
     assert.match(adminConfig, /brandSuffix/);
@@ -432,18 +432,15 @@ describe('blog administration operating system', () => {
       readFile('components/FriendsBoardClient.tsx', 'utf8')
     ]);
 
-    for (const field of ['category', 'owner', 'status', 'addedAt', 'reciprocal', 'note']) {
+    for (const field of ['category', 'owner', 'addedAt', 'note']) {
       assert.match(adminConfig, new RegExp(`key: '${field}'`), `missing admin friend field ${field}`);
       assert.match(blogLib, new RegExp(`${field}\\??:`), `missing BlogLink field ${field}`);
     }
     assert.match(adminUtils, /case 'link'/);
     assert.match(adminUtils, /category: '个人站'/);
     assert.match(adminUtils, /description: '待确认的友链申请。'/);
-    assert.match(adminUtils, /status: 'pending'/);
-    assert.match(adminUtils, /reciprocal: false/);
     assert.match(friendsClient, /link\.category/);
-    assert.match(friendsClient, /link\.status/);
-    assert.match(friendsClient, /link\.reciprocal/);
+    assert.doesNotMatch(friendsClient, /link\\.(status|reciprocal)/);
 
     const validFriendLinkData = JSON.parse(JSON.stringify(blogData));
     validFriendLinkData.links.push({
@@ -454,9 +451,7 @@ describe('blog administration operating system', () => {
       themeColor: '#7cd9ff',
       category: '个人站',
       owner: 'Example',
-      status: 'pending',
       addedAt: '2026-07-05',
-      reciprocal: false,
       note: '通过后台新增，等待对方确认。'
     });
 

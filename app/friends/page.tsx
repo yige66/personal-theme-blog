@@ -1,5 +1,5 @@
-import { GitHubComments } from '@/components/comments/GitHubComments';
 import { ChannelHeader } from '@/components/ChannelHeader';
+import { GitHubComments } from '@/components/comments/GitHubComments';
 import { FriendsBoardClient } from '@/components/FriendsBoardClient';
 import { SiteNav } from '@/components/SiteNav';
 import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel } from '@/lib/blog';
@@ -20,8 +20,8 @@ export default async function FriendsPage() {
         description={formatPageText(page.description, { linkCount: data.links.length })}
         stats={[
           { label: getPageStatLabel(page, 0, '友链'), value: data.links.length },
-          { label: getPageStatLabel(page, 1, '申请'), value: 'Apply' },
-          { label: getPageStatLabel(page, 2, '留言'), value: data.site.comments.enabled ? 'On' : 'Off' }
+          { label: getPageStatLabel(page, 1, '申请'), value: '留言区' },
+          { label: getPageStatLabel(page, 2, '留言'), value: data.site.comments.enabled ? '开放' : '关闭' }
         ]}
         actions={getPageActions(page)}
         signal={page.signal}

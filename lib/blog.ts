@@ -1,4 +1,4 @@
-﻿import { existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -25,9 +25,7 @@ export type BlogLink = {
   themeColor?: string;
   category?: string;
   owner?: string;
-  status?: 'active' | 'pending' | 'paused';
   addedAt?: string;
-  reciprocal?: boolean;
   note?: string;
 };
 
@@ -214,6 +212,15 @@ export type PageContent = {
   panelThreeDescription: string;
 };
 
+export type FriendLinkApplicationConfig = {
+  title: string;
+  description: string;
+  copyLabel: string;
+  copiedLabel: string;
+  copyErrorLabel: string;
+  commentLabel: string;
+};
+
 export type BlogSite = {
   title: string;
   brandSuffix: string;
@@ -242,7 +249,7 @@ export type BlogSite = {
   assistantName: string;
   assistantPrompt: string;
   cloudMusicIds: string[];
-  friendLinkApplyFormat: string;
+  friendLinkApply: FriendLinkApplicationConfig;
   entry: EntryTextConfig;
   comments: CommentConfig;
   effects: VisualEffectsConfig;
@@ -286,10 +293,10 @@ export type ArchiveGroup = {
 
 const fallbackPages: Record<string, PageContent> = {
   home: {
-    eyebrow: 'Home',
+    eyebrow: '主页导航',
     title: '星屿手记',
     description: '文章、项目、动态、音乐、照片墙和友链共同组成这个个人站点。',
-    signal: 'home / portal / content system',
+    signal: '主舰启程 / 内容星图 / 冒险日志',
     statLabels: ['文章', '动态', '相册'],
     emptyTitle: '等待内容',
     emptyDescription: '在后台补充内容后，首页会自动形成入口。',
@@ -310,10 +317,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: '文章之外的轻记录与复盘。'
   },
   projects: {
-    eyebrow: 'Projects',
+    eyebrow: '作品工坊',
     title: '项目星港',
     description: '把练习、系统、文章工程和长期实验整理成可查看、可追踪的作品停靠区。',
-    signal: 'projects / works / system practice',
+    signal: '作品工坊 / 技术试炼 / 冒险日志',
     statLabels: ['项目', '精选', '状态'],
     emptyTitle: '暂无项目',
     emptyDescription: '填写 GitHub 地址并保持仓库公开后，这里会自动生成项目矩阵。',
@@ -338,10 +345,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   archive: {
-    eyebrow: 'Archive',
+    eyebrow: '时光书库',
     title: '归档与探索',
     description: '总计 {postCount} 篇研究记录。',
-    signal: 'archive / timeline / tags',
+    signal: '时光书库 / 篇章回放 / 标签索引',
     statLabels: ['文章', '年份', '标签'],
     emptyTitle: '暂无已发布文章',
     emptyDescription: '在后台发布文章后，归档时间线会自动生成。',
@@ -362,15 +369,15 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   photowall: {
-    eyebrow: 'Photo Wall',
-    title: '光影画廊',
+    eyebrow: '回忆相册',
+    title: '光影照片墙',
     description: '定格时间，封存每一次值得回看的心跳。',
-    signal: 'album entry / stacked covers / fullscreen lightbox',
+    signal: '回忆相册 / 光影收集 / 心动定格',
     statLabels: ['图集', '照片', '浏览'],
     emptyTitle: '暂无相册素材',
     emptyDescription: '上传图片并加入相册后，照片墙会在这里展开。',
-    primaryActionLabel: '通用画廊',
-    primaryActionHref: '/gallery',
+    primaryActionLabel: 'Archive',
+    primaryActionHref: '/archive',
     secondaryActionLabel: '动态记录',
     secondaryActionHref: '/moments',
     searchPlaceholder: '搜索相册 / 照片',
@@ -385,35 +392,12 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeTitle: '',
     panelThreeDescription: ''
   },
-  gallery: {
-    eyebrow: 'Gallery',
-    title: '灵感照片墙',
-    description: '头像、头图、项目截图和日常视觉碎片按图集归档。',
-    signal: 'photo wall / polaroid memories / visual archive',
-    statLabels: ['图片', '图集', '展示'],
-    emptyTitle: '暂无相册素材',
-    emptyDescription: '上传图片并加入相册后，画廊会在这里展开。',
-    primaryActionLabel: '照片墙',
-    primaryActionHref: '/photowall',
-    secondaryActionLabel: '个人资料',
-    secondaryActionHref: '/about',
-    searchPlaceholder: '搜索相册 / 照片',
-    searchEmptyTitle: '没有找到匹配的照片',
-    searchEmptyDescription: '换一个关键词试试。',
-    commentTitle: '',
-    detailLines: [],
-    panelOneTitle: '',
-    panelOneDescription: '',
-    panelTwoTitle: '',
-    panelTwoDescription: '',
-    panelThreeTitle: '',
-    panelThreeDescription: ''
-  },
+
   moments: {
-    eyebrow: 'Moments',
+    eyebrow: '日常星图',
     title: '生活动态',
     description: '在代码之外捕捉瞬间的温度，用星图串起轻量的日常记录。',
-    signal: 'daily notes / mood filters / constellation stream',
+    signal: '日常星图 / 心情弹幕 / 瞬间记录',
     statLabels: ['动态', '主题', '节奏'],
     emptyTitle: '暂无动态',
     emptyDescription: '在后台维护动态后，这里会形成轻量时间线。',
@@ -434,10 +418,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   chatter: {
-    eyebrow: 'Chatter',
+    eyebrow: '深夜杂谈',
     title: '云端杂谈',
     description: '代码、学术、日常碎片与复盘想法的轻文章记录。',
-    signal: 'chatter / light essays / mood cards / masonry stream',
+    signal: '深夜电波 / 碎碎念札记 / 灵感补给',
     statLabels: ['杂谈', '标签', '形式'],
     emptyTitle: '暂无杂谈',
     emptyDescription: '在后台新增杂谈后，这里会自动形成瀑布流。',
@@ -458,10 +442,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   music: {
-    eyebrow: 'Music',
+    eyebrow: '夜航电台',
     title: '星屿电台',
     description: '写作、阅读和编码时的背景歌单。',
-    signal: '夜航电台 / focus radio / writing ambience',
+    signal: '夜航歌单 / 耳机结界 / 码字配乐',
     statLabels: ['曲目', '可播', '用途'],
     emptyTitle: '暂无音乐',
     emptyDescription: '在后台添加曲目后，这里会成为站点电台。',
@@ -482,10 +466,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   friends: {
-    eyebrow: 'Friends',
+    eyebrow: '友人星图',
     title: '友链星团',
     description: '那些散落在网络宇宙各处的有趣灵魂与站点节点。',
-    signal: 'friends / cards / apply / comments',
+    signal: '次元通讯录 / 友人据点 / 互访信标',
     statLabels: ['友链', '申请', '留言'],
     emptyTitle: '暂无友链',
     emptyDescription: '在后台新增友链后，这里会自动生成朋友站点卡片。',
@@ -506,10 +490,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   tags: {
-    eyebrow: 'Tags',
+    eyebrow: '标签星云',
     title: '标签星云',
     description: '用标签把文章、主题和学习线索连起来，快速进入同一类内容轨道。',
-    signal: 'tag nebula / topic heat / reading paths',
+    signal: '主题星云 / 关键词轨道 / 阅读传送门',
     statLabels: ['标签', '文章', '排序'],
     emptyTitle: '暂无标签',
     emptyDescription: '发布带标签的文章后，这里会形成标签星云。',
@@ -530,10 +514,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   'tag-detail': {
-    eyebrow: 'Tag',
+    eyebrow: '同好索引',
     title: '#{tag}',
     description: '同一标签下的文章集合，被收束到一条可以继续漫游的阅读轨道里。',
-    signal: '#{tag} / {postCount} posts / reading dock',
+    signal: '「{tag}」 / {postCount} 篇同好记录 / 阅读航线',
     statLabels: ['文章', '标签', '阅读'],
     emptyTitle: '暂无文章',
     emptyDescription: '这个标签下暂时没有文章。',
@@ -554,10 +538,10 @@ const fallbackPages: Record<string, PageContent> = {
     panelThreeDescription: ''
   },
   about: {
-    eyebrow: 'About',
+    eyebrow: '角色档案',
     title: '关于我',
-    description: '个人资料、创作时间线和联系方式。',
-    signal: 'profile / activity / contact',
+    description: '欢迎来到我的个人据点',
+    signal: '角色档案 / 创作轨迹 / 联络频道',
     statLabels: ['文章', '杂谈', '说说', '相册'],
     emptyTitle: '暂无活动',
     emptyDescription: '新增文章、动态或杂谈后，这里会形成活动时间线。',
@@ -618,7 +602,14 @@ const fallbackSite: BlogSite = {
   assistantName: '星屿助手',
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
   cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
-  friendLinkApplyFormat: '名称：Yuki の Blog\n简介：记录 Java/Spring Boot、Next.js、TypeScript 与个人项目实践的博客。\n链接：https://github.com/yige66/personal-theme-blog\n头像：/assets/img/avatar-orbit.svg',
+  friendLinkApply: {
+    title: '友链申请',
+    description: '复制本站信息，并在下方留言区提交你的站点资料。',
+    copyLabel: '复制本站信息',
+    copiedLabel: '已复制',
+    copyErrorLabel: '复制失败，请手动复制',
+    commentLabel: '前往留言区申请'
+  },
   entry: {
     ariaLabel: 'Site entry',
     preloaderTitle: 'Yuki Blog',
@@ -1050,7 +1041,7 @@ function cleanHeadingText(value: string): string {
 }
 
 function normalizeBlogData(input: Partial<BlogData>): BlogData {
-  const siteInput: Partial<BlogSite> = input.site ?? {};
+  const { friendLinkApplyFormat: _legacyFriendLinkApplyFormat, ...siteInput } = (input.site ?? {}) as Partial<BlogSite> & { friendLinkApplyFormat?: unknown };
   const site: BlogSite = {
     ...fallbackSite,
     ...siteInput,
@@ -1059,7 +1050,7 @@ function normalizeBlogData(input: Partial<BlogData>): BlogData {
     cloudMusicIds: normalizeCloudMusicIds(siteInput.cloudMusicIds),
     projectOrder: normalizeProjectOrder(siteInput.projectOrder),
     tags: normalizeTagLibrary(siteInput.tags, input.posts, input.chatters, fallbackSite.tags),
-    friendLinkApplyFormat: siteInput.friendLinkApplyFormat || fallbackSite.friendLinkApplyFormat,
+    friendLinkApply: normalizeFriendLinkApplication(siteInput.friendLinkApply),
     music: normalizeMusicTracks(siteInput.music),
     gallery: normalizeArray(siteInput.gallery, fallbackSite.gallery),
     heroImage: normalizeOptionalAsset(siteInput.heroImage) || fallbackSite.heroImage,
@@ -1199,9 +1190,7 @@ function normalizeLinks(value: unknown): BlogLink[] {
       themeColor: typeof link.themeColor === 'string' ? link.themeColor.trim() : undefined,
       category: typeof link.category === 'string' ? link.category.trim() || undefined : undefined,
       owner: typeof link.owner === 'string' ? link.owner.trim() || undefined : undefined,
-      status: normalizeLinkStatus(link.status),
       addedAt: normalizeDateOnly(link.addedAt),
-      reciprocal: typeof link.reciprocal === 'boolean' ? link.reciprocal : undefined,
       note: typeof link.note === 'string' ? link.note.trim() || undefined : undefined
     });
   });
@@ -1209,13 +1198,6 @@ function normalizeLinks(value: unknown): BlogLink[] {
   return links;
 }
 
-function normalizeLinkStatus(value: unknown): BlogLink['status'] | undefined {
-  if (value === 'active' || value === 'pending' || value === 'paused') {
-    return value;
-  }
-
-  return undefined;
-}
 
 function normalizeDateOnly(value: unknown): string | undefined {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -1279,7 +1261,7 @@ function normalizeCommentConfig(value: unknown): CommentConfig {
   };
 }
 
-const removedPublicPageIds = new Set(['console']);
+const removedPublicPageIds = new Set(['console', 'gallery']);
 
 function normalizeColumns(value: unknown): SiteColumn[] {
   const input = Array.isArray(value) ? value : [];
@@ -1515,6 +1497,18 @@ function normalizeEffects(value: unknown): VisualEffectsConfig {
   };
 }
 
+function normalizeFriendLinkApplication(value: unknown): FriendLinkApplicationConfig {
+  const source = isRecord(value) ? value : {};
+  const fallback = fallbackSite.friendLinkApply;
+  return {
+    title: textOrFallback(source.title, fallback.title),
+    description: textOrFallback(source.description, fallback.description),
+    copyLabel: textOrFallback(source.copyLabel, fallback.copyLabel),
+    copiedLabel: textOrFallback(source.copiedLabel, fallback.copiedLabel),
+    copyErrorLabel: textOrFallback(source.copyErrorLabel, fallback.copyErrorLabel),
+    commentLabel: textOrFallback(source.commentLabel, fallback.commentLabel)
+  };
+}
 function normalizeEntry(value: unknown): EntryTextConfig {
   const source = typeof value === 'object' && value !== null ? value as Partial<EntryTextConfig> : {};
   const fallback = fallbackSite.entry;

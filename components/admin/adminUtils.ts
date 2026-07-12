@@ -121,9 +121,7 @@ export function createEmptyItem(kind: RecordKind): JsonRecord {
         avatar: '/assets/img/avatar-orbit.svg',
         category: '个人站',
         owner: '',
-        status: 'pending',
         addedAt: iso.slice(0, 10),
-        reciprocal: false,
         note: '',
         themeColor: 'rgba(124, 217, 255, 0.55)'
       };

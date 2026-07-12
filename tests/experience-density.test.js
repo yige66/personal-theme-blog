@@ -49,13 +49,13 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(sitemap, /\/chatter\/\$\{chatter\.slug\}/);
   });
 
-  it('renders the upgraded gallery, moment, and music surfaces', async () => {
-    const [blocks, gallery, moments, music, galleryWall, momentsBoard, musicStudio, globalCss, homeCss] = await Promise.all([
+  it('renders the upgraded photo wall, moment, and music surfaces', async () => {
+    const [blocks, photoWall, moments, music, photoWallClient, momentsBoard, musicStudio, globalCss, homeCss] = await Promise.all([
       readFile('components/SectionBlocks.tsx', 'utf8'),
-      readFile('app/gallery/page.tsx', 'utf8'),
+      readFile('app/photowall/page.tsx', 'utf8'),
       readFile('app/moments/page.tsx', 'utf8'),
       readFile('app/music/page.tsx', 'utf8'),
-      readFile('components/GalleryWall.tsx', 'utf8'),
+      readFile('components/PhotoWallClient.tsx', 'utf8'),
       readFile('components/MomentsBoard.tsx', 'utf8'),
       readFile('components/MusicStudio.tsx', 'utf8'),
       readFile('app/globals.css', 'utf8'),
@@ -66,26 +66,27 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(blocks, /GalleryCollectionCard/);
     assert.match(blocks, /MomentTimelineCard/);
     assert.match(blocks, /MusicTrackCard/);
-    assert.match(gallery, /GalleryWall/);
+    assert.match(photoWall, /PhotoWallClient/);
     assert.doesNotMatch(moments, /moment-mood-rail/);
     assert.match(moments, /MomentsBoard/);
     assert.match(music, /MusicStudio/);
-    assert.match(galleryWall, /gallery-lightbox/);
-    assert.match(galleryWall, /closeButtonRef/);
-    assert.match(galleryWall, /event\.key === 'Escape'/);
-    assert.match(galleryWall, /event\.key !== 'Tab'/);
-    assert.match(galleryWall, /lastPhotoButtonRef/);
-    assert.match(galleryWall, /gallery-polaroid-wall/);
-    assert.match(galleryWall, /gallery-album-overview/);
-    assert.match(galleryWall, /gallery-album-stack/);
-    assert.match(galleryWall, /gallery-light-table/);
-    assert.match(galleryWall, /gallery-search-results/);
-    assert.match(galleryWall, /gallery-search-strip/);
-    assert.match(galleryWall, /aria-live="polite"/);
     assert.match(momentsBoard, /moments-mood-filter/);
     assert.match(momentsBoard, /moments-sort-toggle/);
     assert.match(momentsBoard, /moment-avatar/);
+    assert.match(momentsBoard, /\{note\.title \? <h3>\{note\.title\}<\/h3> : null\}/);
     assert.match(momentsBoard, /moment-image-grid/);
+    assert.match(momentsBoard, /moment-lightbox/);
+    assert.match(momentsBoard, /event\.key === 'Escape'/);
+    assert.match(momentsBoard, /event\.key === 'ArrowLeft'/);
+    assert.match(momentsBoard, /event\.key === 'ArrowRight'/);
+    assert.match(momentsBoard, /zoomScale/);
+    assert.match(momentsBoard, /zoomIn/);
+    assert.match(momentsBoard, /zoomOut/);
+    assert.match(momentsBoard, /resetZoom/);
+    assert.match(momentsBoard, /event\.key === '\+'/);
+    assert.match(momentsBoard, /event\.key === '-'/);
+    assert.match(momentsBoard, /event\.key === '0'/);
+    assert.match(momentsBoard, /aria-modal="true"/);
     assert.match(momentsBoard, /moment-comment-dock/);
     assert.doesNotMatch(momentsBoard, /moment-tags/);
     assert.doesNotMatch(momentsBoard, /note\.tags/);
@@ -110,6 +111,8 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /\.moments-board/);
     assert.match(css, /\.moments-stream/);
     assert.match(css, /\.moment-image-grid/);
+    assert.match(css, /\.moment-lightbox/);
+    assert.match(css, /\.moment-lightbox__zoom/);
     assert.match(css, /\.radio-hero-card/);
     assert.match(css, /\.music-studio/);
     assert.match(css, /\.music-command-bar/);
@@ -122,8 +125,20 @@ describe('XHBlogs-inspired experience density', () => {
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock :is\(\.music-skip-button, \.music-play-toggle, \.music-mode-button, \.music-dock-volume\)::before/);
     assert.match(css, /body:has\(\.music-page\) \.music-player-dock \.music-skip-button:not\(#xh-music-control-fix\)/);
     assert.match(css, /\.music-dock-volume label:not\(#xh-music-control-fix\)::after[\s\S]*bottom: -12px !important/);
-    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*position: absolute !important/);
-    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)[\s\S]*transform: translate\(-50%, -50%\) rotate\(-90deg\) !important/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)\s*\{[^}]*position: absolute !important/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)\s*\{[^}]*transform: translate\(-50%, -50%\) rotate\(-90deg\) !important/);
+    assert.match(css, /\.music-progress input\s*\{[^}]*min-height: 24px/);
+    assert.match(css, /\.music-volume-cluster input\s*\{[^}]*min-height: 24px/);
+    assert.match(css, /\.music-dock-volume input:not\(#xh-music-control-fix\)\s*\{[^}]*min-height: 24px !important/);
+    assert.match(css, /\.xh-floating-player-volume input\s*\{[^}]*min-height: 24px !important/);
+    assert.doesNotMatch(css, /\.music-command-bar input\s*\{/);
+    assert.doesNotMatch(css, /\.music-command-bar input:not/);
+    assert.doesNotMatch(css, /\.music-progress i\s*\{/);
+    assert.doesNotMatch(css, /\.music-progress b\s*\{/);
+    assert.doesNotMatch(css, /\.music-stage-volume\b/);
+    assert.match(css, /\.music-search-field input:not/);
+    assert.match(css, /\.music-volume-cluster input[^}]*\{[^}]*var\(--volume/);
+    assert.match(musicStudio, /className="music-volume-cluster"[\s\S]*style=\{\{ '--volume': `\$\{volumePercent\}%` \} as React\.CSSProperties\}/);
     assert.match(css, /width: 46px !important/);
     assert.match(css, /width: 58px !important/);
     assert.match(css, /Final music studio layout/);

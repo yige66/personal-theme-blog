@@ -40,13 +40,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     changeFrequency: 'weekly',
     priority: 0.76
   },
-  {
-    path: '/gallery',
-    title: '灵感照片墙',
-    description: '展示站点视觉素材、照片和生活片段。',
-    changeFrequency: 'weekly',
-    priority: 0.72
-  },
+
   {
     path: '/photowall',
     title: '照片墙',

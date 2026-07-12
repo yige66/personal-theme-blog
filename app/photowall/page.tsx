@@ -5,7 +5,7 @@ import { SiteNav } from '@/components/SiteNav';
 import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel } from '@/lib/blog';
 import { staticPageMetadata } from '@/lib/seo';
 
-export const metadata = staticPageMetadata.gallery;
+export const metadata = staticPageMetadata.photowall;
 
 export default async function PhotoWallPage() {
   const data = await getBlogData();

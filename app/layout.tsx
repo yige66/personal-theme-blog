@@ -27,8 +27,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const [data, posts] = await Promise.all([getBlogData(), getPublishedPosts()]);
-  const activeTrack = data.site.music[0];
-
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
@@ -86,7 +84,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body>
         <BackgroundSlider site={data.site} />
         <MusicProvider tracks={data.site.music} cloudMusicIds={data.site.cloudMusicIds}>
-          <HomeEffects site={data.site} posts={posts} notes={data.notes} activeTrack={activeTrack} />
+          <HomeEffects site={data.site} posts={posts} notes={data.notes} />
           <SplashScreen site={data.site} />
           <TasteMotion />
           <GlobalToolbox columns={data.site.columns} github={data.site.github} email={data.site.email} />

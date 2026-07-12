@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { mergeTranslatedLyrics } from '@/lib/music-lyrics';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,9 @@ type NeteaseLyricResponse = {
   lrc?: {
     lyric?: string;
   };
+  tlyric?: {
+    lyric?: string;
+  };
 };
 
 type CloudMusicTrack = {
@@ -43,6 +47,11 @@ type CloudMusicTrack = {
   duration?: number;
   lrc?: string;
   note?: string;
+};
+
+type LyricPayload = {
+  lrc: string;
+  translatedLrc: string;
 };
 
 const MAX_IDS = 20;
@@ -89,12 +98,15 @@ function normalizeIds(value: string | null): string[] {
   return [...uniqueIds].slice(0, MAX_IDS);
 }
 
-async function fetchLyric(id: string): Promise<string> {
+async function fetchLyric(id: string): Promise<LyricPayload> {
   try {
     const lyric = await fetchJson<NeteaseLyricResponse>(`${LYRIC_ENDPOINT}?id=${id}&lv=1&kv=1&tv=-1`);
-    return lyric.lrc?.lyric || '';
+    return {
+      lrc: lyric.lrc?.lyric || '',
+      translatedLrc: lyric.tlyric?.lyric || ''
+    };
   } catch {
-    return '';
+    return { lrc: '', translatedLrc: '' };
   }
 }
 
@@ -122,7 +134,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   }
 }
 
-function mapSongToTrack(song: NeteaseSongDetail, lrc: string): CloudMusicTrack | null {
+function mapSongToTrack(song: NeteaseSongDetail, lyrics: LyricPayload): CloudMusicTrack | null {
   if (!song.id || !song.name) {
     return null;
   }
@@ -132,6 +144,7 @@ function mapSongToTrack(song: NeteaseSongDetail, lrc: string): CloudMusicTrack |
   const cover = album?.picUrl || album?.blurPicUrl || '/assets/img/hero-mountain.svg';
   const durationMs = song.dt ?? song.duration;
   const duration = durationMs ? Math.round(durationMs / 1000) : undefined;
+  const mergedLyrics = mergeTranslatedLyrics(lyrics.lrc, lyrics.translatedLrc);
 
   return {
     id: String(song.id),
@@ -143,7 +156,11 @@ function mapSongToTrack(song: NeteaseSongDetail, lrc: string): CloudMusicTrack |
     source: 'netease-cloud',
     provider: 'netease',
     duration,
-    lrc,
-    note: lrc ? '来自网易云音乐的歌词与播放源。' : '来自网易云音乐的播放源。'
+    lrc: mergedLyrics.lrc,
+    note: mergedLyrics.lrc
+      ? mergedLyrics.hasTranslation
+        ? '来自网易云音乐的歌词、翻译与播放源。'
+        : '来自网易云音乐的歌词与播放源。'
+      : '来自网易云音乐的播放源。'
   };
 }

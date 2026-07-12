@@ -13,7 +13,7 @@ async function loadPlanetaryLayoutHelpers() {
   assert.notEqual(end, -1, 'layout helper end not found');
 
   const snippet = `${source.slice(start, end)}
-module.exports = { getCameraProfile, getLayoutMode, getOrbitProfiles, getOrbitSlot };
+module.exports = { getCameraProfile, getDetailMapHeight, getDetailNodeSide, getDetailOrbitProfiles, getDetailSlots, getLayoutMode, getOrbitProfiles, getOrbitSlot };
 `;
   const transpiled = ts.transpileModule(snippet, {
     compilerOptions: {
@@ -72,5 +72,52 @@ describe('planetary adaptive layout math', () => {
 
     assert.equal(atlasCamera.cameraScale, 1);
     assert.ok(atlasCamera.mapHeight >= 880);
+  });
+
+  it('expands detailed orbits for longer entries and keeps cards opening away from the core', async () => {
+    const { getDetailMapHeight, getDetailNodeSide, getDetailOrbitProfiles, getDetailSlots } = await loadPlanetaryLayoutHelpers();
+
+    const shortItems = Array.from({ length: 10 }, (_, index) => ({
+      id: `short-${index}`,
+      label: 'tag',
+      meta: '1 item',
+      detail: 'short summary',
+      href: '/'
+    }));
+    const longItems = Array.from({ length: 10 }, (_, index) => ({
+      id: `long-${index}`,
+      label: 'detailed tag',
+      meta: '12 entries',
+      detail: 'A deliberately long description for testing adaptive detail-card spacing. '.repeat(8),
+      href: '/',
+      tags: ['layout', 'readability']
+    }));
+
+    const compactProfiles = getDetailOrbitProfiles(shortItems);
+    const expandedProfiles = getDetailOrbitProfiles(longItems);
+    const compactOuter = compactProfiles[compactProfiles.length - 1];
+    const expandedOuter = expandedProfiles[expandedProfiles.length - 1];
+
+    assert.ok(expandedProfiles.length >= compactProfiles.length);
+    assert.ok(expandedOuter.radiusX >= compactOuter.radiusX);
+    assert.ok(expandedOuter.radiusY >= compactOuter.radiusY);
+    assert.ok(getDetailMapHeight(expandedProfiles, longItems) > getDetailMapHeight(compactProfiles, shortItems));
+    assert.equal(getDetailNodeSide(82, 50), 'right');
+    assert.equal(getDetailNodeSide(18, 50), 'left');
+    assert.equal(getDetailNodeSide(50, 18), 'above');
+    assert.equal(getDetailNodeSide(50, 82), 'below');
+
+    const detailLayout = getDetailSlots(longItems, getDetailMapHeight(expandedProfiles, longItems));
+    assert.equal(detailLayout.slots.size, longItems.length);
+    for (const side of ['left', 'right']) {
+      const sideSlots = [...detailLayout.slots.values()].filter((slot) => slot.side === side).sort((a, b) => Number.parseInt(a.y, 10) - Number.parseInt(b.y, 10));
+      for (let index = 1; index < sideSlots.length; index += 1) {
+        const prior = sideSlots[index - 1];
+        const current = sideSlots[index];
+        const priorY = Number.parseInt(prior.y, 10);
+        const currentY = Number.parseInt(current.y, 10);
+        assert.ok(currentY - priorY >= (prior.cardHeight + current.cardHeight) / 2 + 32);
+      }
+    }
   });
 });

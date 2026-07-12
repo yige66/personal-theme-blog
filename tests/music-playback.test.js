@@ -37,6 +37,7 @@ function hasHan(text) {
 function countTranslatedTimestampGroups(lrc) {
   const groups = new Map();
   const timestampPattern = /\[(\d{2,}:\d{2}(?:[.:]\d{2,3})?)\]/g;
+  const placeholderLinePattern = /(?:\u4e2d\u6587\u8bd1\u6587|\u5f85\u7ffb\u8bd1|translation pending|placeholder)/i;
 
   for (const line of String(lrc || '').split(/\r?\n/)) {
     const matches = [...line.matchAll(timestampPattern)];
@@ -50,8 +51,32 @@ function countTranslatedTimestampGroups(lrc) {
 
   return [...groups.values()].filter((lines) => {
     const hasOriginalLine = lines.some((line) => hasKana(line) || /[A-Za-z]/.test(line));
-    const hasTranslationLine = lines.some((line) => hasHan(line) && !hasKana(line));
+    const hasTranslationLine = lines.some((line) => hasHan(line) && !hasKana(line) && !placeholderLinePattern.test(line));
     return lines.length > 1 && hasOriginalLine && hasTranslationLine;
+  }).length;
+}
+
+function countMissingTranslatedTimestampGroups(lrc) {
+  const groups = new Map();
+  const timestampPattern = /\[(\d{2,}:\d{2}(?:[.:]\d{2,3})?)\]/g;
+  const creditLinePattern = /^(?:\u4f5c\u8bcd|\u4f5c\u66f2|\u7f16\u66f2|\u5236\u4f5c\u4eba|\u8bcd|\u66f2)\s*[:\uff1a]/;
+  const placeholderLinePattern = /(?:\u4e2d\u6587\u8bd1\u6587|\u5f85\u7ffb\u8bd1|translation pending|placeholder)/i;
+
+  for (const line of String(lrc || '').split(/\r?\n/)) {
+    const matches = [...line.matchAll(timestampPattern)];
+    const text = line.replace(timestampPattern, '').trim();
+    if (!text || creditLinePattern.test(text)) continue;
+    for (const match of matches) {
+      const lines = groups.get(match[1]) ?? [];
+      lines.push(text);
+      groups.set(match[1], lines);
+    }
+  }
+
+  return [...groups.values()].filter((lines) => {
+    const hasOriginalLine = lines.some((line) => hasKana(line) || /[A-Za-z]/.test(line));
+    const hasTranslationLine = lines.some((line) => hasHan(line) && !hasKana(line) && !placeholderLinePattern.test(line));
+    return hasOriginalLine && !hasTranslationLine;
   }).length;
 }
 
@@ -72,6 +97,11 @@ describe('real music playback', () => {
     const trackNames = data.site.music.map((track) => `${track.title} - ${track.artist}`);
     const tracksById = new Map(data.site.music.map((track) => [track.id, track]));
     const requestedTracks = [
+      ['requested-senya-ichiya', '千夜一夜', 'Hilcrhyme / 仲宗根泉'],
+      ['requested-brave-song', 'Brave Song', 'VISUAL ARTS / Key Sounds Label / 多田葵'],
+      ['requested-contrast', 'コントラスト', 'TOMOO'],
+      ['requested-song-for-you', 'song for you', '神田沙也加'],
+      ['requested-one-last-kiss', 'One Last Kiss', '宇多田ヒカル'],
       ['requested-more-than-words', 'more than words', '羊文学'],
       ['requested-amanojaku', '天ノ弱 (うぃんぐPiano Ver.)', 'Akie秋绘'],
       ['requested-tori-no-uta', '鳥の詩', 'Lia & VISUAL ARTS / Key'],
@@ -94,6 +124,11 @@ describe('real music playback', () => {
     ];
 
     const importedTrackIds = new Set([
+      'requested-senya-ichiya',
+      'requested-brave-song',
+      'requested-contrast',
+      'requested-song-for-you',
+      'requested-one-last-kiss',
       'requested-more-than-words',
       'requested-amanojaku',
       'requested-tori-no-uta',
@@ -117,7 +152,7 @@ describe('real music playback', () => {
 
     const protectedDownloadTrackIds = new Set();
 
-    assert.deepEqual(data.site.cloudMusicIds, [], 'cloud music ids should stay empty so removed remote placeholder songs do not come back');
+    assert.deepEqual(data.site.cloudMusicIds, [], 'cloud music ids should stay empty when the requested song is managed as a local admin track');
     assert.ok(!trackNames.some((name) => /孤勇者|STAY|我记得|The Kid LAROI|Justin Bieber|陈奕迅|赵雷/.test(name)), 'old remote placeholder songs should not be part of the configured playlist');
 
     for (const [id, title, artist] of requestedTracks) {
@@ -146,6 +181,7 @@ describe('real music playback', () => {
       assert.doesNotMatch(rawLyrics, /\uFFFD/, `${id} should not contain replacement characters from a wrong lyric encoding`);
       assert.ok(rawLyrics.split(/\r?\n/).filter((line) => /\[\d{2,}:\d{2}(?:[.:]\d{2,3})?\]/.test(line)).length >= 5, `${id} should include a complete timed lyric`);
       assert.ok(countTranslatedTimestampGroups(rawLyrics) >= 5, `${id} should include translated lyric lines aligned to timestamps`);
+      assert.equal(countMissingTranslatedTimestampGroups(rawLyrics), 0, `${id} should not leave untranslated lyric timestamp groups`);
 
       const plainLyrics = getPlainLyrics(track);
       assert.ok(plainLyrics.length > 0, `${id} should also keep plain lyrics for the admin plain-text field`);
@@ -199,6 +235,23 @@ describe('real music playback', () => {
     );
   });
 
+  it('loops list playback from the last track back to the first track', async () => {
+    const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
+    const nextTrackMatch = provider.match(/const nextTrack = useCallback\(\(\) => \{([\s\S]*?)\}, \[currentIndex, playMode, playlist\.length, selectTrack\]\);/);
+
+    assert.ok(nextTrackMatch, 'expected nextTrack to keep its current dependency shape');
+    assert.doesNotMatch(
+      nextTrackMatch[1],
+      /playMode === 'list' && currentIndex === playlist\.length - 1[\s\S]*?setIsPlaying\(false\)/,
+      'list playback should not stop at the final track'
+    );
+    assert.match(
+      nextTrackMatch[1],
+      /selectTrack\(currentIndex \+ 1\);/,
+      'the final track should reuse selectTrack modulo wrapping to continue from the first track'
+    );
+  });
+
   it('lets visitors choose local audio files and adds them to the selectable playlist', async () => {
     const [provider, studio, cloudCard, lyricStrip, globals, homeOverrides] = await Promise.all([
       readFile('components/music/MusicProvider.tsx', 'utf8'),
@@ -219,10 +272,10 @@ describe('real music playback', () => {
     assert.doesNotMatch(provider, /fallbackTrackKeys/);
     assert.doesNotMatch(provider, /降级状态/);
     assert.match(provider, /点击播放按钮/);
-    assert.match(provider, /isLrcMetadataLine/);
+    assert.match(provider, /import \{ isLrcMetadataLine \} from '@\/lib\/music-lyrics'/);
+    assert.doesNotMatch(provider, /function isLrcMetadataLine/);
     assert.match(provider, /isLyricPrelude/);
     assert.match(provider, /mergeTimedLyricLines/);
-    assert.match(provider, /kana/);
     assert.match(lyricStrip, /data-prelude/);
     assert.match(globals, /white-space:\s*pre-line/);
     assert.match(homeOverrides, /xh-music-bright-subtitles/);

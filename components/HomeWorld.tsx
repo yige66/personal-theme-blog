@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { HomeMediaCarousel, type HomeMediaSlide } from '@/components/HomeMediaCarousel';
 import { LatestPostCarousel } from '@/components/LatestPostCarousel';
 import { CloudPlayerCard } from '@/components/music/CloudPlayerCard';
 import { LyricStrip } from '@/components/music/LyricStrip';
@@ -95,11 +96,60 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
     : homeActions;
   const latestPosts = posts.slice(0, 5);
   const primaryGallery = data.site.gallery.find((item) => item.featured) ?? data.site.gallery[0];
-  const latestNote = data.notes[0];
-  const latestChatter = data.chatters[0];
   const spotlightColumns = getSpotlightColumns(data, stats);
-  const noteCover = latestNote?.images?.[0] || data.site.gallery[1]?.image || primaryGallery?.image || data.site.heroImage;
-  const chatterCover = latestChatter?.cover || data.site.gallery[2]?.image || primaryGallery?.image || data.site.heroImage;
+  const fallbackGalleryImage = primaryGallery?.image || data.site.heroImage;
+  const noteFallbackImage = data.site.gallery[1]?.image || fallbackGalleryImage;
+  const chatterFallbackImage = data.site.gallery[2]?.image || fallbackGalleryImage;
+  const gallerySlides = (data.site.gallery.length > 0 ? data.site.gallery : [{
+    title: homePage.panelOneTitle,
+    description: homePage.panelOneDescription,
+    image: fallbackGalleryImage,
+    alt: homePage.panelOneTitle,
+    collection: '站点视觉'
+  }]).slice(0, 5).map((item, index) => ({
+    id: `gallery-${index}-${item.image}`,
+    href: '/photowall',
+    image: item.image || fallbackGalleryImage,
+    alt: item.alt || item.title || '照片墙封面',
+    eyebrow: 'Photo Wall',
+    title: item.title || homePage.panelOneTitle,
+    meta: item.collection || item.location || '站点视觉',
+    detail: item.location || item.date || undefined
+  })) satisfies HomeMediaSlide[];
+  const noteSlides = (data.notes.length > 0 ? data.notes : [{
+    id: 'note-empty',
+    title: homePage.panelTwoTitle,
+    content: data.site.status,
+    date: '',
+    images: [noteFallbackImage]
+  }]).slice(0, 5).map((note) => ({
+    id: note.id,
+    href: '/moments',
+    image: note.images?.[0] || noteFallbackImage,
+    alt: note.title || '动态封面',
+    eyebrow: 'Moments',
+    title: note.title || createContentExcerpt(note.content, 18),
+    meta: note.date ? formatDate(note.date) : undefined,
+    detail: createContentExcerpt(note.content, 18)
+  })) satisfies HomeMediaSlide[];
+  const chatterSlides = (data.chatters.length > 0 ? data.chatters : [{
+    id: 'chatter-empty',
+    slug: '',
+    title: homePage.panelThreeTitle,
+    content: homePage.panelThreeDescription,
+    date: '',
+    tags: [],
+    cover: chatterFallbackImage
+  }]).slice(0, 5).map((chatter) => ({
+    id: chatter.id,
+    href: chatter.slug ? `/chatter/${chatter.slug}` : '/chatter',
+    image: chatter.cover || chatterFallbackImage,
+    alt: chatter.title || '杂谈封面',
+    eyebrow: 'Chatter',
+    title: chatter.title || homePage.panelThreeTitle,
+    meta: chatter.mood || (chatter.date ? formatDate(chatter.date) : undefined),
+    detail: createContentExcerpt(chatter.content, 18)
+  })) satisfies HomeMediaSlide[];
 
   return (
     <section className="main-shell xh-clean-home" aria-label={homePage.title}>
@@ -152,54 +202,28 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
           </div>
 
           <div className="xh-clean-home__media">
-            <Link className="xh-window-tile xh-photo-poster is-photo" href="/photowall" data-motion="stack-card">
-              <Image
-                src={primaryGallery?.image || data.site.heroImage}
-                alt={primaryGallery?.alt || primaryGallery?.title || '照片墙'}
-                width={720}
-                height={420}
-                loading="eager"
-              />
-              <div>
-                <p className="eyebrow">Photo Wall</p>
-                <h2>{primaryGallery?.title || homePage.panelOneTitle}</h2>
-                <span>{primaryGallery?.collection || '随便拍拍'}</span>
-              </div>
-            </Link>
+            <HomeMediaCarousel
+              ariaLabel="照片墙轮播"
+              className="xh-window-tile xh-photo-poster is-photo"
+              slides={gallerySlides}
+              eager
+              intervalMs={6800}
+            />
 
             <div className="xh-clean-home__mini-grid">
-              <Link className="xh-window-tile xh-record-card is-note" href="/moments" data-motion="stack-card">
-                <Image
-                  className="xh-card-cover"
-                  src={noteCover}
-                  alt={latestNote?.title || '动态封面'}
-                  width={420}
-                  height={260}
-                  loading="lazy"
-                />
-                <div className="xh-card-copy">
-                  <p className="eyebrow">Moments</p>
-                  <time>{latestNote?.date ? formatDate(latestNote.date) : 'Soon'}</time>
-                  <h2>{latestNote?.title || homePage.panelTwoTitle}</h2>
-                  <p>{latestNote ? createContentExcerpt(latestNote.content, 26) : data.site.status}</p>
-                </div>
-              </Link>
+              <HomeMediaCarousel
+                ariaLabel="动态轮播"
+                className="xh-window-tile xh-record-card is-note"
+                slides={noteSlides}
+                intervalMs={6400}
+              />
 
-              <Link className="xh-window-tile xh-mode-card is-chatter" href={latestChatter ? `/chatter/${latestChatter.slug}` : '/chatter'} data-motion="stack-card">
-                <Image
-                  className="xh-card-cover"
-                  src={chatterCover}
-                  alt={latestChatter?.title || '杂谈封面'}
-                  width={420}
-                  height={260}
-                  loading="lazy"
-                />
-                <div className="xh-card-copy">
-                  <p className="eyebrow">Chatter</p>
-                  <h2>{latestChatter?.title || homePage.panelThreeTitle}</h2>
-                  <p>{latestChatter ? createContentExcerpt(latestChatter.content, 28) : homePage.panelThreeDescription}</p>
-                </div>
-              </Link>
+              <HomeMediaCarousel
+                ariaLabel="杂谈轮播"
+                className="xh-window-tile xh-mode-card is-chatter"
+                slides={chatterSlides}
+                intervalMs={7000}
+              />
             </div>
 
             <ThemeSceneCard />

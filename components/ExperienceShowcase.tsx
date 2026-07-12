@@ -22,7 +22,7 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
   const signals = [
     { href: '/archive', label: '文章库', value: stats.posts, caption: '已发布内容' },
     { href: '/projects', label: '项目集', value: stats.projects, caption: '可展示作品' },
-    { href: '/gallery', label: '照片墙', value: stats.gallery, caption: '视觉素材' }
+    { href: '/photowall', label: '照片墙', value: stats.gallery, caption: '视觉素材' }
   ];
 
   return (
@@ -34,7 +34,7 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
           <p>{data.site.status || data.site.subtitle}</p>
           <div className="experience-actions">
             <Link className="button primary" href="/archive">进入文章库</Link>
-            <Link className="button ghost" href="/gallery">浏览照片墙</Link>
+            <Link className="button ghost" href="/photowall">浏览照片墙</Link>
             <Link className="button ghost" href="/music">播放歌单</Link>
           </div>
         </div>

@@ -506,7 +506,6 @@ function createInitialCropArea(imageWidth: number, imageHeight: number, cropAspe
 function createAspectCropArea(imageWidth: number, imageHeight: number, cropAspect: number, scale = 1): CropArea {
   const safeAspect = Math.max(0.01, cropAspect);
   const maxWidth = Math.min(imageWidth, imageHeight * safeAspect);
-  const maxHeight = maxWidth / safeAspect;
   const width = Math.max(1, Math.round(maxWidth * scale));
   const height = Math.max(1, Math.round(width / safeAspect));
 

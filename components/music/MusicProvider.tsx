@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { MusicTrack } from '@/lib/blog';
+import { isLrcMetadataLine } from '@/lib/music-lyrics';
 
 type LyricLine = {
   time: number;
@@ -31,7 +32,6 @@ type MusicContextValue = {
   togglePlayMode: () => void;
   nextTrack: () => void;
   previousTrack: () => void;
-  reloadCloudMusic: () => void;
   addLocalAudioFiles: (files: FileList | File[]) => void;
   seekToProgress: (progress: number) => void;
   setVolume: (value: number) => void;
@@ -67,7 +67,6 @@ function normalizePlayMode(mode: unknown): PlayMode | null {
 export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { children: ReactNode; tracks: MusicTrack[]; cloudMusicIds?: string[] }) {
   const [remoteTracks, setRemoteTracks] = useState<MusicTrack[]>([]);
   const [localFileTracks, setLocalFileTracks] = useState<LocalFileTrack[]>([]);
-  const [syncNonce, setSyncNonce] = useState(0);
   const [isLoading, setIsLoading] = useState(cloudMusicIds.length > 0);
   const [loadError, setLoadError] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -147,13 +146,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return;
     }
 
-    if (playMode === 'list' && currentIndex === playlist.length - 1) {
-      setCurrentTime(0);
-      setProgress(0);
-      setIsPlaying(false);
-      return;
-    }
-
     selectTrack(currentIndex + 1);
   }, [currentIndex, playMode, playlist.length, selectTrack]);
 
@@ -221,11 +213,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       const index = PLAY_MODE_SEQUENCE.indexOf(mode);
       return PLAY_MODE_SEQUENCE[(index + 1) % PLAY_MODE_SEQUENCE.length] ?? 'list';
     });
-  }, []);
-
-  const reloadCloudMusic = useCallback(() => {
-    setLoadError('');
-    setSyncNonce((value) => value + 1);
   }, []);
 
   const addLocalAudioFiles = useCallback((files: FileList | File[]) => {
@@ -383,7 +370,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       });
 
     return () => controller.abort();
-  }, [cloudMusicIds, syncNonce]);
+  }, [cloudMusicIds]);
 
   useEffect(() => {
     if (currentIndex >= playlist.length && playlist.length > 0) {
@@ -467,7 +454,6 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     togglePlayMode,
     nextTrack,
     previousTrack,
-    reloadCloudMusic,
     addLocalAudioFiles,
     seekToProgress,
     setVolume,
@@ -522,12 +508,6 @@ function getTrackKey(track: MusicTrack): string {
 
 const LRC_TIMESTAMP_PATTERN = /\[(\d{2,}):(\d{2})(?:[.:](\d{2,3}))?\]/g;
 const LRC_TIMESTAMP_TEXT_PATTERN = /\[\d{2,}:\d{2}(?:[.:]\d{2,3})?\]/g;
-const LRC_METADATA_PATTERN = /^\[(?:ti|ar|al|au|by|offset|re|ve|length|tool|kana|language|trans|translation|roma|romanization):[^\]]*\]$/i;
-
-function isLrcMetadataLine(line: string): boolean {
-  return LRC_METADATA_PATTERN.test(line);
-}
-
 function mergeTimedLyricLines(lines: LyricLine[]): LyricLine[] {
   const grouped = new Map<number, string[]>();
 

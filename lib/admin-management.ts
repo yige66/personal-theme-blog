@@ -60,15 +60,7 @@ const moduleBlueprints: Array<Omit<ModuleInput, 'count'>> = [
     dataPath: 'site.gallery[] / site.pages.photowall',
     checklist: ['主图和子图可访问', '图片说明完整', '精选相册用于首页展示']
   },
-  {
-    id: 'gallery',
-    label: '画廊',
-    group: '素材管理',
-    route: '/gallery',
-    pageId: 'gallery',
-    dataPath: 'site.gallery[] / site.pages.gallery',
-    checklist: ['与照片墙共用素材', '搜索字段清楚', '空状态文案可理解']
-  },
+
   {
     id: 'music',
     label: '音乐',
@@ -111,8 +103,8 @@ const moduleBlueprints: Array<Omit<ModuleInput, 'count'>> = [
     group: '互动管理',
     route: '/friends',
     pageId: 'friends',
-    dataPath: 'links[] / site.friendLinkApplyFormat',
-    checklist: ['友链地址为 https/http', '头像和简介完整', '申请格式清楚']
+    dataPath: 'links[] / site.title / site.github / site.subtitle / site.avatar',
+    checklist: ['友链地址为 https/http', '头像和简介完整', '本站申请资料完整']
   },
   {
     id: 'about',

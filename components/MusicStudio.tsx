@@ -256,6 +256,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
                 value={isMuted ? 0 : volume}
                 onChange={(event) => setVolume(Number(event.currentTarget.value))}
                 aria-label="调整音量"
+              style={{ '--volume': `${volumePercent}%` } as React.CSSProperties}
               />
             </label>
           </div>

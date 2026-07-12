@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { CSSProperties, MouseEvent } from 'react';
-import type { BlogNote, BlogPost, BlogSite, MusicTrack } from '@/lib/blog';
+import type { BlogNote, BlogPost, BlogSite } from '@/lib/blog';
 import { useMusic } from '@/components/music/MusicProvider';
 import { PixelKurisuPet } from '@/components/PixelKurisuPet';
 
@@ -13,7 +13,6 @@ type HomeEffectsProps = {
   site: BlogSite;
   posts: BlogPost[];
   notes: BlogNote[];
-  activeTrack?: MusicTrack;
 };
 
 type Ripple = {
@@ -24,7 +23,7 @@ type Ripple = {
   speed: number;
 };
 
-type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'snowMist' | 'snowbank';
+type SeasonalSpriteKey = 'petal' | 'firefly' | 'leafA' | 'leafB' | 'leafC' | 'snow' | 'heat' | 'snowMist';
 
 type SeasonalSpriteMap = Partial<Record<SeasonalSpriteKey, HTMLImageElement>>;
 
@@ -71,6 +70,8 @@ const seasonRotationIntervalMs = 120000;
 const seasonTransitionDurationMs = 4200;
 const seasonSettleDurationMs = 2600;
 const themeTransitionDurationMs = 3400;
+const themeTransitionCommitBufferMs = 400;
+const seasonalGroundMotionBoost = 1.65;
 
 type ThemeMode = 'day' | 'night';
 type ThemeTransition = 'active' | 'idle';
@@ -78,7 +79,6 @@ type ThemePhase = 'day' | 'night' | 'dusk' | 'dawn';
 type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 type ThemeBlendState = {
   active: boolean;
-  from: ThemeMode;
   to: ThemeMode;
   startedAt: number;
   duration: number;
@@ -100,76 +100,6 @@ const seasonCopy: Record<Season, { label: string; day: string; night: string }> 
   autumn: { label: '\u79cb\u65e5\u7ea2\u53f6', day: '\u91d1\u98ce\u4e0e\u843d\u53f6', night: '\u8584\u96fe\u4e0e\u6696\u661f' },
   winter: { label: '\u51ac\u65e5\u96ea\u91ce', day: '\u971c\u5149\u4e0e\u96ea\u82b1', night: '\u6781\u5149\u4e0e\u96ea\u6676' }
 };
-
-function uniqueMessages(values: string[]): string[] {
-  const seen = new Set<string>();
-  return values
-    .map((item) => item.trim())
-    .filter((item) => {
-      if (!item || seen.has(item)) {
-        return false;
-      }
-      seen.add(item);
-      return true;
-    })
-    .slice(0, 18);
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-function getThemePhase(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition): ThemePhase {
-  if (transition === 'idle') {
-    return currentMode;
-  }
-  return nextMode === 'night' ? 'dusk' : 'dawn';
-}
-
-function isSeason(value: string | null): value is Season {
-  return value === 'spring' || value === 'summer' || value === 'autumn' || value === 'winter';
-}
-
-function getSeasonForDate(date = new Date()): Season {
-  const month = date.getMonth();
-  if (month >= 2 && month <= 4) {
-    return 'spring';
-  }
-  if (month >= 5 && month <= 7) {
-    return 'summer';
-  }
-  if (month >= 8 && month <= 10) {
-    return 'autumn';
-  }
-  return 'winter';
-}
-
-function getNextSeason(current: Season): Season {
-  return seasonOrder[(seasonOrder.indexOf(current) + 1) % seasonOrder.length];
-}
-
-function setSeasonAttributes(
-  currentSeason: Season,
-  nextSeason: Season,
-  transition: ThemeTransition,
-  previousSeason = currentSeason,
-  settle: ThemeTransition = 'idle'
-) {
-  const root = document.documentElement;
-  const attributes = [
-    [xhSeasonAttribute, currentSeason],
-    [xhSeasonNextAttribute, nextSeason],
-    [xhSeasonPreviousAttribute, previousSeason],
-    [xhSeasonTransitionAttribute, transition],
-    [xhSeasonSettleAttribute, settle]
-  ] as const;
-
-  attributes.forEach(([name, value]) => {
-    if (root.getAttribute(name) !== value) {
-      root.setAttribute(name, value);
-    }
-  });
-}
 
 function SeasonGlyph({ season }: { season: Season }) {
   if (season === 'spring') {
@@ -312,6 +242,75 @@ function ThemeAura({ mode }: { mode: ThemeMode }) {
     </svg>
   );
 }
+function uniqueMessages(values: string[]): string[] {
+  const seen = new Set<string>();
+  return values
+    .map((item) => item.trim())
+    .filter((item) => {
+      if (!item || seen.has(item)) {
+        return false;
+      }
+      seen.add(item);
+      return true;
+    })
+    .slice(0, 18);
+}
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function getThemePhase(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition): ThemePhase {
+  if (transition === 'idle') {
+    return currentMode;
+  }
+  return nextMode === 'night' ? 'dusk' : 'dawn';
+}
+
+function isSeason(value: string | null): value is Season {
+  return value === 'spring' || value === 'summer' || value === 'autumn' || value === 'winter';
+}
+
+function getSeasonForDate(date = new Date()): Season {
+  const month = date.getMonth();
+  if (month >= 2 && month <= 4) {
+    return 'spring';
+  }
+  if (month >= 5 && month <= 7) {
+    return 'summer';
+  }
+  if (month >= 8 && month <= 10) {
+    return 'autumn';
+  }
+  return 'winter';
+}
+
+function getNextSeason(current: Season): Season {
+  return seasonOrder[(seasonOrder.indexOf(current) + 1) % seasonOrder.length];
+}
+
+function setSeasonAttributes(
+  currentSeason: Season,
+  nextSeason: Season,
+  transition: ThemeTransition,
+  previousSeason = currentSeason,
+  settle: ThemeTransition = 'idle'
+) {
+  const root = document.documentElement;
+  const attributes = [
+    [xhSeasonAttribute, currentSeason],
+    [xhSeasonNextAttribute, nextSeason],
+    [xhSeasonPreviousAttribute, previousSeason],
+    [xhSeasonTransitionAttribute, transition],
+    [xhSeasonSettleAttribute, settle]
+  ] as const;
+
+  attributes.forEach(([name, value]) => {
+    if (root.getAttribute(name) !== value) {
+      root.setAttribute(name, value);
+    }
+  });
+}
 
 function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transition: ThemeTransition, phaseOverride?: ThemePhase) {
   const phase = phaseOverride ?? getThemePhase(currentMode, nextMode, transition);
@@ -330,7 +329,7 @@ function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transit
   });
 }
 
-export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProps) {
+export function HomeEffects({ site, posts, notes }: HomeEffectsProps) {
   const pathname = usePathname();
   const {
     currentLyric,
@@ -350,7 +349,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const seasonCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const transitionTimerRef = useRef<number | null>(null);
-  const commitTimerRef = useRef<number | null>(null);
   const seasonTransitionTimerRef = useRef<number | null>(null);
   const seasonSettleTimerRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
@@ -376,7 +374,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   });
   const themeBlendRef = useRef<ThemeBlendState>({
     active: false,
-    from: 'day',
     to: 'day',
     startedAt: 0,
     duration: themeTransitionDurationMs
@@ -389,15 +386,27 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const [previousSeason, setPreviousSeason] = useState<Season>('spring');
   const [isSeasonTransitioning, setIsSeasonTransitioning] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   nightModeRef.current = nightMode;
   seasonRef.current = season;
   nextSeasonRef.current = nextSeason;
   previousSeasonRef.current = previousSeason;
   isSeasonTransitioningRef.current = isSeasonTransitioning;
   const effects = site.effects;
-  const intensity = Math.max(20, Math.min(100, effects.intensity || 72));
+  const intensity = Math.max(0, Math.min(100, effects.intensity ?? 72));
   const isHome = pathname === '/';
   const isAdmin = pathname.startsWith('/admin');
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleReducedMotionChange = (event: MediaQueryListEvent) => {
+      setReducedMotion(event.matches);
+    };
+
+    setReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleReducedMotionChange);
+    return () => mediaQuery.removeEventListener('change', handleReducedMotionChange);
+  }, []);
 
   const messages = useMemo(() => {
     const configured = effects.danmaku && effects.danmaku.length > 0 ? effects.danmaku : dailyDanmaku;
@@ -443,7 +452,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setThemeAttributes(initialNight ? 'night' : 'day', initialNight ? 'night' : 'day', 'idle');
     themeBlendRef.current = {
       active: false,
-      from: initialNight ? 'night' : 'day',
       to: initialNight ? 'night' : 'day',
       startedAt: 0,
       duration: themeTransitionDurationMs
@@ -465,7 +473,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setNightMode(rootMode === 'night');
     themeBlendRef.current = {
       active: root.getAttribute(xhThemeTransitionAttribute) === 'active',
-      from: rootMode,
       to: rootNextMode,
       startedAt: performance.now(),
       duration: themeTransitionDurationMs
@@ -509,7 +516,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       setThemeAttributes(idleMode, idleMode, 'idle');
       themeBlendRef.current = {
         active: false,
-        from: idleMode,
         to: idleMode,
         startedAt: 0,
         duration: themeTransitionDurationMs
@@ -526,10 +532,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       window.clearTimeout(transitionTimerRef.current);
       transitionTimerRef.current = null;
     }
-    if (commitTimerRef.current) {
-      window.clearTimeout(commitTimerRef.current);
-      commitTimerRef.current = null;
-    }
     if (seasonTransitionTimerRef.current) {
       window.clearTimeout(seasonTransitionTimerRef.current);
       seasonTransitionTimerRef.current = null;
@@ -541,7 +543,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   }, []);
 
   useEffect(() => {
-    if (!effects.enabled || prefersReducedMotion()) {
+    if (!effects.enabled || intensity <= 0 || reducedMotion || prefersReducedMotion()) {
       return undefined;
     }
 
@@ -618,13 +620,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
     return () => {
       window.cancelAnimationFrame(animationId);
+      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointerdown', handleClick);
     };
-  }, [effects.enabled]);
+  }, [effects.enabled, intensity, reducedMotion]);
 
   useEffect(() => {
-    if (!effects.enabled || prefersReducedMotion()) {
+    if (!effects.enabled || intensity <= 0 || reducedMotion || prefersReducedMotion()) {
       return undefined;
     }
 
@@ -642,8 +645,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       leafC: '/assets/seasonal/autumn-leaf-c.png',
       snow: '/assets/seasonal/winter-snowflake.png',
       heat: '/assets/seasonal/summer-heat-haze.png',
-      snowMist: '/assets/seasonal/winter-snow-mist.png',
-      snowbank: '/assets/seasonal/winter-snowbank.png'
+      snowMist: '/assets/seasonal/winter-snow-mist.png'
     };
     const sprites: SeasonalSpriteMap = {};
     const spriteKeys = Object.keys(assetPaths) as SeasonalSpriteKey[];
@@ -652,6 +654,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     let animationId = 0;
     let width = window.innerWidth;
     let height = window.innerHeight;
+    let seasonalDensityScale = 1;
+    const updateSeasonalDensityScale = () => {
+      const viewportScale = width <= 480 ? 0.56 : width <= 768 ? 0.72 : width <= 1024 ? 0.86 : 1;
+      const intensityScale = intensity / 100;
+      seasonalDensityScale = viewportScale * intensityScale;
+    };
+    const scaledCount = (base: number) => Math.round(base * seasonalDensityScale);
     let lastTime = performance.now();
     let lastFrameAt = 0;
     const frameIntervalMs = 1000 / 24;
@@ -834,22 +843,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     };
 
     const countForSeason = (targetSeason: Season) => {
+      if (intensity <= 0) {
+        return 0;
+      }
       if (targetSeason === 'summer') {
         const weights = getThemeWeights();
-        const dayCount = Math.max(6, Math.round(intensity / 10));
-        const nightCount = Math.max(18, Math.round(intensity / 4.2));
-        return Math.max(6, Math.round(dayCount * weights.day + nightCount * weights.night));
+        const dayCount = Math.round(intensity / 10);
+        const nightCount = Math.round(intensity / 4.2);
+        return Math.round(dayCount * weights.day + nightCount * weights.night);
       }
       if (targetSeason === 'spring') {
-        return Math.max(32, Math.round(intensity / 2.2));
+        return Math.round(intensity / 2.2);
       }
       if (targetSeason === 'winter') {
-        return Math.max(18, Math.round(intensity / 4.8));
+        return Math.round(intensity / 4.8);
       }
       if (targetSeason === 'autumn') {
-        return Math.max(10, Math.round(intensity / 7.2));
+        return Math.round(intensity / 7.2);
       }
-      return Math.max(12, Math.round(intensity / 6));
+      return Math.round(intensity / 6);
     };
     const targetCount = () => {
       const seasonState = getSeasonState();
@@ -867,6 +879,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
       width = window.innerWidth;
       height = window.innerHeight;
+      updateSeasonalDensityScale();
       canvas.width = Math.floor(width * ratio);
       canvas.height = Math.floor(height * ratio);
       canvas.style.width = `${width}px`;
@@ -1082,7 +1095,8 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       if (pileHeight < 2) {
         return;
       }
-      const top = height - pileHeight;
+      const ambientBreeze = Math.sin(now * 0.0012) * 0.62 + Math.sin(now * 0.00062 + 1.7) * 0.38;
+      const visiblePetalGust = 0.5 + 0.5 * Math.sin(now * 0.0021);
       context.save();
       const drift = windAway * width * 0.56;
       const fade = 1 - windAway;
@@ -1094,7 +1108,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       const petal = sprites.petal;
       if (petal) {
-        for (let index = 0; index < 820; index += 1) {
+        for (let index = 0; index < scaledCount(820); index += 1) {
           const frac = seededUnit(index + 9.7);
           const lane = seededUnit(index + 31.4);
           const cluster = Math.floor(index / 8);
@@ -1103,22 +1117,50 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           const wave = Math.sin(now * 0.0012 + index) * windAway * (18 + frac * 24);
           const y = height - (Math.pow(lane, 1.66) * pileHeight * 0.86 + 1 + seededUnit(index + 58.2) * 5) - windAway * (12 + frac * 42);
           const size = (4.9 + frac * 8.2) * (1 + level * 0.12);
+          const surfaceExposure = Math.max(0, Math.min(1, (height - y) / Math.max(1, pileHeight * 0.86)));
+          const animatesAtSurface = index % 3 === 0 && surfaceExposure > 0.12;
+          const localGust = 0.62 + 0.38 * Math.sin(now * 0.00155 + index * 0.21);
+          const ambientLift = animatesAtSurface ? Math.sin(now * 0.0022 + index * 0.39) * surfaceExposure * (1.4 + frac * 3.2) * level * (0.7 + visiblePetalGust * 0.65) : 0;
+          const ambientDrift = animatesAtSurface ? ambientBreeze * surfaceExposure * (1.8 + frac * 3.8) * level * localGust : 0;
+          const ambientTwist = animatesAtSurface ? Math.sin(now * 0.0019 + index * 0.27) * surfaceExposure * 0.14 : 0;
+          const ambientShimmer = animatesAtSurface ? 0.88 + Math.sin(now * 0.00155 + index) * 0.12 : 1;
           context.save();
-          context.globalAlpha = (0.46 + frac * 0.4) * fade;
-          context.translate(x, y + wave);
-          context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac));
+          context.globalAlpha = (0.46 + frac * 0.4) * fade * ambientShimmer;
+          context.translate(x + ambientDrift, y + wave + ambientLift);
+          context.rotate(frac * Math.PI * 2 + windAway * (1.2 + frac) + ambientTwist);
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
-        for (let index = 0; index < 320; index += 1) {
+        for (let index = 0; index < scaledCount(320); index += 1) {
           const frac = seededUnit(index + 211.3);
           const x = ((index * 91 + frac * 210 + drift * 0.8) % (width + 120)) - 60;
           const y = height - (2 + Math.pow(seededUnit(index + 19.6), 1.72) * pileHeight * 0.68) - windAway * (18 + frac * 52);
           const size = 6.6 + frac * 8.6;
+          const surfaceExposure = Math.max(0, Math.min(1, (height - y) / Math.max(1, pileHeight * 0.68)));
+          const animatesAtSurface = index % 2 === 0 && surfaceExposure > 0.1;
+          const localGust = 0.58 + 0.42 * Math.sin(now * 0.0017 + index * 0.24);
+          const ambientLift = animatesAtSurface ? Math.sin(now * 0.00245 + index * 0.44) * surfaceExposure * (2 + frac * 4.8) * level * (0.72 + visiblePetalGust * 0.72) * seasonalGroundMotionBoost : 0;
+          const ambientDrift = animatesAtSurface ? ambientBreeze * surfaceExposure * (3.2 + frac * 4.6) * localGust * seasonalGroundMotionBoost : 0;
+          const ambientTwist = animatesAtSurface ? Math.sin(now * 0.0021 + index * 0.31) * surfaceExposure * 0.19 : 0;
+          const ambientShimmer = animatesAtSurface ? 0.82 + Math.sin(now * 0.0017 + index * 0.63) * 0.18 : 1;
           context.save();
-          context.globalAlpha = (0.44 + frac * 0.34) * fade * level;
-          context.translate(x, y + Math.sin(now * 0.001 + index) * windAway * 20);
-          context.rotate(frac * Math.PI * 2.8 + windAway * 1.5);
+          context.globalAlpha = (0.44 + frac * 0.34) * fade * level * ambientShimmer;
+          context.translate(x + ambientDrift, y + Math.sin(now * 0.001 + index) * windAway * 20 + ambientLift);
+          context.rotate(frac * Math.PI * 2.8 + windAway * 1.5 + ambientTwist);
+          context.drawImage(petal, -size / 2, -size / 2, size, size);
+          context.restore();
+        }
+        for (let loosePetal = 0; loosePetal < scaledCount(72); loosePetal += 1) {
+          const frac = seededUnit(loosePetal + 932.4);
+          const travel = (now * (0.04 + frac * 0.065) + loosePetal * 97 + frac * 240) % (width + 180);
+          const gustArc = 0.5 + 0.5 * Math.sin(now * 0.0021 + loosePetal * 0.73);
+          const x = travel - 90;
+          const y = height - pileHeight * (0.24 + seededUnit(loosePetal + 71.2) * 0.54) - 8 - gustArc * (15 + frac * 28) * seasonalGroundMotionBoost;
+          const size = 8 + frac * 12;
+          context.save();
+          context.globalAlpha = (0.34 + frac * 0.4) * fade * level * (0.52 + gustArc * 0.48);
+          context.translate(x, y);
+          context.rotate(now * (0.0012 + frac * 0.0014) + loosePetal);
           context.drawImage(petal, -size / 2, -size / 2, size, size);
           context.restore();
         }
@@ -1208,8 +1250,9 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       haze.addColorStop(1, dry > 0.2 ? `rgba(105, 88, 36, ${0.14 * (1 - dry * 0.45)})` : (summerFlowers ? 'rgba(58, 144, 78, 0.14)' : 'rgba(79, 155, 84, 0.1)'));
       context.fillStyle = haze;
       context.fillRect(0, top - 6, width, groundHeight + 8);
-      const step = Math.max(5.5, width / (summerFlowers ? 310 : 230));
-      for (let x = -20; x < width + 20; x += step) {
+      const step = seasonalDensityScale <= 0 ? width + 40 : Math.max(5.5, width / ((summerFlowers ? 310 : 230) * seasonalDensityScale));
+      const startX = seasonalDensityScale <= 0 ? width + 20 : -20;
+      for (let x = startX; x < width + 20; x += step) {
         const frac = seededUnit(x);
         const blade = (12 + frac * (summerFlowers ? 38 : 22)) * growth;
         const lean = Math.sin(now * 0.0011 + x * 0.02) * (summerFlowers ? 8 : 4.5);
@@ -1231,8 +1274,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
     };
 
-    const drawLeafAccumulation = (growth: number, sink = 0) => {
+    const drawLeafAccumulation = (growth: number, now: number, sink = 0) => {
       const pileHeight = Math.min(104, Math.max(50, height * 0.088)) * growth;
+      const leafRustle = Math.sin(now * 0.0021) * 0.62 + Math.sin(now * 0.00082 + 2.1) * 0.38;
+      const leafGust = 0.5 + 0.5 * Math.sin(now * 0.0022);
       if (pileHeight < 4) {
         return;
       }
@@ -1249,20 +1294,23 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       context.save();
       context.globalCompositeOperation = 'source-over';
-      for (let index = 0; index < 142; index += 1) {
+      for (let index = 0; index < scaledCount(142); index += 1) {
         const frac = seededUnit(index + 274.9);
         const cluster = seededUnit(Math.floor(index / 6) + 78.4);
         const x = ((index * 37 + frac * 118 + Math.sin(cluster * 11.4) * 42) % (width + 80)) - 40;
         const y = height - Math.pow(seededUnit(index + 183.7), 2.55) * pileHeight * 0.5 - 0.8;
         const size = 12 + frac * 22;
-        drawFallenLeafShape(x, y, size, frac * Math.PI * 2.4, index, (0.28 + frac * 0.32) * leafAlpha);
+        const surfaceExposure = Math.max(0, Math.min(1, (height - y) / Math.max(1, pileHeight * 0.5)));
+        const lift = Math.sin(now * 0.00205 + index * 0.51) * surfaceExposure * (1.8 + frac * 4.2) * (0.72 + leafGust * 0.75) * seasonalGroundMotionBoost;
+        const slide = leafRustle * surfaceExposure * (2.4 + frac * 5.6) * (0.65 + leafGust) * seasonalGroundMotionBoost;
+        drawFallenLeafShape(x + slide, y + lift, size, frac * Math.PI * 2.4 + Math.sin(now * 0.00175 + index * 0.33) * surfaceExposure * 0.18, index, (0.28 + frac * 0.32) * leafAlpha);
       }
       context.restore();
 
       const leafSprites: SeasonalSpriteKey[] = ['leafA', 'leafB', 'leafC'];
       context.save();
       context.filter = 'sepia(0.72) saturate(1.28) hue-rotate(-18deg) brightness(0.84)';
-      for (let index = 0; index < 58; index += 1) {
+      for (let index = 0; index < scaledCount(58); index += 1) {
         const frac = seededUnit(index + 17.2);
         const lane = seededUnit(index + 82.6);
         const sprite = sprites[leafSprites[index % leafSprites.length]];
@@ -1274,17 +1322,20 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const x = ((index * 53 + frac * 134 + patch) % (width + 130)) - 65;
         const y = height - Math.pow(lane, 2.35) * pileHeight * 0.58 - 1 - seededUnit(index + 49.4) * 3.4;
         const size = 14 + frac * 24;
+        const surfaceExposure = Math.max(0, Math.min(1, (height - y) / Math.max(1, pileHeight * 0.58)));
+        const lift = Math.sin(now * 0.0022 + index * 0.47) * surfaceExposure * (2.2 + frac * 5.2) * (0.7 + leafGust * 0.82) * seasonalGroundMotionBoost;
+        const slide = leafRustle * surfaceExposure * (3 + frac * 7.2) * (0.64 + leafGust) * seasonalGroundMotionBoost;
         context.save();
-        context.globalAlpha = (0.56 + frac * 0.4) * leafAlpha;
-        context.translate(x, y);
-        context.rotate(frac * Math.PI * 2);
+        context.globalAlpha = (0.56 + frac * 0.4) * leafAlpha * (0.86 + Math.sin(now * 0.0017 + index) * 0.14);
+        context.translate(x + slide, y + lift);
+        context.rotate(frac * Math.PI * 2 + Math.sin(now * 0.00185 + index * 0.29) * surfaceExposure * 0.22);
         context.drawImage(sprite, -size / 2, -size / 2, size, size);
         context.restore();
       }
       context.restore();
       context.save();
       context.globalCompositeOperation = 'multiply';
-      for (let index = 0; index < 64; index += 1) {
+      for (let index = 0; index < scaledCount(64); index += 1) {
         const frac = seededUnit(index + 419.5);
         const x = ((index * 83 + frac * 160) % (width + 96)) - 48;
         const y = height - Math.pow(seededUnit(index + 122.4), 2.65) * pileHeight * 0.42 - 1;
@@ -1293,13 +1344,21 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
       context.save();
       context.globalCompositeOperation = 'source-over';
-      for (let index = 0; index < 40; index += 1) {
+      for (let index = 0; index < scaledCount(40); index += 1) {
         const frac = seededUnit(index + 642.6);
         const x = ((index * 109 + frac * 190) % (width + 110)) - 55;
         const y = height - Math.pow(seededUnit(index + 314.8), 2.7) * pileHeight * 0.46 - 1.2;
         drawFallenLeafShape(x, y, 8 + frac * 14, frac * Math.PI * 1.6, index + 80, (0.1 + frac * 0.15) * leafAlpha);
       }
       context.restore();
+      for (let rollingLeaf = 0; rollingLeaf < scaledCount(26); rollingLeaf += 1) {
+        const frac = seededUnit(rollingLeaf + 772.8);
+        const travel = (now * (0.026 + frac * 0.052) + rollingLeaf * 121 + frac * 210) % (width + 160);
+        const roll = now * (0.001 + frac * 0.0016) + rollingLeaf * 0.8;
+        const x = travel - 80;
+        const y = height - pileHeight * (0.22 + seededUnit(rollingLeaf + 18.4) * 0.34) - 3 + Math.sin(roll * 1.7) * (2 + frac * 4) * seasonalGroundMotionBoost;
+        drawFallenLeafShape(x, y, 12 + frac * 18, roll, rollingLeaf + 140, (0.22 + frac * 0.28) * leafAlpha);
+      }
       context.restore();
     };
 
@@ -1314,7 +1373,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         const frac = seededUnit(index + 44.8);
         const y = height * (0.38 + seededUnit(index + 12.1) * 0.5) - progress * height * (0.08 + frac * 0.16);
         const x = -80 + progress * (width + 190) + Math.sin(now * 0.002 + index) * (28 + frac * 42) - frac * width * 0.28;
-        const size = 7 + frac * 10;
+        const size = 8 + frac * 12;
         context.save();
         context.globalAlpha = pulse * (0.08 + frac * 0.18);
         context.translate(x, y);
@@ -1540,8 +1599,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       context.restore();
     };
 
-    const drawSnowAccumulation = (growth: number, melt = 0, cover = 0, thaw = 0) => {
+    const drawSnowAccumulation = (growth: number, now: number, melt = 0, cover = 0, thaw = 0) => {
       const level = Math.max(0, growth * (1 - melt));
+      const snowWindPhase = now * 0.00058;
+      const snowSurfaceGust = 0.5 + 0.5 * Math.sin(now * 0.0017);
       const snowHeight = Math.min(92, Math.max(42, height * 0.078)) * level;
       if (snowHeight < 3) {
         return;
@@ -1561,17 +1622,35 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       if (sprites.snowMist) {
         context.save();
-        context.globalAlpha = (0.09 * weights.day + 0.1 * weights.night) * level;
+        context.globalAlpha = (0.09 * weights.day + 0.1 * weights.night) * level * (0.92 + Math.sin(snowWindPhase * 2.6) * 0.08);
         context.globalCompositeOperation = 'screen';
-        context.drawImage(sprites.snowMist, -width * 0.03, height - snowHeight * 1.12, width * 1.06, snowHeight * 0.86);
+        const mistWidth = width * 1.06;
+        const mistOffset = (now * 0.034) % mistWidth;
+        context.drawImage(sprites.snowMist, -width * 0.03 + mistOffset - mistWidth, height - snowHeight * 1.12, mistWidth, snowHeight * 0.86);
+        context.drawImage(sprites.snowMist, -width * 0.03 + mistOffset, height - snowHeight * 1.12, mistWidth, snowHeight * 0.86);
         context.restore();
       }
 
+      context.save();
+      context.globalCompositeOperation = 'screen';
+      for (let powder = 0; powder < scaledCount(54); powder += 1) {
+        const frac = seededUnit(powder + 840.3);
+        const powderDrift = (now * (0.05 + frac * 0.075)) % (width + 180);
+        const x = ((powder * 97 + frac * 240 + powderDrift) % (width + 180)) - 90;
+        const y = top + 4 + seededUnit(powder + 32.6) * snowHeight * 0.34 + Math.sin(now * 0.0024 + powder) * (2.2 + frac * 4.4) * seasonalGroundMotionBoost - snowSurfaceGust * (2 + frac * 5);
+        context.globalAlpha = (0.12 + frac * 0.26) * level * (1 - thawStrength * 0.55) * (0.76 + snowSurfaceGust * 0.36);
+        context.fillStyle = frac > 0.58 ? 'rgba(255, 255, 255, 0.88)' : 'rgba(211, 238, 250, 0.72)';
+        context.beginPath();
+        context.ellipse(x, y, 1.8 + frac * 3.4, 0.65 + frac * 1.1, -0.18, 0, Math.PI * 2);
+        context.fill();
+      }
+      context.restore();
+
       context.beginPath();
       context.moveTo(0, height);
-      context.lineTo(0, top + Math.sin(width * 0.001) * 1.4);
+      context.lineTo(0, top + Math.sin(width * 0.001 + snowWindPhase) * 1.4);
       for (let x = 0; x <= width + 48; x += 48) {
-        const y = top + Math.sin(x * 0.009 + level * 2.4) * 1.8 + Math.sin(x * 0.023) * 0.9;
+        const y = top + Math.sin(x * 0.009 + level * 2.4 + snowWindPhase * 1.8) * 2.8 * seasonalGroundMotionBoost + Math.sin(x * 0.023 - snowWindPhase) * 1.25 * seasonalGroundMotionBoost;
         context.lineTo(x, y);
       }
       context.lineTo(width, height);
@@ -1594,7 +1673,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.beginPath();
         context.moveTo(0, bandY);
         for (let x = 0; x <= width + 36; x += 36) {
-          context.lineTo(x, bandY + Math.sin(x * 0.018 + band * 1.7) * 2.6);
+          context.lineTo(x, bandY + Math.sin(x * 0.018 + band * 1.7 + snowWindPhase * (1 + band * 0.16)) * 2.6);
         }
         context.lineTo(width, bandY + 14);
         context.lineTo(0, bandY + 14);
@@ -1611,7 +1690,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       basin.addColorStop(1, `rgba(54, 78, 108, ${0.082 * level * (1 - thawStrength * 0.35)})`);
       context.fillStyle = basin;
       context.fillRect(0, top + snowHeight * 0.04, width, snowHeight * 0.96);
-      for (let hollow = 0; hollow < 24; hollow += 1) {
+      for (let hollow = 0; hollow < scaledCount(24); hollow += 1) {
         const frac = seededUnit(hollow + 218.4);
         const x = ((hollow * 109 + frac * 180) % (width + 140)) - 70;
         const y = height - Math.pow(seededUnit(hollow + 19.7), 1.7) * snowHeight * 0.72;
@@ -1633,7 +1712,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         context.lineWidth = 0.8 + ridge * 0.28;
         context.beginPath();
         for (let x = -24; x <= width + 24; x += 24) {
-          const y = ridgeY + Math.sin(x * 0.011 + ridge * 2.2) * 2.2 + Math.sin(x * 0.027) * 0.9;
+          const y = ridgeY + Math.sin(x * 0.011 + ridge * 2.2 + snowWindPhase * (0.8 + ridge * 0.18)) * 2.2 + Math.sin(x * 0.027 - snowWindPhase * 0.5) * 0.9;
           if (x === -24) {
             context.moveTo(x, y);
           } else {
@@ -1642,11 +1721,12 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         }
         context.stroke();
       }
-      for (let sparkle = 0; sparkle < 36; sparkle += 1) {
+      for (let sparkle = 0; sparkle < scaledCount(36); sparkle += 1) {
         const frac = seededUnit(sparkle + 912.3);
         const x = ((sparkle * 151 + frac * 220) % (width + 120)) - 60;
-        const y = height - Math.pow(seededUnit(sparkle + 61.5), 1.34) * snowHeight * 0.88;
-        context.globalAlpha = (0.04 + frac * 0.08) * level * (1 - thawStrength * 0.5);
+        const y = height - Math.pow(seededUnit(sparkle + 61.5), 1.34) * snowHeight * 0.88 + Math.sin(now * 0.0022 + sparkle) * 1.6;
+        const twinkle = 0.32 + 0.68 * Math.max(0, Math.sin(now * 0.0032 + sparkle * 1.73));
+        context.globalAlpha = (0.045 + frac * 0.18 * twinkle) * level * (1 - thawStrength * 0.5);
         context.strokeStyle = 'rgba(255, 255, 255, 0.84)';
         context.lineWidth = 0.7;
         context.beginPath();
@@ -1660,12 +1740,13 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
 
       context.save();
       context.globalCompositeOperation = 'screen';
-      for (let index = 0; index < 92; index += 1) {
+      for (let index = 0; index < scaledCount(92); index += 1) {
         const frac = seededUnit(index + 511.8);
         const x = (index * 67 + frac * 180) % (width + 100) - 50;
         const y = height - Math.pow(seededUnit(index + 44.1), 1.55) * snowHeight * 0.92 - 1;
         const radius = 0.55 + frac * 1.75;
-        context.globalAlpha = (0.11 + frac * 0.18) * level;
+        const crystalPulse = 0.58 + 0.42 * Math.max(0, Math.sin(now * 0.00145 + index * 0.91));
+        context.globalAlpha = (0.08 + frac * 0.2 * crystalPulse) * level;
         context.fillStyle = frac > 0.72 ? 'rgba(255, 255, 255, 0.82)' : 'rgba(211, 233, 244, 0.72)';
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
@@ -1743,21 +1824,15 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         } else if (targetSeason === 'summer') {
           drawSpringGround(targetGrowth, now, true, dry);
         } else if (targetSeason === 'autumn') {
-          drawLeafAccumulation(targetGrowth);
+          drawLeafAccumulation(targetGrowth, now);
         } else {
-          drawSnowAccumulation(targetGrowth, melt, 0.88 * (1 - smoothStep(thaw)), thaw);
+          drawSnowAccumulation(targetGrowth, now, melt, 0.88 * (1 - smoothStep(thaw)), thaw);
         }
       };
 
       if (!transitioning) {
         const settle = getSeasonSettleState(now);
         if (settle.active) {
-          if (settle.from === 'autumn' && settle.to === 'winter') {
-            const settleProgress = smoothStep((now - settle.startedAt) / settle.duration);
-            withAlpha(1 - settleProgress, () => drawLeafAccumulation(Math.max(0.4, groundLevels[settle.from] * (1 - settleProgress * 0.35)), settleProgress));
-            withAlpha(1, () => drawSnowAccumulation(Math.max(1, groundLevels[settle.to]), 0, 0.94));
-            return;
-          }
           if (settle.from === 'winter' && settle.to === 'spring') {
             withAlpha(1, () => drawStableSeasonGround('spring', Math.max(baseGrowth, groundLevels[settle.to])));
             return;
@@ -1777,11 +1852,11 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
         withAlpha(fadeOut, () => drawStableSeasonGround('summer', growth, 0, dry));
       } else if (current === 'autumn') {
         if (next !== 'winter') {
-          withAlpha(1, () => drawLeafAccumulation(growth));
+          withAlpha(1, () => drawLeafAccumulation(growth, now));
         }
       } else if (current === 'winter') {
         const thawProgress = next === 'spring' ? transitionGrowth : 0;
-        withAlpha(next === 'spring' ? Math.max(0.34, fadeOut) : 1, () => drawSnowAccumulation(growth, thawProgress, 0.88 * (1 - thawProgress), thawProgress));
+        withAlpha(next === 'spring' ? Math.max(0.34, fadeOut) : 1, () => drawSnowAccumulation(growth, now, thawProgress, 0.88 * (1 - thawProgress), thawProgress));
       }
 
       if (transitioning && next === 'spring') {
@@ -1798,18 +1873,18 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
           withAlpha(fadeOut, () => drawStableSeasonGround('summer', 1 - transitionGrowth * 0.28, 0, transitionGrowth));
         }
         drawTransitionLeaves(now, transitionGrowth);
-        withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth));
+        withAlpha(fadeIn, () => drawLeafAccumulation(nextGrowth, now));
       } else if (transitioning && next === 'winter') {
         if (previous === 'autumn') {
           const snowCoverProgress = smoothStep(Math.min(1, Math.max(0, transitionProgress / 0.58)));
           const leafVanishProgress = smoothStep(Math.min(1, Math.max(0, (transitionProgress - 0.68) / 0.32)));
           const coveredSnowGrowth = Math.max(nextGrowth, snowCoverProgress * 0.96);
-          withAlpha(1, () => drawLeafAccumulation(growth, leafVanishProgress));
-          withAlpha(1, () => drawSnowAccumulation(coveredSnowGrowth, 0, snowCoverProgress));
+          withAlpha(1, () => drawLeafAccumulation(growth, now, leafVanishProgress));
+          withAlpha(1, () => drawSnowAccumulation(coveredSnowGrowth, now, 0, snowCoverProgress));
           drawColdLeafSnowWind(now, transitionProgress);
           return;
         }
-        withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth));
+        withAlpha(fadeIn, () => drawSnowAccumulation(nextGrowth, now));
       }
     };
 
@@ -1985,19 +2060,25 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       animationId = window.requestAnimationFrame(draw);
     };
 
+    const markSpriteReady = () => {
+      loadedSprites += 1;
+      if (!isDisposed && loadedSprites === spriteKeys.length) {
+        resize();
+        reconcileParticles();
+        lastTime = performance.now();
+        animationId = window.requestAnimationFrame(draw);
+      }
+    };
+
     spriteKeys.forEach((key) => {
       const image = new window.Image();
-      image.onload = () => {
-        loadedSprites += 1;
-        if (!isDisposed && loadedSprites === spriteKeys.length) {
-          resize();
-          reconcileParticles();
-          lastTime = performance.now();
-          animationId = window.requestAnimationFrame(draw);
-        }
+      image.onload = markSpriteReady;
+      image.onerror = () => {
+        delete sprites[key];
+        markSpriteReady();
       };
-      image.src = assetPaths[key];
       sprites[key] = image;
+      image.src = assetPaths[key];
     });
 
     resize();
@@ -2006,9 +2087,10 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     return () => {
       isDisposed = true;
       window.cancelAnimationFrame(animationId);
+      context.clearRect(0, 0, width, height);
       window.removeEventListener('resize', resize);
     };
-  }, [effects.enabled, intensity]);
+  }, [effects.enabled, intensity, reducedMotion]);
 
   const startThemeTransition = useCallback(() => {
     if (isTransitioningRef.current) {
@@ -2018,10 +2100,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     if (transitionTimerRef.current) {
       window.clearTimeout(transitionTimerRef.current);
       transitionTimerRef.current = null;
-    }
-    if (commitTimerRef.current) {
-      window.clearTimeout(commitTimerRef.current);
-      commitTimerRef.current = null;
     }
 
     const currentMode: ThemeMode = nightMode ? 'night' : 'day';
@@ -2033,13 +2111,14 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
     setNextMode(targetMode);
     setIsTransitioning(true);
 
-    const finishDelay = prefersReducedMotion() ? 160 : themeTransitionDurationMs;
+    const reducedMotion = prefersReducedMotion();
+    const visualDuration = reducedMotion ? 160 : themeTransitionDurationMs;
+    const commitDelay = reducedMotion ? 160 : visualDuration + themeTransitionCommitBufferMs;
     themeBlendRef.current = {
       active: true,
-      from: currentMode,
       to: targetMode,
       startedAt: performance.now(),
-      duration: finishDelay
+      duration: visualDuration
     };
 
     transitionTimerRef.current = window.setTimeout(() => {
@@ -2047,7 +2126,6 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       nightModeRef.current = targetMode === 'night';
       themeBlendRef.current = {
         active: false,
-        from: targetMode,
         to: targetMode,
         startedAt: 0,
         duration: themeTransitionDurationMs
@@ -2058,7 +2136,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
       setIsTransitioning(false);
       isTransitioningRef.current = false;
       transitionTimerRef.current = null;
-    }, finishDelay);
+    }, commitDelay);
   }, [nightMode]);
 
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
@@ -2191,7 +2269,7 @@ export function HomeEffects({ site, posts, notes, activeTrack }: HomeEffectsProp
   const seasonText = seasonCopy[season];
   const nextSeasonText = seasonCopy[nextSeason];
   const seasonSummary = nightMode ? seasonText.night : seasonText.day;
-  const floatingTrack = currentTrack ?? activeTrack;
+  const floatingTrack = currentTrack;
   const hasMusicTracks = playlist.length > 0;
   const floatingVolume = isMuted ? 0 : volume;
   const floatingVolumePercent = Math.round(floatingVolume * 100);
