@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogData } from '@/lib/blog';
+import { isBlobStorageConfigured, saveBlogDataBlob } from './blog-storage.ts';
 
 type ValidationSuccess = {
   ok: true;
@@ -121,8 +122,17 @@ export async function saveBlogData(data: BlogData): Promise<{ backupPath: string
     throw new Error(validation.errors.join('\n'));
   }
 
-  const backupPath = await createBlogDataBackup();
   const json = `${JSON.stringify(validation.data, null, 2)}\n`;
+
+  if (isBlobStorageConfigured()) {
+    const remoteResult = await saveBlogDataBlob(json);
+    return {
+      backupPath: remoteResult.backupPath,
+      bytes: Buffer.byteLength(json, 'utf8')
+    };
+  }
+
+  const backupPath = await createBlogDataBackup();
   const temporaryFile = path.join(path.dirname(dataFile), `blog.${Date.now()}.tmp.json`);
 
   await writeFile(temporaryFile, json, 'utf8');

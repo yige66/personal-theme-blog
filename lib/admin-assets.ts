@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isBlobStorageConfigured, savePublicBlob } from './blog-storage.ts';
 
 export type AdminImageFileMeta = {
   name?: string;
@@ -154,10 +155,19 @@ export async function saveAdminImageFile(file: AdminUploadFile): Promise<SavedAd
     throw new Error('图片内容和声明的文件类型不一致。');
   }
 
-  await mkdir(uploadDirectory, { recursive: true });
   const fileName = createSafeUploadName(file.name || 'image', validation.extension);
-  const outputPath = path.join(uploadDirectory, fileName);
+  if (isBlobStorageConfigured()) {
+    const blob = await savePublicBlob(`assets/uploads/${fileName}`, bytes, validation.mime);
+    return {
+      publicPath: blob.url,
+      fileName,
+      originalName: file.name || fileName,
+      bytes: bytes.length
+    };
+  }
 
+  await mkdir(uploadDirectory, { recursive: true });
+  const outputPath = path.join(uploadDirectory, fileName);
   await writeFile(outputPath, bytes);
 
   return {
@@ -185,10 +195,19 @@ export async function saveAdminAudioFile(file: AdminUploadFile): Promise<SavedAd
     throw new Error('MP3 文件没有检测到可播放的音频帧，请重新导出为标准 MP3/M4A/WAV/FLAC 后上传。');
   }
 
-  await mkdir(audioUploadDirectory, { recursive: true });
   const fileName = createSafeUploadName(file.name || 'audio', validation.extension, 'audio');
-  const outputPath = path.join(audioUploadDirectory, fileName);
+  if (isBlobStorageConfigured()) {
+    const blob = await savePublicBlob(`assets/audio/${fileName}`, bytes, validation.mime, bytes.length > 5 * 1024 * 1024);
+    return {
+      publicPath: blob.url,
+      fileName,
+      originalName: file.name || fileName,
+      bytes: bytes.length
+    };
+  }
 
+  await mkdir(audioUploadDirectory, { recursive: true });
+  const outputPath = path.join(audioUploadDirectory, fileName);
   await writeFile(outputPath, bytes);
 
   return {

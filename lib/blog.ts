@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isBlobStorageConfigured, readBlogDataBlob } from './blog-storage.ts';
 
 export type BlogPost = {
   id: string;
@@ -756,6 +757,14 @@ const fallbackData: BlogData = {
 const dataFile = path.join(process.cwd(), 'data', 'blog.json');
 
 export async function getBlogData(): Promise<BlogData> {
+  if (isBlobStorageConfigured()) {
+    const remoteRaw = await readBlogDataBlob();
+    if (remoteRaw) {
+      const parsed = JSON.parse(remoteRaw) as Partial<BlogData>;
+      return normalizeBlogData(parsed);
+    }
+  }
+
   if (!existsSync(dataFile)) {
     return fallbackData;
   }
