@@ -58,8 +58,12 @@ export async function readPrivateBlobSnapshot(pathname: string): Promise<{ conte
 
   return {
     content: await new Response(result.stream).text(),
-    etag: result.blob.etag
+    etag: normalizeBlobEtag(result.blob.etag)
   };
+}
+
+export function normalizeBlobEtag(etag: string): string {
+  return etag.startsWith('W/') ? etag.slice(2) : etag;
 }
 
 export async function readBlogDataBlobSnapshot(): Promise<{ content: string; etag: string } | null> {

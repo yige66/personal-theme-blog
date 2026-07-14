@@ -3,7 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
-import { assertBlogStorageWritable, assertMediaStorageWritable } from '../lib/blog-storage.ts';
+import { assertBlogStorageWritable, assertMediaStorageWritable, normalizeBlobEtag } from '../lib/blog-storage.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -20,6 +20,11 @@ afterEach(() => {
 });
 
 describe('production admin storage policy', () => {
+  it('converts weak GET etags into strong conditional-write etags', () => {
+    assert.equal(normalizeBlobEtag('W/"abc123"'), '"abc123"');
+    assert.equal(normalizeBlobEtag('"abc123"'), '"abc123"');
+  });
+
   it('creates stable revisions and detects changed persisted content', () => {
     const first = { site: { title: 'Yuki' }, posts: [] };
     const same = JSON.parse(JSON.stringify(first));
