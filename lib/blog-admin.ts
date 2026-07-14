@@ -31,6 +31,8 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
     return { ok: false, errors: ['博客数据必须是 JSON 对象。'] };
   }
 
+  validateUnicodeText(input, 'root', errors);
+
   const data = input as Partial<BlogData>;
   if (!isRecord(data.site)) {
     errors.push('site 必须是对象。');
@@ -115,6 +117,28 @@ export function validateBlogDataDraft(input: unknown): BlogDataValidationResult 
   }
 
   return { ok: true, data: data as BlogData };
+}
+
+function validateUnicodeText(value: unknown, label: string, errors: string[]): void {
+  if (errors.length >= 20) {
+    return;
+  }
+
+  if (typeof value === 'string') {
+    if (value.includes('\uFFFD')) {
+      errors.push(`${label} contains the Unicode replacement character; please restore this text from a clean UTF-8 source.`);
+    }
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => validateUnicodeText(item, `${label}[${index}]`, errors));
+    return;
+  }
+
+  if (isRecord(value)) {
+    Object.entries(value).forEach(([key, item]) => validateUnicodeText(item, label === 'root' ? key : `${label}.${key}`, errors));
+  }
 }
 
 export function validateUniqueIds(items: unknown[], label: string, errors: string[]): void {

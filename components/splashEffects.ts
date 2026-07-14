@@ -55,13 +55,15 @@ export function startRainCanvas(containerRef: DivRef): Cleanup | undefined {
   box.appendChild(canvas);
   box.classList.add('rain-visible');
 
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const dpr = Math.max(1, Math.min(1.35, window.devicePixelRatio || 1));
+  const frameIntervalMs = 1000 / 30;
   const random = (min: number, max: number) => min + Math.random() * (max - min);
   const wind = 24;
   const drops: Array<{ z: number; x: number; y: number; v: number; w: number; wf: number }> = [];
   let width = 0;
   let height = 0;
   let last = 0;
+  let lastRenderedAt = 0;
   let frame = 0;
   let running = true;
 
@@ -93,6 +95,10 @@ export function startRainCanvas(containerRef: DivRef): Cleanup | undefined {
     }
 
     frame = window.requestAnimationFrame(loop);
+    if (time - lastRenderedAt < frameIntervalMs) {
+      return;
+    }
+    lastRenderedAt = time;
     const dt = Math.min(0.05, (time - last) / 1000 || 0.016);
     last = time;
 
@@ -168,7 +174,7 @@ export function startGlassCanvas(refs: GlassCanvasRefs): Cleanup | undefined {
     return undefined;
   }
 
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const dpr = Math.max(1, Math.min(1.5, window.devicePixelRatio || 1));
   let width = 0;
   let height = 0;
   let tool: GlassTool = 'finger';
@@ -654,7 +660,7 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
     return undefined;
   }
 
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const dpr = Math.max(1, Math.min(1.35, window.devicePixelRatio || 1));
   const random = (min: number, max: number) => min + Math.random() * (max - min);
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   const mobileMedia = window.matchMedia?.('(max-width:900px)') ?? { matches: false };
@@ -663,6 +669,7 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
   const refraction = 2.35;
   const light = 13.5;
   const step = 1 / 30;
+  const waterFrameIntervalMs = 1000 / 30;
   let width = 0;
   let height = 0;
   let image: HTMLImageElement | null = null;
@@ -682,6 +689,7 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
   let rainClock = random(0.6, 1.6);
   let ambientClock = random(1.5, 3);
   let last = 0;
+  let lastRenderedAt = 0;
   let stepAccumulator = 0;
   let frame = 0;
   let running = true;
@@ -953,8 +961,8 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
   };
 
   const gridFit = () => {
-    simWidth = Math.min(1100, Math.max(420, Math.round(width / 1.35)));
-    simHeight = Math.min(720, Math.max(220, Math.round((simWidth * height) / width)));
+    simWidth = Math.min(520, Math.max(260, Math.round(width / 2.7)));
+    simHeight = Math.min(360, Math.max(150, Math.round((simWidth * height) / width)));
     sim.width = simWidth;
     sim.height = simHeight;
     simCtx = sim.getContext('2d');
@@ -1074,6 +1082,11 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
       last = time;
       return;
     }
+
+    if (time - lastRenderedAt < waterFrameIntervalMs) {
+      return;
+    }
+    lastRenderedAt = time;
 
     const raw = (time - last) / 1000 || 0.016;
     last = time;

@@ -211,6 +211,8 @@ describe('blog administration operating system', () => {
     assert.match(adminBlogApi, /normalizeBlogData\(validation\.data\)/);
     assert.match(adminBlogApi, /BlobPreconditionFailedError/);
     assert.match(adminBlogApi, /readBlogDataBlobSnapshot/);
+    assert.match(adminBlogApi, /const persistedSnapshot = await readBlogDataBlobSnapshot\(\)/);
+    assert.doesNotMatch(adminBlogApi, /const persistedData = await getBlogData\(\)/);
     assert.match(adminBlogApi, /createBlogDataRevision\(persistedData\)/);
     assert.match(adminBlogApi, /consumeAdminRateLimit/);
     assert.doesNotMatch(adminBlogApi, /error instanceof Error \? error\.message/);
@@ -445,6 +447,14 @@ describe('blog administration operating system', () => {
     assert.equal(invalidMomentTag.ok, false);
     if (!invalidMomentTag.ok) {
       assert.match(invalidMomentTag.errors.join('\n'), /notes\[0\]\.tags/);
+    }
+
+    const corruptedTextData = JSON.parse(JSON.stringify(blogData));
+    corruptedTextData.site.subtitle = 'broken \uFFFD text';
+    const corruptedText = validateBlogDataDraft(corruptedTextData);
+    assert.equal(corruptedText.ok, false);
+    if (!corruptedText.ok) {
+      assert.match(corruptedText.errors.join('\n'), /Unicode replacement character/);
     }
   });
 

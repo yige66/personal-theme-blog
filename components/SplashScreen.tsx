@@ -12,6 +12,7 @@ type SplashScreenProps = {
 type StartPhase = 'loading' | 'ready' | 'leaving';
 
 const SESSION_KEY = 'personal-theme-blog:splash-seen';
+const SPLASH_COMPLETE_EVENT = 'personal-theme-blog:splash-complete';
 
 const splashLayoutArchitecture = {
   shell: {
@@ -69,12 +70,14 @@ export function SplashScreen({ site }: SplashScreenProps) {
 
     if (shouldSkipSplash) {
       document.documentElement.classList.add('xh-splash-seen');
+      window.dispatchEvent(new Event(SPLASH_COMPLETE_EVENT));
       return undefined;
     }
 
     const hasSeen = window.sessionStorage.getItem(SESSION_KEY) === 'true';
     if (hasSeen) {
       document.documentElement.classList.add('xh-splash-seen');
+      window.dispatchEvent(new Event(SPLASH_COMPLETE_EVENT));
       return undefined;
     }
 
@@ -123,6 +126,7 @@ export function SplashScreen({ site }: SplashScreenProps) {
       window.sessionStorage.setItem(SESSION_KEY, 'true');
       document.documentElement.classList.add('xh-splash-seen');
       setVisible(false);
+      window.dispatchEvent(new Event(SPLASH_COMPLETE_EVENT));
     }, 820);
   };
 

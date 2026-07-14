@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { cache } from 'react';
 import { isBlobStorageConfigured, readBlogDataBlob } from './blog-storage.ts';
 
 export type BlogPost = {
@@ -756,7 +757,7 @@ const fallbackData: BlogData = {
 
 const dataFile = path.join(process.cwd(), 'data', 'blog.json');
 
-export async function getBlogData(): Promise<BlogData> {
+export const getBlogData = cache(async (): Promise<BlogData> => {
   if (isBlobStorageConfigured()) {
     const remoteRaw = await readBlogDataBlob();
     if (remoteRaw) {
@@ -772,7 +773,7 @@ export async function getBlogData(): Promise<BlogData> {
   const raw = await readFile(dataFile, 'utf8');
   const parsed = JSON.parse(raw) as Partial<BlogData>;
   return normalizeBlogData(parsed);
-}
+});
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
   const data = await getBlogData();
@@ -841,6 +842,10 @@ export async function getArchiveGroups(): Promise<ArchiveGroup[]> {
 
 export async function getBlogStats(): Promise<BlogStats> {
   const data = await getBlogData();
+  return getBlogStatsFromData(data);
+}
+
+export function getBlogStatsFromData(data: BlogData): BlogStats {
   const posts = data.posts.filter((post) => post.status === 'published');
   return {
     posts: posts.length,

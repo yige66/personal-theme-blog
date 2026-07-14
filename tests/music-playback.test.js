@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { access, open, readFile } from 'node:fs/promises';
+import { access, open, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
@@ -204,6 +204,10 @@ describe('real music playback', () => {
     for (const track of playableTracks) {
       const assetPath = publicPathFromUrl(track.url);
       await access(assetPath);
+      const assetStats = await stat(assetPath);
+
+      assert.match(track.url, /\.m4a$/i, 'production audio must avoid Git LFS pointer formats');
+      assert.ok(assetStats.size > 100 * 1024, `${track.id} must be a real audio file, not a Git LFS pointer`);
 
       if (track.url.endsWith('.wav')) {
         const header = await readFileHeader(assetPath, 12);
@@ -219,6 +223,11 @@ describe('real music playback', () => {
       if (track.url.endsWith('.mp3')) {
         const header = await readFileHeader(assetPath, 3);
         assert.equal(header.subarray(0, 3).toString('ascii'), 'ID3');
+      }
+
+      if (track.url.endsWith('.m4a')) {
+        const header = await readFileHeader(assetPath, 12);
+        assert.equal(header.subarray(4, 8).toString('ascii'), 'ftyp');
       }
     }
   });

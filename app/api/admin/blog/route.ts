@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { BlobPreconditionFailedError } from '@vercel/blob';
 import { isAdminAuthorized } from '@/lib/admin-auth';
 import { buildAdminManagementOverview } from '@/lib/admin-management';
-import { getBlogData, getBlogStats, normalizeBlogData } from '@/lib/blog';
+import { getBlogData, getBlogStats, getBlogStatsFromData, normalizeBlogData } from '@/lib/blog';
 import { createBlogDataRevision, saveBlogData, validateBlogDataDraft } from '@/lib/blog-admin';
 import { consumeAdminRateLimit } from '@/lib/admin-rate-limit';
 import { readBlogDataBlobSnapshot } from '@/lib/blog-storage';
@@ -72,12 +72,16 @@ export async function POST(request: Request) {
 
     const normalizedData = normalizeBlogData(validation.data);
     const result = await saveBlogData(normalizedData, currentSnapshot?.etag ?? null);
-    const persistedData = await getBlogData();
+    const persistedSnapshot = await readBlogDataBlobSnapshot();
+    if (!persistedSnapshot) {
+      throw new Error('Persisted blog data could not be read after saving.');
+    }
+    const persistedData = normalizeBlogData(JSON.parse(persistedSnapshot.content));
     const revision = createBlogDataRevision(normalizedData);
     if (createBlogDataRevision(persistedData) !== revision) {
       throw new Error('Persisted blog data did not match the submitted revision.');
     }
-    const stats = await getBlogStats();
+    const stats = getBlogStatsFromData(persistedData);
     revalidatePath('/', 'layout');
     return NextResponse.json({
       data: persistedData,

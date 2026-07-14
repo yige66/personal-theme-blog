@@ -329,7 +329,33 @@ function setThemeAttributes(currentMode: ThemeMode, nextMode: ThemeMode, transit
   });
 }
 
-export function HomeEffects({ site, posts, notes }: HomeEffectsProps) {
+const splashCompleteEvent = 'personal-theme-blog:splash-complete';
+
+export function HomeEffects(props: HomeEffectsProps) {
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    let activationTimer = 0;
+    const activate = () => {
+      window.clearTimeout(activationTimer);
+      activationTimer = window.setTimeout(() => setActive(true), 120);
+    };
+
+    if (document.documentElement.classList.contains('xh-splash-seen')) {
+      activate();
+    }
+    window.addEventListener(splashCompleteEvent, activate);
+
+    return () => {
+      window.clearTimeout(activationTimer);
+      window.removeEventListener(splashCompleteEvent, activate);
+    };
+  }, []);
+
+  return active ? <ActiveHomeEffects {...props} /> : null;
+}
+
+function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
   const pathname = usePathname();
   const {
     currentLyric,
@@ -555,6 +581,7 @@ export function HomeEffects({ site, posts, notes }: HomeEffectsProps) {
 
     const ripples: Ripple[] = [];
     let animationId = 0;
+    let isAnimating = false;
 
     const resize = () => {
       const ratio = Math.min(window.devicePixelRatio || 1, 1.35);
@@ -576,6 +603,11 @@ export function HomeEffects({ site, posts, notes }: HomeEffectsProps) {
 
       if (ripples.length > 16) {
         ripples.splice(0, ripples.length - 16);
+      }
+
+      if (!isAnimating) {
+        isAnimating = true;
+        animationId = window.requestAnimationFrame(draw);
       }
     };
 
@@ -610,11 +642,16 @@ export function HomeEffects({ site, posts, notes }: HomeEffectsProps) {
         context.stroke();
       }
 
+      if (ripples.length === 0) {
+        isAnimating = false;
+        animationId = 0;
+        return;
+      }
+
       animationId = window.requestAnimationFrame(draw);
     };
 
     resize();
-    draw();
     window.addEventListener('resize', resize);
     window.addEventListener('pointerdown', handleClick, { passive: true });
 
