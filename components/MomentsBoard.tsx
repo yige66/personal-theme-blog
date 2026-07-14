@@ -6,21 +6,12 @@ import { createPortal } from 'react-dom';
 import { PlanetaryOrbitMap, type PlanetaryOrbitItem } from '@/components/channels/PlanetaryOrbitMap';
 import { MomentComments } from '@/components/comments/MomentComments';
 import type { BlogNote, CommentConfig } from '@/lib/blog';
+import { formatChinaDateTime } from '@/lib/china-date-format';
 
 const allMood = '全部';
 const minZoomScale = 0.5;
 const maxZoomScale = 3;
 const zoomStep = 0.25;
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(value));
-}
 
 function noteImages(note: BlogNote): string[] {
   if (note.images?.length) {
@@ -175,7 +166,7 @@ const resetZoom = useCallback(() => setZoomScale(1), []);
     id: note.id,
     eyebrow: String(index + 1).padStart(2, '0'),
     label: note.title || note.mood || '日常碎片',
-    meta: formatDate(note.date).slice(0, 10),
+    meta: formatChinaDateTime(note.date, '/').slice(0, 10),
     detail: note.content,
     href: `#moment-${note.id}`,
     heat: note.mood ? 2 : 1
@@ -222,7 +213,7 @@ const resetZoom = useCallback(() => setZoomScale(1), []);
                 </span>
                 <span>
                   <strong>{displayName}</strong>
-                  <time>{formatDate(note.date)}</time>
+                  <time>{formatChinaDateTime(note.date, '/')}</time>
                 </span>
               </header>
               {note.title ? <h3>{note.title}</h3> : null}

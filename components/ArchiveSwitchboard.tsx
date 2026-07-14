@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ArchiveGroup, BlogPost } from '@/lib/blog';
+import { formatChinaDate, formatChinaDateTime } from '@/lib/china-date-format';
 
 type ArchiveEntry = {
   post: BlogPost;
@@ -117,7 +118,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
               {searchResults.length > 0 ? (
                 searchResults.map(({ post, year }) => (
                   <Link href={`/posts/${post.slug}`} key={`search-${post.id}`} onClick={() => setIsSearchOpen(false)}>
-                    <span>{formatDate(post.createdAt)} / {year}</span>
+                    <span>{formatChinaDate(post.createdAt)} / {year}</span>
                     <strong>{post.title}</strong>
                     <small>{post.summary}</small>
                   </Link>
@@ -190,7 +191,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
                 <Image src={getArchiveCover(post, index)} alt="" width={560} height={320} />
               </span>
               <span className="archive-card-body">
-                <small>{formatDate(post.createdAt)} / {year}</small>
+                <small>{formatChinaDate(post.createdAt)} / {year}</small>
                 <strong>{post.title}</strong>
                 <span className="archive-card-tags">{post.tags.slice(0, 3).map((tag) => <em key={tag}>#{tag}</em>)}</span>
                 <p>{post.summary}</p>
@@ -213,7 +214,7 @@ function ArchiveRow({ post, year, index }: { post: BlogPost; year: string; index
         <Image src={getArchiveCover(post, index)} alt="" width={640} height={360} />
       </span>
       <span className="archive-row-body">
-        <span className="row-meta">{formatDateTime(post.createdAt)} / {year} / {estimateReadingMinutes(post.content)} min</span>
+        <span className="row-meta">{formatChinaDateTime(post.createdAt)} / {year} / {estimateReadingMinutes(post.content)} min</span>
         <strong>{post.title}</strong>
         <span className="archive-row-tags">{post.tags.slice(0, 4).map((tag) => <em key={tag}>#{tag}</em>)}</span>
         <small>{post.summary}</small>
@@ -230,28 +231,4 @@ function estimateReadingMinutes(content: string): number {
   const cjk = content.match(/[\u4e00-\u9fa5]/g)?.length ?? 0;
   const words = content.replace(/[\u4e00-\u9fa5]/g, ' ').match(/[A-Za-z0-9_]+/g)?.length ?? 0;
   return Math.max(1, Math.ceil((cjk + words) / 420));
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(new Date(value));
 }
