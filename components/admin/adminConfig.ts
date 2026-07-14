@@ -204,7 +204,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
       routes: [
         { label: '首页', href: '/' }
       ],
-      dataPath: 'data/ai-config.json / api/admin/ai',
+      dataPath: 'private Blob admin/ai-config.json / api/admin/ai',
       impact: '同步右下角助手的服务端模型与密钥来源，不写入公开博客数据。'
     }
   },

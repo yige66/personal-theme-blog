@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/admin-auth';
 import { getAiAdminConfigView, normalizeAiConfigInput, saveAiConfig } from '@/lib/ai-config';
+import { consumeAdminRateLimit } from '@/lib/admin-rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const rateLimit = consumeAdminRateLimit(request, 'ai-read', { limit: 30 });
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
       { error: '后台 AI 配置读取已锁定，请配置 ADMIN_WRITE_TOKEN 并在请求中携带。' },
@@ -17,6 +23,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const rateLimit = consumeAdminRateLimit(request, 'ai-write', { limit: 10 });
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
       { error: '后台 AI 配置写入已锁定，请配置 ADMIN_WRITE_TOKEN 并在请求中携带。' },
@@ -43,4 +54,11 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: '无法保存 AI 配置。' }, { status: 500 });
   }
+}
+
+function rateLimitResponse(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { error: '请求过于频繁，请稍后重试。' },
+    { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+  );
 }

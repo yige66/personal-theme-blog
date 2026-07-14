@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import { BlogAdminConsole } from '@/components/admin/BlogAdminConsole';
-import { buildAdminManagementOverview } from '@/lib/admin-management';
-import { getBlogData, getBlogStats } from '@/lib/blog';
 
 export const metadata: Metadata = {
   title: '站点后台',
@@ -14,15 +12,10 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage() {
-  const [data, stats] = await Promise.all([getBlogData(), getBlogStats()]);
-  const themeColor = data.site.themeColor;
-  const accentColor = data.site.accentColor;
-  const overview = buildAdminManagementOverview(data, stats);
-
+export default function AdminPage() {
   return (
-    <main className="admin-os admin-private-page article-page" style={{ '--theme': themeColor, '--accent': accentColor } as React.CSSProperties}>
-      <BlogAdminConsole initialData={data} initialStats={stats} initialOverview={overview} />
+    <main className="admin-os admin-private-page article-page">
+      <BlogAdminConsole initialData={null} initialStats={null} initialOverview={null} />
     </main>
   );
 }

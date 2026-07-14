@@ -19,6 +19,8 @@ describe('deployment workflow configuration', () => {
     assert.equal(vercel.outputDirectory, '.next');
     assert.deepEqual(vercel.crons, [{ path: '/api/github/projects', schedule: '0 3 * * *' }]);
     assert.match(envExample, /NEXT_PUBLIC_SITE_URL=/);
+    assert.match(envExample, /BLOB_READ_WRITE_TOKEN=/);
+    assert.match(envExample, /BLOB_PUBLIC_STORE_ID=/);
     assert.match(envExample, /CRON_SECRET=/);
     assert.match(envExample, /GITHUB_PROJECTS_OWNER=/);
     assert.match(envExample, /GITHUB_PROJECTS_TOKEN=/);

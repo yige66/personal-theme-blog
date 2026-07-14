@@ -1,6 +1,13 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  aiConfigBlobPath,
+  assertBlogStorageWritable,
+  isBlobStorageConfigured,
+  readPrivateBlob,
+  savePrivateBlob
+} from './blog-storage.ts';
 
 export type AiConfigSource = 'backend' | 'env' | 'none';
 
@@ -113,12 +120,43 @@ export function normalizeAiConfigInput(input: unknown): SaveAiConfigInput | null
 }
 
 async function readStoredAiConfig(): Promise<StoredAiConfig> {
+  if (isBlobStorageConfigured()) {
+    return parseStoredAiConfig(await readPrivateBlob(aiConfigBlobPath));
+  }
+
   if (!existsSync(AI_CONFIG_FILE)) {
     return {};
   }
 
   try {
-    const raw = await readFile(AI_CONFIG_FILE, 'utf8');
+    return parseStoredAiConfig(await readFile(AI_CONFIG_FILE, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+async function writeStoredAiConfig(config: StoredAiConfig): Promise<void> {
+  assertBlogStorageWritable();
+  const json = `${JSON.stringify(config, null, 2)}\n`;
+
+  if (isBlobStorageConfigured()) {
+    await savePrivateBlob(aiConfigBlobPath, json);
+    return;
+  }
+
+  await mkdir(path.dirname(AI_CONFIG_FILE), { recursive: true });
+  const temporaryFile = path.join(path.dirname(AI_CONFIG_FILE), `ai-config.${Date.now()}.tmp.json`);
+
+  await writeFile(temporaryFile, json, 'utf8');
+  await rename(temporaryFile, AI_CONFIG_FILE);
+}
+
+function parseStoredAiConfig(raw: string | null): StoredAiConfig {
+  if (!raw) {
+    return {};
+  }
+
+  try {
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') {
       return {};
@@ -133,15 +171,6 @@ async function readStoredAiConfig(): Promise<StoredAiConfig> {
   } catch {
     return {};
   }
-}
-
-async function writeStoredAiConfig(config: StoredAiConfig): Promise<void> {
-  await mkdir(path.dirname(AI_CONFIG_FILE), { recursive: true });
-  const temporaryFile = path.join(path.dirname(AI_CONFIG_FILE), `ai-config.${Date.now()}.tmp.json`);
-  const json = `${JSON.stringify(config, null, 2)}\n`;
-
-  await writeFile(temporaryFile, json, 'utf8');
-  await rename(temporaryFile, AI_CONFIG_FILE);
 }
 
 function normalizeApiKey(value: unknown): string {

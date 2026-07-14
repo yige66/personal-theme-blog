@@ -1,13 +1,15 @@
 # 星屿手记 Personal Theme Blog
 
-一个向 [XinghuisamaBlogs](https://github.com/heiehiehi/XinghuisamaBlogs) 学习范式的个人博客：前台是可部署的 Next.js App Router 站点，内容通过 `data/blog.json` 进入版本库，再由 GitHub 和 Vercel 完成预览、构建与生产发布。
+一个向 [XinghuisamaBlogs](https://github.com/heiehiehi/XinghuisamaBlogs) 学习范式的个人博客：前台是可部署的 Next.js App Router 站点，应用代码由 GitHub 和 Vercel 持续发布，线上内容通过受保护的后台写入 Vercel Blob 并即时更新。
+
+在线访问：[https://yukino-blog.site](https://yukino-blog.site)
 
 ## 当前定位
 
 - `沉浸式前台`：玻璃拟态首页、个人名片、等级经验、音乐挂件、AI 助手卡、文章星图、动态、灵境照片墙、文章详情页、自定义 404 和 SEO metadata。
 - `站点型 IA`：归档、标签、项目、音乐、照片墙、动态/说说、友链、关于、发布工作流入口。
-- `内容数据源`：`data/blog.json` 承载文章、草稿、动态、友链、站点资料、歌单、相册和项目。
-- `发布方式`：内容直接进入版本库；线上交付以 GitHub 仓库、CI 质量门禁和 Vercel 部署为主。
+- `内容数据源`：生产环境从私有 Vercel Blob 读取文章、草稿、动态、友链、站点资料、歌单、相册和项目；`data/blog.json` 作为本地开发和初始种子。
+- `发布方式`：源码通过 GitHub/Vercel 发布；内容和媒体可在 `/admin` 鉴权后保存到 Blob，无需为每次内容修改重新提交代码。
 
 ## 运行
 
@@ -27,12 +29,12 @@ npm run dev
 
 推荐生产流程：
 
-1. 修改 `data/blog.json`、`public/assets/` 和源码。
-2. 运行 `npm run check`。
-3. 提交并推送到 GitHub。
-4. 在 Vercel 导入 `https://github.com/yige66/personal-theme-blog`。
-5. 设置环境变量 `NEXT_PUBLIC_SITE_URL` 为你的正式域名。
-6. 让 Vercel 通过 GitHub push 自动生成 Preview 和 Production。
+1. 将仓库连接到 Vercel，并让 GitHub push 自动生成 Preview 和 Production。
+2. 连接一个私有 Blob 存储用于博客 JSON，并连接一个公共 Blob 存储用于图片和音频。
+3. 配置 `ADMIN_WRITE_TOKEN`、`BLOB_READ_WRITE_TOKEN`、`BLOB_PUBLIC_STORE_ID` 和 `NEXT_PUBLIC_SITE_URL`。
+4. 打开 `/admin`，输入后台密码并读取线上数据。
+5. 编辑后点击“保存数据”，前台下一次请求会读取最新内容。
+6. 源码变更仍需运行 `npm run check` 后提交并推送到 GitHub。
 
 Vercel 推荐配置已写入 `vercel.json`：
 
@@ -49,9 +51,9 @@ Vercel 推荐配置已写入 `vercel.json`：
 personal-theme-blog/
 ├─ app/                    # Next.js App Router 前台
 ├─ components/             # 首页、文章和子页体验组件
-├─ lib/blog.ts             # JSON 内容读取、统计和 Markdown 渲染
+├─ lib/blog.ts             # Blob/本地内容读取、统计和 Markdown 渲染
 ├─ public/assets/img/      # Next.js 静态资源
-├─ data/blog.json          # 内容与站点配置
+├─ data/blog.json          # 本地开发回退与 Blob 初始种子
 ├─ docs/deployment.md      # 部署工作流说明
 └─ .github/workflows/ci.yml # GitHub Actions 质量门禁
 ```
@@ -63,7 +65,7 @@ personal-theme-blog/
 - 文章归档、标签云、项目集、动态/说说
 - 音乐、灵境照片墙、友链、关于页
 - 评论系统配置占位和 AI 助手提示词配置占位
-- JSON 内容源 + GitHub/Vercel 发布工作流
+- Vercel Blob 在线后台内容源 + GitHub/Vercel 代码发布工作流
 - GitHub Actions CI、Vercel 构建配置和部署文档
 
 ## 验证

@@ -22,6 +22,7 @@ describe('blog administration operating system', () => {
       adminManagement,
       adminAssetsApi,
       adminLib,
+      blogStorage,
       robots,
       css,
       homeCss
@@ -40,22 +41,24 @@ describe('blog administration operating system', () => {
       readFile('lib/admin-management.ts', 'utf8'),
       readFile('app/api/admin/assets/route.ts', 'utf8'),
       readFile('lib/blog-admin.ts', 'utf8'),
+      readFile('lib/blog-storage.ts', 'utf8'),
       readFile('app/robots.ts', 'utf8'),
       readFile('app/globals.css', 'utf8'),
       readFile('app/home-overrides.css', 'utf8')
     ]);
 
     assert.match(adminPage, /BlogAdminConsole/);
-    assert.match(adminPage, /getBlogData/);
-    assert.match(adminPage, /getBlogStats/);
-    assert.match(adminPage, /buildAdminManagementOverview/);
+    assert.doesNotMatch(adminPage, /getBlogData/);
+    assert.doesNotMatch(adminPage, /getBlogStats/);
+    assert.doesNotMatch(adminPage, /buildAdminManagementOverview/);
     assert.match(adminPage, /metadata/);
     assert.match(adminPage, /robots/);
     assert.match(adminPage, /admin-private-page/);
     assert.doesNotMatch(adminPage, /SiteNav/);
     assert.doesNotMatch(adminPage, /NODE_ENV !== 'production'/);
-    assert.match(adminPage, /initialData=\{data\}/);
-    assert.match(adminPage, /initialOverview=\{overview\}/);
+    assert.match(adminPage, /initialData=\{null\}/);
+    assert.match(adminPage, /initialStats=\{null\}/);
+    assert.match(adminPage, /initialOverview=\{null\}/);
     assert.match(appLayout, /<SplashScreen site=\{data\.site\}/);
     assert.match(splashScreen, /usePathname/);
     assert.match(splashScreen, /pathname\.startsWith\('\/admin'\)/);
@@ -88,6 +91,13 @@ describe('blog administration operating system', () => {
     assert.match(adminConsole, /handleImageUpload/);
     assert.match(adminConsole, /RecordListEditor/);
     assert.match(adminConsole, /handleSave/);
+    assert.match(adminConsole, /publishedUrl\?: string/);
+    assert.match(adminConsole, /verified\?: boolean/);
+    assert.match(adminConsole, /已同步到线上站点/);
+    assert.match(adminConsole, /window\.confirm/);
+    assert.match(adminConsole, /beforeunload/);
+    assert.match(adminConsole, /baseRevision/);
+    assert.match(adminConsole, /aria-busy=\{saveState\.status === 'saving'\}/);
     assert.match(adminConsole, /handleExport/);
     assert.match(adminConsole, /handleImport/);
     assert.match(adminConsole, /管理分区/);
@@ -194,14 +204,28 @@ describe('blog administration operating system', () => {
     assert.match(adminBlogApi, /management: buildAdminManagementOverview/);
     assert.match(adminBlogApi, /revalidatePath\('\/', 'layout'\)/);
     assert.match(adminBlogApi, /ADMIN_WRITE_TOKEN/);
+    assert.match(adminBlogApi, /publishedUrl: getSiteUrl\(\)\.origin/);
+    assert.match(adminBlogApi, /verified: true/);
+    assert.match(adminBlogApi, /baseRevision/);
+    assert.match(adminBlogApi, /status: 409/);
+    assert.match(adminBlogApi, /normalizeBlogData\(validation\.data\)/);
+    assert.match(adminBlogApi, /BlobPreconditionFailedError/);
+    assert.match(adminBlogApi, /readBlogDataBlobSnapshot/);
+    assert.match(adminBlogApi, /createBlogDataRevision\(persistedData\)/);
+    assert.match(adminBlogApi, /consumeAdminRateLimit/);
+    assert.doesNotMatch(adminBlogApi, /error instanceof Error \? error\.message/);
+    assert.match(adminBlogApi, /console\.error\('Failed to save blog data'/);
 
     assert.match(adminAssetsApi, /export async function POST/);
     assert.match(adminAssetsApi, /validateAdminImageFile/);
     assert.match(adminAssetsApi, /saveAdminImageFile/);
     assert.match(adminAssetsApi, /ADMIN_WRITE_TOKEN/);
+    assert.doesNotMatch(adminAssetsApi, /error instanceof Error \? error\.message/);
+    assert.match(adminAssetsApi, /console\.error\('Failed to upload admin asset'/);
 
     assert.match(adminLib, /validateBlogDataDraft/);
     assert.match(adminLib, /validateUniqueIds/);
+    assert.match(blogStorage, /ifMatch: expectedEtag/);
     assert.match(adminLib, /createBlogDataBackup/);
     assert.match(adminLib, /writeFile/);
     assert.match(adminLib, /blog\.json/);

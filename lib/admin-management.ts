@@ -121,7 +121,7 @@ const moduleBlueprints: Array<Omit<ModuleInput, 'count'>> = [
     group: '系统管理',
     route: '/admin',
     pageId: 'home',
-    dataPath: 'site.comments / site.effects / data/ai-config.json',
+    dataPath: 'site.comments / site.effects / private Blob admin/ai-config.json',
     checklist: ['后台密码不写入公开数据', '评论 OAuth secret 只在环境变量', 'AI 密钥只保存在服务端']
   }
 ];

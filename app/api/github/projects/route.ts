@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/admin-auth';
+import { consumeAdminRateLimit } from '@/lib/admin-rate-limit';
 import { getBlogData } from '@/lib/blog';
 import { GITHUB_PROJECTS_CACHE_TAG, getGithubProjects, githubProjectOwnerCacheTag, resolveGithubProjectOwner } from '@/lib/github-projects';
 
@@ -13,6 +14,11 @@ const PROJECT_SYNC_EVENTS = new Set(['push', 'repository', 'create', 'delete', '
 const IMMEDIATE_EXPIRE = { expire: 0 };
 
 export async function GET(request: Request) {
+  const rateLimit = consumeAdminRateLimit(request, 'project-sync-read', { limit: 60 });
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   if (!isCronAuthorized(request) && !isAdminAuthorized(request)) {
     return NextResponse.json(
       { error: 'Project cron sync is locked. Configure CRON_SECRET or send the admin token.' },
@@ -63,6 +69,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, event, delivery, ...result });
   }
 
+  const rateLimit = consumeAdminRateLimit(request, 'project-sync-write', { limit: 20 });
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   if (!isAdminAuthorized(request)) {
     return NextResponse.json(
       { error: 'Project sync is locked. Configure ADMIN_WRITE_TOKEN or GitHub webhook signing.' },
@@ -72,6 +83,13 @@ export async function POST(request: Request) {
 
   const result = await refreshGithubProjectCache('manual');
   return NextResponse.json({ ok: true, ...result });
+}
+
+function rateLimitResponse(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { error: 'Project sync requests are too frequent. Try again later.' },
+    { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+  );
 }
 
 async function refreshGithubProjectCache(trigger: string) {

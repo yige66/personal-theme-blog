@@ -1049,7 +1049,7 @@ function cleanHeadingText(value: string): string {
     .trim();
 }
 
-function normalizeBlogData(input: Partial<BlogData>): BlogData {
+export function normalizeBlogData(input: Partial<BlogData>): BlogData {
   const { friendLinkApplyFormat: _legacyFriendLinkApplyFormat, ...siteInput } = (input.site ?? {}) as Partial<BlogSite> & { friendLinkApplyFormat?: unknown };
   const site: BlogSite = {
     ...fallbackSite,

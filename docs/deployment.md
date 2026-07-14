@@ -4,12 +4,17 @@ This project is meant to run as a deployed Next.js personal blog. Content change
 
 ## Production model
 
-1. Edit articles, moments, gallery items, music, links, projects, and site profile data in `data/blog.json`.
-2. Add production-facing images and icons under `public/assets/`.
-3. Run `npm run check` before publishing.
-4. Commit the changed JSON, assets, and source files.
-5. Push to GitHub.
-6. Vercel builds the Next.js app from the GitHub repository.
+Application code is deployed from GitHub. Runtime content is stored separately so an
+authenticated administrator can publish without committing JSON for every edit:
+
+1. Vercel builds the Next.js application from the GitHub repository.
+2. `/admin` starts locked and loads content only after a valid admin token is supplied.
+3. Saving writes `blog/blog.json` to the linked private Vercel Blob store and creates a backup.
+4. Image and audio uploads use the linked public Blob store.
+5. Dynamic public routes read the latest private Blob content on the next request.
+
+`data/blog.json` remains the development fallback and the initial seed for a new Blob
+store. Production admin writes never fall back to Vercel's temporary filesystem.
 
 ## Vercel settings
 
@@ -19,6 +24,22 @@ This project is meant to run as a deployed Next.js personal blog. Content change
 - Output Directory: `.next`
 - Node.js: `24.x` or any version satisfying `>=20.9`
 - Environment Variable: `NEXT_PUBLIC_SITE_URL`
+
+Required production variables and platform credentials:
+
+```text
+ADMIN_WRITE_TOKEN=<long random secret>
+BLOB_READ_WRITE_TOKEN=<provided by the linked private Blob store>
+BLOB_PUBLIC_STORE_ID=<linked public Blob store id>
+NEXT_PUBLIC_SITE_URL=https://yukino-blog.site
+```
+
+Vercel supplies `VERCEL_OIDC_TOKEN` to deployments. The media uploader uses it with the
+store selected by `BLOB_PUBLIC_STORE_ID` when a dedicated public Blob token is not configured. Never
+commit any token to the repository.
+
+Application-level request throttling is a best-effort guard on each serverless instance.
+For sustained abuse protection, also enable Vercel Firewall rate limiting for `/api/admin/*`.
 
 Set `NEXT_PUBLIC_SITE_URL` to the public domain, for example:
 
@@ -65,4 +86,6 @@ The quality gate includes:
 
 ## Content and assets
 
-Images, avatar files, gallery covers, and article covers should be committed under `public/assets/` or uploaded through the future online storage layer. Keep production-facing links out of `localhost` so deployed pages remain usable for visitors.
+Images, avatar files, gallery covers, and article covers can be committed under
+`public/assets/` or uploaded from `/admin` to the public Blob store. Keep
+production-facing links out of `localhost` so deployed pages remain usable for visitors.

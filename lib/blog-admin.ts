@@ -1,8 +1,9 @@
 import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BlogData } from '@/lib/blog';
-import { isBlobStorageConfigured, saveBlogDataBlob } from './blog-storage.ts';
+import { assertBlogStorageWritable, isBlobStorageConfigured, saveBlogDataBlob } from './blog-storage.ts';
 
 type ValidationSuccess = {
   ok: true;
@@ -18,6 +19,10 @@ export type BlogDataValidationResult = ValidationSuccess | ValidationFailure;
 
 const dataFile = path.join(process.cwd(), 'data', 'blog.json');
 const backupDirectory = path.join(process.cwd(), 'data', 'backups');
+
+export function createBlogDataRevision(data: unknown): string {
+  return createHash('sha256').update(JSON.stringify(data)).digest('hex');
+}
 
 export function validateBlogDataDraft(input: unknown): BlogDataValidationResult {
   const errors: string[] = [];
@@ -116,16 +121,18 @@ export function validateUniqueIds(items: unknown[], label: string, errors: strin
   validateUniqueField(items, 'id', label, errors);
 }
 
-export async function saveBlogData(data: BlogData): Promise<{ backupPath: string | null; bytes: number }> {
+export async function saveBlogData(data: BlogData, expectedEtag: string | null = null): Promise<{ backupPath: string | null; bytes: number }> {
   const validation = validateBlogDataDraft(data);
   if (!validation.ok) {
     throw new Error(validation.errors.join('\n'));
   }
 
+  assertBlogStorageWritable();
+
   const json = `${JSON.stringify(validation.data, null, 2)}\n`;
 
   if (isBlobStorageConfigured()) {
-    const remoteResult = await saveBlogDataBlob(json);
+    const remoteResult = await saveBlogDataBlob(json, expectedEtag);
     return {
       backupPath: remoteResult.backupPath,
       bytes: Buffer.byteLength(json, 'utf8')

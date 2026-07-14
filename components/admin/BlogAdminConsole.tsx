@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import type { BlogData } from '@/lib/blog';
 import { FieldEditor, FieldGrid, PathField } from '@/components/admin/AdminFieldEditors';
@@ -141,6 +141,14 @@ function getResponseSuggestion(response: Response): string {
 
   if (response.status === 413) {
     return '请求内容过大，请缩小文件或减少一次提交的数据量。';
+  }
+
+  if (response.status === 409) {
+    return '线上内容已变化，请先重新读取，再重新应用本页修改。';
+  }
+
+  if (response.status === 429) {
+    return '操作过于频繁，请等待片刻后重试。';
   }
 
   if (response.status >= 500) {
@@ -397,6 +405,8 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
   );
   const [adminToken, setAdminToken] = useState('');
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [serverRevision, setServerRevision] = useState<string | null>(null);
   const [aiConfig, setAiConfig] = useState<AiAdminConfigView | null>(null);
   const [aiModel, setAiModel] = useState('');
   const [aiApiKey, setAiApiKey] = useState('');
@@ -416,8 +426,23 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
   const activeOverview = overview ?? createFallbackOverview(draft);
   const activeModule = activeOverview.modules.find((module) => module.id === selectedWorkspace.id);
 
-  const replaceDraft = (next: BlogData, nextOverview?: AdminManagementOverview | null) => {
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  const replaceDraft = (next: BlogData, nextOverview?: AdminManagementOverview | null, markDirty = false) => {
     setDraft(next);
+    setHasUnsavedChanges(markDirty);
     if (nextOverview) {
       setOverview(nextOverview);
     }
@@ -425,7 +450,11 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
   };
 
   const setValueAtPath = (path: PathSegment[], value: unknown) => {
+    if (saveState.status === 'saving') {
+      return;
+    }
     setDraft((current) => current ? setAtPath(current, path, value) : current);
+    setHasUnsavedChanges(true);
     setSaveState(createOperationState('idle', '草稿已更新', '内容已更新，请确认无误后保存。'));
   };
 
@@ -473,19 +502,22 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
       return;
     }
 
-    replaceDraft(parsed.data);
+    replaceDraft(parsed.data, null, true);
   };
 
   const handleLoadData = async () => {
+    if (hasUnsavedChanges && !window.confirm('重新读取会覆盖当前未保存的修改，确定继续吗？')) {
+      return;
+    }
     setSaveState(createOperationState('saving', '正在读取', '正在读取后台数据。'));
     let response: Response;
-    let payload: { error?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
+    let payload: { error?: string; data?: BlogData; revision?: string; stats?: typeof initialStats; management?: AdminManagementOverview };
 
     try {
       response = await fetch('/api/admin/blog', {
         headers: adminToken ? { 'x-admin-token': adminToken } : {}
       });
-      payload = await readAdminJson<{ data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
+      payload = await readAdminJson<{ data?: BlogData; revision?: string; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
     } catch (error) {
       setSaveState(createNetworkErrorState('读取后台数据失败', error, '读取后台数据失败。'));
       return;
@@ -504,11 +536,15 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
     }
 
     setServerStats(payload.stats ?? null);
+    setServerRevision(payload.revision ?? null);
     replaceDraft(payload.data, payload.management ?? null);
     setSaveState(createOperationState('success', '读取成功', '后台数据已重新读取。'));
   };
 
   const handleSave = async () => {
+    if (saveState.status === 'saving') {
+      return;
+    }
     if (!draft) {
       setSaveState(createOperationState('error', '保存失败', '请先读取或导入博客数据。', {
         suggestion: '点击“重新读取”，或导入一份博客 JSON 备份后再保存。'
@@ -516,10 +552,15 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
       return;
     }
 
+    if (!serverRevision) {
+      setSaveState(createOperationState('error', '保存失败', '请先重新读取线上数据，再保存修改。'));
+      return;
+    }
+
     setSaveState(createOperationState('saving', '正在保存', '正在校验并保存。'));
     const draftForSave = draft;
     let response: Response;
-    let payload: { error?: string; details?: string[]; savedAt?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
+    let payload: { error?: string; details?: string[]; revision?: string; savedAt?: string; publishedUrl?: string; verified?: boolean; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
 
     try {
       response = await fetch('/api/admin/blog', {
@@ -528,9 +569,9 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
           'Content-Type': 'application/json',
           ...(adminToken ? { 'x-admin-token': adminToken } : {})
         },
-        body: JSON.stringify({ data: draftForSave })
+        body: JSON.stringify({ baseRevision: serverRevision, data: draftForSave })
       });
-      payload = await readAdminJson<{ details?: string[]; savedAt?: string; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
+      payload = await readAdminJson<{ details?: string[]; revision?: string; savedAt?: string; publishedUrl?: string; verified?: boolean; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
     } catch (error) {
       setSaveState(createNetworkErrorState('保存失败', error, '保存失败。'));
       return;
@@ -545,8 +586,14 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
     setDraft(nextData);
     setServerStats(payload.stats ?? serverStats);
     setOverview(payload.management ?? overview);
+    setServerRevision(payload.revision ?? serverRevision);
     setLastSavedAt(payload.savedAt ?? new Date().toISOString());
-    setSaveState(createOperationState('success', '保存成功', '已保存，并生成数据备份。'));
+    setHasUnsavedChanges(false);
+    setSaveState(createOperationState(
+      'success',
+      '保存成功',
+      payload.verified && payload.publishedUrl ? `已同步到线上站点：${payload.publishedUrl}` : '已保存，并生成数据备份。'
+    ));
   };
 
   const handleImageUpload: UploadImage = async (file, kind = 'image') => {
@@ -693,7 +740,11 @@ export function BlogAdminConsole({ initialData, initialStats, initialOverview }:
           <AdminStatusRail overview={activeOverview} saveState={saveState} stats={stats} />
 
           {draft ? (
-            <section className="fraud-admin-workbench">
+            <section
+              className="fraud-admin-workbench"
+              aria-busy={saveState.status === 'saving'}
+              inert={saveState.status === 'saving' ? true : undefined}
+            >
               <WorkspaceHeader module={activeModule} workspace={selectedWorkspace} />
               <ToolTabs activeTool={selectedTool.id} tools={tools} onSelect={setActiveTool} />
               <AdminToolPanel
@@ -777,11 +828,11 @@ function AdminHeader({
           />
         </label>
         <div className="admin-action-row">
-          <button className="button ghost" type="button" onClick={onLoadData}>重新读取</button>
-          <button className="button ghost" type="button" disabled={!draft} onClick={onExport}>导出备份</button>
+          <button className="button ghost" type="button" disabled={saveStatus === 'saving'} onClick={onLoadData}>重新读取</button>
+          <button className="button ghost" type="button" disabled={!draft || saveStatus === 'saving'} onClick={onExport}>导出备份</button>
           <label className="button ghost">
             导入备份
-            <input accept="application/json" hidden type="file" onChange={onImport} />
+            <input accept="application/json" disabled={saveStatus === 'saving'} hidden type="file" onChange={onImport} />
           </label>
           <button className="button primary" type="button" disabled={!draft || saveStatus === 'saving'} onClick={onSave}>
             {saveStatus === 'saving' ? '保存中' : '保存数据'}

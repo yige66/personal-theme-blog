@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { isBlobStorageConfigured, savePublicBlob } from './blog-storage.ts';
+import { assertMediaStorageWritable, isPublicBlobStorageConfigured, savePublicBlob } from './blog-storage.ts';
 
 export type AdminImageFileMeta = {
   name?: string;
@@ -148,6 +148,8 @@ export async function saveAdminImageFile(file: AdminUploadFile): Promise<SavedAd
     throw new Error(validation.error);
   }
 
+  assertMediaStorageWritable();
+
   const bytes = Buffer.from(await file.arrayBuffer());
   const detectedMime = detectImageMime(bytes);
 
@@ -156,7 +158,7 @@ export async function saveAdminImageFile(file: AdminUploadFile): Promise<SavedAd
   }
 
   const fileName = createSafeUploadName(file.name || 'image', validation.extension);
-  if (isBlobStorageConfigured()) {
+  if (isPublicBlobStorageConfigured()) {
     const blob = await savePublicBlob(`assets/uploads/${fileName}`, bytes, validation.mime);
     return {
       publicPath: blob.url,
@@ -184,6 +186,8 @@ export async function saveAdminAudioFile(file: AdminUploadFile): Promise<SavedAd
     throw new Error(validation.error);
   }
 
+  assertMediaStorageWritable();
+
   const bytes = Buffer.from(await file.arrayBuffer());
   const detectedMime = detectAudioMime(bytes);
 
@@ -196,7 +200,7 @@ export async function saveAdminAudioFile(file: AdminUploadFile): Promise<SavedAd
   }
 
   const fileName = createSafeUploadName(file.name || 'audio', validation.extension, 'audio');
-  if (isBlobStorageConfigured()) {
+  if (isPublicBlobStorageConfigured()) {
     const blob = await savePublicBlob(`assets/audio/${fileName}`, bytes, validation.mime, bytes.length > 5 * 1024 * 1024);
     return {
       publicPath: blob.url,
