@@ -244,6 +244,19 @@ describe('real music playback', () => {
     );
   });
 
+  it('starts playback directly from the user gesture instead of a deferred state updater', async () => {
+    const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
+    const toggleMatch = provider.match(/const togglePlaying = useCallback\(\(\) => \{([\s\S]*?)\n  \}, \[canUseAudio, handleAudioPlaybackFailure, isPlaying, playlist\.length\]\);/);
+
+    assert.ok(toggleMatch, 'expected togglePlaying to keep audio.play in the click handler');
+    assert.doesNotMatch(toggleMatch[1], /setIsPlaying\(\(playing\) =>/);
+    assert.match(toggleMatch[1], /const audio = audioRef\.current/);
+    assert.match(toggleMatch[1], /playAttemptRef\.current = playAttempt/);
+    assert.match(toggleMatch[1], /setIsPlaying\(true\);\s*audio\.play\(\)/);
+    assert.match(toggleMatch[1], /playAttemptRef\.current === playAttempt/);
+    assert.doesNotMatch(toggleMatch[1], /\.then\(/);
+  });
+
   it('loops list playback from the last track back to the first track', async () => {
     const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
     const nextTrackMatch = provider.match(/const nextTrack = useCallback\(\(\) => \{([\s\S]*?)\}, \[currentIndex, playMode, playlist\.length, selectTrack\]\);/);

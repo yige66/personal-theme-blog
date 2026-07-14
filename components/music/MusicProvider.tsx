@@ -78,6 +78,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   const [volume, setVolumeState] = useState(0.84);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playAttemptRef = useRef(0);
   const localFileUrlsRef = useRef<Set<string>>(new Set());
 
   const playlist = useMemo(() => mergePlaylist(localFileTracks, remoteTracks, tracks), [localFileTracks, remoteTracks, tracks]);
@@ -188,25 +189,35 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   }, [currentIndex, playMode, playlist.length, selectTrack]);
 
   const togglePlaying = useCallback(() => {
+    const playAttempt = playAttemptRef.current + 1;
+    playAttemptRef.current = playAttempt;
+
     if (playlist.length === 0) {
       setIsPlaying(false);
       return;
     }
 
-    setIsPlaying((playing) => {
-      const nextPlaying = !playing;
-      if (!nextPlaying) {
-        audioRef.current?.pause();
-        return false;
-      }
+    const audio = audioRef.current;
+    if (isPlaying) {
+      audio?.pause();
+      setIsPlaying(false);
+      return;
+    }
 
-      if (canUseAudio) {
-        audioRef.current?.play().catch(handleAudioPlaybackFailure);
-      }
+    if (!canUseAudio || !audio) {
+      setIsPlaying(true);
+      return;
+    }
 
-      return true;
-    });
-  }, [canUseAudio, handleAudioPlaybackFailure, playlist.length]);
+    setLoadError('');
+    setIsPlaying(true);
+    audio.play()
+      .catch((error) => {
+        if (playAttemptRef.current === playAttempt) {
+          handleAudioPlaybackFailure(error);
+        }
+      });
+  }, [canUseAudio, handleAudioPlaybackFailure, isPlaying, playlist.length]);
 
   const togglePlayMode = useCallback(() => {
     setPlayMode((mode) => {
