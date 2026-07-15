@@ -154,6 +154,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /gt-container/);
     assert.match(comments, /Gitalk 加载中/);
     assert.match(comments, /data-provider="gitalk"/);
+    assert.match(comments, /github-comments-gitalk-host/);
+    assert.match(comments, /ref=\{containerRef\}/);
+    assert.doesNotMatch(comments, /container\.innerHTML = '';\s*gitalk\.render\(container\)/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
     assert.match(comments, /cleanOAuthCodeFromUrl/);

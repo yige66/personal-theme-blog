@@ -120,7 +120,6 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
       <div
         className={`github-comments-frame ${compact ? 'moment-gitalk' : 'custom-gitalk-glass'}`}
-        ref={containerRef}
         data-provider="gitalk"
         data-state={loadState}
         data-term={commentId}
@@ -133,6 +132,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
           </div>
         ) : null}
         {loadState === 'idle' || loadState === 'loading' ? <GitalkLoadingShell /> : null}
+        <div className="github-comments-gitalk-host" ref={containerRef} aria-live="polite" />
       </div>
     </section>
   );
@@ -200,7 +200,6 @@ async function renderGitalk({
     [GITALK_SECRET_OPTION]: 'server-side-oauth-proxy'
   });
 
-  container.innerHTML = '';
   gitalk.render(container);
   syncGitalkTheme(container);
   cleanOAuthCodeFromUrl();
