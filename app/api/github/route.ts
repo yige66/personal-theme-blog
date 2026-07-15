@@ -4,13 +4,39 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 const TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
+const GITHUB_API_ORIGIN = 'https://api.github.com';
 const MAX_BODY_LENGTH = 4096;
+const MAX_PROXY_BODY_LENGTH = 64 * 1024;
 const SUPPORTED_CONTENT_TYPES = ['application/json', 'application/x-www-form-urlencoded'];
 const OAUTH_TOKEN_FIELDS = ['client_id', 'code', 'redirect_uri', 'state', 'code_verifier'] as const;
 
 type OAuthPayload = Partial<Record<(typeof OAUTH_TOKEN_FIELDS)[number] | 'client_secret', string>>;
 
+export async function GET(request: Request) {
+  const proxy = getGitHubProxyTarget(request);
+  if (proxy.error) {
+    return proxy.error;
+  }
+  if (!proxy.target) {
+    return NextResponse.json({ error: 'GitHub API proxy path is required.' }, { status: 400 });
+  }
+
+  return proxyGitHubApi(request, proxy.target);
+}
+
 export async function POST(request: Request) {
+  const proxy = getGitHubProxyTarget(request);
+  if (proxy.error) {
+    return proxy.error;
+  }
+  if (proxy.target) {
+    return proxyGitHubApi(request, proxy.target);
+  }
+
+  return exchangeGitHubOAuth(request);
+}
+
+async function exchangeGitHubOAuth(request: Request) {
   const contentType = normalizeContentType(request.headers.get('content-type') || 'application/json');
 
   if (!SUPPORTED_CONTENT_TYPES.includes(contentType)) {
@@ -66,6 +92,94 @@ export async function POST(request: Request) {
     return NextResponse.json(data, { status: githubResponse.ok ? 200 : githubResponse.status });
   } catch {
     return NextResponse.json({ error: 'GitHub OAuth proxy failed.' }, { status: 502 });
+  }
+}
+
+function getGitHubProxyTarget(request: Request): { target?: URL; error?: NextResponse } {
+  const rawTarget = new URL(request.url).searchParams.get('path');
+  if (!rawTarget) {
+    return {};
+  }
+
+  if (rawTarget.length > 2048) {
+    return { error: NextResponse.json({ error: 'GitHub API proxy path is too long.' }, { status: 413 }) };
+  }
+
+  let target: URL;
+  try {
+    target = new URL(rawTarget);
+  } catch {
+    return { error: NextResponse.json({ error: 'GitHub API proxy path is invalid.' }, { status: 400 }) };
+  }
+
+  if (target.origin !== GITHUB_API_ORIGIN) {
+    return { error: NextResponse.json({ error: 'GitHub API proxy target is not allowed.' }, { status: 403 }) };
+  }
+
+  const owner = readRuntimeEnv('NEXT_PUBLIC_GITALK_OWNER', 'GITALK_OWNER', 'GITHUB_COMMENTS_OWNER');
+  const repo = readRuntimeEnv('NEXT_PUBLIC_GITALK_REPO', 'GITALK_REPO', 'GITHUB_COMMENTS_REPO');
+  const repositoryPath = owner && repo && isSafeGitHubName(owner) && isSafeGitHubName(repo)
+    ? `/repos/${owner}/${repo}`
+    : '';
+  const path = target.pathname.replace(/\/$/, '') || '/';
+  const isRepositoryRequest = Boolean(repositoryPath && (path === repositoryPath || path.startsWith(`${repositoryPath}/`)));
+  const isUserRequest = path === '/user';
+  const isMarkdownRequest = path === '/markdown';
+
+  if (!isRepositoryRequest && !isUserRequest && !isMarkdownRequest) {
+    return { error: NextResponse.json({ error: 'GitHub API proxy path is not allowed.' }, { status: 403 }) };
+  }
+
+  if (!['GET', 'POST'].includes(request.method)) {
+    return { error: NextResponse.json({ error: 'GitHub API proxy method is not allowed.' }, { status: 405 }) };
+  }
+
+  return { target };
+}
+
+async function proxyGitHubApi(request: Request, target: URL): Promise<NextResponse> {
+  const declaredLength = Number(request.headers.get('content-length') || 0);
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_PROXY_BODY_LENGTH) {
+    return NextResponse.json({ error: 'GitHub API proxy body is too large.' }, { status: 413 });
+  }
+
+  try {
+    const body = request.method === 'GET' ? undefined : await request.text();
+    if (body && Buffer.byteLength(body, 'utf8') > MAX_PROXY_BODY_LENGTH) {
+      return NextResponse.json({ error: 'GitHub API proxy body is too large.' }, { status: 413 });
+    }
+
+    const headers = new Headers({
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'yuki-blog-comments',
+      'X-GitHub-Api-Version': '2022-11-28'
+    });
+    const authorization = request.headers.get('authorization') || '';
+    if (/^(Bearer|token)\s+/i.test(authorization)) {
+      headers.set('Authorization', authorization);
+    }
+    if (body) {
+      headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
+    }
+
+    const githubResponse = await fetch(target, {
+      method: request.method,
+      headers,
+      body,
+      cache: 'no-store'
+    });
+    const responseBody = await githubResponse.text();
+    const responseHeaders = new Headers({
+      'Cache-Control': 'no-store',
+      'Content-Type': githubResponse.headers.get('content-type') || 'application/json'
+    });
+
+    return new NextResponse(responseBody, {
+      status: githubResponse.status,
+      headers: responseHeaders
+    });
+  } catch {
+    return NextResponse.json({ error: 'GitHub API proxy failed.' }, { status: 502 });
   }
 }
 
@@ -224,4 +338,8 @@ function isPlaceholderEnvValue(value: string): boolean {
 
 function hasControlCharacters(value: string): boolean {
   return /[\u0000-\u001f\u007f]/.test(value);
+}
+
+function isSafeGitHubName(value: string): boolean {
+  return /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/.test(value);
 }

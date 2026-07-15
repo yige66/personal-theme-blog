@@ -16939,6 +16939,69 @@ body:has(.friends-page) .friends-comments .github-comments-card {
   margin-top: 0 !important;
 }
 
+/* Keep dynamic comments wide enough to read, while retaining the compact trigger. */
+.moment-comment-dock {
+  width: 100% !important;
+  justify-self: stretch !important;
+  text-align: left;
+}
+
+.moment-comment-dock > summary {
+  display: grid !important;
+  margin-left: auto;
+}
+
+.moment-comment-dock[open] > summary {
+  margin-bottom: 12px;
+}
+
+.moment-comment-dock .moment-comments-shell,
+.moment-comment-dock .github-comments-card,
+.moment-comment-dock .github-comments-frame,
+.moment-comment-dock .github-comments-gitalk-host,
+.moment-comment-dock .gt-container {
+  width: 100% !important;
+  min-width: 0;
+}
+
+.moment-comment-dock .github-comments-card.is-compact {
+  margin-top: 0 !important;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+}
+
+/* Gitalk ships a white account popup; bring it into the site's glass-night palette. */
+.custom-gitalk-glass .gt-container .gt-popup,
+.moment-gitalk .gt-container .gt-popup {
+  z-index: 20 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  background: rgba(28, 23, 55, 0.96) !important;
+  color: #fff !important;
+  box-shadow: 0 16px 36px rgba(8, 7, 24, 0.38) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.custom-gitalk-glass .gt-container .gt-popup .gt-action,
+.moment-gitalk .gt-container .gt-popup .gt-action,
+.custom-gitalk-glass .gt-container .gt-popup .gt-version,
+.moment-gitalk .gt-container .gt-popup .gt-version {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.custom-gitalk-glass .gt-container .gt-popup .gt-action:hover,
+.moment-gitalk .gt-container .gt-popup .gt-action:hover {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+}
+
+.custom-gitalk-glass .gt-container .gt-popup .gt-action.is--active::before,
+.moment-gitalk .gt-container .gt-popup .gt-action.is--active::before {
+  background: var(--theme) !important;
+}
+
 /* About comments panel connection: keep comments as the lower half of the joined panel. */
 .about-page .about-joined-panel > .github-comments-shell {
   width: 100% !important;

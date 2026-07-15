@@ -40,9 +40,12 @@ const GITALK_SCRIPT_ID = 'gitalk-client-script';
 const GITALK_STYLE_ID = 'gitalk-client-style';
 const GITALK_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/gitalk@1.8.0/dist/gitalk.min.js';
 const GITALK_STYLE_HREF = 'https://cdn.jsdelivr.net/npm/gitalk@1.8.0/dist/gitalk.css';
+const GITHUB_API_ORIGIN = 'https://api.github.com';
+const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
+let githubApiProxyInstalled = false;
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -210,6 +213,8 @@ function loadGitalk(): Promise<GitalkConstructor> {
     return Promise.reject(new Error('Gitalk can only load in the browser.'));
   }
 
+  installGitHubApiProxy();
+
   if (window.Gitalk) {
     return Promise.resolve(window.Gitalk);
   }
@@ -245,6 +250,24 @@ function loadGitalk(): Promise<GitalkConstructor> {
   });
 
   return gitalkLoader;
+}
+
+function installGitHubApiProxy() {
+  if (githubApiProxyInstalled || typeof window === 'undefined') {
+    return;
+  }
+
+  const originalOpen = XMLHttpRequest.prototype.open;
+  const proxyOpen = function(this: XMLHttpRequest, method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null) {
+    const target = typeof url === 'string' ? url : url.toString();
+    const nextUrl = target.startsWith(`${GITHUB_API_ORIGIN}/`)
+      ? `${GITHUB_API_PROXY_PATH}?path=${encodeURIComponent(target)}`
+      : url;
+
+    return originalOpen.call(this, method, nextUrl, async ?? true, username, password);
+  };
+  XMLHttpRequest.prototype.open = proxyOpen as typeof XMLHttpRequest.prototype.open;
+  githubApiProxyInstalled = true;
 }
 
 function createGitalkId(mapping = 'pathname', term: string, title: string): string {

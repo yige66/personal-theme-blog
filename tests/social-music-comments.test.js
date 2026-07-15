@@ -157,6 +157,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /github-comments-gitalk-host/);
     assert.match(comments, /ref=\{containerRef\}/);
     assert.doesNotMatch(comments, /container\.innerHTML = '';\s*gitalk\.render\(container\)/);
+    assert.match(comments, /GITHUB_API_ORIGIN/);
+    assert.match(comments, /GITHUB_API_PROXY_PATH/);
+    assert.match(comments, /XMLHttpRequest\.prototype\.open/);
+    assert.match(comments, /installGitHubApiProxy/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
     assert.match(comments, /cleanOAuthCodeFromUrl/);
@@ -173,6 +177,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /not configured/);
     assert.match(githubApi, /https:\/\/github\.com\/login\/oauth\/access_token/);
     assert.match(githubApi, /MAX_BODY_LENGTH/);
+    assert.match(githubApi, /GITHUB_API_ORIGIN/);
+    assert.match(githubApi, /getGitHubProxyTarget/);
+    assert.match(githubApi, /proxyGitHubApi/);
+    assert.match(githubApi, /User-Agent/);
     assert.match(githubApi, /client_secret/);
     assert.doesNotMatch(githubApi, /console\.log|console\.error/);
     assert.match(postPage, /GitHubComments/);
@@ -198,6 +206,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /\.about-page \.about-joined-panel > \.github-comments-shell/);
     assert.match(css, /Final About joined panel cleanup/);
     assert.match(css, /html\[data-xh-theme="night"\] \.custom-gitalk-glass/);
+    assert.match(css, /\.moment-comment-dock[\s\S]*width: 100% !important/);
+    assert.match(css, /\.moment-gitalk \.gt-container \.gt-popup/);
+    assert.match(css, /background: rgba\(28, 23, 55, 0\.96\) !important/);
     assert.match(envExample, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(envExample, /GITHUB_CLIENT_SECRET/);
   });
