@@ -12354,6 +12354,87 @@ body:has(.admin-private-page) .xh-click-canvas {
   color: #1e293b;
 }
 
+.admin-access-gate {
+  width: min(460px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 64px 32px 48px;
+  text-align: center;
+}
+
+.admin-access-gate-mark {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 20px;
+  place-items: center;
+  border: 1px solid #1d4ed8;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.admin-access-gate-kicker {
+  margin: 0 0 10px;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.admin-access-gate h1 {
+  margin: 0 0 12px;
+  color: #0f172a;
+  font-size: 30px;
+  letter-spacing: 0;
+}
+
+.admin-access-gate > p:not(.admin-access-gate-kicker):not(.admin-access-gate-status) {
+  margin: 0 auto 28px;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.admin-access-gate form {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.admin-access-gate label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-access-gate input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #94a3b8;
+  border-radius: 5px;
+  padding: 0 13px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+}
+
+.admin-access-gate .button {
+  min-height: 46px;
+  margin-top: 8px;
+}
+
+.admin-access-gate-status {
+  min-height: 22px;
+  margin: 14px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.admin-access-gate-status.is-error {
+  color: #b42318;
+}
+
 .admin-private-page .admin-plain-system {
   width: min(1280px, calc(100vw - 32px));
   margin: 0 auto;

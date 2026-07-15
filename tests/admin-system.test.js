@@ -55,7 +55,9 @@ describe('blog administration operating system', () => {
     assert.match(adminPage, /robots/);
     assert.match(adminPage, /admin-private-page/);
     assert.doesNotMatch(adminPage, /SiteNav/);
-    assert.doesNotMatch(adminPage, /NODE_ENV !== 'production'/);
+    assert.match(adminPage, /isAdminSessionAuthorized/);
+    assert.match(adminPage, /AdminAccessGate/);
+    assert.match(adminPage, /NODE_ENV !== 'production'/);
     assert.match(adminPage, /initialData=\{null\}/);
     assert.match(adminPage, /initialStats=\{null\}/);
     assert.match(adminPage, /initialOverview=\{null\}/);
