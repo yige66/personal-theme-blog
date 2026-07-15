@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { cache } from 'react';
 import { isBlobStorageConfigured, readBlogDataBlob } from './blog-storage.ts';
+import { compareTextCodePoints } from './deterministic-text.ts';
 
 export type BlogPost = {
   id: string;
@@ -819,7 +820,7 @@ export async function getTagSummaries(): Promise<TagSummary[]> {
     }
   }
 
-  return [...tags.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return [...tags.values()].sort((a, b) => b.count - a.count || compareTextCodePoints(a.name, b.name));
 }
 
 export async function getPostsByTag(tag: string): Promise<BlogPost[]> {

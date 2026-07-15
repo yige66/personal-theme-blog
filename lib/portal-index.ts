@@ -1,4 +1,5 @@
 import type { BlogData, BlogPost } from './blog';
+import { compareTextCodePoints } from './deterministic-text';
 import { createContentExcerpt } from './text';
 
 export type PortalEntryKind = '文章' | '项目' | '动态' | '杂谈' | '相册' | '音乐' | '友链' | '路由';
@@ -190,7 +191,7 @@ function normalize(value: string): string {
 }
 
 function sortResults(a: PortalSearchResult, b: PortalSearchResult): number {
-  return b.score - a.score || b.weight - a.weight || a.title.localeCompare(b.title);
+  return b.score - a.score || b.weight - a.weight || compareTextCodePoints(a.title, b.title);
 }
 
 function escapeRegExp(value: string): string {

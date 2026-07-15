@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ArchiveGroup, BlogPost } from '@/lib/blog';
 import { formatChinaDate, formatChinaDateTime } from '@/lib/china-date-format';
+import { compareTextCodePoints } from '@/lib/deterministic-text';
 
 type ArchiveEntry = {
   post: BlogPost;
@@ -64,7 +65,7 @@ export function ArchiveSwitchboard({ groups }: { groups: ArchiveGroup[] }) {
       post.tags.forEach((tag) => counts.set(tag, (counts.get(tag) ?? 0) + 1));
     });
     return Array.from(counts, ([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+      .sort((a, b) => b.count - a.count || compareTextCodePoints(a.name, b.name));
   }, [entries]);
 
   const filteredEntries = useMemo(() => {
