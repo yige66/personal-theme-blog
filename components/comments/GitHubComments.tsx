@@ -257,17 +257,44 @@ function installGitHubApiProxy() {
     return;
   }
 
+  const proxiedRequests = new WeakSet<XMLHttpRequest>();
   const originalOpen = XMLHttpRequest.prototype.open;
   const proxyOpen = function(this: XMLHttpRequest, method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null) {
     const target = typeof url === 'string' ? url : url.toString();
-    const nextUrl = target.startsWith(`${GITHUB_API_ORIGIN}/`)
-      ? `${GITHUB_API_PROXY_PATH}?path=${encodeURIComponent(target)}`
-      : url;
+    const nextUrl = getGitHubProxyUrl(target);
+    if (nextUrl) {
+      proxiedRequests.add(this);
+    }
 
-    return originalOpen.call(this, method, nextUrl, async ?? true, username, password);
+    return originalOpen.call(this, method, nextUrl || url, async ?? true, username, password);
   };
   XMLHttpRequest.prototype.open = proxyOpen as typeof XMLHttpRequest.prototype.open;
+
+  const originalSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+  const proxySetRequestHeader = function(this: XMLHttpRequest, name: string, value: string) {
+    // Gitalk adds Basic auth for direct api.github.com calls. The same-origin
+    // proxy does not need it, and forwarding it can turn a public read into 403.
+    if (proxiedRequests.has(this) && /^authorization$/i.test(name) && /^Basic\s+/i.test(value)) {
+      return;
+    }
+
+    return originalSetRequestHeader.call(this, name, value);
+  };
+  XMLHttpRequest.prototype.setRequestHeader = proxySetRequestHeader;
   githubApiProxyInstalled = true;
+}
+
+function getGitHubProxyUrl(value: string): string | null {
+  try {
+    const target = new URL(value, window.location.href);
+    if (target.origin !== GITHUB_API_ORIGIN || !target.pathname.startsWith('/')) {
+      return null;
+    }
+
+    return `${GITHUB_API_PROXY_PATH}?path=${encodeURIComponent(target.toString())}`;
+  } catch {
+    return null;
+  }
 }
 
 function createGitalkId(mapping = 'pathname', term: string, title: string): string {

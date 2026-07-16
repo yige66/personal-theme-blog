@@ -160,6 +160,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /GITHUB_API_ORIGIN/);
     assert.match(comments, /GITHUB_API_PROXY_PATH/);
     assert.match(comments, /XMLHttpRequest\.prototype\.open/);
+    assert.match(comments, /XMLHttpRequest\.prototype\.setRequestHeader/);
+    assert.match(comments, /getGitHubProxyUrl/);
     assert.match(comments, /installGitHubApiProxy/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
@@ -184,6 +186,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /ProxyTargetKind/);
     assert.match(githubApi, /isPublicRead/);
     assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
+    assert.match(githubApi, /anonymousHeaders/);
+    assert.match(githubApi, /createPublicRepositoryFallback/);
     assert.match(githubApi, /kind === 'user'/);
     assert.match(githubApi, /new NextResponse\('\{\}'/);
     assert.match(githubApi, /User-Agent/);

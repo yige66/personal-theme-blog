@@ -7485,65 +7485,147 @@ body:has(.projects-page) .project-matrix-card-shell .project-matrix-actions span
   pointer-events: none !important;
 }
 
+/* GitHub Primer-like star control shared by project cards and featured cards. */
+.project-star-button {
+  min-height: 32px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #3d444d;
+  border-radius: 6px;
+  background: #212830;
+  color: #f0f6fc;
+  -webkit-text-fill-color: currentColor;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.project-star-button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.project-star-button:hover:not(:disabled),
+.project-star-button:focus-visible {
+  border-color: #768390;
+  background: #2f3742;
+}
+
+.project-star-button.is-starred {
+  border-color: #2ea043;
+  background: #1f6f43;
+  color: #ffffff;
+}
+
+.project-star-button.is-starred svg {
+  fill: currentColor;
+}
+
+.project-star-button.is-loading {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.project-star-button:disabled {
+  cursor: default;
+}
+
 body:has(.projects-page) .project-star-button {
   position: absolute !important;
   right: clamp(30px, 3.35vw, 58px) !important;
   bottom: clamp(30px, 3.1vw, 56px) !important;
   z-index: 5 !important;
-  min-height: 42px !important;
-  padding: 0 17px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  border: 1px solid rgba(255, 224, 151, 0.48) !important;
-  border-radius: 999px !important;
-  background: rgba(67, 50, 73, 0.78) !important;
-  color: rgba(255, 232, 173, 0.98) !important;
-  -webkit-text-fill-color: currentColor !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-  box-shadow: 0 14px 28px rgba(17, 10, 35, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-  cursor: pointer !important;
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease !important;
 }
 
-body:has(.projects-page) .project-star-button svg {
-  width: 17px !important;
-  height: 17px !important;
-  flex: 0 0 auto !important;
-  fill: transparent !important;
-  stroke: currentColor !important;
-  stroke-width: 1.8 !important;
+.project-star-login-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(1, 4, 9, 0.66);
 }
 
-body:has(.projects-page) .project-star-button:hover:not(:disabled),
-body:has(.projects-page) .project-star-button:focus-visible {
-  transform: translateY(-2px) !important;
-  border-color: rgba(255, 239, 179, 0.92) !important;
-  background: rgba(103, 75, 80, 0.9) !important;
-  color: #fff2bd !important;
+.project-star-login-dialog {
+  width: min(420px, 100%);
+  padding: 24px;
+  border: 1px solid #3d444d;
+  border-radius: 8px;
+  background: #161b22;
+  color: #f0f6fc;
+  box-shadow: 0 24px 72px rgba(1, 4, 9, 0.48);
 }
 
-body:has(.projects-page) .project-star-button.is-starred {
-  border-color: rgba(158, 231, 192, 0.72) !important;
-  background: rgba(47, 91, 79, 0.82) !important;
-  color: #b8f5d0 !important;
+.project-star-login-dialog h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
 }
 
-body:has(.projects-page) .project-star-button.is-starred svg {
-  fill: currentColor !important;
+.project-star-login-dialog p {
+  margin: 10px 0 20px;
+  color: #8b949e;
+  line-height: 1.6;
 }
 
-body:has(.projects-page) .project-star-button.is-loading {
-  cursor: progress !important;
-  opacity: 0.72 !important;
+.project-star-login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-body:has(.projects-page) .project-star-button:disabled {
-  cursor: default !important;
+.project-star-login-actions a,
+.project-star-login-actions button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #3d444d;
+  border-radius: 6px;
+  background: #212830;
+  color: #f0f6fc;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.project-star-login-actions a {
+  border-color: #2ea043;
+  background: #238636;
+}
+
+.project-star-login-actions a:hover,
+.project-star-login-actions a:focus-visible,
+.project-star-login-actions button:hover,
+.project-star-login-actions button:focus-visible {
+  border-color: #768390;
+  background: #2f3742;
+}
+
+@media (max-width: 640px) {
+  .project-star-login-dialog {
+    padding: 20px;
+  }
+
+  .project-star-login-actions {
+    flex-direction: column-reverse;
+  }
+
+  .project-star-login-actions a,
+  .project-star-login-actions button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
