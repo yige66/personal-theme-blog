@@ -1,8 +1,6 @@
-# 星屿手记 Personal Theme Blog
+#  Personal Theme Blog
 
-一个向 [XinghuisamaBlogs](https://github.com/heiehiehi/XinghuisamaBlogs) 学习范式的个人博客：前台是可部署的 Next.js App Router 站点，应用代码由 GitHub 和 Vercel 持续发布，线上内容通过受保护的后台写入 Vercel Blob 并即时更新。
 
-在线访问：[https://yukino-blog.site](https://yukino-blog.site)
 
 ## 当前定位
 
