@@ -3,12 +3,7 @@ import { notFound } from 'next/navigation';
 import { GitHubComments } from '@/components/comments/GitHubComments';
 import { ProfileCard } from '@/components/ProfileCard';
 import { SiteNav } from '@/components/SiteNav';
-import { formatDate, getBlogData, getBlogStats, getChatterBySlug, getChatters, renderMarkdown } from '@/lib/blog';
-
-export async function generateStaticParams() {
-  const chatters = await getChatters();
-  return chatters.map((chatter) => ({ slug: chatter.slug }));
-}
+import { formatDate, getBlogData, getBlogStats, getChatterBySlug, renderMarkdown } from '@/lib/blog';
 
 export default async function ChatterDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

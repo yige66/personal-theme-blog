@@ -4,17 +4,12 @@ import type { CSSProperties } from 'react';
 import { ChannelHeader } from '@/components/ChannelHeader';
 import { TagReadingDock } from '@/components/channels/TagSurfaces';
 import { SiteNav } from '@/components/SiteNav';
-import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel, getPostsByTag, getTagSummaries } from '@/lib/blog';
+import { formatPageText, getBlogData, getPageActions, getPageContent, getPageStatLabel, getPostsByTag } from '@/lib/blog';
 import { createTagMetadata } from '@/lib/seo';
 
 type TagPageProps = {
   params: Promise<{ tag: string }>;
 };
-
-export async function generateStaticParams() {
-  const tags = await getTagSummaries();
-  return tags.map((tag) => ({ tag: tag.name }));
-}
 
 export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
   const { tag } = await params;

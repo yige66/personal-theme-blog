@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import { getBlogData, getChatters, getPublishedPosts, getTagSummaries } from '@/lib/blog';
 import { absoluteUrl, mostRecentDate, PUBLIC_ROUTES } from '@/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [data, posts, tags, chatters] = await Promise.all([getBlogData(), getPublishedPosts(), getTagSummaries(), getChatters()]);
   const siteLastModified = mostRecentDate([

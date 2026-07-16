@@ -3,14 +3,31 @@ import { get, put } from '@vercel/blob';
 export const blogDataBlobPath = 'blog/blog.json';
 export const aiConfigBlobPath = 'admin/ai-config.json';
 const blogBackupPrefix = 'blog/backups';
+const privateBlobCredentialError = 'BLOB_READ_WRITE_TOKEN or VERCEL_OIDC_TOKEN with BLOB_STORE_ID is required for private Blob storage.';
+
+type PrivateBlobCredentialOptions =
+  | { token: string }
+  | { oidcToken: string; storeId: string };
+
+export function getPrivateBlobCredentialOptions(): PrivateBlobCredentialOptions | null {
+  const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
+  const storeId = process.env.BLOB_STORE_ID?.trim();
+
+  if (oidcToken && storeId) {
+    return { oidcToken, storeId };
+  }
+
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  return token ? { token } : null;
+}
 
 export function isBlobStorageConfigured(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+  return Boolean(getPrivateBlobCredentialOptions());
 }
 
 export function assertBlogStorageWritable(): void {
   if (process.env.NODE_ENV === 'production' && !isBlobStorageConfigured()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is required for production blog writes.');
+    throw new Error('BLOB_READ_WRITE_TOKEN or VERCEL_OIDC_TOKEN with BLOB_STORE_ID is required for production blog writes.');
   }
 }
 
@@ -43,13 +60,15 @@ export async function readPrivateBlob(pathname: string): Promise<string | null> 
 }
 
 export async function readPrivateBlobSnapshot(pathname: string): Promise<{ content: string; etag: string } | null> {
-  if (!isBlobStorageConfigured()) {
+  const credentialOptions = getPrivateBlobCredentialOptions();
+  if (!credentialOptions) {
     return null;
   }
 
   const result = await get(pathname, {
     access: 'private',
-    useCache: false
+    useCache: false,
+    ...credentialOptions
   });
 
   if (!result || result.statusCode !== 200) {
@@ -71,8 +90,9 @@ export async function readBlogDataBlobSnapshot(): Promise<{ content: string; eta
 }
 
 export async function savePrivateBlob(pathname: string, content: string): Promise<void> {
-  if (!isBlobStorageConfigured()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is required for private Blob storage.');
+  const credentialOptions = getPrivateBlobCredentialOptions();
+  if (!credentialOptions) {
+    throw new Error(privateBlobCredentialError);
   }
 
   await put(pathname, content, {
@@ -80,13 +100,15 @@ export async function savePrivateBlob(pathname: string, content: string): Promis
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json',
-    cacheControlMaxAge: 60
+    cacheControlMaxAge: 60,
+    ...credentialOptions
   });
 }
 
 export async function saveBlogDataBlob(json: string, expectedEtag: string | null): Promise<{ backupPath: string | null }> {
-  if (!isBlobStorageConfigured()) {
-    throw new Error('BLOB_READ_WRITE_TOKEN is required for Blob storage.');
+  const credentialOptions = getPrivateBlobCredentialOptions();
+  if (!credentialOptions) {
+    throw new Error(privateBlobCredentialError);
   }
 
   const previous = await readBlogDataBlobSnapshot();
@@ -98,7 +120,8 @@ export async function saveBlogDataBlob(json: string, expectedEtag: string | null
       access: 'private',
       addRandomSuffix: false,
       contentType: 'application/json',
-      cacheControlMaxAge: 60
+      cacheControlMaxAge: 60,
+      ...credentialOptions
     });
     backupPath = backup.pathname;
   }
@@ -110,7 +133,8 @@ export async function saveBlogDataBlob(json: string, expectedEtag: string | null
       ? { allowOverwrite: true, ifMatch: expectedEtag }
       : { allowOverwrite: false }),
     contentType: 'application/json',
-    cacheControlMaxAge: 60
+    cacheControlMaxAge: 60,
+    ...credentialOptions
   });
 
   return { backupPath };

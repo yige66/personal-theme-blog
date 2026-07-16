@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { getBlogData } from '@/lib/blog';
 
+export const dynamic = 'force-dynamic';
+
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const data = await getBlogData();
 

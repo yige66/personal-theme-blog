@@ -6,17 +6,12 @@ import type { CSSProperties } from 'react';
 import { GitHubComments } from '@/components/comments/GitHubComments';
 import { ProfileCard } from '@/components/ProfileCard';
 import { SiteNav } from '@/components/SiteNav';
-import { estimateReadingMinutes, formatDate, getBlogData, getBlogStats, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
+import { estimateReadingMinutes, formatDate, getBlogData, getBlogStats, getPostBySlug, renderMarkdown } from '@/lib/blog';
 import { createArticleJsonLd, createPostMetadata, toJsonLd } from '@/lib/seo';
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
-
-export async function generateStaticParams() {
-  const posts = await getPublishedPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;

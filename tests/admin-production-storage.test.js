@@ -3,12 +3,13 @@ import { afterEach, describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
-import { assertBlogStorageWritable, assertMediaStorageWritable, normalizeBlobEtag } from '../lib/blog-storage.ts';
+import { assertBlogStorageWritable, assertMediaStorageWritable, getPrivateBlobCredentialOptions, isBlobStorageConfigured, normalizeBlobEtag } from '../lib/blog-storage.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
 const originalPublicBlobToken = process.env.BLOB_PUBLIC_READ_WRITE_TOKEN;
 const originalPublicStoreId = process.env.BLOB_PUBLIC_STORE_ID;
+const originalPrivateStoreId = process.env.BLOB_STORE_ID;
 const originalOidcToken = process.env.VERCEL_OIDC_TOKEN;
 
 afterEach(() => {
@@ -16,6 +17,7 @@ afterEach(() => {
   restoreEnv('BLOB_READ_WRITE_TOKEN', originalBlobToken);
   restoreEnv('BLOB_PUBLIC_READ_WRITE_TOKEN', originalPublicBlobToken);
   restoreEnv('BLOB_PUBLIC_STORE_ID', originalPublicStoreId);
+  restoreEnv('BLOB_STORE_ID', originalPrivateStoreId);
   restoreEnv('VERCEL_OIDC_TOKEN', originalOidcToken);
 });
 
@@ -72,6 +74,33 @@ describe('production admin storage policy', () => {
     process.env.BLOB_READ_WRITE_TOKEN = 'test-private-blob-token';
 
     assert.doesNotThrow(() => assertBlogStorageWritable());
+  });
+
+  it('uses the project-scoped OIDC credential for private Blob storage', () => {
+    process.env.NODE_ENV = 'production';
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    process.env.VERCEL_OIDC_TOKEN = 'test-private-oidc-token';
+    process.env.BLOB_STORE_ID = 'store_private';
+
+    assert.equal(isBlobStorageConfigured(), true);
+    assert.deepEqual(getPrivateBlobCredentialOptions(), {
+      oidcToken: 'test-private-oidc-token',
+      storeId: 'store_private'
+    });
+    assert.doesNotThrow(() => assertBlogStorageWritable());
+  });
+
+  it('does not treat an unscoped private OIDC token as configured', () => {
+    process.env.NODE_ENV = 'production';
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    process.env.VERCEL_OIDC_TOKEN = 'test-private-oidc-token';
+    delete process.env.BLOB_STORE_ID;
+
+    assert.equal(isBlobStorageConfigured(), false);
+    assert.throws(
+      () => assertBlogStorageWritable(),
+      /BLOB_STORE_ID/
+    );
   });
 
   it('allows production media writes through the Vercel OIDC credential', () => {
