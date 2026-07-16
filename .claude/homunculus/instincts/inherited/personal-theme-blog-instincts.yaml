@@ -1,0 +1,735 @@
+# Instincts generated from https://github.com/yige66/personal-theme-blog
+# Generated: 2026-07-16T05:09:49.300Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: personal-theme-blog-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: fix, feat, refactor
+
+## Evidence
+
+- 95 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat: expand blog into site architecture, fix: close content publishing gaps
+
+---
+id: personal-theme-blog-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Commit Length
+
+## Action
+
+Keep commit messages concise (~41 characters)
+
+## Evidence
+
+- Average commit message length: 41 chars
+- Based on 95 commits
+
+---
+id: personal-theme-blog-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Naming Files
+
+## Action
+
+Use kebab-case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: kebab-case
+
+---
+id: personal-theme-blog-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: personal-theme-blog-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Export Style
+
+## Action
+
+Prefer mixed exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: mixed
+
+---
+id: personal-theme-blog-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: personal-theme-blog-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.js
+
+## Evidence
+
+- File pattern: *.test.js
+- Consistent across test files
+
+---
+id: personal-theme-blog-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: no
+
+---
+id: personal-theme-blog-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~16x per month
+- Files: app/about/*, app/archive/*, app/console/*
+
+---
+id: personal-theme-blog-workflow-refactoring
+trigger: "when refactoring code"
+confidence: 0.75
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Refactoring
+
+## Action
+
+Follow the refactoring workflow:
+1. Ensure tests pass before refactor
+2. Refactor code structure
+3. Verify tests still pass
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~5x per month
+- Files: src/**/*
+
+---
+id: personal-theme-blog-workflow-subpage-experience-update
+trigger: "when doing subpage experience update"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Subpage Experience Update
+
+## Action
+
+Follow the subpage-experience-update workflow:
+1. Edit multiple files in app/*/page.tsx (e.g. app/gallery/page.tsx, app/moments/page.tsx, etc)
+2. Update shared components (e.g. components/SectionBlocks.tsx, MomentsBoard.tsx, ChannelHeader.tsx)
+3. Adjust global or subpage-specific styles (e.g. app/globals.css, app/home-overrides.css)
+4. Update relevant tests (e.g. tests/subpage-experience.test.js, tests/experience-density.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: app/*/page.tsx, components/SectionBlocks.tsx, components/MomentsBoard.tsx
+
+---
+id: personal-theme-blog-workflow-homepage-experience-update
+trigger: "when doing homepage experience update"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Homepage Experience Update
+
+## Action
+
+Follow the homepage-experience-update workflow:
+1. Edit app/page.tsx and/or app/layout.tsx
+2. Modify or add homepage-specific components (e.g. HomeEffects.tsx, HomeWorld.tsx, SplashScreen.tsx, SiteNav.tsx)
+3. Update or add CSS (e.g. app/globals.css, app/home-overrides.css)
+4. Update or add homepage-related tests (e.g. tests/frontend-source.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: app/page.tsx, app/layout.tsx, components/HomeEffects.tsx
+
+---
+id: personal-theme-blog-workflow-admin-cms-workflow-update
+trigger: "when doing admin cms workflow update"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Admin Cms Workflow Update
+
+## Action
+
+Follow the admin-cms-workflow-update workflow:
+1. Edit admin.html and/or assets/js/admin.js
+2. Update or add admin-related CSS (assets/css/admin.css)
+3. Modify or add admin components (components/admin/*)
+4. Update server logic if needed (server.js, lib/blog-admin.ts, lib/admin-assets.ts)
+5. Update or add admin-related tests (tests/admin-ui.test.js, tests/admin-system.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: admin.html, assets/js/admin.js, assets/css/admin.css
+
+---
+id: personal-theme-blog-workflow-blog-content-curation
+trigger: "when doing blog content curation"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Blog Content Curation
+
+## Action
+
+Follow the blog-content-curation workflow:
+1. Edit data/blog.json
+2. Optionally update friend links/components (e.g. FriendsBoardClient.tsx, adminUtils.ts)
+3. Update or add content-related tests (tests/content-quality.test.js, tests/admin-system.test.js, tests/social-music-comments.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: data/blog.json, components/FriendsBoardClient.tsx, components/admin/adminUtils.ts
+
+---
+id: personal-theme-blog-workflow-seasonal-effects-update
+trigger: "when doing seasonal effects update"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Seasonal Effects Update
+
+## Action
+
+Follow the seasonal-effects-update workflow:
+1. Edit app/home-overrides.css
+2. Edit or add components/HomeEffects.tsx
+3. Add or update assets in public/assets/seasonal/
+4. Update or add related tests (tests/frontend-source.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: app/home-overrides.css, components/HomeEffects.tsx, public/assets/seasonal/*
+
+---
+id: personal-theme-blog-workflow-music-and-comments-integration
+trigger: "when doing music and comments integration"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Workflow Music And Comments Integration
+
+## Action
+
+Follow the music-and-comments-integration workflow:
+1. Edit or add music-related components (components/music/*, components/MusicStudio.tsx)
+2. Edit or add comment-related components (components/comments/GitHubComments.tsx)
+3. Edit or add music/comment API routes (app/api/music/route.ts, app/api/github/route.ts)
+4. Update or add related tests (tests/music-playback.test.js, tests/social-music-comments.test.js)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: components/music/*, components/MusicStudio.tsx, components/comments/GitHubComments.tsx
+
+---
+id: personal-theme-blog-instinct-file-naming
+trigger: "When creating or renaming files"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct File Naming
+
+## Action
+
+Use kebab-case for file names
+
+## Evidence
+
+- Pattern in files: app/about/page.tsx, app/archive/page.tsx, components/section-blocks.tsx
+
+---
+id: personal-theme-blog-instinct-function-naming
+trigger: "When defining functions"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Function Naming
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in codebase: consistent camelCase in function definitions
+
+---
+id: personal-theme-blog-instinct-class-naming
+trigger: "When creating classes"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Class Naming
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in codebase: e.g., class HomeWorld, class MomentsBoard
+
+---
+id: personal-theme-blog-instinct-constant-naming
+trigger: "When declaring constants"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in codebase: constants in SCREAMING_SNAKE_CASE
+
+---
+id: personal-theme-blog-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Import Style
+
+## Action
+
+Use alias imports where possible
+
+## Evidence
+
+- Pattern in codebase: import statements use aliases
+
+---
+id: personal-theme-blog-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Export Style
+
+## Action
+
+Use mixed export style (both default and named exports as appropriate)
+
+## Evidence
+
+- Pattern in codebase: both default and named exports present
+
+---
+id: personal-theme-blog-instinct-test-location
+trigger: "When adding or updating tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Test Location
+
+## Action
+
+Place test files in the separate tests/ folder
+
+## Evidence
+
+- Pattern in files: tests/subpage-experience.test.js, tests/frontend-source.test.js
+
+---
+id: personal-theme-blog-instinct-test-pattern
+trigger: "When naming test files"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Test Pattern
+
+## Action
+
+Use the *.test.js naming pattern
+
+## Evidence
+
+- Pattern in files: tests/music-playback.test.js, tests/content-quality.test.js
+
+---
+id: personal-theme-blog-instinct-test-types
+trigger: "When writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Test Types
+
+## Action
+
+Write both unit and integration tests as appropriate
+
+## Evidence
+
+- Pattern in testTypes: unit, integration
+
+---
+id: personal-theme-blog-instinct-git-commit-format
+trigger: "When making a commit"
+confidence: 0.95
+domain: git
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Git Commit Format
+
+## Action
+
+Use conventional commit format: <type>: <short description>
+
+## Evidence
+
+- Seen in commit: 'feat: expand blog into site architecture'
+- Pattern in commit prefixes: fix, feat, refactor
+
+---
+id: personal-theme-blog-instinct-git-commit-length
+trigger: "When writing commit messages"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Git Commit Length
+
+## Action
+
+Keep commit messages concise (average ~41 characters)
+
+## Evidence
+
+- Pattern in commit examples: averageLength 41
+
+---
+id: personal-theme-blog-instinct-feature-development
+trigger: "When implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Feature Development
+
+## Action
+
+Add feature implementation, then tests, then update documentation
+
+## Evidence
+
+- Workflow: feature-development
+- Commit sequence: Add feature, Add tests, Update docs
+
+---
+id: personal-theme-blog-instinct-refactoring
+trigger: "When refactoring code"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Refactoring
+
+## Action
+
+Ensure tests pass before and after refactor
+
+## Evidence
+
+- Workflow: refactoring
+- Commit sequence: Ensure tests pass before refactor, Refactor, Verify tests
+
+---
+id: personal-theme-blog-instinct-subpage-experience-update
+trigger: "When improving or unifying the look and feel of multiple subpages"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Subpage Experience Update
+
+## Action
+
+Edit app/*/page.tsx files, update shared components, adjust global/subpage CSS, update relevant tests
+
+## Evidence
+
+- Workflow: subpage-experience-update
+- Files involved: app/*/page.tsx, components/SectionBlocks.tsx, app/globals.css, tests/subpage-experience.test.js
+
+---
+id: personal-theme-blog-instinct-homepage-experience-update
+trigger: "When changing the homepage's appearance or behavior"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Homepage Experience Update
+
+## Action
+
+Edit app/page.tsx or app/layout.tsx, update homepage components, CSS, and homepage-related tests
+
+## Evidence
+
+- Workflow: homepage-experience-update
+- Files involved: app/page.tsx, components/HomeEffects.tsx, app/globals.css, tests/frontend-source.test.js
+
+---
+id: personal-theme-blog-instinct-admin-cms-workflow-update
+trigger: "When adding features or fixing issues in the admin panel or CMS"
+confidence: 0.92
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Admin Cms Workflow Update
+
+## Action
+
+Edit admin.html/assets/js/admin.js, update admin CSS/components, server logic, and admin-related tests
+
+## Evidence
+
+- Workflow: admin-cms-workflow-update
+- Files involved: admin.html, assets/js/admin.js, components/admin/*, tests/admin-ui.test.js
+
+---
+id: personal-theme-blog-instinct-blog-content-curation
+trigger: "When updating blog posts, friend links, or content quality"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Blog Content Curation
+
+## Action
+
+Edit data/blog.json, update friend links/components, and content-related tests
+
+## Evidence
+
+- Workflow: blog-content-curation
+- Files involved: data/blog.json, components/FriendsBoardClient.tsx, tests/content-quality.test.js
+
+---
+id: personal-theme-blog-instinct-seasonal-effects-update
+trigger: "When changing or enhancing seasonal/canvas VFX"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Seasonal Effects Update
+
+## Action
+
+Edit app/home-overrides.css, update HomeEffects.tsx, assets in public/assets/seasonal, and related tests
+
+## Evidence
+
+- Workflow: seasonal-effects-update
+- Files involved: app/home-overrides.css, components/HomeEffects.tsx, public/assets/seasonal/*, tests/frontend-source.test.js
+
+---
+id: personal-theme-blog-instinct-music-comments-integration
+trigger: "When adding or refining music features or social commenting"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: yige66/personal-theme-blog
+---
+
+# Personal Theme Blog Instinct Music Comments Integration
+
+## Action
+
+Edit music/comment components, API routes, and related tests
+
+## Evidence
+
+- Workflow: music-and-comments-integration
+- Files involved: components/music/*, components/comments/GitHubComments.tsx, app/api/music/route.ts, tests/music-playback.test.js
+
