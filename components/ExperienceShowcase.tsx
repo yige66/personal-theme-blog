@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogData, BlogProject, BlogStats } from '@/lib/blog';
 
 type ExperienceShowcaseProps = {
@@ -69,10 +68,7 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
             <span>????</span>
             <strong>{featuredProject?.title || 'Personal Blog Console'}</strong>
             <p>{featuredProject?.description || '??????????????????????'}</p>
-            <div className="experience-panel-actions">
-              <Link href="/projects">?????</Link>
-              {featuredProject?.repo ? <ProjectStarButton repo={featuredProject.repo} /> : null}
-            </div>
+            <Link href="/projects">?????</Link>
           </article>
 
           <article className="experience-panel">

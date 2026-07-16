@@ -22,7 +22,6 @@ export type GitHubProjectSource = {
 
 const GITHUB_REVALIDATE_SECONDS = 30 * 60;
 const DEFAULT_PROJECT_COVER = '/assets/img/admin-board.svg';
-const INTRODUCTION_ONLY_PROJECT_NAMES = new Set(['personal-theme-blog']);
 export const GITHUB_PROJECTS_CACHE_TAG = 'github-projects';
 
 export async function getGithubProjects(site: Pick<BlogSite, 'github' | 'projectOrder'>, fallbackProjects: BlogProject[] = []): Promise<GitHubProjectSource> {
@@ -51,10 +50,8 @@ export async function getGithubProjects(site: Pick<BlogSite, 'github' | 'project
     const projects = payload
       .filter(isGitHubRepository)
       .filter((repo) => !Boolean(repo.fork))
-      .filter((repo) => !isIntroductionOnlyProjectName(textValue(repo.name)))
       .map((repo) => repositoryToProject(repo, fallbackProjects))
       .filter((project): project is BlogProject => Boolean(project))
-      .filter(isProjectPageProject)
       .slice(0, 48);
 
     if (projects.length === 0) {
@@ -129,7 +126,7 @@ function fallbackProjectSource(username: string, fallbackProjects: BlogProject[]
   return {
     error,
     projects: applyProjectOrder(
-      fallbackProjects.filter(isProjectPageProject).map((project) => ({
+      fallbackProjects.map((project) => ({
         ...project,
         url: project.repo || project.url,
         repo: project.repo || project.url
@@ -139,10 +136,6 @@ function fallbackProjectSource(username: string, fallbackProjects: BlogProject[]
     source: 'fallback',
     username
   };
-}
-
-export function isProjectPageProject(project: Pick<BlogProject, 'id' | 'title' | 'repo' | 'url'>): boolean {
-  return ![project.id, project.title, project.repo, project.url].some(isIntroductionOnlyProjectReference);
 }
 
 export function applyProjectOrder(projects: BlogProject[], projectOrder: string[] = []): BlogProject[] {
@@ -221,21 +214,6 @@ function normalizeProjectReference(value: unknown): string[] {
   }
 
   return [...keys];
-}
-
-function isIntroductionOnlyProjectReference(value: unknown): boolean {
-  const raw = typeof value === 'string' ? value.trim() : '';
-  if (!raw) {
-    return false;
-  }
-
-  const normalized = raw.toLowerCase().replace(/\.git$/i, '').replace(/\/+$/g, '');
-  const name = normalized.split('/').filter(Boolean).at(-1) || normalized;
-  return isIntroductionOnlyProjectName(name) || normalized === 'project-personal-theme-blog';
-}
-
-function isIntroductionOnlyProjectName(value: string): boolean {
-  return INTRODUCTION_ONLY_PROJECT_NAMES.has(value.trim().toLowerCase());
 }
 
 function githubHeaders(): HeadersInit {
