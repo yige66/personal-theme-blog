@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { estimateReadingMinutes, formatDate, getBlogData, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
+import type { CSSProperties } from 'react';
+import { GitHubComments } from '@/components/comments/GitHubComments';
+import { ProfileCard } from '@/components/ProfileCard';
+import { SiteNav } from '@/components/SiteNav';
+import { estimateReadingMinutes, formatDate, getBlogData, getBlogStats, getPostBySlug, getPublishedPosts, renderMarkdown } from '@/lib/blog';
+import { createArticleJsonLd, createPostMetadata, toJsonLd } from '@/lib/seo';
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
@@ -20,50 +26,46 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
     return { title: '文章不存在' };
   }
 
-  return {
-    title: post.title,
-    description: post.summary,
-    openGraph: {
-      title: post.title,
-      description: post.summary,
-      type: 'article',
-      images: [post.cover],
-      siteName: data.site.title
-    }
-  };
+  return createPostMetadata(data.site, post);
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const [post, data] = await Promise.all([getPostBySlug(slug), getBlogData()]);
+  const [post, data, stats] = await Promise.all([getPostBySlug(slug), getBlogData(), getBlogStats()]);
 
   if (!post) {
     notFound();
   }
 
+  const articleJsonLd = createArticleJsonLd(data.site, post);
+  const readingMinutes = estimateReadingMinutes(post.content);
+
   return (
-    <main className="article-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as React.CSSProperties}>
-      <nav className="article-nav">
-        <Link href="/">返回首页</Link>
-        <Link href="/console">内容控制台</Link>
-      </nav>
-      <article className="article-shell">
-        <p className="eyebrow">{post.category}</p>
-        <h1>{post.title}</h1>
-        <p className="article-summary">{post.summary}</p>
-        <div className="article-meta">
-          <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
-          <span>{estimateReadingMinutes(post.content)} min read</span>
-          {post.tags.map((tag) => <span key={tag}>{tag}</span>)}
-        </div>
-        <div className="markdown-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
-      </article>
-      <section className="comment-placeholder">
-        <p className="eyebrow">Comments</p>
-        <h2>{data.site.comments.enabled ? data.site.comments.provider : '评论系统待配置'}</h2>
-        <p>{data.site.comments.enabled ? `仓库：${data.site.comments.repo}` : '后台数据已预留 GitHub Issues / Gitalk 类评论配置，部署后可接入 OAuth。'}</p>
+    <main className="subpage article-page post-detail-page" style={{ '--theme': data.site.themeColor, '--accent': data.site.accentColor } as CSSProperties}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(articleJsonLd) }} />
+      <SiteNav columns={data.site.columns} title={data.site.title} brandSuffix={data.site.brandSuffix} />
+      <section className="main-shell article-layout">
+        <article className="article-shell article-capsule">
+          <div className="article-cover" data-motion="image-scale">
+            <Image src={post.cover || data.site.heroImage} alt={`${post.title} 封面`} width={1080} height={620} priority />
+          </div>
+          <div className="article-kicker">
+            <p className="eyebrow">{post.category}</p>
+            <span>{readingMinutes} min read</span>
+          </div>
+          <h1>{post.title}</h1>
+          <p className="article-summary">{post.summary}</p>
+          <div className="article-meta">
+            <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
+            {post.tags.map((tag) => <Link href={`/tags/${encodeURIComponent(tag)}`} key={tag}>{tag}</Link>)}
+          </div>
+          <div id="article-content" className="markdown-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
+        </article>
+        <aside className="article-sidebar article-profile-sidebar" aria-label="作者资料">
+          <ProfileCard site={data.site} stats={stats} />
+        </aside>
       </section>
+      <GitHubComments config={data.site.comments} term={`/posts/${post.slug}`} title={post.title} />
     </main>
   );
 }
-

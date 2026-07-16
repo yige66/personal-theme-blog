@@ -1,0 +1,2030 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent, ReactNode } from 'react';
+import type { BlogData } from '@/lib/blog';
+import { FieldEditor, FieldGrid, PathField } from '@/components/admin/AdminFieldEditors';
+import {
+  backgroundFields,
+  chatterFields,
+  createColumnFields,
+  createPageContentFields,
+  entryRootFields,
+  friendLinkApplicationFields,
+  galleryFields,
+  linkFields,
+  musicFields,
+  noteFields,
+  postFields,
+  siteProfileFields,
+  visualFields
+} from '@/components/admin/adminConfig';
+import type {
+  AdminManagementModule,
+  AdminManagementOverview,
+  BlogAdminConsoleProps,
+  FieldConfig,
+  JsonRecord,
+  PathFieldConfig,
+  PathSegment,
+  RecordKind,
+  UploadImage
+} from '@/components/admin/adminTypes';
+import {
+  asRecordArray,
+  cloneData,
+  createDraftStats,
+  createEmptyItem,
+  createEmptyStats,
+  formatJson,
+  getAtPath,
+  parseJsonDraft,
+  recordTitle,
+  setAtPath,
+  stringValue,
+  withFreshIdentity
+} from '@/components/admin/adminUtils';
+
+type AiModelOption = {
+  label: string;
+  value: string;
+};
+
+type AiAdminConfigView = {
+  apiKeySource: 'backend' | 'env' | 'none';
+  hasApiKey: boolean;
+  model: string;
+  modelOptions: AiModelOption[];
+  updatedAt: string | null;
+};
+
+type AdminOperationStatus = 'idle' | 'saving' | 'success' | 'error';
+
+type AdminOperationState = {
+  status: AdminOperationStatus;
+  title: string;
+  message: string;
+  details?: string[];
+  suggestion?: string;
+};
+
+type AdminErrorPayload = {
+  error?: string;
+  details?: string[];
+  reason?: string;
+};
+
+function createOperationState(
+  status: AdminOperationStatus,
+  title: string,
+  message: string,
+  options: Pick<AdminOperationState, 'details' | 'suggestion'> = {}
+): AdminOperationState {
+  const details = normalizeStatusDetails(options.details);
+  return {
+    status,
+    title,
+    message,
+    ...(details ? { details } : {}),
+    ...(options.suggestion ? { suggestion: options.suggestion } : {})
+  };
+}
+
+async function readAdminJson<T extends Record<string, unknown>>(response: Response): Promise<T & AdminErrorPayload> {
+  const body = await response.text();
+  if (!body.trim()) {
+    return {} as T & AdminErrorPayload;
+  }
+
+  try {
+    return JSON.parse(body) as T & AdminErrorPayload;
+  } catch {
+    return {
+      error: response.ok ? '后台返回内容不是有效 JSON。' : '后台没有返回可读取的错误内容。',
+      details: [body.slice(0, 500)]
+    } as T & AdminErrorPayload;
+  }
+}
+
+function createNetworkErrorState(title: string, error: unknown, fallbackMessage: string): AdminOperationState {
+  return createOperationState('error', title, `请求没有完成：${getErrorMessage(error, fallbackMessage)}`, {
+    suggestion: '检查后台服务是否运行、网络是否可用，然后重试。'
+  });
+}
+
+function createApiErrorState(response: Response, payload: AdminErrorPayload, title: string, fallbackMessage: string): AdminOperationState {
+  const details = payload.details ?? (payload.reason ? [payload.reason] : []);
+  const statusText = response.statusText ? ` ${response.statusText}` : '';
+  return createOperationState('error', title, `后台返回 ${response.status}${statusText}：${payload.error || fallbackMessage}`, {
+    details,
+    suggestion: getResponseSuggestion(response)
+  });
+}
+
+function normalizeStatusDetails(details?: string[]): string[] | undefined {
+  const cleanDetails = (details ?? []).map((item) => item.trim()).filter(Boolean);
+  return cleanDetails.length > 0 ? cleanDetails : undefined;
+}
+
+function getErrorMessage(error: unknown, fallbackMessage: string): string {
+  return error instanceof Error && error.message.trim() ? error.message : fallbackMessage;
+}
+
+function getResponseSuggestion(response: Response): string {
+  if (response.status === 401) {
+    return '检查后台密码是否填写正确，并确认服务端已配置 ADMIN_WRITE_TOKEN。';
+  }
+
+  if (response.status === 400) {
+    return '按错误原因修正表单、导入文件或配置内容后再试。';
+  }
+
+  if (response.status === 413) {
+    return '请求内容过大，请缩小文件或减少一次提交的数据量。';
+  }
+
+  if (response.status === 409) {
+    return '线上内容已变化，请先重新读取，再重新应用本页修改。';
+  }
+
+  if (response.status === 429) {
+    return '操作过于频繁，请等待片刻后重试。';
+  }
+
+  if (response.status >= 500) {
+    return '服务端执行失败，请查看部署或开发服务器日志定位原因。';
+  }
+
+  return '根据上面的错误原因处理后重试。';
+}
+
+type AdminToolId =
+  | 'overview'
+  | 'profile'
+  | 'visual'
+  | 'background'
+  | 'entry'
+  | 'security'
+  | 'ai'
+  | 'page'
+  | 'column'
+  | 'records'
+  | 'support';
+
+type AdminTool = {
+  id: AdminToolId;
+  label: string;
+  hint: string;
+};
+
+type AdminWorkspace = {
+  id: string;
+  label: string;
+  group: string;
+  route: string;
+  pageId: string;
+  dataPath: string;
+  purpose: string;
+  support: string[];
+  content?: {
+    title: string;
+    description: string;
+    path: PathSegment[];
+    fields: FieldConfig[];
+    recordKind: RecordKind;
+  };
+};
+
+const globalWorkspace: AdminWorkspace = {
+  id: 'global',
+  label: '全站资料',
+  group: '基础管理',
+  route: '/',
+  pageId: 'home',
+  dataPath: 'site',
+  purpose: '维护所有前台页面共同使用的站点资料、头像、头图、背景图、启动页、评论和 AI 助手。',
+  support: ['站点资料', '视觉素材', '背景图区块', '启动页', '评论设置', 'DeepSeek 设置']
+};
+
+const columnWorkspaces: AdminWorkspace[] = [
+  {
+    id: 'home',
+    label: '首页',
+    group: '栏目管理',
+    route: '/',
+    pageId: 'home',
+    dataPath: 'site.pages.home / site.columns.home',
+    purpose: '控制首页标题、入口按钮、统计标签和首页展示区块。',
+    support: ['页面展示', '栏目入口', '全站资料']
+  },
+  {
+    id: 'projects',
+    label: '项目',
+    group: '栏目管理',
+    route: '/projects',
+    pageId: 'projects',
+    dataPath: 'site.projectOrder / site.github / GitHub 公开仓库 / site.pages.projects',
+    purpose: '控制前台项目展示顺序，并从 GitHub 公开仓库自动生成项目卡片。',
+    support: ['展示顺序', 'GitHub 同步', '项目页文案']
+  },
+  {
+    id: 'archive',
+    label: '文章',
+    group: '内容管理',
+    route: '/archive',
+    pageId: 'archive',
+    dataPath: 'posts[] / site.pages.archive',
+    purpose: '维护文章、草稿、标签和归档页展示。',
+    support: ['文章列表', '草稿状态', '标签来源'],
+    content: {
+      title: '文章列表',
+      description: '维护文章标题、摘要、正文、标签、封面和发布状态。',
+      path: ['posts'],
+      fields: postFields,
+      recordKind: 'post'
+    }
+  },
+  {
+    id: 'photowall',
+    label: '照片墙',
+    group: '素材管理',
+    route: '/photowall',
+    pageId: 'photowall',
+    dataPath: 'site.gallery[] / site.pages.photowall',
+    purpose: '维护照片墙头部文案、相册入口和照片素材。',
+    support: ['相册素材', '精选图片', '图片说明'],
+    content: {
+      title: '相册素材',
+      description: '维护相册主图、子图、说明、地点、图集和精选状态。',
+      path: ['site', 'gallery'],
+      fields: galleryFields,
+      recordKind: 'gallery'
+    }
+  },
+
+  {
+    id: 'music',
+    label: '音乐',
+    group: '互动管理',
+    route: '/music',
+    pageId: 'music',
+    dataPath: 'site.music[] / site.cloudMusicIds',
+    purpose: '维护音乐页、电台曲目、歌词、封面和评论区标题。',
+    support: ['曲目列表', '云音乐编号', '评论设置'],
+    content: {
+      title: '音乐曲目',
+      description: '维护歌名、歌手、音频地址、封面、歌词、场景和备注。',
+      path: ['site', 'music'],
+      fields: musicFields,
+      recordKind: 'music'
+    }
+  },
+  {
+    id: 'moments',
+    label: '动态',
+    group: '内容管理',
+    route: '/moments',
+    pageId: 'moments',
+    dataPath: 'notes[] / site.pages.moments',
+    purpose: '维护说说内容、心情标签、配图和动态评论区。',
+    support: ['动态内容', '心情标签', '关于页时间线'],
+    content: {
+      title: '动态内容',
+      description: '像写说说一样维护标题、正文、日期、心情、标签和配图。',
+      path: ['notes'],
+      fields: noteFields,
+      recordKind: 'note'
+    }
+  },
+  {
+    id: 'chatter',
+    label: '杂谈',
+    group: '内容管理',
+    route: '/chatter',
+    pageId: 'chatter',
+    dataPath: 'chatters[] / site.pages.chatter',
+    purpose: '维护轻文章瀑布流和杂谈详情页内容。',
+    support: ['杂谈列表', '封面图', '关于页时间线'],
+    content: {
+      title: '杂谈文章',
+      description: '维护轻文章标题、摘要、正文、日期、标签、心情和封面。',
+      path: ['chatters'],
+      fields: chatterFields,
+      recordKind: 'chatter'
+    }
+  },
+  {
+    id: 'tags',
+    label: '标签',
+    group: '内容管理',
+    route: '/tags',
+    pageId: 'tags',
+    dataPath: 'site.tags / posts[].tags / chatters[].tags / site.pages.tags / site.pages[tag-detail]',
+    purpose: '\u7ef4\u62a4\u6807\u7b7e\u8bcd\u5e93\u548c\u6807\u7b7e\u9875\u5c55\u793a\u6587\u6848\uff1b\u5220\u9664\u6807\u7b7e\u540e\u4f1a\u540c\u6b65\u4ece\u6587\u7ae0\u548c\u6742\u8c08\u4e2d\u79fb\u9664\u3002',
+    support: ['\u6807\u7b7e\u8bcd\u5e93', '\u6587\u7ae0\u5173\u8054', '\u6742\u8c08\u5173\u8054', '\u6807\u7b7e\u9875', '\u6807\u7b7e\u8be6\u60c5\u9875']
+  },
+  {
+    id: 'friends',
+    label: '友链',
+    group: '互动管理',
+    route: '/friends',
+    pageId: 'friends',
+    dataPath: 'links[] / site.title / site.github / site.subtitle / site.avatar',
+    purpose: '维护朋友站点卡片、本站申请资料和评论标题。',
+    support: ['友链卡片', '本站申请资料', '朋友头像'],
+    content: {
+      title: '友链卡片',
+      description: '维护朋友站点名称、链接、简介、头像和主题色。',
+      path: ['links'],
+      fields: linkFields,
+      recordKind: 'link'
+    }
+  },
+  {
+    id: 'about',
+    label: '关于',
+    group: '基础管理',
+    route: '/about',
+    pageId: 'about',
+    dataPath: 'site.pages.about / site.aboutHeroImage',
+    purpose: '维护关于页标题、独立头图、个人介绍、联系信息和活动时间线入口。',
+    support: ['个人资料', '关于页头图', '活动时间线']
+  }
+];
+
+const globalTools: AdminTool[] = [
+  { id: 'overview', label: '总览', hint: '查看后台分区、待处理项和保存状态。' },
+  { id: 'profile', label: '站点资料', hint: '站名、作者、简介、联系方式。' },
+  { id: 'visual', label: '头像头图', hint: '头像、首页封面、关于页头图和主题色。' },
+  { id: 'background', label: '背景图', hint: '全站背景轮播单独管理。' },
+  { id: 'entry', label: '启动页', hint: '进入网站前看到的欢迎层。' },
+  { id: 'security', label: '安全设置', hint: '评论、特效和敏感配置检查。' },
+  { id: 'ai', label: 'DeepSeek 设置', hint: '右下角助手模型和密钥。' }
+];
+
+const columnTools: AdminTool[] = [
+  { id: 'page', label: '页面展示', hint: '标题、说明、按钮、统计和空状态。' },
+  { id: 'column', label: '栏目入口', hint: '导航、首页入口、工具箱显隐。' },
+  { id: 'records', label: '内容列表', hint: '这个栏目展示的实际内容。' },
+  { id: 'support', label: '辅助设置', hint: '评论、资料、头图和相关来源。' }
+];
+
+const tagTools: AdminTool[] = columnTools.map((tool) => tool.id === 'records'
+  ? { ...tool, label: '\u6807\u7b7e\u7ba1\u7406', hint: '\u5728\u6807\u7b7e\u8bcd\u5e93\u91cc\u65b0\u589e\u6216\u5220\u9664\u6807\u7b7e\u3002' }
+  : tool
+);
+function getWorkspaceTools(workspace: AdminWorkspace): AdminTool[] {
+  if (workspace.id === 'global') {
+    return globalTools;
+  }
+
+  return workspace.id === 'tags' ? tagTools : columnTools;
+}
+
+function createFallbackOverview(data: BlogData | null): AdminManagementOverview {
+  return {
+    generatedAt: new Date().toISOString(),
+    summaries: [
+      { id: 'sections', label: '管理分区', value: columnWorkspaces.length + 1, hint: '每个栏目单独维护' },
+      { id: 'columns', label: '公开栏目', value: data?.site.columns.length ?? 0, hint: '来自前台导航配置' },
+      { id: 'warnings', label: '待处理', value: 0, hint: '读取后台数据后刷新' }
+    ],
+    modules: [],
+    warnings: []
+  };
+}
+
+export function BlogAdminConsole({ initialData, initialStats, initialOverview }: BlogAdminConsoleProps) {
+  const [draft, setDraft] = useState<BlogData | null>(() => initialData ? cloneData(initialData) : null);
+  const [serverStats, setServerStats] = useState(initialStats);
+  const [overview, setOverview] = useState<AdminManagementOverview | null>(initialOverview ?? null);
+  const [activeWorkspace, setActiveWorkspace] = useState('global');
+  const [activeTool, setActiveTool] = useState<AdminToolId>('overview');
+  const [saveState, setSaveState] = useState<AdminOperationState>(
+    createOperationState('idle', '待操作', '修改会先留在当前页面草稿中，点击保存后才会写入数据文件。')
+  );
+  const [adminToken, setAdminToken] = useState('');
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [serverRevision, setServerRevision] = useState<string | null>(null);
+  const [aiConfig, setAiConfig] = useState<AiAdminConfigView | null>(null);
+  const [aiModel, setAiModel] = useState('');
+  const [aiApiKey, setAiApiKey] = useState('');
+  const [clearAiApiKey, setClearAiApiKey] = useState(false);
+  const [aiConfigState, setAiConfigState] = useState<AdminOperationState>(
+    createOperationState('idle', 'AI 配置提示', 'DeepSeek 配置只保存在服务端后台，不写入公开博客数据。')
+  );
+
+  const stats = useMemo(
+    () => draft ? createDraftStats(draft, serverStats ?? createEmptyStats()) : createEmptyStats(),
+    [draft, serverStats]
+  );
+  const workspaces = useMemo(() => [globalWorkspace, ...columnWorkspaces], []);
+  const selectedWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspace) ?? globalWorkspace;
+  const tools = getWorkspaceTools(selectedWorkspace);
+  const selectedTool = tools.find((tool) => tool.id === activeTool) ?? tools[0];
+  const activeOverview = overview ?? createFallbackOverview(draft);
+  const activeModule = activeOverview.modules.find((module) => module.id === selectedWorkspace.id);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', warnBeforeUnload);
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  const replaceDraft = (next: BlogData, nextOverview?: AdminManagementOverview | null, markDirty = false) => {
+    setDraft(next);
+    setHasUnsavedChanges(markDirty);
+    if (nextOverview) {
+      setOverview(nextOverview);
+    }
+    setSaveState(createOperationState('idle', '草稿已更新', '内容已更新，请确认无误后保存。'));
+  };
+
+  const setValueAtPath = (path: PathSegment[], value: unknown) => {
+    if (saveState.status === 'saving') {
+      return;
+    }
+    setDraft((current) => current ? setAtPath(current, path, value) : current);
+    setHasUnsavedChanges(true);
+    setSaveState(createOperationState('idle', '草稿已更新', '内容已更新，请确认无误后保存。'));
+  };
+
+  const selectWorkspace = (workspace: AdminWorkspace) => {
+    setActiveWorkspace(workspace.id);
+    setActiveTool(getWorkspaceTools(workspace)[0].id);
+  };
+
+  const replaceAiConfig = (nextConfig: AiAdminConfigView) => {
+    setAiConfig(nextConfig);
+    setAiModel(nextConfig.model);
+    setAiApiKey('');
+    setClearAiApiKey(false);
+  };
+
+  const handleExport = () => {
+    if (!draft) {
+      setSaveState(createOperationState('error', '导出失败', '没有可以导出的博客数据。', {
+        suggestion: '请先读取后台数据或导入一份备份。'
+      }));
+      return;
+    }
+
+    const blob = new Blob([formatJson(draft)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `personal-blog-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) {
+      return;
+    }
+
+    const parsed = parseJsonDraft(await file.text());
+    if (!parsed.ok) {
+      setSaveState(createOperationState('error', '导入失败', parsed.error, {
+        suggestion: '请确认导入的是完整有效的博客 JSON 备份文件。'
+      }));
+      return;
+    }
+
+    replaceDraft(parsed.data, null, true);
+  };
+
+  const handleLoadData = async () => {
+    if (hasUnsavedChanges && !window.confirm('重新读取会覆盖当前未保存的修改，确定继续吗？')) {
+      return;
+    }
+    setSaveState(createOperationState('saving', '正在读取', '正在读取后台数据。'));
+    let response: Response;
+    let payload: { error?: string; data?: BlogData; revision?: string; stats?: typeof initialStats; management?: AdminManagementOverview };
+
+    try {
+      response = await fetch('/api/admin/blog', {
+        headers: adminToken ? { 'x-admin-token': adminToken } : {}
+      });
+      payload = await readAdminJson<{ data?: BlogData; revision?: string; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
+    } catch (error) {
+      setSaveState(createNetworkErrorState('读取后台数据失败', error, '读取后台数据失败。'));
+      return;
+    }
+
+    if (!response.ok) {
+      setSaveState(createApiErrorState(response, payload, '读取后台数据失败', '读取后台数据失败。'));
+      return;
+    }
+
+    if (!payload.data) {
+      setSaveState(createOperationState('error', '读取后台数据失败', '后台返回成功，但没有包含博客数据。', {
+        suggestion: '请刷新页面，或检查 /api/admin/blog 接口返回内容。'
+      }));
+      return;
+    }
+
+    setServerStats(payload.stats ?? null);
+    setServerRevision(payload.revision ?? null);
+    replaceDraft(payload.data, payload.management ?? null);
+    setSaveState(createOperationState('success', '读取成功', '后台数据已重新读取。'));
+  };
+
+  const handleSave = async () => {
+    if (saveState.status === 'saving') {
+      return;
+    }
+    if (!draft) {
+      setSaveState(createOperationState('error', '保存失败', '请先读取或导入博客数据。', {
+        suggestion: '点击“重新读取”，或导入一份博客 JSON 备份后再保存。'
+      }));
+      return;
+    }
+
+    if (!serverRevision) {
+      setSaveState(createOperationState('error', '保存失败', '请先重新读取线上数据，再保存修改。'));
+      return;
+    }
+
+    setSaveState(createOperationState('saving', '正在保存', '正在校验并保存。'));
+    const draftForSave = draft;
+    let response: Response;
+    let payload: { error?: string; details?: string[]; revision?: string; savedAt?: string; publishedUrl?: string; verified?: boolean; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview };
+
+    try {
+      response = await fetch('/api/admin/blog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'x-admin-token': adminToken } : {})
+        },
+        body: JSON.stringify({ baseRevision: serverRevision, data: draftForSave })
+      });
+      payload = await readAdminJson<{ details?: string[]; revision?: string; savedAt?: string; publishedUrl?: string; verified?: boolean; data?: BlogData; stats?: typeof initialStats; management?: AdminManagementOverview }>(response);
+    } catch (error) {
+      setSaveState(createNetworkErrorState('保存失败', error, '保存失败。'));
+      return;
+    }
+
+    if (!response.ok) {
+      setSaveState(createApiErrorState(response, payload, '保存失败', '保存失败。'));
+      return;
+    }
+
+    const nextData = payload.data ?? draftForSave;
+    setDraft(nextData);
+    setServerStats(payload.stats ?? serverStats);
+    setOverview(payload.management ?? overview);
+    setServerRevision(payload.revision ?? serverRevision);
+    setLastSavedAt(payload.savedAt ?? new Date().toISOString());
+    setHasUnsavedChanges(false);
+    setSaveState(createOperationState(
+      'success',
+      '保存成功',
+      payload.verified && payload.publishedUrl ? `已同步到线上站点：${payload.publishedUrl}` : '已保存，并生成数据备份。'
+    ));
+  };
+
+  const handleImageUpload: UploadImage = async (file, kind = 'image') => {
+    const assetLabel = kind === 'audio' ? '音乐' : '图片';
+    setSaveState(createOperationState('saving', '正在上传', `正在上传${assetLabel}。`));
+    const formData = new FormData();
+    formData.append('file', file);
+    let response: Response;
+    let payload: { path?: string; error?: string };
+
+    try {
+      response = await fetch(`/api/admin/assets?kind=${kind}`, {
+        method: 'POST',
+        headers: adminToken ? { 'x-admin-token': adminToken } : {},
+        body: formData
+      });
+      payload = await readAdminJson<{ path?: string }>(response);
+    } catch (error) {
+      const state = createNetworkErrorState(`${assetLabel}上传失败`, error, `${assetLabel}上传失败。`);
+      setSaveState(state);
+      throw new Error(state.message);
+    }
+
+    if (!response.ok) {
+      const state = createApiErrorState(response, payload, `${assetLabel}上传失败`, `${assetLabel}上传失败。`);
+      setSaveState(state);
+      throw new Error(state.message);
+    }
+
+    if (!payload.path) {
+      const state = createOperationState('error', `${assetLabel}上传失败`, '后台返回成功，但没有返回素材路径。', {
+        suggestion: '请检查上传接口返回内容，或重新选择文件上传。'
+      });
+      setSaveState(state);
+      throw new Error(state.message);
+    }
+
+    setSaveState(createOperationState('success', '上传成功', `${assetLabel}已上传：${payload.path}`));
+    return payload.path;
+  };
+
+  const handleLoadAiConfig = async () => {
+    setAiConfigState(createOperationState('saving', '正在读取', '正在读取 DeepSeek 配置。'));
+    let response: Response;
+    let payload: { error?: string; config?: AiAdminConfigView };
+
+    try {
+      response = await fetch('/api/admin/ai', {
+        headers: adminToken ? { 'x-admin-token': adminToken } : {}
+      });
+      payload = await readAdminJson<{ config?: AiAdminConfigView }>(response);
+    } catch (error) {
+      setAiConfigState(createNetworkErrorState('读取 DeepSeek 配置失败', error, '读取 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!response.ok) {
+      setAiConfigState(createApiErrorState(response, payload, '读取 DeepSeek 配置失败', '读取 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!payload.config) {
+      setAiConfigState(createOperationState('error', '读取 DeepSeek 配置失败', '后台返回成功，但没有包含 AI 配置。', {
+        suggestion: '请刷新页面，或检查 /api/admin/ai 接口返回内容。'
+      }));
+      return;
+    }
+
+    replaceAiConfig(payload.config);
+    setAiConfigState(createOperationState('success', '读取成功', 'DeepSeek 配置已读取。'));
+  };
+
+  const handleSaveAiConfig = async () => {
+    const model = aiModel.trim();
+    if (!model) {
+      setAiConfigState(createOperationState('error', '保存 DeepSeek 配置失败', '请选择或填写一个模型名称。', {
+        suggestion: '选择预设模型，或在“实际调用模型”里填写模型名。'
+      }));
+      return;
+    }
+
+    setAiConfigState(createOperationState('saving', '正在保存', '正在保存 DeepSeek 配置。'));
+    let response: Response;
+    let payload: { error?: string; config?: AiAdminConfigView };
+
+    try {
+      response = await fetch('/api/admin/ai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'x-admin-token': adminToken } : {})
+        },
+        body: JSON.stringify({
+          apiKey: aiApiKey,
+          clearApiKey: clearAiApiKey,
+          model
+        })
+      });
+      payload = await readAdminJson<{ config?: AiAdminConfigView }>(response);
+    } catch (error) {
+      setAiConfigState(createNetworkErrorState('保存 DeepSeek 配置失败', error, '保存 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!response.ok) {
+      setAiConfigState(createApiErrorState(response, payload, '保存 DeepSeek 配置失败', '保存 DeepSeek 配置失败。'));
+      return;
+    }
+
+    if (!payload.config) {
+      setAiConfigState(createOperationState('error', '保存 DeepSeek 配置失败', '后台返回成功，但没有返回最新 AI 配置。', {
+        suggestion: '请重新读取 AI 配置，或检查 /api/admin/ai 接口返回内容。'
+      }));
+      return;
+    }
+
+    replaceAiConfig(payload.config);
+    setAiConfigState(createOperationState('success', '保存成功', 'DeepSeek 配置已保存。'));
+  };
+
+  return (
+    <section className="fraud-admin-shell">
+      <AdminHeader
+        adminToken={adminToken}
+        draft={draft}
+        lastSavedAt={lastSavedAt}
+        saveStatus={saveState.status}
+        onAdminTokenChange={setAdminToken}
+        onExport={handleExport}
+        onImport={handleImport}
+        onLoadData={handleLoadData}
+        onSave={handleSave}
+      />
+
+      <div className="fraud-admin-layout">
+        <AdminSidebar
+          activeWorkspace={activeWorkspace}
+          modules={activeOverview.modules}
+          workspaces={workspaces}
+          onSelect={selectWorkspace}
+        />
+
+        <main className="fraud-admin-main">
+          <AdminStatusRail overview={activeOverview} saveState={saveState} stats={stats} />
+
+          {draft ? (
+            <section
+              className="fraud-admin-workbench"
+              aria-busy={saveState.status === 'saving'}
+              inert={saveState.status === 'saving' ? true : undefined}
+            >
+              <WorkspaceHeader module={activeModule} workspace={selectedWorkspace} />
+              <ToolTabs activeTool={selectedTool.id} tools={tools} onSelect={setActiveTool} />
+              <AdminToolPanel
+                activeModule={activeModule}
+                aiApiKey={aiApiKey}
+                aiConfig={aiConfig}
+                aiConfigState={aiConfigState}
+                aiModel={aiModel}
+                clearAiApiKey={clearAiApiKey}
+                data={draft}
+                overview={activeOverview}
+                tool={selectedTool.id}
+                uploadImage={handleImageUpload}
+                workspace={selectedWorkspace}
+                onAiApiKeyChange={setAiApiKey}
+                onAiModelChange={setAiModel}
+                onChange={setValueAtPath}
+                onClearAiApiKeyChange={setClearAiApiKey}
+                onLoadAiConfig={handleLoadAiConfig}
+                onSaveAiConfig={handleSaveAiConfig}
+                onWorkspaceJump={(id) => {
+                  const next = workspaces.find((workspace) => workspace.id === id);
+                  if (next) {
+                    selectWorkspace(next);
+                  }
+                }}
+              />
+            </section>
+          ) : (
+            <section className="fraud-admin-empty">
+              <p className="admin-kicker">无数据</p>
+              <h2>先读取或导入博客数据</h2>
+              <p>后台会把数据放进本地草稿，确认无误后再写入数据文件。</p>
+              <button className="button primary" type="button" onClick={handleLoadData}>读取后台数据</button>
+            </section>
+          )}
+        </main>
+      </div>
+    </section>
+  );
+}
+
+function AdminHeader({
+  adminToken,
+  draft,
+  lastSavedAt,
+  saveStatus,
+  onAdminTokenChange,
+  onExport,
+  onImport,
+  onLoadData,
+  onSave
+}: {
+  adminToken: string;
+  draft: BlogData | null;
+  lastSavedAt: string | null;
+  saveStatus: AdminOperationStatus;
+  onAdminTokenChange: (value: string) => void;
+  onExport: () => void;
+  onImport: (event: ChangeEvent<HTMLInputElement>) => void;
+  onLoadData: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <header className="fraud-admin-header">
+      <div>
+        <p className="admin-kicker">仅限本人使用</p>
+        <h1>站点管理台</h1>
+        <p>按栏目分区、按子功能填表。先检查提示，再保存数据。</p>
+      </div>
+
+      <div className="fraud-admin-actions">
+        <label className="admin-token-field">
+          <span>后台密码</span>
+          <input
+            value={adminToken}
+            type="password"
+            autoComplete="current-password"
+            placeholder="填写 ADMIN_WRITE_TOKEN"
+            onChange={(event) => onAdminTokenChange(event.target.value)}
+          />
+        </label>
+        <div className="admin-action-row">
+          <button className="button ghost" type="button" disabled={saveStatus === 'saving'} onClick={onLoadData}>重新读取</button>
+          <button className="button ghost" type="button" disabled={!draft || saveStatus === 'saving'} onClick={onExport}>导出备份</button>
+          <label className="button ghost">
+            导入备份
+            <input accept="application/json" disabled={saveStatus === 'saving'} hidden type="file" onChange={onImport} />
+          </label>
+          <button className="button primary" type="button" disabled={!draft || saveStatus === 'saving'} onClick={onSave}>
+            {saveStatus === 'saving' ? '保存中' : '保存数据'}
+          </button>
+        </div>
+        <small>{lastSavedAt ? `上次保存：${new Date(lastSavedAt).toLocaleString('zh-CN')}` : '未执行保存'}</small>
+      </div>
+    </header>
+  );
+}
+
+function AdminSidebar({ activeWorkspace, modules, workspaces, onSelect }: {
+  activeWorkspace: string;
+  modules: AdminManagementModule[];
+  workspaces: AdminWorkspace[];
+  onSelect: (workspace: AdminWorkspace) => void;
+}) {
+  const groups = [...new Set(workspaces.map((workspace) => workspace.group))];
+
+  return (
+    <aside className="fraud-admin-sidebar" aria-label="后台管理栏目">
+      <div className="fraud-admin-sidebar-title">
+        <strong>后台菜单</strong>
+        <span>一栏一管</span>
+      </div>
+      {groups.map((group) => (
+        <section key={group}>
+          <p>{group}</p>
+          {workspaces.filter((workspace) => workspace.group === group).map((workspace) => {
+            const module = modules.find((item) => item.id === workspace.id);
+            return (
+              <button
+                className={workspace.id === activeWorkspace ? 'is-active' : ''}
+                key={workspace.id}
+                type="button"
+                onClick={() => onSelect(workspace)}
+              >
+                <span>{workspace.label}</span>
+                <small data-risk={module?.riskLevel ?? '正常'}>{module?.riskText ?? workspace.dataPath}</small>
+              </button>
+            );
+          })}
+        </section>
+      ))}
+    </aside>
+  );
+}
+
+function OperationStatusNotice({ children, className = 'admin-save-status', label, state }: {
+  children?: ReactNode;
+  className?: string;
+  label: string;
+  state: AdminOperationState;
+}) {
+  const details = state.details ?? [];
+  return (
+    <div
+      className={`admin-operation-status ${className}`}
+      data-status={state.status}
+      role={state.status === 'error' ? 'alert' : 'status'}
+      aria-live={state.status === 'error' ? 'assertive' : 'polite'}
+    >
+      <strong>{state.title || label}</strong>
+      <span className="admin-operation-message">{state.message}</span>
+      {details.length > 0 ? (
+        <div className="admin-operation-details">
+          <span>错误原因</span>
+          <ul>
+            {details.map((detail) => <li key={detail}>{detail}</li>)}
+          </ul>
+        </div>
+      ) : null}
+      {state.suggestion ? <small className="admin-operation-suggestion">下一步：{state.suggestion}</small> : null}
+      {children ? <small className="admin-operation-meta">{children}</small> : null}
+    </div>
+  );
+}
+
+function AdminStatusRail({ overview, saveState, stats }: {
+  overview: AdminManagementOverview;
+  saveState: AdminOperationState;
+  stats: ReturnType<typeof createEmptyStats>;
+}) {
+  return (
+    <section className="fraud-admin-status">
+      <OperationStatusNotice label="操作提示" state={saveState} />
+      <div className="fraud-admin-summary">
+        {overview.summaries.map((item) => (
+          <article key={item.id}>
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <small>{item.hint}</small>
+          </article>
+        ))}
+        <article>
+          <span>字数</span>
+          <strong>{stats.words}</strong>
+          <small>已发布文章正文长度</small>
+        </article>
+      </div>
+      {overview.warnings.length > 0 ? (
+        <div className="fraud-admin-warnings">
+          <strong>待处理提示</strong>
+          {overview.warnings.map((warning) => <span key={warning}>{warning}</span>)}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function WorkspaceHeader({ module, workspace }: { module?: AdminManagementModule; workspace: AdminWorkspace }) {
+  return (
+    <header className="fraud-workspace-head">
+      <div>
+        <p className="admin-kicker">{workspace.group}</p>
+        <h2>{workspace.label}</h2>
+        <p>{workspace.purpose}</p>
+      </div>
+      <div className="fraud-workspace-meta">
+        <span data-risk={module?.riskLevel ?? '正常'}>{module?.riskLevel ?? '正常'}</span>
+        <strong>{module?.count ?? '-'}</strong>
+        <small>{workspace.dataPath}</small>
+        <a href={workspace.route} target="_blank" rel="noreferrer">查看前台</a>
+      </div>
+    </header>
+  );
+}
+
+function ToolTabs({ activeTool, tools, onSelect }: { activeTool: AdminToolId; tools: AdminTool[]; onSelect: (tool: AdminToolId) => void }) {
+  return (
+    <div className="fraud-tool-tabs" role="tablist" aria-label="子功能">
+      {tools.map((tool) => (
+        <button className={tool.id === activeTool ? 'is-active' : ''} key={tool.id} type="button" onClick={() => onSelect(tool.id)}>
+          <span>{tool.label}</span>
+          <small>{tool.hint}</small>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AdminToolPanel({
+  activeModule,
+  aiApiKey,
+  aiConfig,
+  aiConfigState,
+  aiModel,
+  clearAiApiKey,
+  data,
+  overview,
+  tool,
+  uploadImage,
+  workspace,
+  onAiApiKeyChange,
+  onAiModelChange,
+  onChange,
+  onClearAiApiKeyChange,
+  onLoadAiConfig,
+  onSaveAiConfig,
+  onWorkspaceJump
+}: {
+  activeModule?: AdminManagementModule;
+  aiApiKey: string;
+  aiConfig: AiAdminConfigView | null;
+  aiConfigState: AdminOperationState;
+  aiModel: string;
+  clearAiApiKey: boolean;
+  data: BlogData;
+  overview: AdminManagementOverview;
+  tool: AdminToolId;
+  uploadImage: UploadImage;
+  workspace: AdminWorkspace;
+  onAiApiKeyChange: (value: string) => void;
+  onAiModelChange: (value: string) => void;
+  onChange: (path: PathSegment[], value: unknown) => void;
+  onClearAiApiKeyChange: (value: boolean) => void;
+  onLoadAiConfig: () => void;
+  onSaveAiConfig: () => void;
+  onWorkspaceJump: (id: string) => void;
+}) {
+  if (workspace.id === 'global') {
+    if (tool === 'overview') {
+      return <OverviewPanel overview={overview} onWorkspaceJump={onWorkspaceJump} />;
+    }
+    if (tool === 'profile') {
+      return <PathFieldPanel data={data} description="这些信息会出现在首页、关于页、SEO 和部分个人卡片中。" fields={siteProfileFields} title="站点资料" uploadImage={uploadImage} onChange={onChange} />;
+    }
+    if (tool === 'visual') {
+      return <PathFieldPanel data={data} description="头像、首页封面、关于页头图和颜色在这里维护。关于页头图可以和首页封面不同。" fields={visualFields} title="头像与头图" uploadImage={uploadImage} onChange={onChange} />;
+    }
+    if (tool === 'background') {
+      return (
+        <PathFieldPanel data={data} description="背景图是独立分区，不和封面、头像、关于页头图混在一起。" fields={backgroundFields} title="背景图区块" uploadImage={uploadImage} onChange={onChange}>
+          <AssetPreview data={data} />
+        </PathFieldPanel>
+      );
+    }
+    if (tool === 'entry') {
+      return <EntryScreenPanel data={data} uploadImage={uploadImage} onChange={onChange} />;
+    }
+    if (tool === 'security') {
+      return <CommentsEffectsPanel data={data} uploadImage={uploadImage} onChange={onChange} />;
+    }
+    return (
+      <AiSettingsPanel
+        apiKey={aiApiKey}
+        clearApiKey={clearAiApiKey}
+        config={aiConfig}
+        model={aiModel}
+        saveState={aiConfigState}
+        onApiKeyChange={onAiApiKeyChange}
+        onClearApiKeyChange={onClearAiApiKeyChange}
+        onLoad={onLoadAiConfig}
+        onModelChange={onAiModelChange}
+        onSave={onSaveAiConfig}
+      />
+    );
+  }
+
+  if (tool === 'page') {
+    if (workspace.id === 'tags') {
+      return <TagPageContentPanel data={data} uploadImage={uploadImage} onChange={onChange} />;
+    }
+
+    return <PathFieldPanel data={data} description="这里控制栏目页头部文字、按钮、统计标签、空状态和说明区块。" fields={createPageContentFields(workspace.pageId)} title="页面展示" uploadImage={uploadImage} onChange={onChange} />;
+  }
+
+  if (tool === 'column') {
+    const columnIndex = data.site.columns.findIndex((column) => column.id === workspace.id);
+    if (columnIndex < 0) {
+      return <SimpleNotice title="没有找到栏目入口" description="当前栏目没有出现在 site.columns 中，可以先回到全站资料检查栏目配置。" />;
+    }
+    return <PathFieldPanel data={data} description="这里决定栏目是否出现在顶部导航、首页入口和工具箱里。" fields={createColumnFields(columnIndex)} title="栏目入口" uploadImage={uploadImage} onChange={onChange} />;
+  }
+
+  if (tool === 'records') {
+    if (workspace.id === 'tags') {
+      return <TagLibraryPanel data={data} onChange={onChange} />;
+    }
+
+    if (workspace.id === 'projects') {
+      return <ProjectGitHubSourcePanel data={data} onChange={onChange} onWorkspaceJump={onWorkspaceJump} />;
+    }
+
+    if (workspace.id === 'friends' && workspace.content) {
+      return (
+        <>
+          <PathFieldPanel
+            data={data}
+            description="申请区会自动使用这里的本站名称、链接、简介和头像，不再维护独立的静态文本。"
+            fields={friendLinkApplicationFields}
+            title="本站友链资料"
+            uploadImage={uploadImage}
+            onChange={onChange}
+          />
+          <RecordListEditor
+            data={data}
+            description={workspace.content.description}
+            fields={workspace.content.fields}
+            path={workspace.content.path}
+            recordKind={workspace.content.recordKind}
+            title={workspace.content.title}
+            uploadImage={uploadImage}
+            onChange={onChange}
+          />
+        </>
+      );
+    }
+
+    if (!workspace.content) {
+      return (
+        <PanelFrame title="内容来源" description="这个栏目不维护独立列表，它读取全站资料或其他栏目内容。">
+          <div className="fraud-guide-grid">
+            <GuideButton title="维护全站资料" description="作者、头像、联系方式等在全站资料中维护。" onClick={() => onWorkspaceJump('global')} />
+            <GuideButton title="维护文章" description="活动时间线、标签和首页文章入口来自文章与动态内容。" onClick={() => onWorkspaceJump('archive')} />
+          </div>
+        </PanelFrame>
+      );
+    }
+
+    return (
+      <RecordListEditor
+        data={data}
+        description={workspace.content.description}
+        fields={workspace.content.fields}
+        path={workspace.content.path}
+        recordKind={workspace.content.recordKind}
+        title={workspace.content.title}
+        uploadImage={uploadImage}
+        onChange={onChange}
+      />
+    );
+  }
+
+  return <SupportPanel data={data} module={activeModule} uploadImage={uploadImage} workspace={workspace} onChange={onChange} onWorkspaceJump={onWorkspaceJump} />;
+}
+
+function OverviewPanel({ overview, onWorkspaceJump }: { overview: AdminManagementOverview; onWorkspaceJump: (id: string) => void }) {
+  return (
+    <PanelFrame title="后台总览" description="按栏目检查内容是否完整。红色和黄色提示优先处理。">
+      <div className="fraud-module-table">
+        {overview.modules.map((module) => (
+          <button key={module.id} type="button" onClick={() => onWorkspaceJump(module.id === 'security' ? 'global' : module.id)}>
+            <span>{module.group}</span>
+            <strong>{module.label}</strong>
+            <em data-risk={module.riskLevel}>{module.riskLevel}</em>
+            <small>{module.riskText}</small>
+          </button>
+        ))}
+      </div>
+    </PanelFrame>
+  );
+}
+
+function SupportPanel({ data, module, uploadImage, workspace, onChange, onWorkspaceJump }: {
+  data: BlogData;
+  module?: AdminManagementModule;
+  uploadImage: UploadImage;
+  workspace: AdminWorkspace;
+  onChange: (path: PathSegment[], value: unknown) => void;
+  onWorkspaceJump: (id: string) => void;
+}) {
+  const showComments = ['music', 'moments', 'friends'].includes(workspace.id);
+  const showProfile = workspace.id === 'about' || workspace.id === 'friends';
+  const showVisual = workspace.id === 'home' || workspace.id === 'about';
+
+  return (
+    <PanelFrame title="辅助设置" description="这些内容不是正文列表，但会影响这个栏目在前台是否完整。">
+      <div className="fraud-checklist">
+        {(module?.checklist ?? workspace.support).map((item) => <span key={item}>{item}</span>)}
+      </div>
+
+      <div className="fraud-guide-grid">
+        <GuideButton title="预览前台页面" description={`打开 ${workspace.label} 页面，确认刚才修改后的效果。`} href={workspace.route} />
+        {workspace.support.map((item) => <div className="admin-simple-note" key={item}><strong>{item}</strong><span>与当前栏目相关。</span></div>)}
+      </div>
+
+      {showComments ? (
+        <section className="admin-soft-section">
+          <h4>评论设置</h4>
+          <p>这个栏目有评论入口，评论开关、仓库、主题和代理在这里统一配置。</p>
+          <CommentsEffectsPanel data={data} uploadImage={uploadImage} onChange={onChange} compact />
+        </section>
+      ) : null}
+
+      {showProfile ? (
+        <section className="admin-soft-section">
+          <h4>相关资料</h4>
+          <p>友链申请、关于页和联系方式会读取全站资料。</p>
+          <button className="button ghost" type="button" onClick={() => onWorkspaceJump('global')}>去全站资料</button>
+        </section>
+      ) : null}
+
+      {showVisual ? (
+        <section className="admin-soft-section">
+          <h4>视觉素材</h4>
+          <p>头像、首页封面、关于页头图和背景图会影响这个栏目第一眼的视觉效果。</p>
+          <FieldGrid>
+            {[...visualFields.filter((field) => !field.advanced), ...backgroundFields].map((field) => (
+              <PathField data={data} field={field} key={field.path.join('.')} path={field.path} onChange={onChange} uploadImage={uploadImage} />
+            ))}
+          </FieldGrid>
+        </section>
+      ) : null}
+    </PanelFrame>
+  );
+}
+
+function TagPageContentPanel({ data, uploadImage, onChange }: {
+  data: BlogData;
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  return (
+    <PanelFrame title="标签页面展示" description="这里同时维护标签索引页和单个标签详情页的头部文字、按钮、统计标签与空状态。">
+      <section className="admin-soft-section">
+        <h4>标签索引页</h4>
+        <p>控制 /tags 标签星云页面的标题、说明、按钮和统计文字。</p>
+        <PathFieldSections
+          data={data}
+          fields={createPageContentFields('tags')}
+          uploadImage={uploadImage}
+          onChange={onChange}
+        />
+      </section>
+
+      <section className="admin-soft-section">
+        <h4>标签详情页</h4>
+        <p>控制 /tags/某个标签 详情页的标题模板、说明、按钮和统计文字。可使用 {`{tag}`} 与 {`{postCount}`} 变量。</p>
+        <PathFieldSections
+          advancedLabel="标签详情页更多设置"
+          data={data}
+          fields={createPageContentFields('tag-detail')}
+          uploadImage={uploadImage}
+          onChange={onChange}
+        />
+      </section>
+    </PanelFrame>
+  );
+}
+
+function TagLibraryPanel({ data, onChange }: {
+  data: BlogData;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  const [draftTag, setDraftTag] = useState('');
+  const tagLibrary = dedupeTagNames(data.site.tags);
+  const tagUsages = collectTagUsages(tagLibrary, data.posts, data.chatters);
+  const draftValue = draftTag.trim();
+  const canAddTag = isValidTagName(draftValue) && !tagLibrary.some((tag) => tag.toLowerCase() === draftValue.toLowerCase());
+
+  const handleAddTag = () => {
+    if (!canAddTag) {
+      return;
+    }
+
+    onChange(['site', 'tags'], addTagToLibrary(tagLibrary, draftValue));
+    setDraftTag('');
+  };
+
+  const handleDeleteTag = (tagName: string) => {
+    if (!window.confirm('\u5220\u9664\u6807\u7b7e \"' + tagName + '\"\uff1f\u5bf9\u5e94\u6587\u7ae0\u548c\u6742\u8c08\u4e2d\u7684\u8fd9\u4e2a\u6807\u7b7e\u4e5f\u4f1a\u4e00\u8d77\u79fb\u9664\u3002')) {
+      return;
+    }
+
+    const tagKey = tagName.toLowerCase();
+    onChange(['site', 'tags'], tagLibrary.filter((tag) => tag.toLowerCase() !== tagKey));
+    onChange(['posts'], removeTagFromPosts(data.posts, tagName));
+    onChange(['chatters'], removeTagFromChatters(data.chatters, tagName));
+  };
+
+  return (
+    <PanelFrame title={'\u6807\u7b7e\u8bcd\u5e93'} description={'\u5728\u8fd9\u91cc\u65b0\u589e\u6216\u5220\u9664\u6587\u7ae0\u548c\u6742\u8c08\u53ef\u4f7f\u7528\u7684\u6807\u7b7e\u3002\u5220\u9664\u540e\uff0c\u5df2\u5173\u8054\u7684\u6587\u7ae0\u548c\u6742\u8c08\u4f1a\u540c\u6b65\u79fb\u9664\u8be5\u6807\u7b7e\u3002'}>
+      <div className="admin-publish-guide">
+        <strong>{'\u6807\u7b7e\u5728\u8fd9\u4e2a\u540e\u53f0\u680f\u76ee\u4e2d\u7edf\u4e00\u7ba1\u7406'}</strong>
+        <span>{'\u6587\u7ae0\u548c\u6742\u8c08\u9875\u9762\u53ea\u80fd\u9009\u62e9\u8fd9\u91cc\u5df2\u5b58\u5728\u7684\u6807\u7b7e\u3002'}</span>
+      </div>
+
+      <div className="admin-inline-entry">
+        <input
+          value={draftTag}
+          placeholder={'\u65b0\u6807\u7b7e\u540d\u79f0'}
+          onChange={(event) => setDraftTag(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              handleAddTag();
+            }
+          }}
+        />
+        <button className="button primary" type="button" disabled={!canAddTag} onClick={handleAddTag}>{'\u6dfb\u52a0\u6807\u7b7e'}</button>
+      </div>
+
+      <div className="admin-record-list admin-tag-library">
+        <div className="admin-record-index">
+          <div className="admin-record-index-head">
+            <div>
+              <strong>{tagLibrary.length}</strong>
+              <span>{'\u4e2a\u6807\u7b7e'}</span>
+            </div>
+          </div>
+          <div className="admin-record-buttons">
+            {tagUsages.map((usage) => (
+              <button key={usage.tag} type="button">
+                <span>#{usage.tag}</span>
+                <small>{usage.posts + usage.chatters} {'\u6761\u5185\u5bb9\u5173\u8054'}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-record-editor">
+          {tagUsages.length > 0 ? (
+            <div className="fraud-guide-grid">
+              {tagUsages.map((usage) => (
+                <article className="admin-simple-note" key={usage.tag}>
+                  <strong>#{usage.tag}</strong>
+                  <span>{usage.posts} {'\u7bc7\u6587\u7ae0'} / {usage.chatters} {'\u7bc7\u6742\u8c08'}</span>
+                  <button className="button danger" type="button" onClick={() => handleDeleteTag(usage.tag)}>{'\u5220\u9664\u6807\u7b7e'}</button>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="admin-empty-state">
+              <p>{'\u8fd8\u6ca1\u6709\u6807\u7b7e\uff0c\u5148\u5728\u4e0a\u65b9\u65b0\u589e\u4e00\u4e2a\u3002'}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </PanelFrame>
+  );
+}
+
+function addTagToLibrary(tags: string[], tagName: string): string[] {
+  return dedupeTagNames([...tags, tagName]);
+}
+
+type TagUsage = {
+  tag: string;
+  posts: number;
+  chatters: number;
+};
+
+function collectTagUsages(tagLibrary: string[], posts: BlogData['posts'], chatters: BlogData['chatters']): TagUsage[] {
+  const usages = new Map(tagLibrary.map((tag) => [tag.toLowerCase(), { tag, posts: 0, chatters: 0 }]));
+
+  for (const post of posts) {
+    for (const tag of post.tags ?? []) {
+      const usage = usages.get(tag.toLowerCase());
+      if (usage) {
+        usage.posts += 1;
+      }
+    }
+  }
+
+  for (const chatter of chatters) {
+    for (const tag of chatter.tags ?? []) {
+      const usage = usages.get(tag.toLowerCase());
+      if (usage) {
+        usage.chatters += 1;
+      }
+    }
+  }
+
+  return [...usages.values()];
+}
+
+function removeTagFromPosts(posts: BlogData['posts'], tagName: string): BlogData['posts'] {
+  return removeTagFromTaggedRecords(posts, tagName);
+}
+
+function removeTagFromChatters(chatters: BlogData['chatters'], tagName: string): BlogData['chatters'] {
+  return removeTagFromTaggedRecords(chatters, tagName);
+}
+
+function removeTagFromTaggedRecords<T extends { tags?: string[] }>(records: T[], tagName: string): T[] {
+  const tagKey = tagName.toLowerCase();
+  return records.map((record) => ({
+    ...record,
+    tags: (record.tags ?? []).filter((tag) => tag.toLowerCase() !== tagKey)
+  }));
+}
+
+function dedupeTagNames(values: unknown[]): string[] {
+  const tags = new Map<string, string>();
+  for (const value of values) {
+    const tag = typeof value === 'string' ? value.trim() : '';
+    if (isValidTagName(tag) && !tags.has(tag.toLowerCase())) {
+      tags.set(tag.toLowerCase(), tag);
+    }
+  }
+
+  return [...tags.values()];
+}
+
+function isValidTagName(value: string): boolean {
+  return Boolean(value) && value.length <= 80 && !/[\u0000-\u001f\u007f]/.test(value);
+}
+function PathFieldPanel({ children, data, description, fields, title, uploadImage, onChange }: {
+  children?: ReactNode;
+  data: BlogData;
+  description: string;
+  fields: PathFieldConfig[];
+  title: string;
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  return (
+    <PanelFrame title={title} description={description}>
+      <PathFieldSections
+        data={data}
+        fields={fields}
+        uploadImage={uploadImage}
+        onChange={onChange}
+      />
+      {children}
+    </PanelFrame>
+  );
+}
+
+function PathFieldSections({ advancedDescription = '这些字段不常改，只有需要微调页面细节、链接、系统识别或特殊配置时再展开。', advancedLabel = '更多设置', data, fields, uploadImage, onChange }: {
+  advancedDescription?: string;
+  advancedLabel?: string;
+  data: BlogData;
+  fields: PathFieldConfig[];
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  const primaryFields = fields.filter((field) => !field.advanced);
+  const advancedFields = fields.filter((field) => field.advanced);
+
+  return (
+    <>
+      {primaryFields.length > 0 ? (
+        <>
+          <FieldSectionLabel count={primaryFields.length} title="常用字段" />
+          <FieldGrid>
+            {primaryFields.map((field) => (
+              <PathField data={data} field={field} key={field.path.join('.')} path={field.path} onChange={onChange} uploadImage={uploadImage} />
+            ))}
+          </FieldGrid>
+        </>
+      ) : null}
+
+      {advancedFields.length > 0 ? (
+        <details className="admin-advanced-settings">
+          <summary>{advancedLabel}<span>{advancedFields.length} 项</span></summary>
+          <p>{advancedDescription}</p>
+          <FieldGrid>
+            {advancedFields.map((field) => (
+              <PathField data={data} field={field} key={field.path.join('.')} path={field.path} onChange={onChange} uploadImage={uploadImage} />
+            ))}
+          </FieldGrid>
+        </details>
+      ) : null}
+    </>
+  );
+}
+
+function FieldSectionLabel({ count, title }: { count: number; title: string }) {
+  return (
+    <div className="admin-field-section-label">
+      <strong>{title}</strong>
+      <span>{count} 项</span>
+    </div>
+  );
+}
+
+function PanelFrame({ children, description, title }: { children: ReactNode; description: string; title: string }) {
+  return (
+    <section className="fraud-admin-panel">
+      <header>
+        <h3>{title}</h3>
+        <p>{description}</p>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function SimpleNotice({ description, title }: { description: string; title: string }) {
+  return (
+    <PanelFrame title={title} description={description}>
+      <p className="admin-help-text">请先检查栏目配置，再继续维护。</p>
+    </PanelFrame>
+  );
+}
+
+function ProjectGitHubSourcePanel({ data, onChange, onWorkspaceJump }: { data: BlogData; onChange: (path: PathSegment[], value: unknown) => void; onWorkspaceJump: (id: string) => void }) {
+  const githubHref = /^https?:\/\//i.test(data.site.github) ? data.site.github : undefined;
+  const projectOrder = Array.isArray(data.site.projectOrder) ? data.site.projectOrder : [];
+  const projectOrderText = projectOrder.join('\n');
+
+  return (
+    <PanelFrame title="前台项目排序" description="项目仍然由 GitHub 自动同步，这里只控制前台项目卡片的展示顺序。">
+      <FieldGrid>
+        <label className="admin-field admin-field-wide">
+          <span>前台展示顺序</span>
+          <textarea
+            rows={8}
+            value={projectOrderText}
+            placeholder={'personal-theme-blog\nhttps://github.com/yige66/your-repo'}
+            onChange={(event) => onChange(['site', 'projectOrder'], parseProjectOrderText(event.target.value))}
+          />
+          <small className="admin-field-help">每行一个 GitHub 仓库名、owner/repo 或完整仓库链接。排在前面的项目优先显示，没写进来的公开仓库会自动排在后面。</small>
+        </label>
+      </FieldGrid>
+      <p className="admin-help-text">当前已置顶 {projectOrder.length} 个项目；新增仓库不需要在这里新增，只在需要固定展示顺序时填写。</p>
+      <div className="admin-publish-guide">
+        <strong>不用手写项目</strong>
+        <span>前台项目页会读取 GitHub 公开仓库，卡片点击后直接打开对应 GitHub 页面。后台只需要维护 GitHub 地址和项目页头部文案。</span>
+      </div>
+      <div className="admin-publish-guide">
+        <strong>项目更新后自动同步</strong>
+        <span>在 GitHub 仓库 Webhook 里填写 Payload URL：你的域名 + /api/github/projects，Content type 选 application/json，Secret 使用环境变量 GITHUB_PROJECTS_WEBHOOK_SECRET。已有仓库更新会立即刷新；新增仓库会被 Vercel Cron 每日巡检同步到项目页。</span>
+      </div>
+      <div className="fraud-guide-grid">
+        <GuideButton title="修改 GitHub 地址" description="进入全站资料，把 GitHub 地址填成账号主页，例如 https://github.com/yige66。" onClick={() => onWorkspaceJump('global')} />
+        <GuideButton title="调整项目页文案" description="修改项目页标题、说明、按钮、空状态和搜索提示，不影响 GitHub 仓库内容。" onClick={() => onWorkspaceJump('projects')} />
+        <GuideButton title="自动同步接口" description="/api/github/projects，给 GitHub Webhook 或 GitHub Actions 调用。" />
+        <GuideButton title="查看当前 GitHub" description={data.site.github || '还没有填写 GitHub 地址'} href={githubHref} />
+      </div>
+    </PanelFrame>
+  );
+}
+
+function parseProjectOrderText(value: string): string[] {
+  const seen = new Set<string>();
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line || line.length > 200 || /[\u0000-\u001f\u007f]/.test(line)) {
+        return false;
+      }
+      const key = line.toLowerCase();
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 100);
+}
+
+function GuideButton({ description, href, title, onClick }: { description: string; href?: string; title: string; onClick?: () => void }) {
+  if (href) {
+    return (
+      <a className="admin-guide-card" href={href} target="_blank" rel="noreferrer">
+        <strong>{title}</strong>
+        <span>{description}</span>
+      </a>
+    );
+  }
+
+  if (!onClick) {
+    return (
+      <div className="admin-guide-card">
+        <strong>{title}</strong>
+        <span>{description}</span>
+      </div>
+    );
+  }
+
+  return (
+    <button className="admin-guide-card" type="button" onClick={onClick}>
+      <strong>{title}</strong>
+      <span>{description}</span>
+    </button>
+  );
+}
+
+function EntryScreenPanel({ data, uploadImage, onChange }: { data: BlogData; uploadImage: UploadImage; onChange: (path: PathSegment[], value: unknown) => void }) {
+  const panelFields: FieldConfig[] = [
+    { key: 'eyebrow', label: '小标题' },
+    { key: 'eyebrowHighlight', label: '高亮文字' },
+    { key: 'title', label: '主标题' },
+    { key: 'description', label: '说明', kind: 'textarea', rows: 3 }
+  ];
+  const hotspotFields: FieldConfig[] = [
+    { key: 'label', label: '名称' },
+    { key: 'hint', label: '提示' },
+    { key: 'target', label: '目标标识' }
+  ];
+  const hotspotKeys = ['archive', 'music', 'friends', 'desk', 'theme'] as const;
+
+  return (
+    <PanelFrame title="启动页" description="这是访客进入网站前看到的欢迎层，按普通文案维护即可。">
+      <PathFieldSections
+        advancedDescription="入口名称、署名、切换按钮和启动日志属于细节文案，只有需要调整启动页完整体验时再改。"
+        data={data}
+        fields={entryRootFields}
+        uploadImage={uploadImage}
+        onChange={onChange}
+      />
+
+      <div className="admin-entry-panels">
+        {(['original', 'beyond'] as const).map((mode) => (
+          <section className="admin-soft-section" key={mode}>
+            <h4>{mode === 'original' ? '普通入口文案' : '切换模式文案'}</h4>
+            <FieldGrid>
+              {panelFields.map((field) => (
+                <FieldEditor
+                  field={field}
+                  key={field.key}
+                  value={getAtPath(data, ['site', 'entry', mode, field.key])}
+                  onChange={(value) => onChange(['site', 'entry', mode, field.key], value)}
+                  uploadImage={uploadImage}
+                />
+              ))}
+            </FieldGrid>
+          </section>
+        ))}
+      </div>
+
+      <section className="admin-soft-section">
+        <h4>启动页热点</h4>
+        <p>热点是启动页里可以点击的几个入口提示。</p>
+        <div className="admin-entry-hotspots">
+          {hotspotKeys.map((key) => (
+            <div className="admin-mini-editor" key={key}>
+              <h5>{key}</h5>
+              {hotspotFields.map((field) => (
+                <FieldEditor
+                  field={field}
+                  key={field.key}
+                  value={getAtPath(data, ['site', 'entry', 'hotspots', key, field.key])}
+                  onChange={(value) => onChange(['site', 'entry', 'hotspots', key, field.key], value)}
+                  uploadImage={uploadImage}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+    </PanelFrame>
+  );
+}
+
+function CommentsEffectsPanel({ compact = false, data, uploadImage, onChange }: {
+  compact?: boolean;
+  data: BlogData;
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  const fields: PathFieldConfig[] = [
+    { path: ['site', 'comments', 'enabled'], key: 'enabled', label: '启用评论', kind: 'boolean' },
+    { path: ['site', 'comments', 'provider'], key: 'provider', label: '评论提供方' },
+    { path: ['site', 'comments', 'repo'], key: 'repo', label: '评论仓库', advanced: true },
+    { path: ['site', 'comments', 'owner'], key: 'owner', label: '仓库所有者', advanced: true },
+    { path: ['site', 'comments', 'admin'], key: 'admin', label: '评论管理员', kind: 'list', advanced: true },
+    { path: ['site', 'comments', 'clientId'], key: 'clientId', label: 'GitHub 客户端 ID', advanced: true },
+    { path: ['site', 'comments', 'proxy'], key: 'proxy', label: '代理接口', advanced: true },
+    { path: ['site', 'comments', 'mapping'], key: 'mapping', label: '映射方式', advanced: true },
+    { path: ['site', 'comments', 'label'], key: 'label', label: '议题标签', advanced: true },
+    { path: ['site', 'comments', 'theme'], key: 'theme', label: '评论主题', advanced: true },
+    { path: ['site', 'effects', 'enabled'], key: 'enabled', label: '启用特效', kind: 'boolean' },
+    { path: ['site', 'effects', 'fireflies'], key: 'fireflies', label: '萤光', kind: 'boolean' },
+    { path: ['site', 'effects', 'petals'], key: 'petals', label: '花瓣', kind: 'boolean' },
+    { path: ['site', 'effects', 'grass'], key: 'grass', label: '草地', kind: 'boolean' },
+    { path: ['site', 'effects', 'cursorTrail'], key: 'cursorTrail', label: '光标轨迹', kind: 'boolean' },
+    { path: ['site', 'effects', 'floatingCompanion'], key: 'floatingCompanion', label: '浮动助手', kind: 'boolean' },
+    { path: ['site', 'effects', 'intensity'], key: 'intensity', label: '特效强度', kind: 'number' },
+    { path: ['site', 'effects', 'danmaku'], key: 'danmaku', label: '弹幕文本', kind: 'list', advanced: true }
+  ];
+
+  const content = (
+    <PathFieldSections
+      advancedDescription="评论仓库、OAuth 客户端 ID、代理接口、映射方式和弹幕文本属于技术配置；正常发内容时不用打开。"
+      data={data}
+      fields={fields}
+      uploadImage={uploadImage}
+      onChange={onChange}
+    />
+  );
+
+  if (compact) {
+    return content;
+  }
+
+  return (
+    <PanelFrame title="安全与互动设置" description="评论配置会影响音乐、友链、动态、文章和杂谈详情。特效配置影响全站氛围。">
+      <div className="fraud-risk-note">
+        <strong>安全提示</strong>
+        <span>OAuth 密钥和 AI 接口密钥不允许写进公开博客数据，只能放在环境变量或服务端配置。</span>
+      </div>
+      {content}
+    </PanelFrame>
+  );
+}
+
+function AiSettingsPanel({
+  apiKey,
+  clearApiKey,
+  config,
+  model,
+  saveState,
+  onApiKeyChange,
+  onClearApiKeyChange,
+  onLoad,
+  onModelChange,
+  onSave
+}: {
+  apiKey: string;
+  clearApiKey: boolean;
+  config: AiAdminConfigView | null;
+  model: string;
+  saveState: AdminOperationState;
+  onApiKeyChange: (value: string) => void;
+  onClearApiKeyChange: (value: boolean) => void;
+  onLoad: () => void;
+  onModelChange: (value: string) => void;
+  onSave: () => void;
+}) {
+  const options = config?.modelOptions ?? [
+    { label: 'DeepSeek V4 Flash（轻量推荐）', value: 'deepseek-v4-flash' },
+    { label: 'DeepSeek V4 Pro（更强理解）', value: 'deepseek-v4-pro' }
+  ];
+  const optionValues = new Set(options.map((option) => option.value));
+  const selectedPreset = optionValues.has(model) ? model : 'custom';
+  const keySourceLabel = config?.apiKeySource === 'backend'
+    ? '后台密钥'
+    : config?.apiKeySource === 'env'
+      ? '环境变量密钥'
+      : '未配置';
+
+  return (
+    <PanelFrame title="DeepSeek 设置" description="这里配置右下角助手使用的 DeepSeek 模型和密钥。密钥只保存在服务端后台。">
+      <OperationStatusNotice className="admin-ai-status" label="AI 配置提示" state={saveState}>
+        当前状态：{config?.hasApiKey ? `已配置（${keySourceLabel}）` : '未配置密钥'}
+        {config?.updatedAt ? ` / 更新时间：${new Date(config.updatedAt).toLocaleString('zh-CN')}` : ''}
+      </OperationStatusNotice>
+
+      <FieldGrid>
+        <label className="admin-field">
+          <span>模型预设</span>
+          <select value={selectedPreset} onChange={(event) => {
+            if (event.target.value !== 'custom') {
+              onModelChange(event.target.value);
+            }
+          }}>
+            {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            <option value="custom">自定义模型</option>
+          </select>
+          <small className="admin-field-help">可以选择预设，也可以在下方填写兼容 DeepSeek 对话接口的模型名。</small>
+        </label>
+
+        <label className="admin-field">
+          <span>实际调用模型</span>
+          <input value={model} placeholder="deepseek-v4-flash" onChange={(event) => onModelChange(event.target.value)} />
+          <small className="admin-field-help">保存后，助手下一次问答会使用这个模型。</small>
+        </label>
+
+        <label className="admin-field admin-field-wide">
+          <span>DeepSeek 接口密钥</span>
+          <input
+            type="password"
+            autoComplete="off"
+            value={apiKey}
+            placeholder={config?.hasApiKey ? '留空则保留当前密钥' : '粘贴 DeepSeek 接口密钥'}
+            onChange={(event) => onApiKeyChange(event.target.value)}
+          />
+          <small className="admin-field-help">不会返回到前端；保存后写入服务端配置文件。</small>
+        </label>
+
+        <label className="admin-field admin-field-toggle">
+          <span>清空后台密钥</span>
+          <input checked={clearApiKey} type="checkbox" onChange={(event) => onClearApiKeyChange(event.target.checked)} />
+          <small className="admin-field-help">只清空后台保存的密钥；环境变量仍会作为兜底。</small>
+        </label>
+      </FieldGrid>
+
+      <div className="admin-panel-actions">
+        <button className="button ghost" type="button" onClick={onLoad}>读取 AI 配置</button>
+        <button className="button primary" type="button" disabled={saveState.status === 'saving'} onClick={onSave}>
+          {saveState.status === 'saving' ? '正在保存' : '保存 AI 配置'}
+        </button>
+      </div>
+    </PanelFrame>
+  );
+}
+
+function RecordListEditor({ data, description, fields, path, recordKind, title, uploadImage, onChange }: {
+  data: BlogData;
+  description: string;
+  fields: FieldConfig[];
+  path: PathSegment[];
+  recordKind: RecordKind;
+  title: string;
+  uploadImage: UploadImage;
+  onChange: (path: PathSegment[], value: unknown) => void;
+}) {
+  const records = asRecordArray(getAtPath(data, path));
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const safeIndex = records.length === 0 ? -1 : Math.min(selectedIndex, records.length - 1);
+  const selected = safeIndex >= 0 ? records[safeIndex] : null;
+  const primaryFields = fields.filter((field) => !field.advanced);
+  const advancedFields = fields.filter((field) => field.advanced);
+  const copy = recordKindCopy(recordKind);
+  const replaceRecords = (nextRecords: JsonRecord[]) => onChange(path, nextRecords);
+
+  const addRecord = () => {
+    const nextRecords = [...records, createEmptyItem(recordKind)];
+    replaceRecords(nextRecords);
+    setSelectedIndex(nextRecords.length - 1);
+  };
+
+  const duplicateRecord = () => {
+    if (!selected) {
+      return;
+    }
+    const nextRecords = [...records.slice(0, safeIndex + 1), withFreshIdentity(selected, recordKind), ...records.slice(safeIndex + 1)];
+    replaceRecords(nextRecords);
+    setSelectedIndex(safeIndex + 1);
+  };
+
+  const removeRecord = () => {
+    if (safeIndex < 0 || !window.confirm('删除当前条目？保存前仍可刷新页面放弃本地草稿。')) {
+      return;
+    }
+    replaceRecords(records.filter((_record, index) => index !== safeIndex));
+    setSelectedIndex(Math.max(0, safeIndex - 1));
+  };
+
+  const moveRecord = (direction: -1 | 1) => {
+    const targetIndex = safeIndex + direction;
+    if (safeIndex < 0 || targetIndex < 0 || targetIndex >= records.length) {
+      return;
+    }
+    const nextRecords = [...records];
+    const current = nextRecords[safeIndex];
+    nextRecords[safeIndex] = nextRecords[targetIndex];
+    nextRecords[targetIndex] = current;
+    replaceRecords(nextRecords);
+    setSelectedIndex(targetIndex);
+  };
+
+  return (
+    <PanelFrame title={title} description={description}>
+      <div className="admin-publish-guide">
+        <strong>{copy.guideTitle}</strong>
+        <span>{copy.guideText}</span>
+      </div>
+      <div className="admin-record-list">
+        <div className="admin-record-index">
+          <div className="admin-record-index-head">
+            <div>
+              <strong>{records.length}</strong>
+              <span>{copy.countLabel}</span>
+            </div>
+            <button className="button primary" type="button" onClick={addRecord}>{copy.addLabel}</button>
+          </div>
+          <div className="admin-record-buttons">
+            {records.map((record, index) => (
+              <button className={index === safeIndex ? 'is-active' : ''} key={`${record.id ?? record.slug ?? record.title ?? index}-${index}`} type="button" onClick={() => setSelectedIndex(index)}>
+                <span>{recordTitle(record, recordKind)}</span>
+                <small>{recordSubtitle(record, recordKind, index)}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-record-editor">
+          {selected ? (
+            <>
+              <div className="admin-record-edit-head">
+                <div>
+                  <span>{copy.formLabel}</span>
+                  <strong>{recordTitle(selected, recordKind)}</strong>
+                  <small>{copy.formHelp}</small>
+                </div>
+                <div className="admin-record-toolbar">
+                  <button className="button ghost" type="button" onClick={() => moveRecord(-1)}>上移</button>
+                  <button className="button ghost" type="button" onClick={() => moveRecord(1)}>下移</button>
+                  <button className="button ghost" type="button" onClick={duplicateRecord}>复制</button>
+                  <button className="button danger" type="button" onClick={removeRecord}>删除</button>
+                </div>
+              </div>
+              <FieldSectionLabel count={primaryFields.length} title="常用字段" />
+              <FieldGrid>
+                {primaryFields.map((field) => (
+                  <FieldEditor field={field} key={field.key} tagOptions={data.site.tags} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} onCreateTag={(tagName) => onChange(['site', 'tags'], addTagToLibrary(data.site.tags, tagName))} uploadImage={uploadImage} />
+                ))}
+              </FieldGrid>
+              {advancedFields.length > 0 ? (
+                <details className="admin-advanced-settings" open={showAdvanced} onToggle={(event) => setShowAdvanced(event.currentTarget.open)}>
+                  <summary>更多设置<span>{advancedFields.length} 项</span></summary>
+                  <p>{copy.advancedHelp}</p>
+                  <FieldGrid>
+                    {advancedFields.map((field) => (
+                      <FieldEditor field={field} key={field.key} tagOptions={data.site.tags} value={selected[field.key]} onChange={(value) => onChange([...path, safeIndex, field.key], value)} onCreateTag={(tagName) => onChange(['site', 'tags'], addTagToLibrary(data.site.tags, tagName))} uploadImage={uploadImage} />
+                    ))}
+                  </FieldGrid>
+                </details>
+              ) : null}
+            </>
+          ) : (
+            <div className="admin-empty-state">
+              <p>当前栏目还没有内容。</p>
+              <button className="button primary" type="button" onClick={addRecord}>{copy.emptyAction}</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </PanelFrame>
+  );
+}
+
+function recordKindCopy(kind: RecordKind) {
+  const map: Record<RecordKind, { addLabel: string; advancedHelp: string; countLabel: string; emptyAction: string; formHelp: string; formLabel: string; guideText: string; guideTitle: string }> = {
+    post: {
+      addLabel: '写新文章',
+      advancedHelp: '分类、精选、更新时间、内部编号和页面地址一般由系统维护；只有需要修正页面链接或展示策略时再改。',
+      countLabel: '篇文章',
+      emptyAction: '写第一篇文章',
+      formHelp: '按顺序填写标题、摘要、正文、标签、封面和发布时间；状态选择“已发布”后保存即可出现在前台。',
+      formLabel: '文章发布表单',
+      guideText: '发布文章只需要四步：写标题和摘要，填写正文，补封面和标签，把状态设为已发布后点击右上角保存数据。',
+      guideTitle: '简单发布'
+    },
+    project: {
+      addLabel: '新增项目',
+      advancedHelp: '精选、开始日期和内部编号属于展示排序或系统识别字段，不确定时保持原样。',
+      countLabel: '个项目',
+      emptyAction: '新增第一个项目',
+      formHelp: '填写项目名称、说明、访问地址、仓库地址、截图和标签后保存。',
+      formLabel: '项目卡片表单',
+      guideText: '项目发布围绕一张卡片：名称、说明、截图、链接填清楚，前台项目页就能正确展示。',
+      guideTitle: '项目上架'
+    },
+    note: {
+      addLabel: '发新动态',
+      advancedHelp: '内部编号只给系统识别使用，正常发布动态不用改。',
+      countLabel: '条动态',
+      emptyAction: '发第一条动态',
+      formHelp: '像发说说一样写标题、内容、日期、心情和配图。',
+      formLabel: '动态发布表单',
+      guideText: '动态发布很轻：写内容，选日期，补心情和配图，保存后会同步到动态页。',
+      guideTitle: '动态发布'
+    },
+    chatter: {
+      addLabel: '写新杂谈',
+      advancedHelp: '精选、内部编号和页面地址属于系统字段，不确定时保持原样。',
+      countLabel: '篇杂谈',
+      emptyAction: '写第一篇杂谈',
+      formHelp: '填写标题、摘要、正文、日期、标签、心情和封面。',
+      formLabel: '杂谈发布表单',
+      guideText: '杂谈比文章轻一些：写短文、配摘要和封面，保存后会进入杂谈列表。',
+      guideTitle: '杂谈发布'
+    },
+    gallery: {
+      addLabel: '新增相册',
+      advancedHelp: '精选会影响首页或重点展示，不确定时先保持关闭。',
+      countLabel: '组相册',
+      emptyAction: '新增第一组相册',
+      formHelp: '填写标题、说明、主图、地点和子图，保存后同步照片墙和画廊。',
+      formLabel: '相册表单',
+      guideText: '相册维护先放主图，再补说明和子图；不需要理解图片路径，直接上传即可。',
+      guideTitle: '相册整理'
+    },
+    music: {
+      addLabel: '新增歌曲',
+      advancedHelp: '来源、提供方、时长和歌词时间轴属于播放器细节，普通维护只填歌名、歌手、音频地址和封面即可。',
+      countLabel: '首歌曲',
+      emptyAction: '新增第一首歌',
+      formHelp: '填写歌名、歌手、场景、音频地址、封面和备注。',
+      formLabel: '歌曲表单',
+      guideText: '音乐维护只需要能播放和能识别：歌名、歌手、音频地址、封面优先。',
+      guideTitle: '音乐上架'
+    },
+    link: {
+      addLabel: '新增友链',
+      advancedHelp: '收录日期、维护备注和主题色用于长期维护；不确定时保持默认即可。',
+      countLabel: '个友链',
+      emptyAction: '新增第一个友链',
+      formHelp: '填写名称、链接、分类、站长署名、简介、头像和互链状态。',
+      formLabel: '友链表单',
+      guideText: '添加别人友链时先填公开名称和站点地址，再补分类、头像、互链状态和备注；保存后前台会进入可搜索友链列表。',
+      guideTitle: '友链收录'
+    },
+    column: {
+      addLabel: '新增栏目',
+      advancedHelp: '内部编号、路径、坐标和氛围字段属于页面结构字段，正常管理不用改。',
+      countLabel: '个栏目',
+      emptyAction: '新增第一个栏目',
+      formHelp: '填写导航名、页面标题、简介和显隐开关。',
+      formLabel: '栏目表单',
+      guideText: '栏目配置主要控制前台入口是否出现，低频结构字段已经收起。',
+      guideTitle: '栏目管理'
+    }
+  };
+
+  return map[kind];
+}
+
+function recordSubtitle(record: JsonRecord, kind: RecordKind, index: number): string {
+  if (kind === 'post' || kind === 'chatter') {
+    const status = record.status === 'draft' ? '草稿' : '已发布';
+    return `${status} / ${stringValue(record.category || record.date || `第 ${index + 1} 条`)}`;
+  }
+
+  if (kind === 'project') {
+    return stringValue(record.status || record.startedAt || `第 ${index + 1} 条`);
+  }
+
+  if (kind === 'gallery') {
+    return stringValue(record.collection || record.location || `第 ${index + 1} 张`);
+  }
+
+  if (kind === 'link') {
+    return stringValue(record.description || record.url || `第 ${index + 1} 条`);
+  }
+
+  return stringValue(record.mood || record.date || record.title || `第 ${index + 1} 条`);
+}
+
+function AssetPreview({ data }: { data: BlogData }) {
+  const uniqueAssets = [...new Set(data.site.backgroundImages.filter(Boolean))];
+
+  if (uniqueAssets.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="admin-asset-preview" aria-label="背景图预览">
+      {uniqueAssets.slice(0, 12).map((asset) => (
+        <figure key={asset}>
+          <img alt="" src={asset} />
+          <figcaption>{asset}</figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}

@@ -1,4 +1,6 @@
 ﻿data/auth.json
+data/backups/
+.codegraph/
 server.out.log
 server.err.log
 *.log
@@ -13,3 +15,8 @@ coverage/
 *.local
 Thumbs.db
 .DS_Store
+tsconfig.tsbuildinfo
+data/ai-config.json
+
+.vercel
+.env*

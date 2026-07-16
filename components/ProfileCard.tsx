@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { BlogSite, BlogStats } from '@/lib/blog';
 
@@ -28,10 +28,9 @@ export function ProfileCard({ site, stats }: { site: BlogSite; stats: BlogStats 
         <span><strong>{site.streak}</strong>连续天</span>
       </div>
       <div className="profile-actions">
-        <Link href="/console">内容控制台</Link>
+        <Link href="/about">关于我</Link>
         <a href={site.github} target="_blank" rel="noreferrer">GitHub</a>
       </div>
     </aside>
   );
 }
-
