@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState, type ReactNode } from 'react';
+import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogProject, PageContent } from '@/lib/blog';
 
 const projectStatusLabels: Record<string, string> = {
@@ -198,6 +199,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
             const primaryHref = project.repo || project.url || '#';
 
             return (
+              <article className="project-matrix-card-shell" key={project.id} data-motion="stack-card">
               <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`打开 ${project.title} GitHub 页面`} motion="stack-card">
                 <div className="project-matrix-card-head">
                   <span className="project-matrix-index" aria-hidden="true">
@@ -220,10 +222,13 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
                   {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
                 </div>
 
+                </ProjectActionLink>
+
+                {project.repo ? <ProjectStarButton repo={project.repo} /> : null}
                 <div className="project-matrix-actions">
                   <span>打开 GitHub</span>
                 </div>
-              </ProjectActionLink>
+                </article>
             );
           })}
         </div>

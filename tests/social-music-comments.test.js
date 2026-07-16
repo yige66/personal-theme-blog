@@ -180,6 +180,12 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /GITHUB_API_ORIGIN/);
     assert.match(githubApi, /getGitHubProxyTarget/);
     assert.match(githubApi, /proxyGitHubApi/);
+    assert.match(githubApi, /export async function PUT/);
+    assert.match(githubApi, /ProxyTargetKind/);
+    assert.match(githubApi, /isPublicRead/);
+    assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
+    assert.match(githubApi, /kind === 'user'/);
+    assert.match(githubApi, /new NextResponse\('\{\}'/);
     assert.match(githubApi, /User-Agent/);
     assert.match(githubApi, /client_secret/);
     assert.doesNotMatch(githubApi, /console\.log|console\.error/);

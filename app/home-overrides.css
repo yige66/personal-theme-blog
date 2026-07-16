@@ -7451,6 +7451,130 @@ html[data-xh-theme="night"] .about-page .about-timeline-item {
   }
 }
 
+/* Project card actions stay inside the card while remaining separate controls. */
+body:has(.projects-page) .project-matrix-card-shell {
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: clamp(250px, 24vw, 338px) !important;
+  height: 100% !important;
+}
+
+body:has(.projects-page) .project-matrix-card-shell > .project-matrix-card {
+  height: 100% !important;
+  min-height: 100% !important;
+  padding-bottom: clamp(94px, 7vw, 116px) !important;
+}
+
+body:has(.projects-page) .project-matrix-card-shell > .project-matrix-card:focus-visible {
+  outline: 3px solid rgba(157, 217, 255, 0.82) !important;
+  outline-offset: 4px !important;
+}
+
+body:has(.projects-page) .project-matrix-card-shell .project-matrix-actions {
+  position: absolute !important;
+  left: clamp(30px, 3.35vw, 58px) !important;
+  bottom: clamp(30px, 3.1vw, 56px) !important;
+  z-index: 4 !important;
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  pointer-events: none !important;
+}
+
+body:has(.projects-page) .project-matrix-card-shell .project-matrix-actions span {
+  pointer-events: none !important;
+}
+
+body:has(.projects-page) .project-star-button {
+  position: absolute !important;
+  right: clamp(30px, 3.35vw, 58px) !important;
+  bottom: clamp(30px, 3.1vw, 56px) !important;
+  z-index: 5 !important;
+  min-height: 42px !important;
+  padding: 0 17px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border: 1px solid rgba(255, 224, 151, 0.48) !important;
+  border-radius: 999px !important;
+  background: rgba(67, 50, 73, 0.78) !important;
+  color: rgba(255, 232, 173, 0.98) !important;
+  -webkit-text-fill-color: currentColor !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 14px 28px rgba(17, 10, 35, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer !important;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease !important;
+}
+
+body:has(.projects-page) .project-star-button svg {
+  width: 17px !important;
+  height: 17px !important;
+  flex: 0 0 auto !important;
+  fill: transparent !important;
+  stroke: currentColor !important;
+  stroke-width: 1.8 !important;
+}
+
+body:has(.projects-page) .project-star-button:hover:not(:disabled),
+body:has(.projects-page) .project-star-button:focus-visible {
+  transform: translateY(-2px) !important;
+  border-color: rgba(255, 239, 179, 0.92) !important;
+  background: rgba(103, 75, 80, 0.9) !important;
+  color: #fff2bd !important;
+}
+
+body:has(.projects-page) .project-star-button.is-starred {
+  border-color: rgba(158, 231, 192, 0.72) !important;
+  background: rgba(47, 91, 79, 0.82) !important;
+  color: #b8f5d0 !important;
+}
+
+body:has(.projects-page) .project-star-button.is-starred svg {
+  fill: currentColor !important;
+}
+
+body:has(.projects-page) .project-star-button.is-loading {
+  cursor: progress !important;
+  opacity: 0.72 !important;
+}
+
+body:has(.projects-page) .project-star-button:disabled {
+  cursor: default !important;
+}
+
+@media (max-width: 640px) {
+  body:has(.projects-page) .project-matrix-card-shell {
+    min-height: 0 !important;
+  }
+
+  body:has(.projects-page) .project-matrix-card-shell > .project-matrix-card {
+    padding-bottom: 88px !important;
+  }
+
+  body:has(.projects-page) .project-matrix-card-shell .project-matrix-actions {
+    left: 24px !important;
+    bottom: 24px !important;
+  }
+
+  body:has(.projects-page) .project-star-button {
+    right: 24px !important;
+    bottom: 24px !important;
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    gap: 6px !important;
+    font-size: 12px !important;
+  }
+
+  body:has(.projects-page) .project-star-button svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
 /* Stable day/night bridge: the scene keeps one base gradient while tone and
    darkness interpolate on persistent layers, avoiding hard background swaps. */
 body:has(.subpage) .xh-background-slider,
