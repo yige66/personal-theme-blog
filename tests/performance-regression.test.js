@@ -28,4 +28,11 @@ describe('production interaction performance guards', () => {
     assert.match(blog, /import \{ cache \} from 'react'/);
     assert.match(blog, /export const getBlogData = cache\(/);
   });
+
+  it('falls back to repository data when private Blob reads fail', async () => {
+    const blog = await readFile('lib/blog.ts', 'utf8');
+
+    assert.match(blog, /if \(isBlobStorageConfigured\(\)\) \{\s*try \{\s*const remoteRaw = await readBlogDataBlob\(\)/s);
+    assert.match(blog, /Blog data Blob read failed; falling back to repository data/);
+  });
 });
