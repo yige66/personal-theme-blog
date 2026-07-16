@@ -46,6 +46,15 @@ describe('production interaction performance guards', () => {
     assert.match(comments, /container\.replaceChildren\(\)/);
   });
 
+  it('keeps the narrow mobile navigation inside the usable viewport', async () => {
+    const entryStyles = await readFile('app/entry-overrides.css', 'utf8');
+
+    assert.match(entryStyles, /@media \(max-width: 340px\)/);
+    assert.match(entryStyles, /\.top-nav\.site-nav[\s\S]*padding-inline: 12px/);
+    assert.match(entryStyles, /\.top-nav\.site-nav \.brand[\s\S]*min-width: 0/);
+    assert.match(entryStyles, /\.top-nav\.site-nav \.mobile-orbit-toggle[\s\S]*flex: 0 0 48px/);
+  });
+
   it('defers home effects until the splash is gone and leaves the ripple canvas idle without ripples', async () => {
     const effects = await readFile('components/HomeEffects.tsx', 'utf8');
 

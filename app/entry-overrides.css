@@ -1068,3 +1068,20 @@ html.xh-splash-seen #xh-app-root {
     transition-duration: 1ms !important;
   }
 }
+
+/* Keep the mobile nav inside the usable width when the scrollbar consumes a column. */
+@media (max-width: 340px) {
+  .top-nav.site-nav {
+    gap: 8px !important;
+    padding-inline: 12px !important;
+  }
+
+  .top-nav.site-nav .brand {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .top-nav.site-nav .mobile-orbit-toggle {
+    flex: 0 0 48px !important;
+  }
+}
