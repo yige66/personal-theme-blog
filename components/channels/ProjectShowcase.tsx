@@ -6,11 +6,11 @@ import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogProject, PageContent } from '@/lib/blog';
 
 const projectStatusLabels: Record<string, string> = {
-  active: '进行中',
-  planning: '规划中',
-  archived: '已归档',
-  maintenance: '维护中',
-  draft: '草稿'
+  active: '???',
+  planning: '???',
+  archived: '???',
+  maintenance: '???',
+  draft: '??'
 };
 
 type ProjectSourceInfo = {
@@ -57,22 +57,29 @@ function pickProjectIcon(project: BlogProject, index: number, offset: number): P
 
 function createProjectVisualMap(projects: BlogProject[]): Map<string, ProjectVisualIcon> {
   const usage = new Map<ProjectVisualIcon, number>();
-  let previousIcon: ProjectVisualIcon | null = null;
+  const recentIcons: ProjectVisualIcon[] = [];
 
   return new Map(projects.map((project, index) => {
     const primaryIcon = getProjectVisualIcon(project, index);
     const primaryIndex = projectVisualIcons.indexOf(primaryIcon);
     const candidates = projectVisualIcons.map((_, offset) => projectVisualIcons[(primaryIndex + offset) % projectVisualIcons.length]);
     const icon = [...candidates].sort((a, b) => {
-      const previousPenalty = Number(a === previousIcon) - Number(b === previousIcon);
-      if (previousPenalty !== 0) {
-        return previousPenalty;
+      const recentPenalty = Number(recentIcons.includes(a)) - Number(recentIcons.includes(b));
+      if (recentPenalty !== 0) {
+        return recentPenalty;
       }
-      return (usage.get(a) ?? 0) - (usage.get(b) ?? 0);
+      const usageDifference = (usage.get(a) ?? 0) - (usage.get(b) ?? 0);
+      if (usageDifference !== 0) {
+        return usageDifference;
+      }
+      return candidates.indexOf(a) - candidates.indexOf(b);
     })[0] ?? primaryIcon;
 
     usage.set(icon, (usage.get(icon) ?? 0) + 1);
-    previousIcon = icon;
+    recentIcons.push(icon);
+    if (recentIcons.length >= projectVisualIcons.length) {
+      recentIcons.shift();
+    }
     return [project.id, icon];
   }));
 }
@@ -151,7 +158,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
   const actions = getPageActions(page);
 
   return (
-    <section className="main-shell project-world project-matrix xh-reference-surface" aria-label="项目矩阵">
+    <section className="main-shell project-world project-matrix xh-reference-surface" aria-label="????">
       <header className="project-matrix-hero">
         <h1>{page.title}</h1>
         <p>{page.description}</p>
@@ -169,13 +176,13 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
 
       <label className="project-matrix-search">
         <span className="project-search-icon" aria-hidden="true" />
-        <span className="project-search-label">搜索项目</span>
+        <span className="project-search-label">????</span>
         <input
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={page.searchPlaceholder}
-          aria-label={page.searchPlaceholder || '搜索项目'}
+          aria-label={page.searchPlaceholder || '????'}
         />
       </label>
 
@@ -200,7 +207,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
 
             return (
               <article className="project-matrix-card-shell" key={project.id} data-motion="stack-card">
-              <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`打开 ${project.title} GitHub 页面`} motion="stack-card">
+              <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`?? ${project.title} GitHub ??`} motion="stack-card">
                 <div className="project-matrix-card-head">
                   <span className="project-matrix-index" aria-hidden="true">
                     <ProjectAnimeIcon kind={projectVisualMap.get(project.id) ?? getProjectVisualIcon(project, index)} />
@@ -226,7 +233,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
 
                 {project.repo ? <ProjectStarButton repo={project.repo} /> : null}
                 <div className="project-matrix-actions">
-                  <span>打开 GitHub</span>
+                  <span>?? GitHub</span>
                 </div>
                 </article>
             );

@@ -191,11 +191,9 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
     });
     const authorization = request.headers.get('authorization') || '';
     const isPublicRead = (kind === 'repository' && request.method === 'GET') || kind === 'markdown';
-    if (isPublicRead) {
-      const serverToken = readRuntimeEnv('GITHUB_PROJECTS_TOKEN', 'GITHUB_TOKEN');
-      if (serverToken) {
-        headers.set('Authorization', `Bearer ${serverToken}`);
-      }
+    const serverToken = isPublicRead ? readRuntimeEnv('GITHUB_PROJECTS_TOKEN', 'GITHUB_TOKEN') : '';
+    if (serverToken) {
+      headers.set('Authorization', `Bearer ${serverToken}`);
     } else if (/^(Bearer|token)\s+/i.test(authorization)) {
       headers.set('Authorization', authorization);
     }
@@ -203,12 +201,36 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
     }
 
-    const githubResponse = await fetch(target, {
+    let githubResponse = await fetch(target, {
       method: request.method,
       headers,
       body,
       cache: 'no-store'
     });
+
+    // A stale or revoked deployment token must never make public comments
+    // unreadable. Retry the same public request without that token first.
+    if (isPublicRead && serverToken && [401, 403].includes(githubResponse.status)) {
+      const anonymousHeaders = new Headers(headers);
+      anonymousHeaders.delete('Authorization');
+      githubResponse = await fetch(target, {
+        method: request.method,
+        headers: anonymousHeaders,
+        body,
+        cache: 'no-store'
+      });
+    }
+
+    if (kind === 'repository' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
+      const fallback = createPublicRepositoryFallback(target);
+      if (fallback !== null) {
+        return NextResponse.json(fallback, {
+          status: 200,
+          headers: { 'Cache-Control': 'no-store' }
+        });
+      }
+    }
+
     if (kind === 'user' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
       return new NextResponse('{}', {
         status: 200,
@@ -231,6 +253,28 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
   } catch {
     return NextResponse.json({ error: 'GitHub API proxy failed.' }, { status: 502 });
   }
+}
+
+function createPublicRepositoryFallback(target: URL): Record<string, unknown> | unknown[] | null {
+  const path = target.pathname.replace(/\/$/, '');
+  if (/\/issues\/[^/]+\/comments$/.test(path)) {
+    return [];
+  }
+
+  if (/\/issues\/[^/]+$/.test(path)) {
+    const issueNumber = Number(path.split('/').at(-1));
+    return {
+      number: Number.isInteger(issueNumber) && issueNumber > 0 ? issueNumber : 0,
+      comments: 0,
+      comments_url: `${target.origin}${path}/comments`
+    };
+  }
+
+  if (/\/issues$/.test(path)) {
+    return [];
+  }
+
+  return null;
 }
 
 function normalizeContentType(value: string): string {

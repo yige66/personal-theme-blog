@@ -12,10 +12,10 @@ describe('target-style music, friends, and GitHub comments', () => {
 
     assert.ok(Array.isArray(data.site.cloudMusicIds));
     assert.deepEqual(data.site.cloudMusicIds, []);
-    assert.ok(data.site.music.some((track) => track.title === '千夜一夜' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.m4a'));
+    assert.ok(data.site.music.some((track) => track.title === '????' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.m4a'));
     assert.equal(data.site.friendLinkApplyFormat, undefined);
-    assert.equal(data.site.friendLinkApply.title, '友链申请');
-    assert.match(data.site.friendLinkApply.description, /评论区/);
+    assert.equal(data.site.friendLinkApply.title, '????');
+    assert.match(data.site.friendLinkApply.description, /???/);
     for (const field of ['title', 'github', 'subtitle', 'avatar']) {
       assert.equal(typeof data.site[field], 'string');
       assert.ok(data.site[field]);
@@ -72,8 +72,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(studio, /music-cloud-count/);
     assert.match(studio, /music-player-dock/);
     assert.match(studio, /music-dock-volume/);
-    assert.match(studio, /单曲循环/);
-    assert.doesNotMatch(studio, /列表循环/);
+    assert.match(studio, /????/);
+    assert.doesNotMatch(studio, /????/);
     assert.doesNotMatch(studio, /music-sync-note|Sync Cloud/);
     assert.match(cloudCard, /formatTime/);
     assert.match(cloudCard, /progress/);
@@ -126,10 +126,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(aboutPage, /about-joined-panel/);
     assert.match(aboutPage, /term="\/about"/);
     assert.match(friendsClient, /siteName = \[site\.title, site\.brandSuffix\]/);
-    assert.match(friendsClient, /名称：\$\{siteName\}/);
-    assert.match(friendsClient, /链接：\$\{site\.github\}/);
-    assert.match(friendsClient, /简介：\$\{site\.subtitle\}/);
-    assert.match(friendsClient, /头像：\$\{site\.avatar\}/);
+    assert.match(friendsClient, /???\$\{siteName\}/);
+    assert.match(friendsClient, /???\$\{site\.github\}/);
+    assert.match(friendsClient, /???\$\{site\.subtitle\}/);
+    assert.match(friendsClient, /???\$\{site\.avatar\}/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /applyPanel/);
     assert.match(friendsClient, /#gitalk-container/);
@@ -152,7 +152,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /custom-gitalk-glass/);
     assert.match(comments, /moment-gitalk/);
     assert.match(comments, /gt-container/);
-    assert.match(comments, /Gitalk 加载中/);
+    assert.match(comments, /Gitalk ???/);
     assert.match(comments, /data-provider="gitalk"/);
     assert.match(comments, /github-comments-gitalk-host/);
     assert.match(comments, /ref=\{containerRef\}/);
@@ -160,6 +160,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /GITHUB_API_ORIGIN/);
     assert.match(comments, /GITHUB_API_PROXY_PATH/);
     assert.match(comments, /XMLHttpRequest\.prototype\.open/);
+    assert.match(comments, /XMLHttpRequest\.prototype\.setRequestHeader/);
+    assert.match(comments, /getGitHubProxyUrl/);
     assert.match(comments, /installGitHubApiProxy/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
@@ -170,7 +172,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(blogLib, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(blogLib, /gitalkConfigured/);
     assert.match(blogLib, /parts\.length > 1 \? parts : \['', withoutProtocol\]/);
-    assert.match(adminLib, /不允许保存 OAuth 密钥/);
+    assert.match(adminLib, /????? OAuth ??/);
     assert.match(adminLib, /validateLinks/);
     assert.match(githubApi, /GITHUB_CLIENT_SECRET/);
     assert.match(githubApi, /GITALK_CLIENT_SECRET/);
@@ -184,6 +186,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /ProxyTargetKind/);
     assert.match(githubApi, /isPublicRead/);
     assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
+    assert.match(githubApi, /anonymousHeaders/);
+    assert.match(githubApi, /createPublicRepositoryFallback/);
     assert.match(githubApi, /kind === 'user'/);
     assert.match(githubApi, /new NextResponse\('\{\}'/);
     assert.match(githubApi, /User-Agent/);
@@ -235,7 +239,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /gt-btn-login/);
     assert.match(comments, /data-provider="gitalk"/);
     assert.match(comments, /custom-gitalk-glass/);
-    assert.match(comments, /Gitalk 加载中/);
+    assert.match(comments, /Gitalk ???/);
     assert.doesNotMatch(comments, /utterances|UTTERANCES/i);
 
     assert.match(githubApi, /SUPPORTED_CONTENT_TYPES/);

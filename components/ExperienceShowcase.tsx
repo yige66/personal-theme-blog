@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogData, BlogProject, BlogStats } from '@/lib/blog';
 
 type ExperienceShowcaseProps = {
@@ -20,9 +21,9 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
   const imageAlt = primaryGallery?.alt || primaryGallery?.title || data.site.title;
 
   const signals = [
-    { href: '/archive', label: '文章库', value: stats.posts, caption: '已发布内容' },
-    { href: '/projects', label: '项目集', value: stats.projects, caption: '可展示作品' },
-    { href: '/photowall', label: '照片墙', value: stats.gallery, caption: '视觉素材' }
+    { href: '/archive', label: '???', value: stats.posts, caption: '?????' },
+    { href: '/projects', label: '???', value: stats.projects, caption: '?????' },
+    { href: '/photowall', label: '???', value: stats.gallery, caption: '????' }
   ];
 
   return (
@@ -30,12 +31,12 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
       <div className="main-shell experience-layout">
         <div className="experience-copy">
           <p className="eyebrow">Experience Console</p>
-          <h2 id="experience-title">把文章、项目、动态、音乐和照片墙汇成一个可运营的个人站点</h2>
+          <h2 id="experience-title">????????????????????????????</h2>
           <p>{data.site.status || data.site.subtitle}</p>
           <div className="experience-actions">
-            <Link className="button primary" href="/archive">进入文章库</Link>
-            <Link className="button ghost" href="/photowall">浏览照片墙</Link>
-            <Link className="button ghost" href="/music">播放歌单</Link>
+            <Link className="button primary" href="/archive">?????</Link>
+            <Link className="button ghost" href="/photowall">?????</Link>
+            <Link className="button ghost" href="/music">????</Link>
           </div>
         </div>
 
@@ -47,7 +48,7 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
           </figcaption>
         </figure>
 
-        <div className="experience-stats" aria-label="站点体验数据">
+        <div className="experience-stats" aria-label="??????">
           {signals.map((item) => (
             <Link className="experience-stat" href={item.href} key={item.href}>
               <strong>{item.value}</strong>
@@ -57,25 +58,28 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
           ))}
         </div>
 
-        <div className="experience-current" aria-label="当前内容焦点">
+        <div className="experience-current" aria-label="??????">
           <article className="experience-panel">
-            <span>当前动态</span>
+            <span>????</span>
             <strong>{latestNote?.content || data.site.motto}</strong>
-            <Link href="/moments">查看动态流</Link>
+            <Link href="/moments">?????</Link>
           </article>
 
           <article className="experience-panel">
-            <span>精选项目</span>
+            <span>????</span>
             <strong>{featuredProject?.title || 'Personal Blog Console'}</strong>
-            <p>{featuredProject?.description || '在数据源补充项目后，这里会自动成为作品入口。'}</p>
-            <Link href="/projects">进入项目集</Link>
+            <p>{featuredProject?.description || '??????????????????????'}</p>
+            <div className="experience-panel-actions">
+              <Link href="/projects">?????</Link>
+              {featuredProject?.repo ? <ProjectStarButton repo={featuredProject.repo} /> : null}
+            </div>
           </article>
 
           <article className="experience-panel">
-            <span>正在播放</span>
-            <strong>{activeTrack?.title || '等待数据源添加音乐'}</strong>
-            <p>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood || '阅读背景'}` : '素材管理中可以维护音乐标题、作者与音频地址。'}</p>
-            <Link href="/music">打开音乐页</Link>
+            <span>????</span>
+            <strong>{activeTrack?.title || '?????????'}</strong>
+            <p>{activeTrack ? `${activeTrack.artist} / ${activeTrack.mood || '????'}` : '??????????????????????'}</p>
+            <Link href="/music">?????</Link>
           </article>
         </div>
       </div>

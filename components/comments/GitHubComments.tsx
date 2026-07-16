@@ -104,13 +104,13 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
 
   if (!canLoadGitalk) {
     return (
-      <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+      <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} ? GitHub ??`}>
         <div className="github-comments-card github-comments-setup-card">
           <div className="github-comments-setup" aria-live="polite">
-            <strong>{repoIsValid ? 'Gitalk OAuth 尚未配置' : '评论仓库配置无效'}</strong>
+            <strong>{repoIsValid ? 'Gitalk OAuth ????' : '????????'}</strong>
             <p>
-              要和 XingHuiSama 参考页一样显示 Gitalk 评论框，需要配置你自己的 GitHub OAuth App：
-              `NEXT_PUBLIC_GITALK_CLIENT_ID` 和服务端 `GITHUB_CLIENT_SECRET`。
+              ?? XingHuiSama ??????? Gitalk ???????????? GitHub OAuth App?
+              `NEXT_PUBLIC_GITALK_CLIENT_ID` ???? `GITHUB_CLIENT_SECRET`?
             </p>
             <code>{'comments: { provider: "gitalk", owner: "user", repo: "repo", clientId: "..." }'}</code>
           </div>
@@ -120,7 +120,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
   }
 
   return (
-    <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+    <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} ? GitHub ??`}>
       <div
         className={`github-comments-frame ${compact ? 'moment-gitalk' : 'custom-gitalk-glass'}`}
         data-provider="gitalk"
@@ -130,8 +130,8 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
       >
         {loadState === 'error' ? (
           <div className="github-comments-setup github-comments-error" aria-live="polite">
-            <strong>Gitalk 加载失败</strong>
-            <p>请确认 Gitalk 脚本可以访问，并且 GitHub OAuth App 的 Client ID 与回调地址已经配置正确。</p>
+            <strong>Gitalk ????</strong>
+            <p>??? Gitalk ????????? GitHub OAuth App ? Client ID ????????????</p>
           </div>
         ) : null}
         {loadState === 'idle' || loadState === 'loading' ? <GitalkLoadingShell /> : null}
@@ -145,19 +145,19 @@ function GitalkLoadingShell() {
   return (
     <div className="gt-container github-comments-loading" aria-hidden="true">
       <div className="gt-meta">
-        <span className="gt-counts">0 条评论</span>
-        <span className="gt-user">未登录用户</span>
+        <span className="gt-counts">0 ???</span>
+        <span className="gt-user">?????</span>
       </div>
       <div className="gt-header">
         <span className="gt-avatar github-comments-loading-avatar" />
-        <textarea className="gt-header-textarea" disabled placeholder="说点什么" />
+        <textarea className="gt-header-textarea" disabled placeholder="????" />
         <div className="gt-header-controls">
-          <span className="gt-header-controls-tip">支持 Markdown 语法 · Gitalk 加载中 ...</span>
+          <span className="gt-header-controls-tip">?? Markdown ?? ? Gitalk ??? ...</span>
           <button className="gt-btn gt-btn-preview" type="button" disabled>
-            预览
+            ??
           </button>
           <button className="gt-btn gt-btn-login" type="button" disabled>
-            使用 GitHub 登录
+            ?? GitHub ??
           </button>
         </div>
       </div>
@@ -195,7 +195,7 @@ async function renderGitalk({
     admin,
     id: commentId,
     title: title.slice(0, 80),
-    body: `评论来源：${typeof window === 'undefined' ? term : window.location.href}`,
+    body: `?????${typeof window === 'undefined' ? term : window.location.href}`,
     labels: [config.label || 'comment'],
     distractionFreeMode: compact,
     pagerDirection: 'last',
@@ -257,17 +257,44 @@ function installGitHubApiProxy() {
     return;
   }
 
+  const proxiedRequests = new WeakSet<XMLHttpRequest>();
   const originalOpen = XMLHttpRequest.prototype.open;
   const proxyOpen = function(this: XMLHttpRequest, method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null) {
     const target = typeof url === 'string' ? url : url.toString();
-    const nextUrl = target.startsWith(`${GITHUB_API_ORIGIN}/`)
-      ? `${GITHUB_API_PROXY_PATH}?path=${encodeURIComponent(target)}`
-      : url;
+    const nextUrl = getGitHubProxyUrl(target);
+    if (nextUrl) {
+      proxiedRequests.add(this);
+    }
 
-    return originalOpen.call(this, method, nextUrl, async ?? true, username, password);
+    return originalOpen.call(this, method, nextUrl || url, async ?? true, username, password);
   };
   XMLHttpRequest.prototype.open = proxyOpen as typeof XMLHttpRequest.prototype.open;
+
+  const originalSetRequestHeader = XMLHttpRequest.prototype.setRequestHeader;
+  const proxySetRequestHeader = function(this: XMLHttpRequest, name: string, value: string) {
+    // Gitalk adds Basic auth for direct api.github.com calls. The same-origin
+    // proxy does not need it, and forwarding it can turn a public read into 403.
+    if (proxiedRequests.has(this) && /^authorization$/i.test(name) && /^Basic\s+/i.test(value)) {
+      return;
+    }
+
+    return originalSetRequestHeader.call(this, name, value);
+  };
+  XMLHttpRequest.prototype.setRequestHeader = proxySetRequestHeader;
   githubApiProxyInstalled = true;
+}
+
+function getGitHubProxyUrl(value: string): string | null {
+  try {
+    const target = new URL(value, window.location.href);
+    if (target.origin !== GITHUB_API_ORIGIN || !target.pathname.startsWith('/')) {
+      return null;
+    }
+
+    return `${GITHUB_API_PROXY_PATH}?path=${encodeURIComponent(target.toString())}`;
+  } catch {
+    return null;
+  }
 }
 
 function createGitalkId(mapping = 'pathname', term: string, title: string): string {
