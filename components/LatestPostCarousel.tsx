@@ -50,7 +50,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
 
   return (
     <section className="xh-latest-card xh-latest-carousel" data-motion="stack-card" aria-label="最新文章轮播">
-      <Link className="xh-latest-main-link" href={`/posts/${activePost.slug}`} aria-label={`阅读 ${activePost.title}`} />
+      <Link className="xh-latest-main-link" href={`/posts/${activePost.slug}`} prefetch={false} aria-label={`阅读 ${activePost.title}`} />
       {posts.map((post, index) => (
         <Image
           className={index === activeIndex ? 'is-active' : ''}

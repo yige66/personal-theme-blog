@@ -14,13 +14,14 @@ describe('production interaction performance guards', () => {
   });
 
   it('keeps non-visible background images and navigation routes out of the initial request burst', async () => {
-    const [background, navigation, home, latestPosts, player, toolbox] = await Promise.all([
+    const [background, navigation, home, latestPosts, player, toolbox, media] = await Promise.all([
       readFile('components/BackgroundSlider.tsx', 'utf8'),
       readFile('components/SiteNav.tsx', 'utf8'),
       readFile('components/HomeWorld.tsx', 'utf8'),
       readFile('components/LatestPostCarousel.tsx', 'utf8'),
       readFile('components/music/CloudPlayerCard.tsx', 'utf8'),
-      readFile('components/GlobalToolbox.tsx', 'utf8')
+      readFile('components/GlobalToolbox.tsx', 'utf8'),
+      readFile('components/HomeMediaCarousel.tsx', 'utf8')
     ]);
 
     assert.match(background, /const shouldLoad = index === activeIndex \|\| isExiting/);
@@ -31,6 +32,8 @@ describe('production interaction performance guards', () => {
     assert.match(player, /currentTrack\?\.cover\?\.startsWith\('\/'\)/);
     assert.match(player, /href="\/music" prefetch=\{false\}/);
     assert.match(toolbox, /prefetch=\{false\}/);
+    assert.match(latestPosts, /xh-latest-main-link.*prefetch=\{false\}/);
+    assert.match(media, /xh-home-media-carousel__main-link.*prefetch=\{false\}/);
   });
 
   it('turns third-party comment request errors into a neutral retry state', async () => {

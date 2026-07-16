@@ -49,7 +49,7 @@ export function HomeMediaCarousel({ ariaLabel, className, slides, eager = false,
 
   return (
     <section className={`${className} xh-home-media-carousel`} data-motion="stack-card" aria-label={ariaLabel}>
-      <Link className="xh-home-media-carousel__main-link" href={activeSlide.href} aria-label={activeSlide.title} />
+      <Link className="xh-home-media-carousel__main-link" href={activeSlide.href} prefetch={false} aria-label={activeSlide.title} />
       {slides.map((slide, index) => (
         <Image
           className={`xh-card-cover${index === activeIndex ? ' is-active' : ''}`}
