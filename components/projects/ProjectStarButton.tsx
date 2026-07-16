@@ -18,12 +18,14 @@ const GITHUB_TOKEN_KEYS = ['gitalk-token', 'GT_ACCESS_TOKEN', 'gitalk-token-v1']
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   const repository = parseGitHubRepository(repo);
   const [state, setState] = useState<'idle' | 'loading' | 'starred' | 'error'>('idle');
+  const [authPrompt, setAuthPrompt] = useState(false);
 
   if (!repository) {
     return null;
   }
 
   const { owner, repo: repositoryName, url: repositoryUrl } = repository;
+  const loginUrl = getGitHubLoginUrl(repositoryUrl);
 
   const isLoading = state === 'loading';
   const isStarred = state === 'starred';
@@ -39,7 +41,7 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
 
     const accessToken = readGitHubAccessToken();
     if (!accessToken) {
-      window.location.assign(repositoryUrl);
+      setAuthPrompt(true);
       return;
     }
 
@@ -60,7 +62,8 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
       }
 
       if (response.status === 401 || response.status === 403) {
-        window.location.assign(repositoryUrl);
+        setState('idle');
+        setAuthPrompt(true);
         return;
       }
 
@@ -71,21 +74,52 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   }
 
   return (
-    <button
-      className={`project-star-button${isStarred ? ' is-starred' : ''}${isLoading ? ' is-loading' : ''}`}
-      type="button"
-      onClick={handleStar}
-      disabled={isLoading || isStarred}
-      aria-busy={isLoading}
-      aria-label={isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
-      title={isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
-    >
-      <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
-        <path d="m12 2.7 2.76 5.59 6.17.9-4.47 4.36 1.06 6.15L12 16.8l-5.52 2.9 1.06-6.15-4.47-4.36 6.17-.9L12 2.7Z" />
-      </svg>
-      <span>{isLoading ? '处理中…' : label}</span>
-    </button>
+    <>
+      <button
+        className={`project-star-button${isStarred ? ' is-starred' : ''}${isLoading ? ' is-loading' : ''}`}
+        type="button"
+        onClick={handleStar}
+        disabled={isLoading || isStarred}
+        aria-busy={isLoading}
+        aria-expanded={authPrompt}
+        aria-controls={`star-login-${owner}-${repositoryName}`}
+        aria-label={isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
+        title={isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+          <path d="m12 2.7 2.76 5.59 6.17.9-4.47 4.36 1.06 6.15L12 16.8l-5.52 2.9 1.06-6.15-4.47-4.36 6.17-.9L12 2.7Z" />
+        </svg>
+        <span>{isLoading ? '处理中…' : label}</span>
+      </button>
+      {authPrompt ? (
+        <div className="project-star-login-backdrop" role="presentation" onMouseDown={() => setAuthPrompt(false)}>
+          <section
+            className="project-star-login-dialog"
+            id={`star-login-${owner}-${repositoryName}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`star-login-title-${owner}-${repositoryName}`}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <h2 id={`star-login-title-${owner}-${repositoryName}`}>需要登录 GitHub 才能点 Star</h2>
+            <p>请先登录 GitHub，登录后回到本站即可继续给这个项目点 Star。</p>
+            <div className="project-star-login-actions">
+              <button type="button" onClick={() => setAuthPrompt(false)}>取消</button>
+              <a href={loginUrl}>使用 GitHub 登录</a>
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </>
   );
+}
+
+function getGitHubLoginUrl(repositoryUrl: string): string {
+  if (typeof window === 'undefined') {
+    return 'https://github.com/login';
+  }
+
+  return `https://github.com/login?return_to=${encodeURIComponent(window.location.href || repositoryUrl)}`;
 }
 
 function parseGitHubRepository(value: string): GitHubRepository | null {

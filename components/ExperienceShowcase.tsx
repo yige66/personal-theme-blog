@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogData, BlogProject, BlogStats } from '@/lib/blog';
 
 type ExperienceShowcaseProps = {
@@ -68,7 +69,10 @@ export function ExperienceShowcase({ data, stats, projects }: ExperienceShowcase
             <span>精选项目</span>
             <strong>{featuredProject?.title || 'Personal Blog Console'}</strong>
             <p>{featuredProject?.description || '在数据源补充项目后，这里会自动成为作品入口。'}</p>
-            <Link href="/projects">进入项目集</Link>
+            <div className="experience-panel-actions">
+              <Link href="/projects">进入项目集</Link>
+              {featuredProject?.repo ? <ProjectStarButton repo={featuredProject.repo} /> : null}
+            </div>
           </article>
 
           <article className="experience-panel">

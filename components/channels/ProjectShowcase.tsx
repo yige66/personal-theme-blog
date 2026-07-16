@@ -57,22 +57,29 @@ function pickProjectIcon(project: BlogProject, index: number, offset: number): P
 
 function createProjectVisualMap(projects: BlogProject[]): Map<string, ProjectVisualIcon> {
   const usage = new Map<ProjectVisualIcon, number>();
-  let previousIcon: ProjectVisualIcon | null = null;
+  const recentIcons: ProjectVisualIcon[] = [];
 
   return new Map(projects.map((project, index) => {
     const primaryIcon = getProjectVisualIcon(project, index);
     const primaryIndex = projectVisualIcons.indexOf(primaryIcon);
     const candidates = projectVisualIcons.map((_, offset) => projectVisualIcons[(primaryIndex + offset) % projectVisualIcons.length]);
     const icon = [...candidates].sort((a, b) => {
-      const previousPenalty = Number(a === previousIcon) - Number(b === previousIcon);
-      if (previousPenalty !== 0) {
-        return previousPenalty;
+      const recentPenalty = Number(recentIcons.includes(a)) - Number(recentIcons.includes(b));
+      if (recentPenalty !== 0) {
+        return recentPenalty;
       }
-      return (usage.get(a) ?? 0) - (usage.get(b) ?? 0);
+      const usageDifference = (usage.get(a) ?? 0) - (usage.get(b) ?? 0);
+      if (usageDifference !== 0) {
+        return usageDifference;
+      }
+      return candidates.indexOf(a) - candidates.indexOf(b);
     })[0] ?? primaryIcon;
 
     usage.set(icon, (usage.get(icon) ?? 0) + 1);
-    previousIcon = icon;
+    recentIcons.push(icon);
+    if (recentIcons.length >= projectVisualIcons.length) {
+      recentIcons.shift();
+    }
     return [project.id, icon];
   }));
 }
