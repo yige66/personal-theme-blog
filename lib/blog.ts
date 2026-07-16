@@ -760,10 +760,14 @@ const dataFile = path.join(process.cwd(), 'data', 'blog.json');
 
 export const getBlogData = cache(async (): Promise<BlogData> => {
   if (isBlobStorageConfigured()) {
-    const remoteRaw = await readBlogDataBlob();
-    if (remoteRaw) {
-      const parsed = JSON.parse(remoteRaw) as Partial<BlogData>;
-      return normalizeBlogData(parsed);
+    try {
+      const remoteRaw = await readBlogDataBlob();
+      if (remoteRaw) {
+        const parsed = JSON.parse(remoteRaw) as Partial<BlogData>;
+        return normalizeBlogData(parsed);
+      }
+    } catch {
+      console.warn('Blog data Blob read failed; falling back to repository data');
     }
   }
 
