@@ -18210,12 +18210,12 @@ body:has(.xh-clean-home) .xh-clean-home .xh-player-bars {
   -webkit-text-fill-color: currentColor !important;
 }
 
-#xh-app-root:has(.admin-private-page) .admin-private-page :is(.admin-kicker, .fraud-admin-sidebar [data-risk="???"], .fraud-workspace-meta [data-risk="???"], .fraud-module-table [data-risk="???"]) {
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(.admin-kicker, .fraud-admin-sidebar [data-risk="需处理"], .fraud-workspace-meta [data-risk="需处理"], .fraud-module-table [data-risk="需处理"]) {
   color: #b42318 !important;
   -webkit-text-fill-color: currentColor !important;
 }
 
-#xh-app-root:has(.admin-private-page) .admin-private-page :is(.fraud-admin-sidebar [data-risk="??"], .fraud-workspace-meta [data-risk="??"], .fraud-module-table [data-risk="??"]) {
+#xh-app-root:has(.admin-private-page) .admin-private-page :is(.fraud-admin-sidebar [data-risk="注意"], .fraud-workspace-meta [data-risk="注意"], .fraud-module-table [data-risk="注意"]) {
   color: #a15c00 !important;
   -webkit-text-fill-color: currentColor !important;
 }

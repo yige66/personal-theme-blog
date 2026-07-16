@@ -15,16 +15,16 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
 
 export function StatPortal({ stats }: { stats: BlogStats }) {
   const items = [
-    { href: '/archive', label: '??', value: stats.posts },
-    { href: '/tags', label: '??', value: stats.tags },
-    { href: '/projects', label: '??', value: stats.projects },
-    { href: '/photowall', label: '??', value: stats.gallery },
-    { href: '/music', label: '??', value: stats.tracks },
-    { href: '/moments', label: '??', value: stats.notes }
+    { href: '/archive', label: '文章', value: stats.posts },
+    { href: '/tags', label: '标签', value: stats.tags },
+    { href: '/projects', label: '项目', value: stats.projects },
+    { href: '/photowall', label: '相册', value: stats.gallery },
+    { href: '/music', label: '音乐', value: stats.tracks },
+    { href: '/moments', label: '动态', value: stats.notes }
   ];
 
   return (
-    <section className="main-shell portal-grid" aria-label="????">
+    <section className="main-shell portal-grid" aria-label="站点入口">
       {items.map((item) => (
         <Link className="portal-card" href={item.href} key={item.href}>
           <strong>{item.value}</strong>
@@ -43,7 +43,7 @@ export function PageInsightBar({
   action?: { href: string; label: string };
 }) {
   return (
-    <section className="main-shell page-insight-bar" aria-label="????">
+    <section className="main-shell page-insight-bar" aria-label="页面概览">
       <div className="page-insight-items">
         {items.map((item) => (
           <div className="page-insight-item" key={`${item.label}-${item.value}`}>
@@ -71,7 +71,7 @@ export function ProjectCard({ project }: { project: BlogProject }) {
   return (
     <article className="project-card">
       <Link className="project-cover" href={project.url || '#'}>
-        <Image src={project.cover} alt={`${project.title} ??`} width={720} height={460} />
+        <Image src={project.cover} alt={`${project.title} 封面`} width={720} height={460} />
       </Link>
       <div className="project-copy">
         <p className="eyebrow">{project.status}</p>
@@ -81,7 +81,7 @@ export function ProjectCard({ project }: { project: BlogProject }) {
           {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
         </div>
         <div className="project-actions">
-          <Link href={project.url || '#'}>????</Link>
+          <Link href={project.url || '#'}>查看项目</Link>
           {project.repo ? <a href={project.repo} target="_blank" rel="noreferrer">Repository</a> : null}
         </div>
       </div>
@@ -93,13 +93,13 @@ export function MusicTrackCard({ track, index }: { track: MusicTrack; index: num
   return (
     <article className="track-card">
       <span>{String(index + 1).padStart(2, '0')}</span>
-      <Image className="track-cover" src={track.cover || '/assets/img/desk-notes.svg'} alt={`${track.title} ??`} width={160} height={160} />
+      <Image className="track-cover" src={track.cover || '/assets/img/desk-notes.svg'} alt={`${track.title} 封面`} width={160} height={160} />
       <div>
         <h3>{track.title}</h3>
-        <p>{track.artist} / {track.mood || '????'}</p>
+        <p>{track.artist} / {track.mood || '阅读背景'}</p>
         {track.note ? <small>{track.note}</small> : null}
       </div>
-      {track.url ? <audio controls src={track.url}>???????????</audio> : <small className="track-draft">???????????</small>}
+      {track.url ? <audio controls src={track.url}>浏览器不支持音频播放。</audio> : <small className="track-draft">等待数据源补充音频地址</small>}
     </article>
   );
 }
@@ -110,16 +110,16 @@ export function RadioHeroCard({ track, total }: { track?: MusicTrack; total: num
   }
 
   return (
-    <section className="main-shell radio-hero-card" aria-label="??????">
+    <section className="main-shell radio-hero-card" aria-label="当前推荐音乐">
       <div className="radio-disc">
-        <Image src={track.cover || '/assets/img/hero-mountain.svg'} alt={`${track.title} ??`} width={520} height={520} priority={false} />
+        <Image src={track.cover || '/assets/img/hero-mountain.svg'} alt={`${track.title} 封面`} width={520} height={520} priority={false} />
       </div>
       <div>
         <p className="eyebrow">Now playing</p>
         <h2>{track.title}</h2>
         <p>{track.artist} / {track.mood}</p>
         {track.note ? <span>{track.note}</span> : null}
-        <small>{total} ???????????????????????</small>
+        <small>{total} 首歌单条目，适合文章阅读、项目复盘和夜间写作。</small>
         <div className="radio-bars" aria-hidden="true"><i /><i /><i /><i /><i /></div>
       </div>
     </section>
@@ -143,7 +143,7 @@ export function GalleryCollectionCard({ item }: { item: GalleryItem }) {
 
   return (
     <article className={`gallery-collection${item.featured ? ' featured' : ''}`}>
-      <div className="gallery-collection-media" aria-label={`${item.title} ??`}>
+      <div className="gallery-collection-media" aria-label={`${item.title} 图集`}>
         {images.slice(0, 4).map((image, index) => (
           <Image src={image.image} alt={image.alt || image.title} width={420} height={280} key={`${image.title}-${index}`} />
         ))}
