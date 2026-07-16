@@ -13,6 +13,8 @@ type StartPhase = 'loading' | 'ready' | 'leaving';
 
 const SESSION_KEY = 'personal-theme-blog:splash-seen';
 const SPLASH_COMPLETE_EVENT = 'personal-theme-blog:splash-complete';
+const MIN_SPLASH_READY_MS = 1050;
+const HERO_READY_TIMEOUT_MS = 5000;
 
 const splashLayoutArchitecture = {
   shell: {
@@ -82,9 +84,59 @@ export function SplashScreen({ site }: SplashScreenProps) {
     }
 
     setVisible(true);
-    const loadingTimer = window.setTimeout(() => setPhase('ready'), 1050);
-    return () => window.clearTimeout(loadingTimer);
-  }, [shouldSkipSplash]);
+    setPhase('loading');
+    const startedAt = window.performance.now();
+    let settled = false;
+    let readyTimer: number | null = null;
+
+    const reveal = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      const elapsed = window.performance.now() - startedAt;
+      readyTimer = window.setTimeout(() => setPhase('ready'), Math.max(0, MIN_SPLASH_READY_MS - elapsed));
+    };
+
+    const hero = new window.Image();
+    hero.decoding = 'async';
+    const waitForDecode = () => {
+      if (!hero.decode) {
+        reveal();
+        return;
+      }
+
+      try {
+        void hero.decode().catch(() => undefined).then(reveal);
+      } catch {
+        reveal();
+      }
+    };
+
+    hero.onload = waitForDecode;
+    hero.onerror = reveal;
+    hero.src = site.heroImage;
+    if (hero.complete) {
+      if (hero.naturalWidth > 0) {
+        waitForDecode();
+      } else {
+        reveal();
+      }
+    }
+
+    const timeout = window.setTimeout(reveal, HERO_READY_TIMEOUT_MS);
+
+    return () => {
+      settled = true;
+      window.clearTimeout(timeout);
+      if (readyTimer !== null) {
+        window.clearTimeout(readyTimer);
+      }
+      hero.onload = null;
+      hero.onerror = null;
+    };
+  }, [shouldSkipSplash, site.heroImage]);
 
   useEffect(() => {
     if (!visible) {

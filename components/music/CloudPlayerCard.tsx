@@ -23,7 +23,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
   const title = currentTrack?.title || '歌单待补全';
   const artist = currentTrack?.artist || 'Local Playlist';
   const lyricSubtitle = currentLyric || currentTrack?.note || '等待歌词';
-  const cover = currentTrack?.cover || fallbackImage;
+  const cover = currentTrack?.cover?.startsWith('/') ? currentTrack.cover : fallbackImage;
 
   return (
     <article
@@ -33,7 +33,7 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
       data-loading={isLoading ? 'true' : 'false'}
       aria-label="音乐电台同步播放器"
     >
-      <Link className="xh-cloud-player-open" href="/music" aria-label={`打开音乐电台：${title}`} />
+      <Link className="xh-cloud-player-open" href="/music" prefetch={false} aria-label={`打开音乐电台：${title}`} />
       <div className="xh-disc-cover" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
         <Image src={cover} alt="" width={220} height={220} priority />
       </div>

@@ -42,7 +42,7 @@ export function LatestPostCarousel({ posts, fallbackImage }: LatestPostCarouselP
           <p className="eyebrow">Latest Post</p>
           <h2>第一篇文章正在准备中</h2>
           <span>等待内容发布</span>
-          <Link href="/archive">文章归档</Link>
+          <Link href="/archive" prefetch={false}>文章归档</Link>
         </div>
       </section>
     );

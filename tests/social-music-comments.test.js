@@ -156,6 +156,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /data-provider="gitalk"/);
     assert.match(comments, /github-comments-gitalk-host/);
     assert.match(comments, /ref=\{containerRef\}/);
+    assert.match(comments, /GITALK_REMOTE_ERROR_PATTERN/);
+    assert.match(comments, /sanitizeGitalkError/);
+    assert.match(comments, /评论暂时无法加载/);
+    assert.match(comments, /重新加载评论/);
     assert.doesNotMatch(comments, /container\.innerHTML = '';\s*gitalk\.render\(container\)/);
     assert.match(comments, /GITHUB_API_ORIGIN/);
     assert.match(comments, /GITHUB_API_PROXY_PATH/);

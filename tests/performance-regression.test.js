@@ -13,6 +13,36 @@ describe('production interaction performance guards', () => {
     assert.match(splashEffects, /Math\.min\(520/);
   });
 
+  it('keeps non-visible background images and navigation routes out of the initial request burst', async () => {
+    const [background, navigation, home, latestPosts, player, toolbox] = await Promise.all([
+      readFile('components/BackgroundSlider.tsx', 'utf8'),
+      readFile('components/SiteNav.tsx', 'utf8'),
+      readFile('components/HomeWorld.tsx', 'utf8'),
+      readFile('components/LatestPostCarousel.tsx', 'utf8'),
+      readFile('components/music/CloudPlayerCard.tsx', 'utf8'),
+      readFile('components/GlobalToolbox.tsx', 'utf8')
+    ]);
+
+    assert.match(background, /const shouldLoad = index === activeIndex \|\| isExiting/);
+    assert.match(background, /style=\{shouldLoad \?/);
+    assert.match(navigation, /prefetch=\{false\}/);
+    assert.match(home, /href="\/about" prefetch=\{false\}/);
+    assert.match(latestPosts, /href="\/archive" prefetch=\{false\}/);
+    assert.match(player, /currentTrack\?\.cover\?\.startsWith\('\/'\)/);
+    assert.match(player, /href="\/music" prefetch=\{false\}/);
+    assert.match(toolbox, /prefetch=\{false\}/);
+  });
+
+  it('turns third-party comment request errors into a neutral retry state', async () => {
+    const comments = await readFile('components/comments/GitHubComments.tsx', 'utf8');
+
+    assert.match(comments, /GITALK_REMOTE_ERROR_PATTERN/);
+    assert.match(comments, /MutationObserver/);
+    assert.match(comments, /评论暂时无法加载/);
+    assert.match(comments, /重新加载评论/);
+    assert.match(comments, /container\.replaceChildren\(\)/);
+  });
+
   it('defers home effects until the splash is gone and leaves the ripple canvas idle without ripples', async () => {
     const effects = await readFile('components/HomeEffects.tsx', 'utf8');
 

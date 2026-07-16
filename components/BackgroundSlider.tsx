@@ -265,13 +265,18 @@ export function BackgroundSlider({ site }: { site: BlogSite }) {
   return (
     <div className={`xh-background-slider ib-scene-shell is-${themeMode} is-phase-${themePhase} is-season-${season}${themeTransitionActive ? ' is-theme-transitioning' : ''}`} aria-hidden="true" data-scene-theme={themeMode} data-scene-phase={themePhase} data-scene-season={season} data-theme-transitioning={themeTransitionActive ? 'true' : 'false'} data-loading-scene="ready">
       <div className="ib-stage">
-        {images.map((image, index) => (
-          <span
-            className={`xh-background-image ib-scene-texture${index === activeIndex ? ' is-active' : ''}${!themeTransitionActive && index === exitingIndex && index !== activeIndex ? ' is-exiting' : ''}`}
-            style={{ '--bg-image': `url("${image}")` } as CSSProperties}
-            key={image}
-          />
-        ))}
+        {images.map((image, index) => {
+          const isExiting = !themeTransitionActive && index === exitingIndex && index !== activeIndex;
+          const shouldLoad = index === activeIndex || isExiting;
+
+          return (
+            <span
+              className={`xh-background-image ib-scene-texture${index === activeIndex ? ' is-active' : ''}${isExiting ? ' is-exiting' : ''}`}
+              style={shouldLoad ? { '--bg-image': `url("${image}")` } as CSSProperties : undefined}
+              key={image}
+            />
+          );
+        })}
 
         <div className="ib-scene ib-scene-day">
           <div className="ib-sky-field" />

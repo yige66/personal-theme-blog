@@ -969,9 +969,17 @@ html.xh-splash-seen #xh-app-root {
 }
 
 @media (max-width: 900px) {
-  #gw-slot,
+  #gw-slot {
+    display: block !important;
+  }
+
   #gw-toggle {
     display: none !important;
+  }
+
+  .ib-game-start {
+    --gwfx: 24px;
+    --gwfy: 24px;
   }
 
   .ib-game-ripple-bg {

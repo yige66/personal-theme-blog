@@ -74,6 +74,7 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
             <Link
               className={active ? 'is-active' : ''}
               href={tool.href}
+              prefetch={false}
               aria-label={tool.title}
               title={tool.title}
               key={tool.href}
@@ -97,7 +98,7 @@ export function GlobalToolbox({ columns = [], github, email }: GlobalToolboxProp
             Mail
           </a>
         ) : (
-          <Link href="/about" aria-label="联系信息" title="联系信息" onClick={() => setOpen(false)}>
+          <Link href="/about" prefetch={false} aria-label="联系信息" title="联系信息" onClick={() => setOpen(false)}>
             About
           </Link>
         )}

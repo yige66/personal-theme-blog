@@ -160,7 +160,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
       <main className="xh-clean-home__grid" aria-label="博客首页内容">
         <section className="xh-clean-home__identity" aria-label="个人资料与音乐">
           <article className="xh-clean-card xh-clean-profile xh-profile-window" data-motion="portal-card">
-            <Link className="xh-profile-card-open" href="/about" aria-label="打开关于页面" />
+            <Link className="xh-profile-card-open" href="/about" prefetch={false} aria-label="打开关于页面" />
             <div className="xh-profile-window-bar" aria-hidden="true">
               <span />
               <span />
@@ -183,7 +183,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
                 isExternalHref(action.href) ? (
                   <a href={action.href} key={`${action.href}-${action.label}`} target="_blank" rel="noreferrer"><span>{action.label}</span></a>
                 ) : (
-                  <Link href={action.href} key={`${action.href}-${action.label}`}><span>{action.label}</span></Link>
+                  <Link href={action.href} prefetch={false} key={`${action.href}-${action.label}`}><span>{action.label}</span></Link>
                 )
               ))}
             </div>
@@ -236,6 +236,7 @@ export function HomeWorld({ data, posts, searchEntries, stats }: HomeWorldProps)
               <Link
                 className={`xh-clean-route tone-${item.tone}`}
                 href={item.href}
+                prefetch={false}
                 data-motion="stack-card"
                 key={item.id}
               >

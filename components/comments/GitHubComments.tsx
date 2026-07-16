@@ -43,6 +43,7 @@ const GITALK_STYLE_HREF = 'https://cdn.jsdelivr.net/npm/gitalk@1.8.0/dist/gitalk
 const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
+const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
@@ -50,6 +51,7 @@ let githubApiProxyInstalled = false;
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loadState, setLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [retryKey, setRetryKey] = useState(0);
   const provider = (config.provider || 'gitalk').toLowerCase();
   const owner = config.owner || parseOwnerFromRepo(config.repo);
   const repo = parseRepoName(config.repo);
@@ -74,6 +76,13 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     const container = containerRef.current;
     setLoadState('loading');
 
+    const observer = new MutationObserver(() => {
+      if (!canceled && sanitizeGitalkError(container)) {
+        setLoadState('error');
+      }
+    });
+    observer.observe(container, { childList: true, subtree: true, characterData: true });
+
     renderGitalk({
       admin,
       commentId,
@@ -87,20 +96,22 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     })
       .then(() => {
         if (!canceled) {
-          setLoadState('ready');
+          setLoadState(sanitizeGitalkError(container) ? 'error' : 'ready');
         }
       })
       .catch(() => {
         if (!canceled) {
+          container.replaceChildren();
           setLoadState('error');
         }
       });
 
     return () => {
       canceled = true;
+      observer.disconnect();
       container.innerHTML = '';
     };
-  }, [admin, canLoadGitalk, commentId, compact, config, owner, repo, term, title]);
+  }, [admin, canLoadGitalk, commentId, compact, config, owner, repo, retryKey, term, title]);
 
   if (!canLoadGitalk) {
     return (
@@ -130,8 +141,11 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
       >
         {loadState === 'error' ? (
           <div className="github-comments-setup github-comments-error" aria-live="polite">
-            <strong>Gitalk 加载失败</strong>
-            <p>请确认 Gitalk 脚本可以访问，并且 GitHub OAuth App 的 Client ID 与回调地址已经配置正确。</p>
+            <strong>评论暂时无法加载</strong>
+            <p>评论服务暂时没有响应，页面内容不受影响。你可以稍后重试。</p>
+            <button className="github-comments-retry" type="button" onClick={() => setRetryKey((value) => value + 1)}>
+              重新加载评论
+            </button>
           </div>
         ) : null}
         {loadState === 'idle' || loadState === 'loading' ? <GitalkLoadingShell /> : null}
@@ -317,6 +331,24 @@ function parseOwnerFromRepo(repo: string): string {
 
 function parseRepoName(repo: string): string {
   return repo.includes('/') ? repo.split('/').at(-1) || '' : repo;
+}
+
+function sanitizeGitalkError(container: HTMLElement): boolean {
+  const hasRemoteError = Array.from(container.querySelectorAll<HTMLElement>('*')).some((node) => {
+    if (node.children.length > 0) {
+      return false;
+    }
+
+    const text = node.textContent?.replace(/\s+/g, ' ').trim() || '';
+    return text.length <= 240 && GITALK_REMOTE_ERROR_PATTERN.test(text);
+  });
+
+  if (!hasRemoteError) {
+    return false;
+  }
+
+  container.replaceChildren();
+  return true;
 }
 
 function syncGitalkTheme(container: HTMLElement) {

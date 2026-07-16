@@ -975,15 +975,20 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
   };
 
   const rebuildBackground = () => {
-    if (!image || !simCtx) {
+    if (!simCtx) {
       return false;
+    }
+
+    if (!image || !image.naturalWidth || !image.naturalHeight) {
+      bgData = null;
+      refractOk = false;
+      slot.classList.add('gw-gloss');
+      outImage = simCtx.createImageData(simWidth, simHeight);
+      return true;
     }
 
     const imageWidth = image.naturalWidth;
     const imageHeight = image.naturalHeight;
-    if (!imageWidth || !imageHeight) {
-      return false;
-    }
 
     const scale = Math.max(width / imageWidth, height / imageHeight);
     const sourceWidth = width / scale;
@@ -1180,7 +1185,19 @@ export function startRainRipple(refs: RainRippleRefs, heroImage: string): Cleanu
     }
   };
   probe.onerror = () => {
+    image = null;
     slot.classList.add('gw-gloss');
+
+    if (reducedMotion) {
+      mode = 'pane';
+    }
+    if (mode) {
+      targetOk = retarget(mode);
+      if (reducedMotion && targetOk) {
+        renderWater();
+        slot.classList.add('gw-rippling');
+      }
+    }
   };
   probe.src = heroImage;
 

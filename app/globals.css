@@ -11092,6 +11092,31 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
   line-height: 1.7;
 }
 
+.github-comments-error {
+  border-style: solid;
+  border-color: rgba(126, 223, 255, 0.36);
+}
+
+.github-comments-retry {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--xh-ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.github-comments-retry:hover,
+.github-comments-retry:focus-visible {
+  border-color: rgba(126, 223, 255, 0.72);
+  background: rgba(126, 223, 255, 0.14);
+  outline: none;
+}
+
 .github-comments-setup code {
   overflow-wrap: anywhere;
   color: color-mix(in srgb, var(--theme) 70%, #4a2a4d 30%);

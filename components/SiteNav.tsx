@@ -226,7 +226,7 @@ export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteCo
   return (
     <>
       <nav className={`top-nav site-nav${hidden ? ' is-hidden' : ''}${menuOpen ? ' is-orbit-open' : ''}`} style={navStyle} aria-label="主导航">
-        <Link className="brand" href="/" aria-label={`${brandTitle}${brandSuffixText} 首页`}>
+        <Link className="brand" href="/" prefetch={false} aria-label={`${brandTitle}${brandSuffixText} 首页`}>
           <span data-brand-suffix={brandSuffixText}>{brandTitle}</span>
           <small>Personal Blog</small>
         </Link>
@@ -235,7 +235,7 @@ export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteCo
           {routes.map((item) => {
             const active = isActive(pathname, item.href);
             return (
-              <Link className={active ? 'active' : ''} aria-current={active ? 'page' : undefined} key={item.href} href={item.href}>
+              <Link className={active ? 'active' : ''} aria-current={active ? 'page' : undefined} key={item.href} href={item.href} prefetch={false}>
                 {item.label}
               </Link>
             );
@@ -287,6 +287,7 @@ export function SiteNav({ columns = [], title, brandSuffix }: { columns?: SiteCo
                 aria-current={active ? 'page' : undefined}
                 href={item.href}
                 key={item.href}
+                prefetch={false}
                 role="menuitem"
                 style={style}
               >
