@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogNote, BlogProject, BlogStats, GalleryItem, MusicTrack } from '@/lib/blog';
 import { formatDate } from '@/lib/blog';
 
@@ -84,7 +83,6 @@ export function ProjectCard({ project }: { project: BlogProject }) {
         <div className="project-actions">
           <Link href={project.url || '#'}>查看项目</Link>
           {project.repo ? <a href={project.repo} target="_blank" rel="noreferrer">Repository</a> : null}
-          {project.repo ? <ProjectStarButton repo={project.repo} /> : null}
         </div>
       </div>
     </article>
