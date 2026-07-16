@@ -29,7 +29,7 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
 
   const isLoading = state === 'loading';
   const isStarred = state === 'starred';
-  const label = isStarred ? '已 Star' : state === 'error' ? '重试 Star' : 'Star';
+  const label = isStarred ? '? Star' : state === 'error' ? '?? Star' : 'Star';
 
   async function handleStar(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -83,13 +83,13 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
         aria-busy={isLoading}
         aria-expanded={authPrompt}
         aria-controls={`star-login-${owner}-${repositoryName}`}
-        aria-label={isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
-        title={isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
+        aria-label={isStarred ? `?? ${repositoryName} ? Star` : `? ${repositoryName} ? Star`}
+        title={isStarred ? '? Star' : '? GitHub ??? Star'}
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
           <path d="m12 2.7 2.76 5.59 6.17.9-4.47 4.36 1.06 6.15L12 16.8l-5.52 2.9 1.06-6.15-4.47-4.36 6.17-.9L12 2.7Z" />
         </svg>
-        <span>{isLoading ? '处理中…' : label}</span>
+        <span>{isLoading ? '????' : label}</span>
       </button>
       {authPrompt ? (
         <div className="project-star-login-backdrop" role="presentation" onMouseDown={() => setAuthPrompt(false)}>
@@ -101,11 +101,11 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
             aria-labelledby={`star-login-title-${owner}-${repositoryName}`}
             onMouseDown={(event) => event.stopPropagation()}
           >
-            <h2 id={`star-login-title-${owner}-${repositoryName}`}>需要登录 GitHub 才能点 Star</h2>
-            <p>请先登录 GitHub，登录后回到本站即可继续给这个项目点 Star。</p>
+            <h2 id={`star-login-title-${owner}-${repositoryName}`}>???? GitHub ??? Star</h2>
+            <p>???? GitHub?????????????????? Star?</p>
             <div className="project-star-login-actions">
-              <button type="button" onClick={() => setAuthPrompt(false)}>取消</button>
-              <a href={loginUrl}>使用 GitHub 登录</a>
+              <button type="button" onClick={() => setAuthPrompt(false)}>??</button>
+              <a href={loginUrl}>?? GitHub ??</a>
             </div>
           </section>
         </div>

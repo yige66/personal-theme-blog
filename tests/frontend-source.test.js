@@ -93,7 +93,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeWorld, /archive/);
     assert.doesNotMatch(homeWorld, /timeline/);
     assert.match(homeWorld, /music/);
-    assert.doesNotMatch(homeWorld, /\/tree|灵境|Tree Lab|is-tree/);
+    assert.doesNotMatch(homeWorld, /\/tree|??|Tree Lab|is-tree/);
     assert.doesNotMatch(homeWorld, /RoomConsole/);
     assert.doesNotMatch(homeWorld, /xh-home-room-deck/);
     assert.doesNotMatch(page, /ExperienceShowcase|ArticleExplorer|post-teasers|projects-section|gallery-section|links-section/);
@@ -103,7 +103,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(spaceDock, /createSpaceSignals/);
     assert.match(spaceDock, /experienceRoutes/);
     assert.match(spaceDock, /Portal Index/);
-    assert.match(spaceDock, /频道入口/);
+    assert.match(spaceDock, /????/);
     assert.match(portalSearch, /searchPortal/);
     assert.match(portalSearch, /highlightMatchedText/);
     assert.match(portalSearch, /portal-channel-grid/);
@@ -156,19 +156,19 @@ describe('target-inspired homepage portal', () => {
     assert.match(siteDashboard, /formatUptime/);
     assert.match(siteDashboard, /xh-clock-caption/);
     assert.match(siteDashboard, /xh-clock-digit/);
-    assert.doesNotMatch(siteDashboard, /本地时间|formatLocation|中国长沙|data\.site\.location|data\.site\.assistantName/);
+    assert.doesNotMatch(siteDashboard, /????|formatLocation|????|data\.site\.location|data\.site\.assistantName/);
     assert.doesNotMatch(siteDashboard, /xh-dashboard-badges|createDashboardBadges|badges\.map/);
     assert.match(siteDashboard, /Next\.js 16/);
     assert.match(siteDashboard, /React 19/);
-    assert.match(siteDashboard, /CSS 动效/);
-    assert.doesNotMatch(siteDashboard, /xh-dashboard-icp|ICP备|萌ICP备|20260240/);
+    assert.match(siteDashboard, /CSS ??/);
+    assert.doesNotMatch(siteDashboard, /xh-dashboard-icp|ICP?|?ICP?|20260240/);
     assert.doesNotMatch(siteDashboard, /Local Time|POSTS|WORDS|PROJECTS|RADIO|\$\{data\.site\.streak\} days/);
     assert.match(siteDashboard, /setInterval/);
     assert.match(experience, /experienceRoutes/);
     assert.match(experience, /photowall/);
     assert.match(experience, /friends/);
     assert.doesNotMatch(experience, /timeline|\/timeline/);
-    assert.doesNotMatch(experience, /id: 'tree'|\/tree|灵境/);
+    assert.doesNotMatch(experience, /id: 'tree'|\/tree|??/);
     assert.match(nav, /className=\{active \? 'active' : ''\}/);
     assert.match(nav, /mobile-orbit-toggle/);
     assert.match(nav, /mobile-orbit-panel/);
@@ -220,7 +220,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(css, /@keyframes xh-dashboard-digit-tick/);
     assert.match(css, /@keyframes xh-dashboard-colon-pulse/);
     assert.match(brandAfterRule, /content: attr\(data-brand-suffix\)/);
-    assert.doesNotMatch(brandAfterRule, /宝藏之地/);
+    assert.doesNotMatch(brandAfterRule, /????/);
   });
 
   it('loads project cards from GitHub and opens repository pages from project cards', async () => {
@@ -291,12 +291,12 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(showcase, /sakura-badge-field/);
     assert.doesNotMatch(showcase, /project-source-note/);
     assert.doesNotMatch(showcase, /<p className="eyebrow">\{page\.eyebrow\}<\/p>/);
-    assert.match(showcase, /打开 GitHub/);
+    assert.match(showcase, /?? GitHub/);
     assert.doesNotMatch(showcase, /<article className="project-matrix-card"/);
     assert.match(portalIndex, /href: project\.repo \|\| project\.url \|\| '\/projects'/);
     assert.match(blog, /projectOrder: string\[\]/);
     assert.match(blog, /projectOrder: normalizeProjectOrder\(siteInput\.projectOrder\)/);
-    assert.match(blog, /填写 GitHub 地址并保持仓库公开/);
+    assert.match(blog, /?? GitHub ?????????/);
     assert.doesNotMatch(homeCss, /\.project-source-note/);
     assert.match(homeCss, /\.project-anime-icon/);
     assert.match(homeCss, /\.project-wax-seal/);
@@ -345,7 +345,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(starButton, /gitalk-token/);
     assert.match(starButton, /authPrompt/);
     assert.match(starButton, /project-star-login-dialog/);
-    assert.match(starButton, /需要登录 GitHub 才能点 Star/);
+    assert.match(starButton, /???? GitHub ??? Star/);
     assert.match(starButton, /getGitHubLoginUrl/);
     assert.match(starButton, /method: 'PUT'/);
     assert.match(starButton, /user\/starred/);
