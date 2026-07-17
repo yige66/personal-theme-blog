@@ -190,6 +190,9 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
     if (body && Buffer.byteLength(body, 'utf8') > MAX_PROXY_BODY_LENGTH) {
       return NextResponse.json({ error: 'GitHub API proxy body is too large.' }, { status: 413 });
     }
+    if (kind === 'star' && request.method === 'PUT' && body) {
+      return NextResponse.json({ error: 'GitHub star requests must not include a body.' }, { status: 400 });
+    }
 
     const headers = new Headers({
       Accept: 'application/vnd.github+json',
@@ -208,6 +211,10 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       headers.set('Authorization', authorization);
     } else if (cookieToken) {
       headers.set('Authorization', `Bearer ${cookieToken}`);
+    }
+    if (kind === 'star' && request.method === 'PUT') {
+      // GitHub's starring endpoint requires an explicit zero-length request body.
+      headers.set('Content-Length', '0');
     }
     if (body) {
       headers.set('Content-Type', request.headers.get('content-type') || 'application/json');

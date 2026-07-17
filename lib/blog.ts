@@ -732,7 +732,20 @@ const fallbackSite: BlogSite = {
   ]
 };
 
-const fallbackProjects: BlogProject[] = [];
+const fallbackProjects: BlogProject[] = [
+  {
+    id: 'project-console',
+    title: 'Personal Blog Admin',
+    description: '一个可维护的个人博客内容系统，用 JSON 数据源串联文章、动态、音乐、相册、友链和后台分区管理。',
+    url: '/projects',
+    repo: 'https://github.com/yige66/personal-theme-blog',
+    cover: '/assets/img/admin-board.svg',
+    tags: ['Next.js', 'Deploy', 'JSON'],
+    status: 'active',
+    featured: true,
+    startedAt: '2026-06-28'
+  }
+];
 
 const fallbackData: BlogData = {
   site: fallbackSite,

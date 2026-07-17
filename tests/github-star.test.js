@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 describe('GitHub starring flow', () => {
-  it('removes the current blog repository from every project source', async () => {
+  it('removes the profile repository while keeping the current blog repository available', async () => {
     const [dataRaw, projectSource, blogSource, repository] = await Promise.all([
       readFile('data/blog.json', 'utf8'),
       readFile('lib/github-projects.ts', 'utf8'),
@@ -12,12 +12,12 @@ describe('GitHub starring flow', () => {
     ]);
     const data = JSON.parse(dataRaw);
 
-    assert.equal(data.projects.some((project) => project.repo?.endsWith('/personal-theme-blog')), false);
-    assert.equal(data.site.projectOrder.some((entry) => entry.includes('/personal-theme-blog')), false);
+    assert.equal(data.projects.some((project) => project.repo?.endsWith('/personal-theme-blog')), true);
+    assert.equal(data.site.projectOrder.some((entry) => entry.includes('/personal-theme-blog')), true);
     assert.match(repository, /BLOG_REPOSITORY_NAME = 'personal-theme-blog'/);
-    assert.match(projectSource, /filter\(\(repo\) => !isBlogRepository\(repo\.html_url\)\)/);
-    assert.match(projectSource, /filter\(\(project\) => !isBlogRepository\(project\.repo \|\| project\.url\)\)/);
-    assert.match(blogSource, /const fallbackProjects: BlogProject\[\] = \[\];/);
+    assert.match(projectSource, /filter\(\(repo\) => !isGitHubProfileRepository\(repo, username\)\)/);
+    assert.doesNotMatch(projectSource, /isBlogRepository/);
+    assert.match(blogSource, /id: 'project-console'/);
   });
 
   it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
@@ -40,6 +40,7 @@ describe('GitHub starring flow', () => {
     assert.match(layout, /<GitHubStarFloating \/>/);
     assert.match(api, /GITHUB_STAR_OWNER/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
+    assert.match(api, /Content-Length/);
   });
 
   it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {

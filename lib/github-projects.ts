@@ -1,5 +1,4 @@
 import type { BlogProject, BlogSite } from './blog';
-import { isBlogRepository } from './github-repository';
 
 type GitHubRepository = {
   archived?: unknown;
@@ -51,7 +50,7 @@ export async function getGithubProjects(site: Pick<BlogSite, 'github' | 'project
     const projects = payload
       .filter(isGitHubRepository)
       .filter((repo) => !Boolean(repo.fork))
-      .filter((repo) => !isBlogRepository(repo.html_url))
+      .filter((repo) => !isGitHubProfileRepository(repo, username))
       .map((repo) => repositoryToProject(repo, fallbackProjects))
       .filter((project): project is BlogProject => Boolean(project))
       .slice(0, 48);
@@ -94,6 +93,12 @@ export function resolveGithubProjectOwner(github: string): string {
   return normalizeGithubName(raw.replace(/^@/, '').split('/').filter(Boolean)[0] ?? '');
 }
 
+function isGitHubProfileRepository(repo: GitHubRepository, username: string): boolean {
+  // GitHub uses an account-name repository for profile README content; it is not a project card.
+  const name = textValue(repo.name);
+  return Boolean(name) && name.toLowerCase() === username.toLowerCase();
+}
+
 function repositoryToProject(repo: GitHubRepository, fallbackProjects: BlogProject[]): BlogProject | null {
   const name = textValue(repo.name);
   const repoUrl = httpUrlValue(repo.html_url);
@@ -128,13 +133,11 @@ function fallbackProjectSource(username: string, fallbackProjects: BlogProject[]
   return {
     error,
     projects: applyProjectOrder(
-      fallbackProjects
-        .filter((project) => !isBlogRepository(project.repo || project.url))
-        .map((project) => ({
-          ...project,
-          url: project.repo || project.url,
-          repo: project.repo || project.url
-        })),
+      fallbackProjects.map((project) => ({
+        ...project,
+        url: project.repo || project.url,
+        repo: project.repo || project.url
+      })),
       projectOrder
     ),
     source: 'fallback',

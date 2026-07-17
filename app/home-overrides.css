@@ -28417,3 +28417,279 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
     min-height: 0 !important;
   }
 }
+
+/* Comment surface alignment: reserve readable gutters across every Gitalk state. */
+:where(
+  .github-comments-shell,
+  .friends-comments,
+  .moment-comments-shell,
+  .github-comments-card,
+  .github-comments-frame,
+  .github-comments-gitalk-host,
+  .gt-container,
+  .gt-header,
+  .gt-header-comment,
+  .gt-header-controls,
+  .gt-comment,
+  .gt-comment-content,
+  .gt-comment-body
+) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.custom-gitalk-glass {
+  padding-inline: clamp(18px, 2.4vw, 32px) !important;
+}
+
+.custom-gitalk-glass .gt-container {
+  width: 100% !important;
+  padding-inline: 0 !important;
+}
+
+.custom-gitalk-glass .gt-header {
+  display: grid !important;
+  grid-template-columns: clamp(48px, 5vw, 64px) minmax(0, 1fr) !important;
+  align-items: start !important;
+  column-gap: clamp(12px, 1.6vw, 20px) !important;
+  row-gap: 12px !important;
+}
+
+.custom-gitalk-glass .gt-header-avatar,
+.custom-gitalk-glass .gt-header > .gt-avatar {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  float: none !important;
+  width: clamp(48px, 5vw, 64px) !important;
+  height: clamp(48px, 5vw, 64px) !important;
+  margin: 4px 0 0 !important;
+}
+
+.custom-gitalk-glass .gt-header-avatar img,
+.custom-gitalk-glass .gt-header > .gt-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+.custom-gitalk-glass .gt-header > .gt-header-comment,
+.custom-gitalk-glass .gt-header > .gt-header-textarea,
+.custom-gitalk-glass .gt-header > .gt-header-preview,
+.custom-gitalk-glass .gt-header > .gt-header-controls,
+.custom-gitalk-glass .gt-header-comment > .gt-header-controls {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.custom-gitalk-glass .gt-header-comment {
+  display: grid;
+  gap: 12px;
+}
+
+.custom-gitalk-glass .gt-header-textarea,
+.custom-gitalk-glass .gt-header-preview {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 108px !important;
+  padding: 16px clamp(16px, 2vw, 22px) !important;
+  border-radius: 16px !important;
+  font-size: clamp(14px, 1.2vw, 16px) !important;
+  line-height: 1.65 !important;
+  overflow-wrap: anywhere;
+  resize: vertical;
+}
+
+.custom-gitalk-glass .gt-header-controls {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  min-width: 0;
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+
+.custom-gitalk-glass .gt-header-controls-tip {
+  flex: 1 1 220px;
+  min-width: 0;
+  line-height: 1.55 !important;
+  overflow-wrap: anywhere;
+}
+
+.custom-gitalk-glass .gt-header-controls .gt-btn {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  padding-inline: clamp(14px, 1.8vw, 22px) !important;
+  white-space: nowrap;
+}
+
+.custom-gitalk-glass .gt-comments {
+  min-width: 0;
+  margin-top: clamp(20px, 3vw, 32px) !important;
+}
+
+.custom-gitalk-glass .gt-comment-content {
+  min-width: 0;
+  max-width: 100%;
+  padding: clamp(12px, 1.6vw, 18px) clamp(14px, 2vw, 24px) !important;
+  overflow-wrap: anywhere;
+}
+
+.custom-gitalk-glass .gt-comment-body {
+  max-width: 100%;
+  line-height: 1.7 !important;
+  overflow-wrap: anywhere;
+}
+
+.custom-gitalk-glass .gt-comment-body p {
+  max-width: 100%;
+  margin-block: 0 !important;
+  overflow-wrap: anywhere;
+}
+
+.moment-gitalk {
+  padding-inline: 0 !important;
+}
+
+.moment-gitalk .gt-header {
+  display: grid !important;
+  grid-template-columns: 32px minmax(0, 1fr) !important;
+  align-items: start !important;
+  column-gap: 10px !important;
+  row-gap: 10px !important;
+  min-width: 0;
+}
+
+.moment-gitalk .gt-header-avatar,
+.moment-gitalk .gt-header > .gt-avatar {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  float: none !important;
+  margin: 2px 0 0 !important;
+}
+
+.moment-gitalk .gt-header-comment,
+.moment-gitalk .gt-header > .gt-header-textarea,
+.moment-gitalk .gt-header > .gt-header-preview,
+.moment-gitalk .gt-header > .gt-header-controls,
+.moment-gitalk .gt-header-comment > .gt-header-controls {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.moment-gitalk .gt-header-comment {
+  display: grid;
+  gap: 10px;
+}
+
+.moment-gitalk .gt-header-textarea,
+.moment-gitalk .gt-header-preview {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 10px 14px !important;
+  line-height: 1.55 !important;
+  overflow-wrap: anywhere;
+  resize: vertical;
+}
+
+.moment-gitalk .gt-header-controls {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+
+.moment-gitalk .gt-btn {
+  min-width: 0;
+  min-height: 34px;
+  padding-inline: 12px !important;
+  white-space: nowrap;
+}
+
+.moment-gitalk .gt-comments {
+  min-width: 0;
+  margin-top: 14px !important;
+}
+
+.moment-gitalk .gt-comment-content {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 4px 0 0 !important;
+  overflow-wrap: anywhere;
+}
+
+.moment-gitalk .gt-comment-body {
+  max-width: 100%;
+  line-height: 1.65 !important;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .custom-gitalk-glass {
+    padding-inline: 14px !important;
+  }
+
+  .custom-gitalk-glass .gt-header {
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-avatar,
+  .custom-gitalk-glass .gt-header > .gt-avatar {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-textarea,
+  .custom-gitalk-glass .gt-header-preview {
+    min-height: 96px !important;
+    padding: 14px 15px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-controls {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-gitalk-glass {
+    padding-inline: 10px !important;
+  }
+
+  .custom-gitalk-glass .gt-header {
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+    column-gap: 9px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-avatar,
+  .custom-gitalk-glass .gt-header > .gt-avatar {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-textarea,
+  .custom-gitalk-glass .gt-header-preview {
+    min-height: 88px !important;
+    padding: 12px 13px !important;
+  }
+
+  .custom-gitalk-glass .gt-header-controls-tip {
+    flex-basis: 100%;
+  }
+
+  .moment-comment-dock .github-comments-card.is-compact {
+    padding-inline: 12px !important;
+  }
+}
