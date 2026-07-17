@@ -47,6 +47,21 @@ describe('GitHub starring flow', () => {
     assert.match(api, /Content-Length/);
   });
 
+  it('routes stale legacy-token failures back through OAuth instead of trapping the button', async () => {
+    const [starButton, githubApi] = await Promise.all([
+      readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
+      readFile('app/api/github/route.ts', 'utf8')
+    ]);
+
+    assert.match(starButton, /let usedLegacyToken = false/);
+    assert.match(starButton, /usedLegacyToken = true/);
+    assert.match(starButton, /usedLegacyToken && response\.status >= 500/);
+    assert.match(starButton, /if \(usedLegacyToken\) \{\s*startGitHubOAuth\(repository\)/);
+    assert.match(githubApi, /const retryStarRequest = kind === 'star' && request\.method === 'PUT'/);
+    assert.match(githubApi, /fetchGitHubRequest\(target, githubRequest, retryStarRequest\)/);
+    assert.match(githubApi, /GitHub star proxy request failed after retry/);
+  });
+
   it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {
     const [start, exchange, oauth, env, docs] = await Promise.all([
       readFile('app/api/github/oauth/start/route.ts', 'utf8'),

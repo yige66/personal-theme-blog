@@ -227,24 +227,26 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
     }
 
-    let githubResponse = await fetch(target, {
+    const githubRequest: RequestInit = {
       method: request.method,
       headers,
       body,
       cache: 'no-store'
-    });
+    };
+    const retryStarRequest = kind === 'star' && request.method === 'PUT';
+    let githubResponse = await fetchGitHubRequest(target, githubRequest, retryStarRequest);
 
     // A stale or revoked deployment token must never make public comments
     // unreadable. Retry the same public request without that token first.
     if (isPublicRead && serverToken && [401, 403].includes(githubResponse.status)) {
       const anonymousHeaders = new Headers(headers);
       anonymousHeaders.delete('Authorization');
-      githubResponse = await fetch(target, {
+      githubResponse = await fetchGitHubRequest(target, {
         method: request.method,
         headers: anonymousHeaders,
         body,
         cache: 'no-store'
-      });
+      }, false);
     }
 
     if (kind === 'repository' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
@@ -278,6 +280,33 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
     });
   } catch {
     return NextResponse.json({ error: 'GitHub API proxy failed.' }, { status: 502 });
+  }
+}
+
+/**
+ * Sends a GitHub request and retries only idempotent Star PUTs after a network
+ * rejection. A second failure is logged with route metadata but never includes
+ * authorization material or the upstream response body.
+ */
+async function fetchGitHubRequest(target: URL, request: RequestInit, retryOnFailure: boolean): Promise<Response> {
+  try {
+    return await fetch(target, request);
+  } catch (error) {
+    if (!retryOnFailure) {
+      throw error;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    try {
+      return await fetch(target, request);
+    } catch (retryError) {
+      console.warn('GitHub star proxy request failed after retry.', {
+        errorName: retryError instanceof Error ? retryError.name : 'unknown',
+        method: request.method || 'GET',
+        path: target.pathname
+      });
+      throw retryError;
+    }
   }
 }
 

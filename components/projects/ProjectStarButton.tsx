@@ -46,6 +46,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
 
     setState('loading');
     const target = `${GITHUB_API_ORIGIN}/user/starred/${owner}/${repositoryName}`;
+    let usedLegacyToken = false;
 
     try {
       let response = await sendStarRequest(target);
@@ -53,6 +54,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       if (response.status === 401 || response.status === 403) {
         const legacyToken = readGitHubAccessToken();
         if (legacyToken) {
+          usedLegacyToken = true;
           response = await sendStarRequest(target, legacyToken);
         }
       }
@@ -62,13 +64,19 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
         return;
       }
 
-      if (response.status === 401 || response.status === 403) {
+      // A stale Gitalk token must not trap the user in the retry state.
+      if (response.status === 401 || response.status === 403 || (usedLegacyToken && response.status >= 500)) {
         startGitHubOAuth(repository);
         return;
       }
 
       setState('error');
     } catch {
+      if (usedLegacyToken) {
+        startGitHubOAuth(repository);
+        return;
+      }
+
       setState('error');
     }
   }
