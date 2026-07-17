@@ -1,0 +1,15 @@
+.git/
+.vercel/
+.next/
+node_modules/
+.codegraph/
+.playwright-mcp/
+.codex*/
+.agents/
+*.log
+/*.png
+/tsconfig.tsbuildinfo
+.env*
+data/auth.json
+data/backups/
+data/ai-config.json

@@ -1,8 +1,10 @@
-import { get, put } from '@vercel/blob';
+import { del, get, list, put } from '@vercel/blob';
 
 export const blogDataBlobPath = 'blog/blog.json';
 export const aiConfigBlobPath = 'admin/ai-config.json';
 const blogBackupPrefix = 'blog/backups';
+/** Maximum number of private blog snapshots retained after a successful save. */
+export const blogBackupRetention = 10;
 const privateBlobCredentialError = 'BLOB_READ_WRITE_TOKEN or VERCEL_OIDC_TOKEN with BLOB_STORE_ID is required for private Blob storage.';
 
 type PrivateBlobCredentialOptions =
@@ -85,6 +87,72 @@ export function normalizeBlobEtag(etag: string): string {
   return etag.startsWith('W/') ? etag.slice(2) : etag;
 }
 
+type BlogBackupMetadata = {
+  pathname: string;
+  uploadedAt: Date;
+};
+
+/** Selects the oldest snapshots while reserving room for the next backup. */
+export function selectBlogBackupPathnamesToDelete(backups: readonly BlogBackupMetadata[], keepCount = blogBackupRetention - 1): string[] {
+  const safeKeepCount = Math.max(0, Math.floor(keepCount));
+  const sortedBackups = [...backups].sort((left, right) => {
+    const leftTime = left.uploadedAt.getTime();
+    const rightTime = right.uploadedAt.getTime();
+
+    if (Number.isFinite(leftTime) && Number.isFinite(rightTime) && leftTime !== rightTime) {
+      return leftTime - rightTime;
+    }
+
+    return left.pathname.localeCompare(right.pathname);
+  });
+
+  return sortedBackups
+    .slice(0, Math.max(0, sortedBackups.length - safeKeepCount))
+    .map((backup) => backup.pathname);
+}
+
+async function listBlogBackups(credentialOptions: PrivateBlobCredentialOptions): Promise<BlogBackupMetadata[]> {
+  const backups: BlogBackupMetadata[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const result = await list({
+      prefix: `${blogBackupPrefix}/`,
+      limit: 1000,
+      ...(cursor ? { cursor } : {}),
+      ...credentialOptions
+    });
+
+    backups.push(
+      ...result.blobs
+        .filter(({ pathname }) => /^blog\/backups\/blog-.+\.json$/.test(pathname))
+        .map(({ pathname, uploadedAt }) => ({ pathname, uploadedAt }))
+    );
+
+    if (!result.hasMore) {
+      break;
+    }
+
+    if (!result.cursor) {
+      throw new Error('Vercel Blob backup listing returned no cursor while more results were available.');
+    }
+
+    cursor = result.cursor;
+  } while (cursor);
+
+  return backups;
+}
+
+/** Removes old snapshots before writing the next one so retention is bounded. */
+async function pruneBlogBackups(credentialOptions: PrivateBlobCredentialOptions): Promise<void> {
+  const backups = await listBlogBackups(credentialOptions);
+  const pathsToDelete = selectBlogBackupPathnamesToDelete(backups);
+
+  if (pathsToDelete.length > 0) {
+    await del(pathsToDelete, credentialOptions);
+  }
+}
+
 export async function readBlogDataBlobSnapshot(): Promise<{ content: string; etag: string } | null> {
   return readPrivateBlobSnapshot(blogDataBlobPath);
 }
@@ -112,6 +180,7 @@ export async function saveBlogDataBlob(json: string, expectedEtag: string | null
   }
 
   const previous = await readBlogDataBlobSnapshot();
+  await pruneBlogBackups(credentialOptions);
   let backupPath: string | null = null;
 
   if (previous) {

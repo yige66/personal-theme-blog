@@ -3,7 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
-import { assertBlogStorageWritable, assertMediaStorageWritable, getPrivateBlobCredentialOptions, isBlobStorageConfigured, normalizeBlobEtag } from '../lib/blog-storage.ts';
+import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getPrivateBlobCredentialOptions, isBlobStorageConfigured, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -25,6 +25,18 @@ describe('production admin storage policy', () => {
   it('converts weak GET etags into strong conditional-write etags', () => {
     assert.equal(normalizeBlobEtag('W/"abc123"'), '"abc123"');
     assert.equal(normalizeBlobEtag('"abc123"'), '"abc123"');
+  });
+
+  it('keeps the next save within the bounded backup retention', () => {
+    const backups = Array.from({ length: blogBackupRetention + 2 }, (_, index) => ({
+      pathname: `blog/backups/blog-${String(index).padStart(2, '0')}.json`,
+      uploadedAt: new Date(Date.UTC(2026, 0, index + 1))
+    })).reverse();
+
+    assert.deepEqual(
+      selectBlogBackupPathnamesToDelete(backups),
+      ['blog/backups/blog-00.json', 'blog/backups/blog-01.json', 'blog/backups/blog-02.json']
+    );
   });
 
   it('creates stable revisions and detects changed persisted content', () => {
