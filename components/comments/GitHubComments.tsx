@@ -77,6 +77,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     setLoadState('loading');
 
     const observer = new MutationObserver(() => {
+      removeGitalkPreviewControls(container);
       if (!canceled && sanitizeGitalkError(container)) {
         setLoadState('error');
       }
@@ -167,9 +168,6 @@ function GitalkLoadingShell() {
         <textarea className="gt-header-textarea" disabled placeholder="说点什么" />
         <div className="gt-header-controls">
           <span className="gt-header-controls-tip">支持 Markdown 语法 · Gitalk 加载中 ...</span>
-          <button className="gt-btn gt-btn-preview" type="button" disabled>
-            预览
-          </button>
           <button className="gt-btn gt-btn-login" type="button" disabled>
             使用 GitHub 登录
           </button>
@@ -218,8 +216,16 @@ async function renderGitalk({
   });
 
   gitalk.render(container);
+  removeGitalkPreviewControls(container);
   syncGitalkTheme(container);
   cleanOAuthCodeFromUrl();
+}
+
+/**
+ * Removes Gitalk's inactive Markdown preview controls after each render.
+ */
+function removeGitalkPreviewControls(container: HTMLElement) {
+  container.querySelectorAll('.gt-btn-preview, .gt-header-preview').forEach((node) => node.remove());
 }
 
 function loadGitalk(): Promise<GitalkConstructor> {

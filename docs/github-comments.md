@@ -53,7 +53,6 @@ npm run check
 - `未登录用户`
 - `说点什么`
 - `支持 Markdown 语法`
-- `预览`
 - `使用 GitHub 登录`
 
 如果仍提示 Gitalk OAuth 未配置，优先检查 `NEXT_PUBLIC_GITALK_CLIENT_ID`、`GITHUB_CLIENT_SECRET`、评论仓库 owner/repo 以及 OAuth App callback URL。

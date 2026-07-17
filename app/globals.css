@@ -6751,7 +6751,6 @@ html[data-xh-theme="night"] .music-lyrics p.is-active {
 }
 
 html[data-xh-theme="night"] .custom-gitalk-glass .gt-container .gt-header-textarea,
-html[data-xh-theme="night"] .custom-gitalk-glass .gt-container .gt-header-preview,
 html[data-xh-theme="night"] .custom-gitalk-glass .gt-container .gt-comment-content,
 html[data-xh-theme="night"] .moment-gitalk .gt-header-textarea {
   border-color: rgba(255, 255, 255, 0.16) !important;
@@ -11007,7 +11006,6 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 }
 
 .custom-gitalk-glass .gt-container .gt-header-textarea,
-.custom-gitalk-glass .gt-container .gt-header-preview,
 .custom-gitalk-glass .gt-container .gt-comment-content {
   border: 1px solid rgba(255, 255, 255, 0.32) !important;
   border-radius: 16px !important;

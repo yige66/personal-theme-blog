@@ -13,7 +13,7 @@ const SUPPORTED_CONTENT_TYPES = ['application/json', 'application/x-www-form-url
 const OAUTH_TOKEN_FIELDS = ['client_id', 'code', 'redirect_uri', 'state', 'code_verifier'] as const;
 
 type OAuthPayload = Partial<Record<(typeof OAUTH_TOKEN_FIELDS)[number] | 'client_secret', string>>;
-type ProxyTargetKind = 'repository' | 'user' | 'markdown' | 'star';
+type ProxyTargetKind = 'repository' | 'user' | 'markdown' | 'star' | 'graphql';
 type ProxyTargetResult = { target?: URL; kind?: ProxyTargetKind; error?: NextResponse };
 
 export async function GET(request: Request) {
@@ -141,6 +141,7 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
   const isRepositoryRequest = Boolean(repositoryPath && (path === repositoryPath || path.startsWith(`${repositoryPath}/`)));
   const isUserRequest = path === '/user';
   const isMarkdownRequest = path === '/markdown';
+  const isGraphqlRequest = path === '/graphql';
   const projectOwner = readRuntimeEnv(
     'GITHUB_STAR_OWNER',
     'GITHUB_PROJECTS_OWNER',
@@ -158,8 +159,12 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
       && isSafeGitHubName(starMatch[2])
   );
 
-  if (!isRepositoryRequest && !isUserRequest && !isMarkdownRequest && !isStarRequest) {
+  if (!isRepositoryRequest && !isUserRequest && !isMarkdownRequest && !isStarRequest && !isGraphqlRequest) {
     return { error: NextResponse.json({ error: 'GitHub API proxy path is not allowed.' }, { status: 403 }) };
+  }
+
+  if (isGraphqlRequest && !/^(Bearer|token)\s+\S+/i.test(request.headers.get('authorization') || '')) {
+    return { error: NextResponse.json({ error: 'GitHub GraphQL proxy requires a bearer token.' }, { status: 401 }) };
   }
 
   const allowedMethods = isRepositoryRequest
@@ -168,6 +173,8 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
       ? ['GET']
       : isMarkdownRequest
         ? ['POST']
+        : isGraphqlRequest
+          ? ['POST']
         : ['GET', 'PUT'];
   if (!allowedMethods.includes(request.method)) {
     return { error: NextResponse.json({ error: 'GitHub API proxy method is not allowed.' }, { status: 405 }) };
@@ -175,7 +182,7 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
 
   return {
     target,
-    kind: isRepositoryRequest ? 'repository' : isUserRequest ? 'user' : isMarkdownRequest ? 'markdown' : 'star'
+    kind: isRepositoryRequest ? 'repository' : isUserRequest ? 'user' : isMarkdownRequest ? 'markdown' : isGraphqlRequest ? 'graphql' : 'star'
   };
 }
 
