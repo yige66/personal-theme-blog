@@ -15,8 +15,7 @@
       "https://github.com/yige66/sky-take-out.git",
       "https://github.com/yige66/web-project.git",
       "https://github.com/yige66/anti-fraud.git",
-      "https://github.com/yige66/Isekai-LifeSim.git",
-      "https://github.com/yige66/personal-theme-blog.git"
+      "https://github.com/yige66/Isekai-LifeSim.git"
     ],
     "tags": [
       "Spring Boot",
@@ -1167,24 +1166,6 @@
       "status": "active",
       "featured": true,
       "startedAt": "2026-05-17"
-    },
-    {
-      "id": "project-personal-theme-blog",
-      "title": "personal-theme-blog",
-      "description": "基于 Next.js 的个人博客与作品集站点，集成文章、相册、音乐、动态、后台管理、GitHub 项目同步和 Vercel 发布流程。",
-      "url": "https://github.com/yige66/personal-theme-blog",
-      "repo": "https://github.com/yige66/personal-theme-blog",
-      "cover": "/assets/project-icons/flower-emblem.svg",
-      "tags": [
-        "Next.js",
-        "TypeScript",
-        "React",
-        "Vercel",
-        "内容系统"
-      ],
-      "status": "active",
-      "featured": true,
-      "startedAt": "2026-06-28"
     }
   ],
   "posts": [

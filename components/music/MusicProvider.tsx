@@ -2,12 +2,9 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { MusicTrack } from '@/lib/blog';
-import { isLrcMetadataLine } from '@/lib/music-lyrics';
+import { mergeTimedLyricLines, parseTimedLyrics, type TimedLyricLine } from '@/lib/music-lyrics';
 
-type LyricLine = {
-  time: number;
-  text: string;
-};
+type LyricLine = TimedLyricLine;
 
 type PlayMode = 'list' | 'repeat-one' | 'shuffle';
 
@@ -517,34 +514,20 @@ function getTrackKey(track: MusicTrack): string {
   return `${track.provider || track.source || 'local'}:${track.id || track.title}:${track.artist}`;
 }
 
-const LRC_TIMESTAMP_PATTERN = /\[(\d{2,}):(\d{2})(?:[.:](\d{2,3}))?\]/g;
-const LRC_TIMESTAMP_TEXT_PATTERN = /\[\d{2,}:\d{2}(?:[.:]\d{2,3})?\]/g;
-function mergeTimedLyricLines(lines: LyricLine[]): LyricLine[] {
-  const grouped = new Map<number, string[]>();
-
-  for (const line of lines.sort((a, b) => a.time - b.time)) {
-    const texts = grouped.get(line.time) ?? [];
-    if (!texts.includes(line.text)) {
-      texts.push(line.text);
-    }
-    grouped.set(line.time, texts);
-  }
-
-  return [...grouped.entries()].map(([time, texts]) => ({
-    time,
-    text: texts.join('\n')
-  }));
-}
-
 function parseTrackLyrics(track: MusicTrack | null): LyricLine[] {
   if (!track) {
     return [];
   }
 
   if (Array.isArray(track.lyrics)) {
-    return track.lyrics
-      .map((line, index) => typeof line === 'string' ? { time: index * 18, text: line } : line)
-      .filter((line) => line.text);
+    const lines = track.lyrics
+      .map((line, index) => ({
+        time: typeof line === 'string' ? index * 18 : Number(line.time),
+        text: typeof line === 'string' ? line : line.text
+      }))
+      .filter((line) => Number.isFinite(line.time) && line.text.trim().length > 0);
+
+    return mergeTimedLyricLines(lines);
   }
 
   const rawLyrics = typeof track.lyrics === 'string' ? track.lyrics : track.lrc || track.lyric || '';
@@ -557,33 +540,7 @@ function parseTrackLyrics(track: MusicTrack | null): LyricLine[] {
     ];
   }
 
-  const parsedLines: LyricLine[] = [];
-  for (const line of rawLyrics.split(/\r?\n/)) {
-    const normalizedLine = line.trim();
-    if (!normalizedLine || isLrcMetadataLine(normalizedLine)) {
-      continue;
-    }
-
-    const matches = [...normalizedLine.matchAll(LRC_TIMESTAMP_PATTERN)];
-    const text = normalizedLine.replace(LRC_TIMESTAMP_TEXT_PATTERN, '').trim();
-    if (!text || isLrcMetadataLine(text)) {
-      continue;
-    }
-
-    if (matches.length === 0) {
-      parsedLines.push({ time: parsedLines.length * 18, text });
-      continue;
-    }
-
-    for (const match of matches) {
-      const minutes = Number.parseInt(match[1], 10);
-      const seconds = Number.parseInt(match[2], 10);
-      const fraction = match[3] ? Number.parseInt(match[3], 10) / (match[3].length === 3 ? 1000 : 100) : 0;
-      parsedLines.push({ time: minutes * 60 + seconds + fraction, text });
-    }
-  }
-
-  return mergeTimedLyricLines(parsedLines);
+  return parseTimedLyrics(rawLyrics);
 }
 
 function getDraftDuration(track: MusicTrack | null, index: number): number {

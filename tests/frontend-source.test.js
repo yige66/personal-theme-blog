@@ -340,11 +340,14 @@ describe('target-inspired homepage portal', () => {
     assert.match(showcase, /ProjectStarButton/);
     assert.match(showcase, /project-matrix-card-shell/);
     assert.match(starButton, /gitalk-token/);
-    assert.match(starButton, /window\.location\.assign\(repositoryUrl\)/);
+    assert.match(starButton, /api\/github\/oauth\/start/);
+    assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
     assert.match(starButton, /method: 'PUT'/);
     assert.match(starButton, /user\/starred/);
+    assert.match(starButton, /github_star/);
     assert.match(githubApi, /export async function PUT/);
     assert.match(githubApi, /isStarRequest/);
+    assert.match(githubApi, /GITHUB_ACCESS_TOKEN_COOKIE/);
     assert.match(homeCss, /\.project-star-button/);
     assert.match(homeCss, /\.project-matrix-card-shell/);
   });
@@ -480,6 +483,10 @@ describe('target-inspired homepage portal', () => {
 
     assert.match(layout, /<BackgroundSlider site=\{data\.site\} \/>/);
     assert.match(layout, /<HomeEffects site=\{data\.site\} posts=\{posts\} notes=\{data\.notes\} \/>/);
+    assert.match(layout, /var now = new Date\(\);/);
+    assert.match(layout, /var initialMode = now\.getHours\(\) >= 18 \|\| now\.getHours\(\) < 6 \? 'night' : 'day';/);
+    assert.match(layout, /var initialSeason = month >= 2 && month <= 4 \? 'spring' : month >= 5 && month <= 7 \? 'summer' : month >= 8 && month <= 10 \? 'autumn' : 'winter';/);
+    assert.doesNotMatch(layout, /localStorage\.getItem\('xh-(?:theme|season)-mode'\)/);
     assert.match(background, /xh-background-slider/);
     assert.match(background, /BACKGROUND_FADE_MS = 1800/);
     assert.match(background, /exitingIndex/);
@@ -592,6 +599,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /xh-danmaku-layer/);
     assert.match(component, /xh-season-vfx-canvas/);
     assert.match(component, /SeasonalVfxParticle/);
+    assert.match(component, /function getThemeModeForDate\(date = new Date\(\)\): ThemeMode/);
+    assert.match(component, /const initialDate = new Date\(\);/);
+    assert.match(component, /const initialNight = getThemeModeForDate\(initialDate\) === 'night';/);
+    assert.match(component, /const initialSeason = getSeasonForDate\(initialDate\);/);
+    assert.doesNotMatch(component, /localStorage\.getItem\('xh-(?:theme|season)-mode'\)/);
     assert.match(component, /nightModeRef\.current = nightMode/);
     assert.match(component, /const themeTransitionDurationMs = 3400/);
     assert.match(component, /const themeTransitionCommitBufferMs = 400/);

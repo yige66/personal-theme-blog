@@ -38,6 +38,8 @@ GITHUB_COMMENTS_PROXY=/api/github
 
 `/api/github` 是服务端 OAuth token 交换代理，会校验请求体、`client_id` 和允许的回调来源，再把服务端 `GITHUB_CLIENT_SECRET` 注入给 GitHub。这样可以得到参考站一样的 Gitalk 体验，同时避免把 secret 写进前端 bundle。
 
+项目页和其他页面的 GitHub `Star` 使用同一个 OAuth App，但会走站点自己的 PKCE 登录回调，并把访问令牌放在 HttpOnly cookie 中。OAuth App 的 callback URL 保持为站点根地址，例如 `https://your-vercel-domain.vercel.app/`；Star 流程需要允许 `public_repo` scope。`GITHUB_STAR_OWNER` 用于限制可由站点代点 Star 的仓库所有者，默认是 `yige66`。
+
 ## 4. 验证
 
 部署前运行：

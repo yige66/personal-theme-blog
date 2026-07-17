@@ -167,7 +167,7 @@ export function MusicStudio({ tracks }: { tracks: MusicTrack[] }) {
           data-title-density={titleDensity}
         >
           <p className="eyebrow">夜航电台</p>
-          <h2>{activeTrack.title}</h2>
+          <h2 title={activeTrack.title}>{activeTrack.title}</h2>
           <span>{activeTrack.artist}</span>
           <small className="music-player-subtitle" data-lyric-subtitle="true">{heroLyricSubtitle}</small>
         </div>

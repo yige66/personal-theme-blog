@@ -68,4 +68,35 @@ describe('music lyric merging', () => {
       await cleanup();
     }
   });
+
+  it('sorts timed lyrics, applies LRC offsets, and merges lines at the same time', async () => {
+    const { cleanup, module } = await loadMusicLyrics();
+
+    try {
+      assert.deepEqual(
+        module.parseTimedLyrics(
+          '[ti:demo]\n[offset:500]\n[00:02.00]later\n[00:01.5]first\n[00:01.500]translated'
+        ),
+        [
+          { time: 2, text: 'first\ntranslated' },
+          { time: 2.5, text: 'later' }
+        ]
+      );
+    } finally {
+      await cleanup();
+    }
+  });
+
+  it('uses stable synthetic spacing only when a lyric block has no timestamps', async () => {
+    const { cleanup, module } = await loadMusicLyrics();
+
+    try {
+      assert.deepEqual(module.parseTimedLyrics('first\nsecond'), [
+        { time: 0, text: 'first' },
+        { time: 18, text: 'second' }
+      ]);
+    } finally {
+      await cleanup();
+    }
+  });
 });

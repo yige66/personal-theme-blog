@@ -121,7 +121,14 @@ export function normalizeAiConfigInput(input: unknown): SaveAiConfigInput | null
 
 async function readStoredAiConfig(): Promise<StoredAiConfig> {
   if (isBlobStorageConfigured()) {
-    return parseStoredAiConfig(await readPrivateBlob(aiConfigBlobPath));
+    try {
+      return parseStoredAiConfig(await readPrivateBlob(aiConfigBlobPath));
+    } catch {
+      console.warn('AI config Blob read failed; falling back to environment configuration', {
+        path: aiConfigBlobPath
+      });
+      return {};
+    }
   }
 
   if (!existsSync(AI_CONFIG_FILE)) {

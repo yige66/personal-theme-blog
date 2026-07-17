@@ -271,6 +271,10 @@ function isSeason(value: string | null): value is Season {
   return value === 'spring' || value === 'summer' || value === 'autumn' || value === 'winter';
 }
 
+function getThemeModeForDate(date = new Date()): ThemeMode {
+  return date.getHours() >= 18 || date.getHours() < 6 ? 'night' : 'day';
+}
+
 function getSeasonForDate(date = new Date()): Season {
   const month = date.getMonth();
   if (month >= 2 && month <= 4) {
@@ -449,10 +453,9 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
   })), []);
 
   useEffect(() => {
-    const savedMode = window.localStorage.getItem('xh-theme-mode');
-    const savedSeason = window.localStorage.getItem('xh-season-mode');
-    const initialNight = savedMode ? savedMode === 'night' : new Date().getHours() >= 18 || new Date().getHours() < 6;
-    const initialSeason = isSeason(savedSeason) ? savedSeason : getSeasonForDate();
+    const initialDate = new Date();
+    const initialNight = getThemeModeForDate(initialDate) === 'night';
+    const initialSeason = getSeasonForDate(initialDate);
     setNightMode(initialNight);
     setNextMode(initialNight ? 'night' : 'day');
     setSeason(initialSeason);

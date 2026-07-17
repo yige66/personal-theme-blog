@@ -71,6 +71,11 @@ describe('Makise Kurisu AI pet', () => {
     assert.match(kurisuApi, /createLocalPetReply/);
     assert.match(kurisuApi, /source: 'local'/);
     assert.match(kurisuApi, /source: 'deepseek'/);
+    assert.match(kurisuApi, /Kurisu DeepSeek API is not configured/);
+    assert.match(kurisuApi, /Kurisu DeepSeek request failed/);
+    assert.match(kurisuApi, /configSource: aiConfig\.apiKeySource/);
+    assert.match(kurisuApi, /reason: 'http_error'/);
+    assert.doesNotMatch(kurisuApi, /console\.(warn|error)[^\n]*(apiKey|message|response)/);
     assert.match(kurisuApi, /DeepSeekChatMessage/);
     assert.match(kurisuApi, /messages: createDeepSeekMessages\(input\)/);
     assert.match(kurisuApi, /role: message\.role/);
@@ -102,6 +107,9 @@ describe('Makise Kurisu AI pet', () => {
     assert.match(aiConfig, /DEEPSEEK_MODEL/);
     assert.match(aiConfig, /deepseek-v4-flash/);
     assert.match(aiConfig, /storedConfigLooksLegacy/);
+    assert.match(aiConfig, /AI config Blob read failed; falling back to environment configuration/);
+    assert.match(aiConfig, /path: aiConfigBlobPath/);
+    assert.doesNotMatch(aiConfig, /console\.warn[^\n]*(apiKey|token)/);
     assert.doesNotMatch(aiConfig, /OPENAI_API_KEY|OPENAI_PET_MODEL|GPT-4|gpt-4/);
     assert.match(aiConfig, /apiKeySource/);
     assert.match(gitignore, /data\/ai-config\.json/);

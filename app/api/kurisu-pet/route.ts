@@ -29,6 +29,12 @@ const MAX_HISTORY = 6;
 const DEEPSEEK_CHAT_COMPLETIONS_ENDPOINT = 'https://api.deepseek.com/chat/completions';
 const DEEPSEEK_TIMEOUT_MS = 12000;
 
+class DeepSeekApiError extends Error {
+  constructor(readonly status: number) {
+    super('DeepSeek API request failed');
+  }
+}
+
 const KURISU_SYSTEM_PROMPT = [
   '你是博客右下角的像素实验室助手，名字是牧濑红莉栖。',
   '你的形象来自本地 Codex 宠物 makisekurisu：棕红色长发、白衬衫、红领带、浅棕外套、冷静严肃的 Q 版像素角色。',
@@ -51,6 +57,10 @@ export async function POST(request: Request) {
   const aiConfig = await getResolvedAiConfig();
 
   if (!aiConfig.apiKey) {
+    console.warn('Kurisu DeepSeek API is not configured', {
+      configSource: aiConfig.apiKeySource,
+      model: aiConfig.model
+    });
     const reply = createLocalPetReply(parsedRequest, 'missing_config');
     return NextResponse.json({
       code: 'ai_config_missing',
@@ -67,7 +77,13 @@ export async function POST(request: Request) {
       reply,
       source: 'deepseek'
     });
-  } catch {
+  } catch (error) {
+    const failure = getDeepSeekFailureLog(error);
+    console.error('Kurisu DeepSeek request failed', {
+      configSource: aiConfig.apiKeySource,
+      model: aiConfig.model,
+      ...failure
+    });
     const reply = createLocalPetReply(parsedRequest, 'remote_unavailable');
     return NextResponse.json({
       code: 'ai_api_unavailable',
@@ -167,7 +183,7 @@ async function createDeepSeekReply(input: PetRequest, apiKey: string, model: str
   });
 
   if (!response.ok) {
-    throw new Error('DeepSeek Kurisu response failed');
+    throw new DeepSeekApiError(response.status);
   }
 
   const payload = await response.json();
@@ -274,6 +290,22 @@ function extractOutputText(payload: unknown): string {
 
   const trimmedText = text.trim();
   return trimmedText.slice(0, MAX_REPLY_LENGTH);
+}
+
+function getDeepSeekFailureLog(error: unknown): { reason: string; status?: number } {
+  if (error instanceof DeepSeekApiError) {
+    return { reason: 'http_error', status: error.status };
+  }
+
+  if (error instanceof DOMException && error.name === 'TimeoutError') {
+    return { reason: 'timeout' };
+  }
+
+  if (error instanceof Error && error.message.startsWith('DeepSeek response')) {
+    return { reason: 'invalid_response' };
+  }
+
+  return { reason: 'network_error' };
 }
 
 function inferMood(action: PetAction, message: string, reply: string): PetMood {

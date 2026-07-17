@@ -81,3 +81,10 @@ npm run check
 npm.cmd run build
 npm.cmd run check
 ```
+
+## AI runtime configuration
+
+Production deployments must define `DEEPSEEK_API_KEY` on the server, plus
+`DEEPSEEK_PET_MODEL=deepseek-v4-flash` (or `DEEPSEEK_MODEL` as the fallback). Do not
+use a `NEXT_PUBLIC_` prefix for the API key. After deployment, use `/admin` to load
+the DeepSeek settings and confirm that the key source is `backend` or `env`.

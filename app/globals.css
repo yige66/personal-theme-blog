@@ -1160,6 +1160,75 @@ html[data-xh-theme-phase="dawn"] .xh-petal-layer {
   transform: translateY(-2px);
 }
 
+.github-star-floating {
+  position: fixed;
+  top: clamp(94px, 11vh, 124px);
+  right: max(18px, env(safe-area-inset-right));
+  z-index: 96;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 18px 54px rgba(64, 35, 83, 0.22);
+  backdrop-filter: blur(22px);
+  color: var(--xh-ink);
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease, opacity 180ms ease;
+}
+
+.github-star-floating > svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.github-star-floating .github-star-glyph {
+  fill: currentColor;
+  stroke: none;
+}
+
+.github-star-floating > svg:not(.github-star-glyph) {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.github-star-floating:hover:not(:disabled),
+.github-star-floating:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 70%, #fff 30%);
+  background: color-mix(in srgb, var(--theme) 64%, #fff 36%);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.github-star-floating.is-starred {
+  border-color: rgba(158, 231, 192, 0.78);
+  background: rgba(47, 91, 79, 0.82);
+  color: #b8f5d0;
+}
+
+.github-star-floating.is-starred > svg:not(.github-star-glyph) {
+  fill: currentColor;
+}
+
+.github-star-floating.is-loading {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.github-star-floating:disabled {
+  cursor: default;
+}
+
 .xh-floating-companion {
   right: 24px;
   top: 104px;
@@ -7675,6 +7744,20 @@ html[data-xh-theme="night"] .mobile-orbit-ring a:hover {
   .xh-floating-companion,
   .xh-global-toolbox {
     display: none;
+  }
+
+  .github-star-floating {
+    top: 96px;
+    right: max(12px, env(safe-area-inset-right));
+    min-height: 40px;
+    padding: 0 12px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .github-star-floating > svg {
+    width: 16px;
+    height: 16px;
   }
 
   .xh-danmaku-layer {

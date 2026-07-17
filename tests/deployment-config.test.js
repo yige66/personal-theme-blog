@@ -25,6 +25,14 @@ describe('deployment workflow configuration', () => {
     assert.match(envExample, /GITHUB_PROJECTS_OWNER=/);
     assert.match(envExample, /GITHUB_PROJECTS_TOKEN=/);
     assert.match(envExample, /GITHUB_PROJECTS_WEBHOOK_SECRET=/);
+    assert.match(envExample, /DEEPSEEK_API_KEY=/);
+    assert.match(envExample, /DEEPSEEK_PET_MODEL=deepseek-v4-flash/);
+    assert.match(envExample, /DEEPSEEK_MODEL=deepseek-v4-flash/);
+    assert.match(docs, /DEEPSEEK_API_KEY=/);
+    assert.match(docs, /DEEPSEEK_PET_MODEL=deepseek-v4-flash/);
+    assert.match(docs, /DEEPSEEK_MODEL=deepseek-v4-flash/);
+    assert.match(docs, /Production environment/);
+    assert.match(docs, /NEXT_PUBLIC_/);
     assert.match(ci, /actions\/setup-node@v4/);
     assert.match(ci, /npm run build/);
     assert.match(ci, /npx tsc --noEmit/);

@@ -1,4 +1,5 @@
 import type { BlogProject, BlogSite } from './blog';
+import { isBlogRepository } from './github-repository';
 
 type GitHubRepository = {
   archived?: unknown;
@@ -50,6 +51,7 @@ export async function getGithubProjects(site: Pick<BlogSite, 'github' | 'project
     const projects = payload
       .filter(isGitHubRepository)
       .filter((repo) => !Boolean(repo.fork))
+      .filter((repo) => !isBlogRepository(repo.html_url))
       .map((repo) => repositoryToProject(repo, fallbackProjects))
       .filter((project): project is BlogProject => Boolean(project))
       .slice(0, 48);
@@ -126,11 +128,13 @@ function fallbackProjectSource(username: string, fallbackProjects: BlogProject[]
   return {
     error,
     projects: applyProjectOrder(
-      fallbackProjects.map((project) => ({
-        ...project,
-        url: project.repo || project.url,
-        repo: project.repo || project.url
-      })),
+      fallbackProjects
+        .filter((project) => !isBlogRepository(project.repo || project.url))
+        .map((project) => ({
+          ...project,
+          url: project.repo || project.url,
+          repo: project.repo || project.url
+        })),
       projectOrder
     ),
     source: 'fallback',

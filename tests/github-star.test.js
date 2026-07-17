@@ -1,0 +1,78 @@
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+
+describe('GitHub starring flow', () => {
+  it('removes the current blog repository from every project source', async () => {
+    const [dataRaw, projectSource, blogSource, repository] = await Promise.all([
+      readFile('data/blog.json', 'utf8'),
+      readFile('lib/github-projects.ts', 'utf8'),
+      readFile('lib/blog.ts', 'utf8'),
+      readFile('lib/github-repository.ts', 'utf8')
+    ]);
+    const data = JSON.parse(dataRaw);
+
+    assert.equal(data.projects.some((project) => project.repo?.endsWith('/personal-theme-blog')), false);
+    assert.equal(data.site.projectOrder.some((entry) => entry.includes('/personal-theme-blog')), false);
+    assert.match(repository, /BLOG_REPOSITORY_NAME = 'personal-theme-blog'/);
+    assert.match(projectSource, /filter\(\(repo\) => !isBlogRepository\(repo\.html_url\)\)/);
+    assert.match(projectSource, /filter\(\(project\) => !isBlogRepository\(project\.repo \|\| project\.url\)\)/);
+    assert.match(blogSource, /const fallbackProjects: BlogProject\[\] = \[\];/);
+  });
+
+  it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
+    const [starButton, floating, layout, api] = await Promise.all([
+      readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
+      readFile('components/github/GitHubStarFloating.tsx', 'utf8'),
+      readFile('app/layout.tsx', 'utf8'),
+      readFile('app/api/github/route.ts', 'utf8')
+    ]);
+
+    assert.match(starButton, /method: 'PUT'/);
+    assert.match(starButton, /api\/github\?path=/);
+    assert.match(starButton, /api\/github\/oauth\/start/);
+    assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
+    assert.doesNotMatch(starButton, /window\.location\.assign\(repositoryUrl\)/);
+    assert.match(starButton, /github_star/);
+    assert.match(floating, /BLOG_REPOSITORY_URL/);
+    assert.match(floating, /pathname === '\/projects'/);
+    assert.match(layout, /<GitHubOAuthCallback \/>/);
+    assert.match(layout, /<GitHubStarFloating \/>/);
+    assert.match(api, /GITHUB_STAR_OWNER/);
+    assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
+  });
+
+  it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {
+    const [start, exchange, oauth, env, docs] = await Promise.all([
+      readFile('app/api/github/oauth/start/route.ts', 'utf8'),
+      readFile('app/api/github/oauth/exchange/route.ts', 'utf8'),
+      readFile('lib/github-oauth.ts', 'utf8'),
+      readFile('.env.example', 'utf8'),
+      readFile('docs/github-comments.md', 'utf8')
+    ]);
+
+    assert.match(start, /scope', 'public_repo'/);
+    assert.match(start, /code_challenge/);
+    assert.match(start, /GITHUB_OAUTH_STATE_COOKIE/);
+    assert.match(exchange, /stateCookie !== payload\.state/);
+    assert.match(exchange, /code_verifier: verifier/);
+    assert.match(exchange, /api\.github\.com\/user/);
+    assert.match(exchange, /httpOnly: true/);
+    assert.match(exchange, /GITHUB_ACCESS_TOKEN_COOKIE/);
+    assert.doesNotMatch(exchange, /access_token: accessToken/);
+    assert.match(oauth, /timingSafeEqual/);
+    assert.match(oauth, /GITHUB_OAUTH_STATE_MAX_AGE_SECONDS/);
+    assert.match(env, /GITHUB_STAR_OWNER=yige66/);
+    assert.match(env, /GITHUB_STAR_CALLBACK_URL=/);
+    assert.match(docs, /public_repo/);
+    assert.match(docs, /HttpOnly cookie/);
+  });
+
+  it('styles the floating star as a compact GitHub control on mobile too', async () => {
+    const css = await readFile('app/globals.css', 'utf8');
+    assert.match(css, /\.github-star-floating \{/);
+    assert.match(css, /\.github-star-floating \.github-star-glyph/);
+    assert.match(css, /\.github-star-floating:focus-visible/);
+    assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
+  });
+});

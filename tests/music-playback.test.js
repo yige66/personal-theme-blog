@@ -294,10 +294,11 @@ describe('real music playback', () => {
     assert.doesNotMatch(provider, /fallbackTrackKeys/);
     assert.doesNotMatch(provider, /降级状态/);
     assert.match(provider, /点击播放按钮/);
-    assert.match(provider, /import \{ isLrcMetadataLine \} from '@\/lib\/music-lyrics'/);
+    assert.match(provider, /import \{ mergeTimedLyricLines, parseTimedLyrics, type TimedLyricLine \} from '@\/lib\/music-lyrics'/);
     assert.doesNotMatch(provider, /function isLrcMetadataLine/);
     assert.match(provider, /isLyricPrelude/);
     assert.match(provider, /mergeTimedLyricLines/);
+    assert.match(provider, /parseTimedLyrics/);
     assert.match(lyricStrip, /data-prelude/);
     assert.match(globals, /white-space:\s*pre-line/);
     assert.match(homeOverrides, /xh-music-bright-subtitles/);

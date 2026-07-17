@@ -28359,3 +28359,61 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(:is(
     padding: 8px 12px;
   }
 }
+
+
+
+/* Keep long song cards readable and let their content define the stage height. */
+body:has(.music-page) .music-stage:not(#xh-music-card-complete) {
+  height: auto !important;
+  min-height: clamp(620px, calc(100vh - 230px), 720px) !important;
+  overflow: visible !important;
+}
+
+body:has(.music-page) .music-current h2:not(#xh-music-card-complete) {
+  display: block !important;
+  width: min(100%, 22ch) !important;
+  max-width: min(100%, 22ch) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  line-height: 1.12 !important;
+  overflow-wrap: anywhere !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  -webkit-box-orient: initial !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+}
+
+body:has(.music-page) .music-current[data-long-title="true"] h2:not(#xh-music-card-complete) {
+  display: block !important;
+  width: min(100%, 22ch) !important;
+  max-width: min(100%, 22ch) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  -webkit-box-orient: initial !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+}
+
+body:has(.music-page) .music-current :is(span, small):not(#xh-music-card-complete) {
+  max-width: 100% !important;
+  overflow: visible !important;
+  overflow-wrap: anywhere !important;
+  text-overflow: clip !important;
+  white-space: pre-line !important;
+}
+
+body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):not(#xh-music-card-complete) {
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: pre-line !important;
+}
+
+@media (max-width: 900px) {
+  body:has(.music-page) .music-stage:not(#xh-music-card-complete) {
+    min-height: 0 !important;
+  }
+}

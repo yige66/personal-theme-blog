@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { GITHUB_ACCESS_TOKEN_COOKIE, readCookie } from '@/lib/github-oauth';
+import { BLOG_REPOSITORY_OWNER } from '@/lib/github-repository';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -139,7 +141,12 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
   const isRepositoryRequest = Boolean(repositoryPath && (path === repositoryPath || path.startsWith(`${repositoryPath}/`)));
   const isUserRequest = path === '/user';
   const isMarkdownRequest = path === '/markdown';
-  const projectOwner = readRuntimeEnv('GITHUB_PROJECTS_OWNER', 'GITHUB_USERNAME', 'NEXT_PUBLIC_GITHUB_USERNAME') || owner;
+  const projectOwner = readRuntimeEnv(
+    'GITHUB_STAR_OWNER',
+    'GITHUB_PROJECTS_OWNER',
+    'GITHUB_USERNAME',
+    'NEXT_PUBLIC_GITHUB_USERNAME'
+  ) || owner || BLOG_REPOSITORY_OWNER;
   const starMatch = path.match(/^\/user\/starred\/([^/]+)\/([^/]+)$/);
   const isStarRequest = Boolean(
     projectOwner
@@ -190,12 +197,17 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       'X-GitHub-Api-Version': '2022-11-28'
     });
     const authorization = request.headers.get('authorization') || '';
+    const cookieToken = kind === 'star'
+      ? readCookie(request.headers.get('cookie'), GITHUB_ACCESS_TOKEN_COOKIE) || ''
+      : '';
     const isPublicRead = (kind === 'repository' && request.method === 'GET') || kind === 'markdown';
     const serverToken = isPublicRead ? readRuntimeEnv('GITHUB_PROJECTS_TOKEN', 'GITHUB_TOKEN') : '';
     if (serverToken) {
       headers.set('Authorization', `Bearer ${serverToken}`);
     } else if (/^(Bearer|token)\s+/i.test(authorization)) {
       headers.set('Authorization', authorization);
+    } else if (cookieToken) {
+      headers.set('Authorization', `Bearer ${cookieToken}`);
     }
     if (body) {
       headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
