@@ -28475,7 +28475,6 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 
 .custom-gitalk-glass .gt-header > .gt-header-comment,
 .custom-gitalk-glass .gt-header > .gt-header-textarea,
-.custom-gitalk-glass .gt-header > .gt-header-preview,
 .custom-gitalk-glass .gt-header > .gt-header-controls,
 .custom-gitalk-glass .gt-header-comment > .gt-header-controls {
   grid-column: 2 !important;
@@ -28490,7 +28489,7 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 }
 
 .custom-gitalk-glass .gt-header-textarea,
-.custom-gitalk-glass .gt-header-preview {
+.custom-gitalk-glass .gt-header-textarea {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
@@ -28576,7 +28575,6 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 
 .moment-gitalk .gt-header-comment,
 .moment-gitalk .gt-header > .gt-header-textarea,
-.moment-gitalk .gt-header > .gt-header-preview,
 .moment-gitalk .gt-header > .gt-header-controls,
 .moment-gitalk .gt-header-comment > .gt-header-controls {
   grid-column: 2 !important;
@@ -28591,7 +28589,7 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 }
 
 .moment-gitalk .gt-header-textarea,
-.moment-gitalk .gt-header-preview {
+.moment-gitalk .gt-header-textarea {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
@@ -28653,7 +28651,7 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
   }
 
   .custom-gitalk-glass .gt-header-textarea,
-  .custom-gitalk-glass .gt-header-preview {
+  .custom-gitalk-glass .gt-header-textarea {
     min-height: 96px !important;
     padding: 14px 15px !important;
   }
@@ -28680,7 +28678,7 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
   }
 
   .custom-gitalk-glass .gt-header-textarea,
-  .custom-gitalk-glass .gt-header-preview {
+  .custom-gitalk-glass .gt-header-textarea {
     min-height: 88px !important;
     padding: 12px 13px !important;
   }
@@ -28691,5 +28689,41 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 
   .moment-comment-dock .github-comments-card.is-compact {
     padding-inline: 12px !important;
+  }
+}
+
+/* Keep the count/account row readable in the loading and rendered states. */
+.custom-gitalk-glass .gt-meta,
+.moment-gitalk .gt-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  min-width: 0;
+  margin: 0 0 clamp(14px, 2vw, 20px) !important;
+  padding-inline: 0 !important;
+}
+
+.custom-gitalk-glass .gt-counts,
+.custom-gitalk-glass .gt-user,
+.moment-gitalk .gt-counts,
+.moment-gitalk .gt-user {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.custom-gitalk-glass .gt-user,
+.moment-gitalk .gt-user {
+  margin-left: auto;
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .custom-gitalk-glass .gt-user,
+  .moment-gitalk .gt-user {
+    flex-basis: 100%;
+    margin-left: 0;
+    text-align: left;
   }
 }
