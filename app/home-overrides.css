@@ -29048,17 +29048,3 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
     padding: 12px 13px !important;
   }
 }
-
-/* Project cards use a horizontal insertion reveal; the shell owns the motion once. */
-body:has(.projects-page) .project-matrix-card-shell[data-motion="project-card"] {
-  visibility: visible !important;
-  will-change: transform, opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body:has(.projects-page) .project-matrix-card-shell[data-motion="project-card"] {
-    transform: none !important;
-    opacity: 1 !important;
-    will-change: auto;
-  }
-}

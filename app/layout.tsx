@@ -38,6 +38,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             __html: `
               #xh-app-root { opacity: 0; visibility: hidden; pointer-events: none; }
               html.xh-splash-seen #xh-app-root { opacity: 1; visibility: visible; pointer-events: auto; }
+              html.xh-splash-seen.xh-splash-bypass #xh-app-root { opacity: 1; visibility: visible; pointer-events: auto; transition: none !important; }
             `
           }}
         />
@@ -70,7 +71,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
               }
 
               try {
-                if (sessionStorage.getItem('personal-theme-blog:splash-seen') === 'true') {
+                if (window.location.pathname !== '/') {
+                  document.documentElement.classList.add('xh-splash-seen', 'xh-splash-bypass');
+                } else if (sessionStorage.getItem('personal-theme-blog:splash-seen') === 'true') {
                   document.documentElement.classList.add('xh-splash-seen');
                 }
               } catch (error) {

@@ -330,11 +330,12 @@ describe('target-inspired homepage portal', () => {
   });
 
   it('keeps GitHub project starring separate from the project card link', async () => {
-    const [showcase, starButton, githubApi, homeCss] = await Promise.all([
+    const [showcase, starButton, githubApi, homeCss, motion] = await Promise.all([
       readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
       readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
-      readFile('app/home-overrides.css', 'utf8')
+      readFile('app/home-overrides.css', 'utf8'),
+      readFile('components/TasteMotion.tsx', 'utf8')
     ]);
 
     assert.match(showcase, /ProjectStarButton/);
@@ -350,6 +351,9 @@ describe('target-inspired homepage portal', () => {
     assert.match(githubApi, /GITHUB_ACCESS_TOKEN_COOKIE/);
     assert.match(homeCss, /\.project-star-button/);
     assert.match(homeCss, /\.project-matrix-card-shell/);
+    assert.doesNotMatch(showcase, /data-motion="project-card"/);
+    assert.doesNotMatch(homeCss, /project-matrix-card-shell\[data-motion="project-card"\]/);
+    assert.doesNotMatch(motion, /data-motion="project-card"/);
   });
 
   it('implements a full source-level game start shell for the splash layer', async () => {

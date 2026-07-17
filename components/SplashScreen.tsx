@@ -62,7 +62,8 @@ export function SplashScreen({ site }: SplashScreenProps) {
   const entry = site.entry;
   const entryOriginal = entry.original;
   const entryBeyond = entry.beyond;
-  const shouldSkipSplash = pathname.startsWith('/admin');
+  // The entry experience belongs to the homepage; direct subpage visits must stay interactive.
+  const shouldSkipSplash = pathname.startsWith('/admin') || pathname !== '/';
   const entryStyle = {
     '--game-hero-image': `url("${site.heroImage}")`
   } as CSSProperties;

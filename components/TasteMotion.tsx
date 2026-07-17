@@ -48,27 +48,6 @@ export function TasteMotion() {
         );
       });
 
-      // Keep horizontal reveal ownership on the shell so the card link stays stable.
-      gsap.utils.toArray<HTMLElement>('[data-motion="project-card"]').forEach((element) => {
-        const side = element.dataset.projectSide === 'right' ? 1 : -1;
-        gsap.set(element, { visibility: 'visible' });
-        gsap.fromTo(
-          element,
-          { x: side * 64, opacity: 0.16 },
-          {
-            x: 0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: element,
-              start: 'top 94%',
-              end: 'top 58%',
-              scrub: true
-            }
-          }
-        );
-      });
-
       gsap.utils.toArray<HTMLElement>('[data-motion="stack-card"]').forEach((element, index) => {
         gsap.set(element, { visibility: 'visible' });
         gsap.fromTo(

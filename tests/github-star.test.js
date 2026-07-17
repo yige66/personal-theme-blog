@@ -21,11 +21,12 @@ describe('GitHub starring flow', () => {
   });
 
   it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
-    const [starButton, floating, layout, api] = await Promise.all([
+    const [starButton, floating, layout, api, splash] = await Promise.all([
       readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
       readFile('components/github/GitHubStarFloating.tsx', 'utf8'),
       readFile('app/layout.tsx', 'utf8'),
-      readFile('app/api/github/route.ts', 'utf8')
+      readFile('app/api/github/route.ts', 'utf8'),
+      readFile('components/SplashScreen.tsx', 'utf8')
     ]);
 
     assert.match(starButton, /method: 'PUT'/);
@@ -38,6 +39,9 @@ describe('GitHub starring flow', () => {
     assert.match(floating, /pathname === '\/projects'/);
     assert.match(layout, /<GitHubOAuthCallback \/>/);
     assert.match(layout, /<GitHubStarFloating \/>/);
+    assert.match(layout, /window\.location\.pathname !== '\/'/);
+    assert.match(layout, /xh-splash-seen\.xh-splash-bypass/);
+    assert.match(splash, /pathname\.startsWith\('\/admin'\) \|\| pathname !== '\/'/);
     assert.match(api, /GITHUB_STAR_OWNER/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
     assert.match(api, /Content-Length/);

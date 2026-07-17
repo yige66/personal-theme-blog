@@ -202,8 +202,6 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
               <article
                 className="project-matrix-card-shell"
                 key={project.id}
-                data-motion="project-card"
-                data-project-side={index % 2 === 0 ? 'left' : 'right'}
               >
                 <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`打开 ${project.title} GitHub 页面`}>
                 <div className="project-matrix-card-head">
