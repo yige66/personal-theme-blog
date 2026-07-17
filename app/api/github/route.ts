@@ -175,7 +175,7 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
         ? ['POST']
         : isGraphqlRequest
           ? ['POST']
-        : ['GET', 'PUT'];
+          : ['GET', 'PUT'];
   if (!allowedMethods.includes(request.method)) {
     return { error: NextResponse.json({ error: 'GitHub API proxy method is not allowed.' }, { status: 405 }) };
   }
