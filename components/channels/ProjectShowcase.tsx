@@ -101,17 +101,17 @@ function isExternalHref(href: string) {
   return /^https?:\/\//i.test(href);
 }
 
-function ProjectActionLink({ href, className, children, ariaLabel, motion }: { href: string; className?: string; children: ReactNode; ariaLabel?: string; motion?: string }) {
+function ProjectActionLink({ href, className, children, ariaLabel }: { href: string; className?: string; children: ReactNode; ariaLabel?: string }) {
   if (isExternalHref(href)) {
     return (
-      <a className={className} href={href} target="_blank" rel="noreferrer" aria-label={ariaLabel} data-motion={motion}>
+      <a className={className} href={href} target="_blank" rel="noreferrer" aria-label={ariaLabel}>
         {children}
       </a>
     );
   }
 
   return (
-    <Link className={className} href={href || '#'} aria-label={ariaLabel} data-motion={motion}>
+    <Link className={className} href={href || '#'} aria-label={ariaLabel}>
       {children}
     </Link>
   );
@@ -199,8 +199,13 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
             const primaryHref = project.repo || project.url || '#';
 
             return (
-              <article className="project-matrix-card-shell" key={project.id} data-motion="stack-card">
-              <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`打开 ${project.title} GitHub 页面`} motion="stack-card">
+              <article
+                className="project-matrix-card-shell"
+                key={project.id}
+                data-motion="project-card"
+                data-project-side={index % 2 === 0 ? 'left' : 'right'}
+              >
+                <ProjectActionLink className="project-matrix-card" href={primaryHref} key={project.id} ariaLabel={`打开 ${project.title} GitHub 页面`}>
                 <div className="project-matrix-card-head">
                   <span className="project-matrix-index" aria-hidden="true">
                     <ProjectAnimeIcon kind={projectVisualMap.get(project.id) ?? getProjectVisualIcon(project, index)} />
@@ -228,7 +233,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
                 <div className="project-matrix-actions">
                   <span>打开 GitHub</span>
                 </div>
-                </article>
+              </article>
             );
           })}
         </div>

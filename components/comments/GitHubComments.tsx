@@ -116,7 +116,12 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
 
   if (!canLoadGitalk) {
     return (
-      <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+      <section
+        className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'}
+        aria-label={`${title} 的 GitHub 评论`}
+        data-comment-variant={compact ? 'compact' : 'full'}
+        data-comment-state="unconfigured"
+      >
         <div className="github-comments-card github-comments-setup-card">
           <div className="github-comments-setup" aria-live="polite">
             <strong>{repoIsValid ? 'Gitalk OAuth 尚未配置' : '评论仓库配置无效'}</strong>
@@ -132,7 +137,12 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
   }
 
   return (
-    <section className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'} aria-label={`${title} 的 GitHub 评论`}>
+    <section
+      className={compact ? 'github-comments-card is-compact' : 'main-shell github-comments-shell'}
+      aria-label={`${title} 的 GitHub 评论`}
+      data-comment-variant={compact ? 'compact' : 'full'}
+      data-comment-state={loadState}
+    >
       <div
         className={`github-comments-frame ${compact ? 'moment-gitalk' : 'custom-gitalk-glass'}`}
         data-provider="gitalk"
