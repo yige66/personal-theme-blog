@@ -167,6 +167,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /XMLHttpRequest\.prototype\.setRequestHeader/);
     assert.match(comments, /getGitHubProxyUrl/);
     assert.match(comments, /installGitHubApiProxy/);
+    assert.match(comments, /removeGitalkPreviewControls/);
+    assert.match(comments, /querySelectorAll\('\.gt-btn-preview, \.gt-header-preview'\)/);
+    assert.doesNotMatch(comments, /<button className="gt-btn gt-btn-preview"/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
     assert.match(comments, /cleanOAuthCodeFromUrl/);
@@ -193,6 +196,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /anonymousHeaders/);
     assert.match(githubApi, /createPublicRepositoryFallback/);
     assert.match(githubApi, /kind === 'user'/);
+    assert.match(githubApi, /path === '\/graphql'/);
+    assert.match(githubApi, /isGraphqlRequest/);
+    assert.match(githubApi, /GraphQL proxy requires a bearer token/);
+    assert.match(githubApi, /kind: .*'graphql'/);
     assert.match(githubApi, /new NextResponse\('\{\}'/);
     assert.match(githubApi, /User-Agent/);
     assert.match(githubApi, /client_secret/);
@@ -273,6 +280,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(docs, /GITHUB_CLIENT_SECRET/);
     assert.match(docs, /Gitalk/);
     assert.match(docs, /XHSBlogComment/);
+    assert.doesNotMatch(docs, /预览/);
     assert.doesNotMatch(docs, /utterances/i);
     assert.match(docs, /\/api\/github/);
     assert.match(docs, /npm run check/);
