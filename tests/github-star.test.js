@@ -108,5 +108,6 @@ describe('GitHub starring flow', () => {
     assert.match(css, /\.github-star-floating:focus-visible/);
     assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
+    assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
   });
 });
