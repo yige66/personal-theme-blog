@@ -3028,6 +3028,10 @@ html[data-xh-theme="night"] body:has(.subpage) .xh-floating-player {
 }
 
 @media (max-width: 760px) {
+  body:has(.projects-page) .xh-floating-player {
+    display: none !important;
+  }
+
   body:has(.subpage) .xh-floating-player,
   body:has(.subpage) .xh-floating-companion {
     display: none !important;

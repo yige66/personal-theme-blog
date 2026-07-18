@@ -99,10 +99,14 @@ describe('GitHub starring flow', () => {
   });
 
   it('styles the floating star as a compact GitHub control on mobile too', async () => {
-    const css = await readFile('app/globals.css', 'utf8');
+    const [css, homeOverrides] = await Promise.all([
+      readFile('app/globals.css', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
+    ]);
     assert.match(css, /\.github-star-floating \{/);
     assert.match(css, /\.github-star-floating \.github-star-glyph/);
     assert.match(css, /\.github-star-floating:focus-visible/);
     assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
+    assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
   });
 });
