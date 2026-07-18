@@ -43,10 +43,12 @@ const GITALK_STYLE_HREF = 'https://cdn.jsdelivr.net/npm/gitalk@1.8.0/dist/gitalk
 const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
+const GITALK_ACCOUNT_POPUP_MANAGED_ATTR = 'data-xh-managed-gitalk-popup';
 const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
+const gitalkAccountPopupHosts = new WeakSet<HTMLElement>();
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -228,6 +230,7 @@ async function renderGitalk({
   gitalk.render(container);
   removeGitalkPreviewControls(container);
   syncGitalkTheme(container);
+  installGitalkAccountPopup(container);
   cleanOAuthCodeFromUrl();
 }
 
@@ -236,6 +239,76 @@ async function renderGitalk({
  */
 function removeGitalkPreviewControls(container: HTMLElement) {
   container.querySelectorAll('.gt-btn-preview, .gt-header-preview').forEach((node) => node.remove());
+}
+
+/**
+ * Provides a stable account menu when Gitalk does not mount its own popup.
+ */
+function installGitalkAccountPopup(container: HTMLElement) {
+  if (gitalkAccountPopupHosts.has(container)) {
+    return;
+  }
+
+  container.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const managedAction = target.closest(`[${GITALK_ACCOUNT_POPUP_MANAGED_ATTR}] .gt-action`);
+    if (managedAction && container.contains(managedAction)) {
+      event.preventDefault();
+      const loginButton = container.querySelector<HTMLButtonElement>('.gt-btn-login');
+      loginButton?.click();
+      return;
+    }
+
+    const trigger = target.closest('.gt-user-inner');
+    if (!trigger || !container.contains(trigger)) {
+      closeManagedGitalkPopups(container);
+      return;
+    }
+
+    const user = trigger.closest<HTMLElement>('.gt-user');
+    const nativePopup = user?.querySelector(`.gt-popup:not([${GITALK_ACCOUNT_POPUP_MANAGED_ATTR}])`);
+    if (!user || nativePopup) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    toggleManagedGitalkPopup(container, user, trigger);
+  });
+
+  gitalkAccountPopupHosts.add(container);
+}
+
+function toggleManagedGitalkPopup(container: HTMLElement, user: HTMLElement, trigger: Element) {
+  const existing = user.querySelector<HTMLElement>(`.gt-popup[${GITALK_ACCOUNT_POPUP_MANAGED_ATTR}]`);
+  closeManagedGitalkPopups(container);
+  if (existing) {
+    trigger.classList.remove('is--poping');
+    return;
+  }
+
+  const popup = document.createElement('div');
+  popup.className = 'gt-popup';
+  popup.setAttribute(GITALK_ACCOUNT_POPUP_MANAGED_ATTR, 'true');
+  popup.innerHTML = [
+    '<button class="gt-action" type="button">使用 GitHub 登录</button>',
+    '<div class="gt-version">Gitalk 1.8.0</div>'
+  ].join('');
+  user.appendChild(popup);
+  trigger.classList.add('is--poping');
+}
+
+function closeManagedGitalkPopups(container: HTMLElement) {
+  container.querySelectorAll<HTMLElement>(`.gt-popup[${GITALK_ACCOUNT_POPUP_MANAGED_ATTR}]`).forEach((popup) => {
+    popup.remove();
+  });
+  container.querySelectorAll('.gt-user-inner.is--poping').forEach((trigger) => {
+    trigger.classList.remove('is--poping');
+  });
 }
 
 function loadGitalk(): Promise<GitalkConstructor> {

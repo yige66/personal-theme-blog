@@ -110,9 +110,10 @@ describe('GitHub starring flow', () => {
   });
 
   it('styles the floating star as a compact GitHub control on mobile too', async () => {
-    const [css, homeOverrides] = await Promise.all([
+    const [css, homeOverrides, comments] = await Promise.all([
       readFile('app/globals.css', 'utf8'),
-      readFile('app/home-overrides.css', 'utf8')
+      readFile('app/home-overrides.css', 'utf8'),
+      readFile('components/comments/GitHubComments.tsx', 'utf8')
     ]);
     assert.match(css, /\.github-star-floating \{/);
     assert.match(css, /\.github-star-floating \.github-star-glyph/);
@@ -122,7 +123,12 @@ describe('GitHub starring flow', () => {
     assert.match(css, /\.github-oauth-status\.is-error/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-header-comment > \.gt-header-controls[\s\S]*grid-column: 1 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*margin-left: auto !important/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*position: relative !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-meta \.gt-popup/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-user > \.gt-popup/);
+    assert.match(comments, /installGitalkAccountPopup\(container\)/);
+    assert.match(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
+    assert.match(comments, /loginButton\?\.click\(\)/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
   });
