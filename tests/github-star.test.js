@@ -35,9 +35,13 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /credentials: 'include'/);
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
-    assert.match(starButton, /window\.open\(createGitHubOAuthStartUrl\(repository\)\.toString\(\), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
-    assert.doesNotMatch(starButton, /window\.open\(''/);
+    assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.match(starButton, /popup\.document\.body\.innerHTML/);
+    assert.match(starButton, /正在连接 GitHub/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
+    assert.match(starButton, /fetchGitHubOAuthAuthorizationUrl/);
+    assert.match(starButton, /format', 'json'/);
+    assert.match(starButton, /authorizationUrl/);
     assert.match(starButton, /watchOAuthPopup/);
     assert.match(starButton, /isGitHubStarOAuthMessage/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
@@ -88,6 +92,8 @@ describe('GitHub starring flow', () => {
     ]);
 
     assert.match(start, /scope', 'public_repo'/);
+    assert.match(start, /NextResponse\.json\(\{ authorizationUrl: authorizationUrl\.toString\(\) \}\)/);
+    assert.match(start, /wantsJsonResponse/);
     assert.match(start, /code_challenge/);
     assert.match(start, /GITHUB_OAUTH_STATE_COOKIE/);
     assert.match(exchange, /stateCookie !== payload\.state/);

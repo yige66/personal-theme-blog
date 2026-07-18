@@ -45,7 +45,9 @@ export async function GET(request: Request) {
   authorizationUrl.searchParams.set('code_challenge', createPkceCodeChallenge(verifier));
   authorizationUrl.searchParams.set('code_challenge_method', 'S256');
 
-  const response = NextResponse.redirect(authorizationUrl);
+  const response = wantsJsonResponse(request)
+    ? NextResponse.json({ authorizationUrl: authorizationUrl.toString() })
+    : NextResponse.redirect(authorizationUrl);
   const cookieOptions = {
     httpOnly: true,
     maxAge: GITHUB_OAUTH_STATE_MAX_AGE_SECONDS,
@@ -56,6 +58,12 @@ export async function GET(request: Request) {
   response.cookies.set(GITHUB_OAUTH_STATE_COOKIE, state, cookieOptions);
   response.cookies.set(GITHUB_OAUTH_VERIFIER_COOKIE, verifier, cookieOptions);
   return response;
+}
+
+function wantsJsonResponse(request: Request) {
+  const requestUrl = new URL(request.url);
+  return requestUrl.searchParams.get('format') === 'json'
+    || request.headers.get('accept')?.toLowerCase().includes('application/json') === true;
 }
 
 function redirectWithStatus(request: Request, returnTo: string, status: string, repository?: { owner: string; repo: string }) {
