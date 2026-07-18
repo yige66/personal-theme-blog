@@ -235,7 +235,7 @@ const resetZoom = useCallback(() => setZoomScale(1), []);
                   ))}
                 </div>
               ) : null}
-              <details className="moment-comment-dock">
+              <details className="moment-comment-dock" open>
                 <summary aria-label={`评论 ${note.title || note.id}`}>评论</summary>
                 <MomentComments config={comments} term={`/moments/${note.id}`} title={note.title || `日常碎片 ${index + 1}`} />
               </details>

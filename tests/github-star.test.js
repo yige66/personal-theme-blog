@@ -110,10 +110,11 @@ describe('GitHub starring flow', () => {
   });
 
   it('styles the floating star as a compact GitHub control on mobile too', async () => {
-    const [css, homeOverrides, comments] = await Promise.all([
+    const [css, homeOverrides, comments, momentsBoard] = await Promise.all([
       readFile('app/globals.css', 'utf8'),
       readFile('app/home-overrides.css', 'utf8'),
-      readFile('components/comments/GitHubComments.tsx', 'utf8')
+      readFile('components/comments/GitHubComments.tsx', 'utf8'),
+      readFile('components/MomentsBoard.tsx', 'utf8')
     ]);
     assert.match(css, /\.github-star-floating \{/);
     assert.match(css, /\.github-star-floating \.github-star-glyph/);
@@ -135,6 +136,7 @@ describe('GitHub starring flow', () => {
     assert.match(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
     assert.match(comments, /\{ capture: true \}/);
     assert.match(comments, /loginButton\?\.click\(\)/);
+    assert.match(momentsBoard, /<details className="moment-comment-dock" open>/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
   });
