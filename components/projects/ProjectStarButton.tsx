@@ -234,14 +234,22 @@ function openGitHubAuthWindow(): Window | null {
 
   try {
     popup.document.title = '正在连接 GitHub';
-    popup.document.body.innerHTML = [
+    popup.document.open();
+    popup.document.write([
+      '<!doctype html><html lang="zh-CN"><head>',
+      '<meta charset="utf-8" />',
+      '<meta name="viewport" content="width=device-width,initial-scale=1" />',
+      '<title>正在连接 GitHub</title>',
+      '</head><body style="margin:0;background:#17142a;">',
       '<main style="min-height:100vh;display:grid;place-items:center;margin:0;background:#17142a;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">',
       '<section style="max-width:360px;padding:28px;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.08);box-shadow:0 24px 60px rgba(0,0,0,.28);text-align:center;">',
       '<h1 style="margin:0 0 12px;font-size:20px;">正在连接 GitHub</h1>',
       '<p style="margin:0;color:rgba(255,255,255,.78);line-height:1.7;">请稍等，正在打开授权页面用于完成 Star。</p>',
       '</section>',
-      '</main>'
-    ].join('');
+      '</main>',
+      '</body></html>'
+    ].join(''));
+    popup.document.close();
   } catch {
     // The popup still exists; navigation below can continue.
   }

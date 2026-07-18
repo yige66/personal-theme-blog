@@ -36,7 +36,9 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
-    assert.match(starButton, /popup\.document\.body\.innerHTML/);
+    assert.match(starButton, /popup\.document\.open\(\)/);
+    assert.match(starButton, /popup\.document\.write/);
+    assert.match(starButton, /popup\.document\.close\(\)/);
     assert.match(starButton, /正在连接 GitHub/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
     assert.match(starButton, /fetchGitHubOAuthAuthorizationUrl/);
