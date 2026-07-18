@@ -22,6 +22,7 @@ export function GitHubOAuthCallback() {
     setMessage('正在完成 GitHub 登录…');
     fetch('/api/github/oauth/exchange', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, state })
     })

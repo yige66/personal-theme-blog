@@ -37,7 +37,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     isLoading ? 'is-loading' : '',
     className
   ].filter(Boolean).join(' ');
-  const label = isStarred ? '已 Star' : state === 'error' ? '重试 Star' : 'Star';
+  const label = isStarred ? '已 Star' : state === 'error' ? 'Star 失败，重试' : 'Star';
 
   async function requestStar() {
     if (!repository || isLoading || isStarred) {
@@ -109,7 +109,9 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     url.searchParams.delete('github_repo');
     window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 
-    if (intent === 'ready') {
+    if (intent === 'success') {
+      setState('starred');
+    } else if (intent === 'ready') {
       void requestStar();
     } else {
       setState('error');
@@ -130,10 +132,11 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       aria-label={isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
       title={isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
       data-github-star={repositoryUrl}
+      data-github-star-state={state}
     >
       {variant === 'floating' ? <GitHubGlyph /> : null}
       <StarGlyph filled={isStarred} />
-      <span>{isLoading ? '处理中…' : label}</span>
+      <span aria-live="polite">{isLoading ? '处理中…' : label}</span>
     </button>
   );
 }
@@ -146,6 +149,7 @@ async function sendStarRequest(target: string, accessToken = ''): Promise<Respon
 
   return fetch(`/api/github?path=${encodeURIComponent(target)}`, {
     method: 'PUT',
+    credentials: 'include',
     headers
   });
 }

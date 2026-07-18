@@ -3,6 +3,7 @@ import { appendGitHubStarIntent, getGitHubOAuthRedirectUri, GITHUB_ACCESS_TOKEN_
 
 const GITHUB_TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 const GITHUB_USER_ENDPOINT = 'https://api.github.com/user';
+const GITHUB_STAR_ENDPOINT = 'https://api.github.com/user/starred';
 const MAX_BODY_LENGTH = 4096;
 
 export const dynamic = 'force-dynamic';
@@ -83,8 +84,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'GitHub identity validation failed.' }, { status: 502 });
     }
 
+    // Apply the requested Star while the freshly exchanged token is in hand.
+    // This removes the fragile second request that used to depend on the browser
+    // observing the new HttpOnly cookie before the page re-rendered.
+    const starApplied = await starGitHubRepository(state.owner, state.repo, accessToken);
     const response = NextResponse.json({
-      redirectTo: appendGitHubStarIntent(state.returnTo, state.owner, state.repo)
+      redirectTo: appendGitHubStarIntent(
+        state.returnTo,
+        state.owner,
+        state.repo,
+        starApplied ? 'success' : 'error'
+      )
     });
     const secure = new URL(request.url).protocol === 'https:';
     response.cookies.set(GITHUB_ACCESS_TOKEN_COOKIE, accessToken, {
@@ -99,6 +109,31 @@ export async function POST(request: Request) {
     return response;
   } catch {
     return NextResponse.json({ error: 'GitHub OAuth exchange failed.' }, { status: 502 });
+  }
+}
+
+/**
+ * Stars the repository for the authenticated OAuth user. A failed upstream
+ * request is converted into a false result so the callback can return the
+ * user to the original page with an explicit error state.
+ */
+async function starGitHubRepository(owner: string, repo: string, accessToken: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${GITHUB_STAR_ENDPOINT}/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${accessToken}`,
+        'User-Agent': 'personal-theme-blog',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: '',
+      cache: 'no-store'
+    });
+
+    return response.ok;
+  } catch {
+    return false;
   }
 }
 

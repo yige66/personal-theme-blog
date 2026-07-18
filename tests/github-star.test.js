@@ -21,15 +21,17 @@ describe('GitHub starring flow', () => {
   });
 
   it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
-    const [starButton, floating, layout, api, splash] = await Promise.all([
+    const [starButton, floating, layout, api, oauthCallback, splash] = await Promise.all([
       readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
       readFile('components/github/GitHubStarFloating.tsx', 'utf8'),
       readFile('app/layout.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
+      readFile('components/github/GitHubOAuthCallback.tsx', 'utf8'),
       readFile('components/SplashScreen.tsx', 'utf8')
     ]);
 
     assert.match(starButton, /method: 'PUT'/);
+    assert.match(starButton, /credentials: 'include'/);
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
@@ -41,6 +43,7 @@ describe('GitHub starring flow', () => {
     assert.match(layout, /<GitHubStarFloating \/>/);
     assert.match(layout, /window\.location\.pathname !== '\/'/);
     assert.match(layout, /xh-splash-seen\.xh-splash-bypass/);
+    assert.match(oauthCallback, /credentials: 'include'/);
     assert.match(splash, /pathname\.startsWith\('\/admin'\) \|\| pathname !== '\/'/);
     assert.match(api, /GITHUB_STAR_OWNER/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
@@ -79,6 +82,10 @@ describe('GitHub starring flow', () => {
     assert.match(exchange, /api\.github\.com\/user/);
     assert.match(exchange, /httpOnly: true/);
     assert.match(exchange, /GITHUB_ACCESS_TOKEN_COOKIE/);
+    assert.match(exchange, /GITHUB_STAR_ENDPOINT/);
+    assert.match(exchange, /starGitHubRepository\(state\.owner, state\.repo, accessToken\)/);
+    assert.match(exchange, /starApplied \? 'success' : 'error'/);
+    assert.match(exchange, /body: ''/);
     assert.doesNotMatch(exchange, /access_token: accessToken/);
     assert.match(oauth, /timingSafeEqual/);
     assert.match(oauth, /GITHUB_OAUTH_STATE_MAX_AGE_SECONDS/);
