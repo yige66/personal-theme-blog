@@ -56,15 +56,6 @@ personal-theme-blog/
 └─ .github/workflows/ci.yml # GitHub Actions 质量门禁
 ```
 
-## 已向 XHBlogs 学习并落地的能力
-
-- 高完成度玻璃拟态首页与响应式子页
-- 个人名片、等级经验、连续写作天数
-- 文章归档、标签云、项目集、动态/说说
-- 音乐、灵境照片墙、友链、关于页
-- 评论系统配置占位和 AI 助手提示词配置占位
-- Vercel Blob 在线后台内容源 + GitHub/Vercel 代码发布工作流
-- GitHub Actions CI、Vercel 构建配置和部署文档
 
 ## 验证
 
