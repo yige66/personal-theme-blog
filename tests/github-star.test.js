@@ -128,6 +128,7 @@ describe('GitHub starring flow', () => {
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user > \.gt-popup/);
     assert.match(comments, /installGitalkAccountPopup\(container\)/);
     assert.match(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
+    assert.match(comments, /\{ capture: true \}/);
     assert.match(comments, /loginButton\?\.click\(\)/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);

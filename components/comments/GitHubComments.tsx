@@ -278,7 +278,7 @@ function installGitalkAccountPopup(container: HTMLElement) {
     event.preventDefault();
     event.stopPropagation();
     toggleManagedGitalkPopup(container, user, trigger);
-  });
+  }, { capture: true });
 
   gitalkAccountPopupHosts.add(container);
 }
