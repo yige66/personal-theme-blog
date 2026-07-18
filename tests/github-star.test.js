@@ -127,6 +127,8 @@ describe('GitHub starring flow', () => {
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*pointer-events: auto !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*z-index: 31 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user-inner[\s\S]*pointer-events: auto !important/);
+    assert.match(homeOverrides, /\.moment-comment-dock[\s\S]*display: block !important/);
+    assert.match(homeOverrides, /\.moment-comment-dock\[open\] > \.moment-comments-shell[\s\S]*z-index: 21 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-meta \.gt-popup/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user > \.gt-popup/);
     assert.match(comments, /installGitalkAccountPopup\(container\)/);
