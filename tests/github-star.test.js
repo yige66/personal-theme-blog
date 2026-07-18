@@ -38,6 +38,9 @@ describe('GitHub starring flow', () => {
     assert.doesNotMatch(starButton, /window\.location\.assign\(repositoryUrl\)/);
     assert.match(starButton, /github_star/);
     assert.match(floating, /BLOG_REPOSITORY_URL/);
+    assert.match(floating, /personal-theme-blog:splash-complete/);
+    assert.match(floating, /MutationObserver/);
+    assert.match(floating, /!splashComplete/);
     assert.match(floating, /pathname === '\/projects'/);
     assert.match(layout, /<GitHubOAuthCallback \/>/);
     assert.match(layout, /<GitHubStarFloating \/>/);
