@@ -123,7 +123,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       return;
     }
 
-    const authWindow = repository ? openGitHubAuthWindow(repository) : null;
+    const authWindow = repository ? openGitHubAuthWindow() : null;
     if (authWindow) {
       watchOAuthPopup(authWindow);
     }
@@ -225,24 +225,55 @@ async function sendStarRequest(target: string, accessToken = ''): Promise<Respon
   });
 }
 
-/** Opens the OAuth window directly on the GitHub start route to avoid a blank desktop popup. */
-function openGitHubAuthWindow(repository: GitHubRepository): Window | null {
-  return window.open(createGitHubOAuthStartUrl(repository).toString(), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
+/** Opens a visible OAuth loading window synchronously so desktop visitors never see a blank popup. */
+function openGitHubAuthWindow(): Window | null {
+  const popup = window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
+  if (!popup) {
+    return null;
+  }
+
+  try {
+    popup.document.title = '正在连接 GitHub';
+    popup.document.body.innerHTML = [
+      '<main style="min-height:100vh;display:grid;place-items:center;margin:0;background:#17142a;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">',
+      '<section style="max-width:360px;padding:28px;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.08);box-shadow:0 24px 60px rgba(0,0,0,.28);text-align:center;">',
+      '<h1 style="margin:0 0 12px;font-size:20px;">正在连接 GitHub</h1>',
+      '<p style="margin:0;color:rgba(255,255,255,.78);line-height:1.7;">请稍等，正在打开授权页面用于完成 Star。</p>',
+      '</section>',
+      '</main>'
+    ].join('');
+  } catch {
+    // The popup still exists; navigation below can continue.
+  }
+
+  return popup;
 }
 
 function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
+  void navigateGitHubOAuth(repository, authWindow);
+}
+
+async function navigateGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
   const startUrl = createGitHubOAuthStartUrl(repository);
+  startUrl.searchParams.set('format', 'json');
 
   if (authWindow && !authWindow.closed) {
     try {
-      authWindow.location.assign(startUrl.toString());
+      const authorizationUrl = await fetchGitHubOAuthAuthorizationUrl(startUrl);
+      authWindow.location.assign(authorizationUrl);
       authWindow.focus();
       return;
     } catch {
+      try {
+        authWindow.close();
+      } catch {
+        // Continue to the same-tab fallback.
+      }
       // Fall back to the same-tab flow if the popup cannot be navigated.
     }
   }
 
+  startUrl.searchParams.delete('format');
   window.location.assign(startUrl.toString());
 }
 
@@ -255,6 +286,36 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
   startUrl.searchParams.set('repo', repository.url);
   startUrl.searchParams.set('returnTo', returnTo);
   return startUrl;
+}
+
+async function fetchGitHubOAuthAuthorizationUrl(startUrl: URL) {
+  const response = await fetch(startUrl.toString(), {
+    credentials: 'include',
+    headers: { Accept: 'application/json' }
+  });
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isGitHubOAuthStartPayload(data)) {
+    throw new Error('GitHub OAuth start failed');
+  }
+  return data.authorizationUrl;
+}
+
+function isGitHubOAuthStartPayload(value: unknown): value is { authorizationUrl: string } {
+  if (typeof value !== 'object' || value === null || !('authorizationUrl' in value)) {
+    return false;
+  }
+
+  const authorizationUrl = (value as { authorizationUrl?: unknown }).authorizationUrl;
+  if (typeof authorizationUrl !== 'string') {
+    return false;
+  }
+
+  try {
+    const url = new URL(authorizationUrl);
+    return url.origin === 'https://github.com' && url.pathname === '/login/oauth/authorize';
+  } catch {
+    return false;
+  }
 }
 
 function readGitHubAccessToken(): string {
