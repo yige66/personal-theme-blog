@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { GITHUB_STAR_MESSAGE_SOURCE, type GitHubStarOAuthStatus } from '@/lib/github-star';
 
 type OAuthCallbackStatus = {
   tone: 'pending' | 'error';
@@ -19,6 +20,9 @@ export function GitHubOAuthCallback() {
     if (!code || !state) {
       if (oauthError) {
         clearOAuthParameters(url);
+        if (notifyOAuthOpener('error')) {
+          return undefined;
+        }
         setStatus({ tone: 'error', message: 'GitHub 登录已取消，请重新点击 Star。' });
       }
       return undefined;
@@ -40,9 +44,17 @@ export function GitHubOAuthCallback() {
         return data.redirectTo;
       })
       .then((redirectTo) => {
-        if (!canceled) {
-          window.location.replace(toSafeLocalPath(redirectTo));
+        if (canceled) {
+          return;
         }
+
+        const safeRedirectTo = toSafeLocalPath(redirectTo);
+        const oauthStatus = readGitHubStarOAuthStatus(safeRedirectTo);
+        if (oauthStatus && notifyOAuthOpener(oauthStatus)) {
+          return;
+        }
+
+        window.location.replace(safeRedirectTo);
       })
       .catch(() => {
         if (canceled) {
@@ -50,6 +62,9 @@ export function GitHubOAuthCallback() {
         }
 
         clearOAuthParameters(url);
+        if (notifyOAuthOpener('error')) {
+          return;
+        }
         setStatus({ tone: 'error', message: 'GitHub Star 授权失败，请重新点击 Star。' });
       });
 
@@ -81,6 +96,28 @@ function toSafeLocalPath(value: string): string {
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return '/projects';
+  }
+}
+
+/** Reads the server result that the popup should send back to the originating page. */
+function readGitHubStarOAuthStatus(value: string): GitHubStarOAuthStatus | null {
+  const url = new URL(value, window.location.origin);
+  const result = url.searchParams.get('github_star');
+  return result === 'success' || result === 'error' ? result : null;
+}
+
+/** Reports a completed OAuth result to the opener and closes a script-created popup. */
+function notifyOAuthOpener(status: GitHubStarOAuthStatus): boolean {
+  if (!window.opener || window.opener === window || window.opener.closed) {
+    return false;
+  }
+
+  try {
+    window.opener.postMessage({ source: GITHUB_STAR_MESSAGE_SOURCE, status }, window.location.origin);
+    window.setTimeout(() => window.close(), 50);
+    return true;
+  } catch {
+    return false;
   }
 }
 

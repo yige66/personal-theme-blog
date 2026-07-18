@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { parseGitHubRepository, type GitHubRepository } from '@/lib/github-repository';
+import { isGitHubStarOAuthMessage } from '@/lib/github-star';
 
 type StarState = 'idle' | 'loading' | 'starred' | 'error';
 
@@ -17,6 +18,8 @@ type ProjectStarButtonProps = {
 
 const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_TOKEN_KEYS = ['gitalk-token', 'GT_ACCESS_TOKEN', 'gitalk-token-v1'];
+const GITHUB_STAR_POPUP_NAME = 'github-star-auth';
+const GITHUB_STAR_POPUP_FEATURES = 'popup=yes,width=560,height=760,resizable=yes,scrollbars=yes';
 
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
@@ -37,9 +40,37 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     isLoading ? 'is-loading' : '',
     className
   ].filter(Boolean).join(' ');
-  const label = isStarred ? '已 Star' : state === 'error' ? 'Star 失败，重试' : 'Star';
+  const label = isLoading ? '正在打开 GitHub…' : isStarred ? '已 Star' : state === 'error' ? 'Star 失败，重试' : 'Star';
+  const oauthWindowRef = useRef<Window | null>(null);
+  const oauthPollRef = useRef<number | null>(null);
 
-  async function requestStar() {
+  useEffect(() => {
+    if (!owner || !repositoryName) {
+      return undefined;
+    }
+
+    const handleOAuthMessage = (event: MessageEvent<unknown>) => {
+      const popup = oauthWindowRef.current;
+      if (event.origin !== window.location.origin || !popup || event.source !== popup) {
+        return;
+      }
+
+      if (!isGitHubStarOAuthMessage(event.data)) {
+        return;
+      }
+
+      stopOAuthPopup(false);
+      setState(event.data.status === 'success' ? 'starred' : 'error');
+    };
+
+    window.addEventListener('message', handleOAuthMessage);
+    return () => {
+      window.removeEventListener('message', handleOAuthMessage);
+      stopOAuthPopup(true);
+    };
+  }, [owner, repositoryName]);
+
+  async function requestStar(authWindow: Window | null = null) {
     if (!repository || isLoading || isStarred) {
       return;
     }
@@ -60,23 +91,26 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       }
 
       if (response.ok || response.status === 204) {
+        stopOAuthPopup(true);
         setState('starred');
         return;
       }
 
       // A stale Gitalk token must not trap the user in the retry state.
       if (response.status === 401 || response.status === 403 || (usedLegacyToken && response.status >= 500)) {
-        startGitHubOAuth(repository);
+        startGitHubOAuth(repository, authWindow);
         return;
       }
 
+      stopOAuthPopup(true);
       setState('error');
     } catch {
       if (usedLegacyToken) {
-        startGitHubOAuth(repository);
+        startGitHubOAuth(repository, authWindow);
         return;
       }
 
+      stopOAuthPopup(true);
       setState('error');
     }
   }
@@ -89,7 +123,11 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       return;
     }
 
-    void requestStar();
+    const authWindow = openGitHubAuthWindow();
+    if (authWindow) {
+      watchOAuthPopup(authWindow);
+    }
+    void requestStar(authWindow);
   }
 
   useEffect(() => {
@@ -129,16 +167,49 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       onClick={handleStar}
       disabled={isLoading || isStarred}
       aria-busy={isLoading}
-      aria-label={isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
-      title={isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
+      aria-label={isLoading ? `正在打开 GitHub 授权窗口：给 ${repositoryName} 点 Star` : isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
+      title={isLoading ? '正在打开 GitHub 授权窗口' : isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
       data-github-star={repositoryUrl}
       data-github-star-state={state}
     >
       {variant === 'floating' ? <GitHubGlyph /> : null}
       <StarGlyph filled={isStarred} />
-      <span aria-live="polite">{isLoading ? '处理中…' : label}</span>
+      <span aria-live="polite">{label}</span>
     </button>
   );
+
+  function watchOAuthPopup(popup: Window) {
+    stopOAuthPopup(true);
+    oauthWindowRef.current = popup;
+    const poll = window.setInterval(() => {
+      if (!popup.closed) {
+        return;
+      }
+
+      window.clearInterval(poll);
+      if (oauthPollRef.current === poll) {
+        oauthPollRef.current = null;
+      }
+      if (oauthWindowRef.current === popup) {
+        oauthWindowRef.current = null;
+        setState('error');
+      }
+    }, 350);
+    oauthPollRef.current = poll;
+  }
+
+  function stopOAuthPopup(close: boolean) {
+    if (oauthPollRef.current !== null) {
+      window.clearInterval(oauthPollRef.current);
+      oauthPollRef.current = null;
+    }
+
+    const popup = oauthWindowRef.current;
+    oauthWindowRef.current = null;
+    if (close && popup && !popup.closed) {
+      popup.close();
+    }
+  }
 }
 
 async function sendStarRequest(target: string, accessToken = ''): Promise<Response> {
@@ -154,7 +225,12 @@ async function sendStarRequest(target: string, accessToken = ''): Promise<Respon
   });
 }
 
-function startGitHubOAuth(repository: GitHubRepository) {
+/** Opens an OAuth window synchronously so browser popup blockers can associate it with the click. */
+function openGitHubAuthWindow(): Window | null {
+  return window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
+}
+
+function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
   const currentUrl = new URL(window.location.href);
   currentUrl.searchParams.delete('github_star');
   currentUrl.searchParams.delete('github_repo');
@@ -162,6 +238,17 @@ function startGitHubOAuth(repository: GitHubRepository) {
   const startUrl = new URL('/api/github/oauth/start', window.location.origin);
   startUrl.searchParams.set('repo', repository.url);
   startUrl.searchParams.set('returnTo', returnTo);
+
+  if (authWindow && !authWindow.closed) {
+    try {
+      authWindow.location.assign(startUrl.toString());
+      authWindow.focus();
+      return;
+    } catch {
+      // Fall back to the same-tab flow if the popup cannot be navigated.
+    }
+  }
+
   window.location.assign(startUrl.toString());
 }
 

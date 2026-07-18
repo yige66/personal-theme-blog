@@ -21,19 +21,23 @@ describe('GitHub starring flow', () => {
   });
 
   it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
-    const [starButton, floating, layout, api, oauthCallback, splash] = await Promise.all([
+    const [starButton, floating, layout, api, oauthCallback, splash, starMessage] = await Promise.all([
       readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
       readFile('components/github/GitHubStarFloating.tsx', 'utf8'),
       readFile('app/layout.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
       readFile('components/github/GitHubOAuthCallback.tsx', 'utf8'),
-      readFile('components/SplashScreen.tsx', 'utf8')
+      readFile('components/SplashScreen.tsx', 'utf8'),
+      readFile('lib/github-star.ts', 'utf8')
     ]);
 
     assert.match(starButton, /method: 'PUT'/);
     assert.match(starButton, /credentials: 'include'/);
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
+    assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.match(starButton, /watchOAuthPopup/);
+    assert.match(starButton, /isGitHubStarOAuthMessage/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
     assert.doesNotMatch(starButton, /window\.location\.assign\(repositoryUrl\)/);
     assert.match(starButton, /github_star/);
@@ -47,6 +51,9 @@ describe('GitHub starring flow', () => {
     assert.match(layout, /window\.location\.pathname !== '\/'/);
     assert.match(layout, /xh-splash-seen\.xh-splash-bypass/);
     assert.match(oauthCallback, /credentials: 'include'/);
+    assert.match(oauthCallback, /postMessage/);
+    assert.match(oauthCallback, /window\.close/);
+    assert.match(starMessage, /GITHUB_STAR_MESSAGE_SOURCE/);
     assert.match(splash, /pathname\.startsWith\('\/admin'\) \|\| pathname !== '\/'/);
     assert.match(api, /GITHUB_STAR_OWNER/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
@@ -62,7 +69,7 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /let usedLegacyToken = false/);
     assert.match(starButton, /usedLegacyToken = true/);
     assert.match(starButton, /usedLegacyToken && response\.status >= 500/);
-    assert.match(starButton, /if \(usedLegacyToken\) \{\s*startGitHubOAuth\(repository\)/);
+    assert.match(starButton, /if \(usedLegacyToken\) \{\s*startGitHubOAuth\(repository, authWindow\)/);
     assert.match(githubApi, /const retryStarRequest = kind === 'star' && request\.method === 'PUT'/);
     assert.match(githubApi, /fetchGitHubRequest\(target, githubRequest, retryStarRequest\)/);
     assert.match(githubApi, /GitHub star proxy request failed after retry/);
@@ -113,6 +120,9 @@ describe('GitHub starring flow', () => {
     assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
     assert.match(css, /\.github-oauth-status \{/);
     assert.match(css, /\.github-oauth-status\.is-error/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-header-comment > \.gt-header-controls[\s\S]*grid-column: 1 !important/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*margin-left: auto !important/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-meta \.gt-popup/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
   });
