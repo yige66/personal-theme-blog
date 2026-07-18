@@ -17069,9 +17069,14 @@ body:has(.friends-page) .friends-comments .github-comments-card {
 
 /* Keep dynamic comments wide enough to read, while retaining the compact trigger. */
 .moment-comment-dock {
+  display: block !important;
+  overflow: visible !important;
   width: 100% !important;
   justify-self: stretch !important;
+  pointer-events: auto !important;
+  position: relative !important;
   text-align: left;
+  z-index: 20 !important;
 }
 
 .moment-comment-dock > summary {
@@ -17081,6 +17086,12 @@ body:has(.friends-page) .friends-comments .github-comments-card {
 
 .moment-comment-dock[open] > summary {
   margin-bottom: 12px;
+}
+
+.moment-comment-dock[open] > .moment-comments-shell {
+  display: block !important;
+  position: relative !important;
+  z-index: 21 !important;
 }
 
 .moment-comment-dock .moment-comments-shell,
