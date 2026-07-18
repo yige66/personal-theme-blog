@@ -17111,6 +17111,23 @@ body:has(.friends-page) .friends-comments .github-comments-card {
   -webkit-backdrop-filter: blur(18px) !important;
 }
 
+/* Keep the account popup anchored to the account row instead of the frame edge. */
+.custom-gitalk-glass .gt-meta .gt-popup,
+.moment-gitalk .gt-meta .gt-popup {
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  left: auto !important;
+  max-width: min(220px, calc(100vw - 24px)) !important;
+}
+
+@media (max-width: 480px) {
+  .custom-gitalk-glass .gt-meta .gt-popup,
+  .moment-gitalk .gt-meta .gt-popup {
+    right: auto !important;
+    left: 0 !important;
+  }
+}
+
 .custom-gitalk-glass .gt-container .gt-popup .gt-action,
 .moment-gitalk .gt-container .gt-popup .gt-action,
 .custom-gitalk-glass .gt-container .gt-popup .gt-version,
@@ -28480,11 +28497,18 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 .custom-gitalk-glass .gt-header > .gt-header-comment,
 .custom-gitalk-glass .gt-header > .gt-header-textarea,
 .custom-gitalk-glass .gt-header > .gt-header-controls,
-.custom-gitalk-glass .gt-header-comment > .gt-header-controls {
+.moment-gitalk .gt-header > .gt-header-comment,
+.moment-gitalk .gt-header > .gt-header-textarea,
+.moment-gitalk .gt-header > .gt-header-controls {
   grid-column: 2 !important;
   min-width: 0 !important;
   width: 100% !important;
   margin-left: 0 !important;
+}
+
+.custom-gitalk-glass .gt-header-comment > .gt-header-controls,
+.moment-gitalk .gt-header-comment > .gt-header-controls {
+  grid-column: 1 !important;
 }
 
 .custom-gitalk-glass .gt-header-comment {
@@ -28575,16 +28599,6 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
   grid-row: 1 !important;
   float: none !important;
   margin: 2px 0 0 !important;
-}
-
-.moment-gitalk .gt-header-comment,
-.moment-gitalk .gt-header > .gt-header-textarea,
-.moment-gitalk .gt-header > .gt-header-controls,
-.moment-gitalk .gt-header-comment > .gt-header-controls {
-  grid-column: 2 !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  margin-left: 0 !important;
 }
 
 .moment-gitalk .gt-header-comment {
@@ -28719,16 +28733,16 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 
 .custom-gitalk-glass .gt-user,
 .moment-gitalk .gt-user {
-  margin-left: auto;
-  text-align: right;
+  margin-left: auto !important;
+  text-align: right !important;
 }
 
 @media (max-width: 480px) {
   .custom-gitalk-glass .gt-user,
   .moment-gitalk .gt-user {
-    flex-basis: 100%;
-    margin-left: 0;
-    text-align: left;
+    flex-basis: 100% !important;
+    margin-left: 0 !important;
+    text-align: left !important;
   }
 }
 
