@@ -123,7 +123,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       return;
     }
 
-    const authWindow = openGitHubAuthWindow();
+    const authWindow = repository ? openGitHubAuthWindow(repository) : null;
     if (authWindow) {
       watchOAuthPopup(authWindow);
     }
@@ -225,19 +225,13 @@ async function sendStarRequest(target: string, accessToken = ''): Promise<Respon
   });
 }
 
-/** Opens an OAuth window synchronously so browser popup blockers can associate it with the click. */
-function openGitHubAuthWindow(): Window | null {
-  return window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
+/** Opens the OAuth window directly on the GitHub start route to avoid a blank desktop popup. */
+function openGitHubAuthWindow(repository: GitHubRepository): Window | null {
+  return window.open(createGitHubOAuthStartUrl(repository).toString(), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
 }
 
 function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
-  const currentUrl = new URL(window.location.href);
-  currentUrl.searchParams.delete('github_star');
-  currentUrl.searchParams.delete('github_repo');
-  const returnTo = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`;
-  const startUrl = new URL('/api/github/oauth/start', window.location.origin);
-  startUrl.searchParams.set('repo', repository.url);
-  startUrl.searchParams.set('returnTo', returnTo);
+  const startUrl = createGitHubOAuthStartUrl(repository);
 
   if (authWindow && !authWindow.closed) {
     try {
@@ -250,6 +244,17 @@ function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | nul
   }
 
   window.location.assign(startUrl.toString());
+}
+
+function createGitHubOAuthStartUrl(repository: GitHubRepository) {
+  const currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.delete('github_star');
+  currentUrl.searchParams.delete('github_repo');
+  const returnTo = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`;
+  const startUrl = new URL('/api/github/oauth/start', window.location.origin);
+  startUrl.searchParams.set('repo', repository.url);
+  startUrl.searchParams.set('returnTo', returnTo);
+  return startUrl;
 }
 
 function readGitHubAccessToken(): string {

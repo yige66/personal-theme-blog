@@ -35,7 +35,9 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /credentials: 'include'/);
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
-    assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.match(starButton, /window\.open\(createGitHubOAuthStartUrl\(repository\)\.toString\(\), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.doesNotMatch(starButton, /window\.open\(''/);
+    assert.match(starButton, /function createGitHubOAuthStartUrl/);
     assert.match(starButton, /watchOAuthPopup/);
     assert.match(starButton, /isGitHubStarOAuthMessage/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
