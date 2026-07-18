@@ -28732,6 +28732,9 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
   min-width: 0;
   margin: 0 0 clamp(14px, 2vw, 20px) !important;
   padding-inline: 0 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 30 !important;
 }
 
 .custom-gitalk-glass .gt-counts,
@@ -28746,8 +28749,19 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
 .custom-gitalk-glass .gt-user,
 .moment-gitalk .gt-user {
   margin-left: auto !important;
+  pointer-events: auto !important;
   position: relative !important;
   text-align: right !important;
+  z-index: 31 !important;
+}
+
+.custom-gitalk-glass .gt-user-inner,
+.moment-gitalk .gt-user-inner,
+.custom-gitalk-glass .gt-header,
+.moment-gitalk .gt-header {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 30 !important;
 }
 
 @media (max-width: 480px) {
