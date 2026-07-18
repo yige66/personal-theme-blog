@@ -29053,9 +29053,7 @@ body:has(.music-page) .music-current[data-long-title="true"] :is(span, small):no
   }
 }
 
-/* Project Star actions remain visible on narrow screens without the player overlay. */
-@media (max-width: 760px) {
-  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .xh-floating-player {
-    display: none !important;
-  }
+/* Project Star actions remain visible without the player overlay. */
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .xh-floating-player {
+  display: none !important;
 }
