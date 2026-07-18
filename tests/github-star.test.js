@@ -69,12 +69,13 @@ describe('GitHub starring flow', () => {
   });
 
   it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {
-    const [start, exchange, oauth, env, docs] = await Promise.all([
+    const [start, exchange, oauth, env, docs, callback] = await Promise.all([
       readFile('app/api/github/oauth/start/route.ts', 'utf8'),
       readFile('app/api/github/oauth/exchange/route.ts', 'utf8'),
       readFile('lib/github-oauth.ts', 'utf8'),
       readFile('.env.example', 'utf8'),
-      readFile('docs/github-comments.md', 'utf8')
+      readFile('docs/github-comments.md', 'utf8'),
+      readFile('components/github/GitHubOAuthCallback.tsx', 'utf8')
     ]);
 
     assert.match(start, /scope', 'public_repo'/);
@@ -96,6 +97,9 @@ describe('GitHub starring flow', () => {
     assert.match(env, /GITHUB_STAR_CALLBACK_URL=/);
     assert.match(docs, /public_repo/);
     assert.match(docs, /HttpOnly cookie/);
+    assert.match(callback, /github-oauth-status/);
+    assert.match(callback, /setStatus\(\{ tone: 'error'/);
+    assert.doesNotMatch(callback, /visually-hidden/);
   });
 
   it('styles the floating star as a compact GitHub control on mobile too', async () => {
@@ -107,6 +111,8 @@ describe('GitHub starring flow', () => {
     assert.match(css, /\.github-star-floating \.github-star-glyph/);
     assert.match(css, /\.github-star-floating:focus-visible/);
     assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
+    assert.match(css, /\.github-oauth-status \{/);
+    assert.match(css, /\.github-oauth-status\.is-error/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
   });

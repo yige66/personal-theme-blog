@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
+type OAuthCallbackStatus = {
+  tone: 'pending' | 'error';
+  message: string;
+};
+
+/** Completes the OAuth callback and exposes failures as visible, retryable feedback. */
 export function GitHubOAuthCallback() {
-  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<OAuthCallbackStatus | null>(null);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -13,13 +19,13 @@ export function GitHubOAuthCallback() {
     if (!code || !state) {
       if (oauthError) {
         clearOAuthParameters(url);
-        setMessage('GitHub 登录已取消。');
+        setStatus({ tone: 'error', message: 'GitHub 登录已取消，请重新点击 Star。' });
       }
       return undefined;
     }
 
     let canceled = false;
-    setMessage('正在完成 GitHub 登录…');
+    setStatus({ tone: 'pending', message: '正在完成 GitHub Star 授权…' });
     fetch('/api/github/oauth/exchange', {
       method: 'POST',
       credentials: 'include',
@@ -44,7 +50,7 @@ export function GitHubOAuthCallback() {
         }
 
         clearOAuthParameters(url);
-        setMessage('GitHub 登录暂时不可用，请稍后重试。');
+        setStatus({ tone: 'error', message: 'GitHub Star 授权失败，请重新点击 Star。' });
       });
 
     return () => {
@@ -52,7 +58,11 @@ export function GitHubOAuthCallback() {
     };
   }, []);
 
-  return message ? <span className="visually-hidden" role="status" aria-live="polite">{message}</span> : null;
+  return status ? (
+    <div className={`github-oauth-status is-${status.tone}`} role="status" aria-live="polite">
+      {status.message}
+    </div>
+  ) : null;
 }
 
 function isRedirectPayload(value: unknown): value is { redirectTo: string } {
