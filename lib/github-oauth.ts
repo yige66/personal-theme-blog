@@ -130,10 +130,15 @@ export function normalizeGitHubReturnTo(value: unknown, fallback = '/projects'):
   }
 }
 
-export function appendGitHubStarIntent(returnTo: string, owner: string, repo: string): string {
+export function appendGitHubStarIntent(
+  returnTo: string,
+  owner: string,
+  repo: string,
+  intent: 'ready' | 'success' | 'error' = 'ready'
+): string {
   const normalized = normalizeGitHubReturnTo(returnTo);
   const url = new URL(normalized, 'https://local.invalid');
-  url.searchParams.set('github_star', 'ready');
+  url.searchParams.set('github_star', intent);
   url.searchParams.set('github_repo', `${owner}/${repo}`);
   return `${url.pathname}${url.search}${url.hash}`;
 }
