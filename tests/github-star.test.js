@@ -20,7 +20,7 @@ describe('GitHub starring flow', () => {
     assert.match(blogSource, /id: 'project-console'/);
   });
 
-  it('uses the same-origin API first and starts OAuth for unauthenticated visitors', async () => {
+  it('opens GitHub OAuth directly and only reports success after the OAuth exchange', async () => {
     const [starButton, floating, layout, api, oauthCallback, splash, starMessage] = await Promise.all([
       readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
       readFile('components/github/GitHubStarFloating.tsx', 'utf8'),
@@ -31,15 +31,16 @@ describe('GitHub starring flow', () => {
       readFile('lib/github-star.ts', 'utf8')
     ]);
 
-    assert.match(starButton, /method: 'PUT'/);
-    assert.match(starButton, /credentials: 'include'/);
-    assert.match(starButton, /api\/github\?path=/);
+    assert.doesNotMatch(starButton, /method: 'PUT'/);
+    assert.doesNotMatch(starButton, /credentials: 'include'/);
+    assert.doesNotMatch(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
-    assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.match(starButton, /window\.open\(startUrl\.toString\(\), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
-    assert.match(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
-    assert.match(starButton, /AbortController/);
-    assert.match(starButton, /authWindow\.location\.assign\(startUrl\.toString\(\)\)/);
+    assert.match(starButton, /searchParams\.set\('popup', '1'\)/);
+    assert.doesNotMatch(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
+    assert.doesNotMatch(starButton, /AbortController/);
+    assert.doesNotMatch(starButton, /authWindow\.location\.assign\(startUrl\.toString\(\)\)/);
     assert.doesNotMatch(starButton, /popup\.document\.write/);
     assert.match(starButton, /watchOAuthPopup/);
     assert.match(starButton, /isGitHubStarOAuthMessage/);
@@ -65,19 +66,15 @@ describe('GitHub starring flow', () => {
     assert.match(api, /Content-Length/);
   });
 
-  it('routes stale legacy-token failures back through OAuth instead of trapping the button', async () => {
-    const [starButton, githubApi] = await Promise.all([
-      readFile('components/projects/ProjectStarButton.tsx', 'utf8'),
-      readFile('app/api/github/route.ts', 'utf8')
-    ]);
+  it('does not mark a repository as starred before OAuth completes', async () => {
+    const starButton = await readFile('components/projects/ProjectStarButton.tsx', 'utf8');
 
-    assert.match(starButton, /let usedLegacyToken = false/);
-    assert.match(starButton, /usedLegacyToken = true/);
-    assert.match(starButton, /response\.status >= 500/);
-    assert.match(starButton, /if \(authWindow \|\| usedLegacyToken\) \{\s*startGitHubOAuth\(repository, authWindow\)/);
-    assert.match(githubApi, /const retryStarRequest = kind === 'star' && request\.method === 'PUT'/);
-    assert.match(githubApi, /fetchGitHubRequest\(target, githubRequest, retryStarRequest\)/);
-    assert.match(githubApi, /GitHub star proxy request failed after retry/);
+    assert.match(starButton, /setState\('loading'\)/);
+    assert.match(starButton, /openGitHubAuthWindow\(repository\)/);
+    assert.match(starButton, /setState\('starred'\)/);
+    assert.match(starButton, /notifyOAuthOpener\('error'\)/);
+    assert.doesNotMatch(starButton, /readGitHubAccessToken/);
+    assert.doesNotMatch(starButton, /sendStarRequest/);
   });
 
   it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {
@@ -93,6 +90,8 @@ describe('GitHub starring flow', () => {
     assert.match(start, /scope', 'public_repo'/);
     assert.match(start, /NextResponse\.json\(\{ authorizationUrl: authorizationUrl\.toString\(\) \}\)/);
     assert.match(start, /wantsJsonResponse/);
+    assert.match(start, /createOAuthFailureResponse/);
+    assert.match(start, /window\.opener\.postMessage/);
     assert.match(start, /code_challenge/);
     assert.match(start, /GITHUB_OAUTH_STATE_COOKIE/);
     assert.match(exchange, /stateCookie !== payload\.state/);
