@@ -20,6 +20,7 @@ const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_TOKEN_KEYS = ['gitalk-token', 'GT_ACCESS_TOKEN', 'gitalk-token-v1'];
 const GITHUB_STAR_POPUP_NAME = 'github-star-auth';
 const GITHUB_STAR_POPUP_FEATURES = 'popup=yes,width=560,height=760,resizable=yes,scrollbars=yes';
+const GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000;
 
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
@@ -97,7 +98,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       }
 
       // A stale Gitalk token must not trap the user in the retry state.
-      if (response.status === 401 || response.status === 403 || (usedLegacyToken && response.status >= 500)) {
+      if (response.status === 401 || response.status === 403 || response.status >= 500) {
         startGitHubOAuth(repository, authWindow);
         return;
       }
@@ -105,7 +106,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       stopOAuthPopup(true);
       setState('error');
     } catch {
-      if (usedLegacyToken) {
+      if (authWindow || usedLegacyToken) {
         startGitHubOAuth(repository, authWindow);
         return;
       }
@@ -218,57 +219,32 @@ async function sendStarRequest(target: string, accessToken = ''): Promise<Respon
     headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
-  return fetch(`/api/github?path=${encodeURIComponent(target)}`, {
+  return fetchWithTimeout(`/api/github?path=${encodeURIComponent(target)}`, {
     method: 'PUT',
     credentials: 'include',
     headers
+  }, GITHUB_STAR_REQUEST_TIMEOUT_MS);
+}
+
+/** Bounds the browser-side proxy wait so an unauthenticated click can enter OAuth. */
+function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
+    window.clearTimeout(timeout);
   });
 }
 
-/** Opens a visible OAuth loading window synchronously so desktop visitors never see a blank popup. */
 function openGitHubAuthWindow(): Window | null {
-  const popup = window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
-  if (!popup) {
-    return null;
-  }
-
-  try {
-    popup.document.title = '正在连接 GitHub';
-    popup.document.open();
-    popup.document.write([
-      '<!doctype html><html lang="zh-CN"><head>',
-      '<meta charset="utf-8" />',
-      '<meta name="viewport" content="width=device-width,initial-scale=1" />',
-      '<title>正在连接 GitHub</title>',
-      '</head><body style="margin:0;background:#17142a;">',
-      '<main style="min-height:100vh;display:grid;place-items:center;margin:0;background:#17142a;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">',
-      '<section style="max-width:360px;padding:28px;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.08);box-shadow:0 24px 60px rgba(0,0,0,.28);text-align:center;">',
-      '<h1 style="margin:0 0 12px;font-size:20px;">正在连接 GitHub</h1>',
-      '<p style="margin:0;color:rgba(255,255,255,.78);line-height:1.7;">请稍等，正在打开授权页面用于完成 Star。</p>',
-      '</section>',
-      '</main>',
-      '</body></html>'
-    ].join(''));
-    popup.document.close();
-  } catch {
-    // The popup still exists; navigation below can continue.
-  }
-
-  return popup;
+  return window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
 }
 
 function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
-  void navigateGitHubOAuth(repository, authWindow);
-}
-
-async function navigateGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
   const startUrl = createGitHubOAuthStartUrl(repository);
-  startUrl.searchParams.set('format', 'json');
 
   if (authWindow && !authWindow.closed) {
     try {
-      const authorizationUrl = await fetchGitHubOAuthAuthorizationUrl(startUrl);
-      authWindow.location.assign(authorizationUrl);
+      authWindow.location.assign(startUrl.toString());
       authWindow.focus();
       return;
     } catch {
@@ -277,11 +253,9 @@ async function navigateGitHubOAuth(repository: GitHubRepository, authWindow: Win
       } catch {
         // Continue to the same-tab fallback.
       }
-      // Fall back to the same-tab flow if the popup cannot be navigated.
     }
   }
 
-  startUrl.searchParams.delete('format');
   window.location.assign(startUrl.toString());
 }
 
@@ -294,36 +268,6 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
   startUrl.searchParams.set('repo', repository.url);
   startUrl.searchParams.set('returnTo', returnTo);
   return startUrl;
-}
-
-async function fetchGitHubOAuthAuthorizationUrl(startUrl: URL) {
-  const response = await fetch(startUrl.toString(), {
-    credentials: 'include',
-    headers: { Accept: 'application/json' }
-  });
-  const data: unknown = await response.json().catch(() => null);
-  if (!response.ok || !isGitHubOAuthStartPayload(data)) {
-    throw new Error('GitHub OAuth start failed');
-  }
-  return data.authorizationUrl;
-}
-
-function isGitHubOAuthStartPayload(value: unknown): value is { authorizationUrl: string } {
-  if (typeof value !== 'object' || value === null || !('authorizationUrl' in value)) {
-    return false;
-  }
-
-  const authorizationUrl = (value as { authorizationUrl?: unknown }).authorizationUrl;
-  if (typeof authorizationUrl !== 'string') {
-    return false;
-  }
-
-  try {
-    const url = new URL(authorizationUrl);
-    return url.origin === 'https://github.com' && url.pathname === '/login/oauth/authorize';
-  } catch {
-    return false;
-  }
 }
 
 function readGitHubAccessToken(): string {
