@@ -344,8 +344,8 @@ describe('target-inspired homepage portal', () => {
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.match(starButton, /window\.open\(startUrl\.toString\(\)/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
-    assert.doesNotMatch(starButton, /method: 'PUT'/);
-    assert.doesNotMatch(starButton, /user\/starred/);
+    assert.match(starButton, /method: 'GET'/);
+    assert.match(starButton, /user\/starred/);
     assert.match(starButton, /github_star/);
     assert.match(githubApi, /export async function PUT/);
     assert.match(githubApi, /isStarRequest/);
