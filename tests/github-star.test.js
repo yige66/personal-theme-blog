@@ -32,11 +32,14 @@ describe('GitHub starring flow', () => {
     ]);
 
     assert.doesNotMatch(starButton, /method: 'PUT'/);
-    assert.doesNotMatch(starButton, /credentials: 'include'/);
-    assert.doesNotMatch(starButton, /api\/github\?path=/);
+    assert.match(starButton, /method: 'GET'/);
+    assert.match(starButton, /credentials: 'include'/);
+    assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.match(starButton, /window\.open\(startUrl\.toString\(\), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
+    assert.match(starButton, /function verifyStar/);
+    assert.match(starButton, /response\.status === 204/);
     assert.match(starButton, /searchParams\.set\('popup', '1'\)/);
     assert.doesNotMatch(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
     assert.doesNotMatch(starButton, /AbortController/);
@@ -71,7 +74,7 @@ describe('GitHub starring flow', () => {
 
     assert.match(starButton, /setState\('loading'\)/);
     assert.match(starButton, /openGitHubAuthWindow\(repository\)/);
-    assert.match(starButton, /setState\('starred'\)/);
+    assert.match(starButton, /response\.status === 204 \? 'starred' : 'error'/);
     assert.match(starButton, /notifyOAuthOpener\('error'\)/);
     assert.doesNotMatch(starButton, /readGitHubAccessToken/);
     assert.doesNotMatch(starButton, /sendStarRequest/);

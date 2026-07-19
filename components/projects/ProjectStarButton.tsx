@@ -16,6 +16,7 @@ type ProjectStarButtonProps = {
   repo: string;
 };
 
+const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_STAR_POPUP_NAME = 'github-star-auth';
 const GITHUB_STAR_POPUP_FEATURES = 'popup=yes,width=560,height=760,resizable=yes,scrollbars=yes';
 
@@ -66,7 +67,11 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       }
 
       stopOAuthPopup(false);
-      setState(event.data.status === 'success' ? 'starred' : 'error');
+      if (event.data.status === 'success') {
+        void verifyStar();
+      } else {
+        setState('error');
+      }
     };
 
     window.addEventListener('message', handleOAuthMessage);
@@ -75,6 +80,26 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       stopOAuthPopup(true);
     };
   }, [owner, repositoryName]);
+
+  /** Confirms the authenticated user's real GitHub Star before changing the visual state. */
+  async function verifyStar() {
+    if (!repository) {
+      return;
+    }
+
+    setState('loading');
+    const target = `${GITHUB_API_ORIGIN}/user/starred/${owner}/${repositoryName}`;
+    try {
+      const response = await fetch(`/api/github?path=${encodeURIComponent(target)}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Accept: 'application/vnd.github+json' }
+      });
+      setState(response.status === 204 ? 'starred' : 'error');
+    } catch {
+      setState('error');
+    }
+  }
 
   function handleStar(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -113,7 +138,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 
     if (intent === 'success') {
-      setState('starred');
+      void verifyStar();
     } else if (intent === 'configuration') {
       setState('configuration');
       notifyOAuthOpener('error');
