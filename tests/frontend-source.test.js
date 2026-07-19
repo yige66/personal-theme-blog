@@ -340,11 +340,12 @@ describe('target-inspired homepage portal', () => {
 
     assert.match(showcase, /ProjectStarButton/);
     assert.match(showcase, /project-matrix-card-shell/);
-    assert.match(starButton, /gitalk-token/);
+    assert.doesNotMatch(starButton, /gitalk-token/);
     assert.match(starButton, /api\/github\/oauth\/start/);
+    assert.match(starButton, /window\.open\(startUrl\.toString\(\)/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
-    assert.match(starButton, /method: 'PUT'/);
-    assert.match(starButton, /user\/starred/);
+    assert.doesNotMatch(starButton, /method: 'PUT'/);
+    assert.doesNotMatch(starButton, /user\/starred/);
     assert.match(starButton, /github_star/);
     assert.match(githubApi, /export async function PUT/);
     assert.match(githubApi, /isStarRequest/);

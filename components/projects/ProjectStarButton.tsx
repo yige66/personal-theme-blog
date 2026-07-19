@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { parseGitHubRepository, type GitHubRepository } from '@/lib/github-repository';
-import { isGitHubStarOAuthMessage } from '@/lib/github-star';
+import { GITHUB_STAR_MESSAGE_SOURCE, isGitHubStarOAuthMessage, type GitHubStarOAuthStatus } from '@/lib/github-star';
 
-type StarState = 'idle' | 'loading' | 'starred' | 'error';
+type StarState = 'idle' | 'loading' | 'starred' | 'error' | 'configuration';
 
 export type GitHubStarButtonProps = {
   className?: string;
@@ -16,11 +16,8 @@ type ProjectStarButtonProps = {
   repo: string;
 };
 
-const GITHUB_API_ORIGIN = 'https://api.github.com';
-const GITHUB_TOKEN_KEYS = ['gitalk-token', 'GT_ACCESS_TOKEN', 'gitalk-token-v1'];
 const GITHUB_STAR_POPUP_NAME = 'github-star-auth';
 const GITHUB_STAR_POPUP_FEATURES = 'popup=yes,width=560,height=760,resizable=yes,scrollbars=yes';
-const GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000;
 
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
@@ -41,7 +38,15 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     isLoading ? 'is-loading' : '',
     className
   ].filter(Boolean).join(' ');
-  const label = isLoading ? '正在打开 GitHub…' : isStarred ? '已 Star' : state === 'error' ? 'Star 失败，重试' : 'Star';
+  const label = isLoading
+    ? '正在打开 GitHub…'
+    : isStarred
+      ? '已 Star'
+      : state === 'configuration'
+        ? 'Star 配置缺失'
+        : state === 'error'
+          ? 'Star 失败，重试'
+          : 'Star';
   const oauthWindowRef = useRef<Window | null>(null);
   const oauthPollRef = useRef<number | null>(null);
 
@@ -71,51 +76,6 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     };
   }, [owner, repositoryName]);
 
-  async function requestStar(authWindow: Window | null = null) {
-    if (!repository || isLoading || isStarred) {
-      return;
-    }
-
-    setState('loading');
-    const target = `${GITHUB_API_ORIGIN}/user/starred/${owner}/${repositoryName}`;
-    let usedLegacyToken = false;
-
-    try {
-      let response = await sendStarRequest(target);
-
-      if (response.status === 401 || response.status === 403) {
-        const legacyToken = readGitHubAccessToken();
-        if (legacyToken) {
-          usedLegacyToken = true;
-          response = await sendStarRequest(target, legacyToken);
-        }
-      }
-
-      if (response.ok || response.status === 204) {
-        stopOAuthPopup(true);
-        setState('starred');
-        return;
-      }
-
-      // A stale Gitalk token must not trap the user in the retry state.
-      if (response.status === 401 || response.status === 403 || response.status >= 500) {
-        startGitHubOAuth(repository, authWindow);
-        return;
-      }
-
-      stopOAuthPopup(true);
-      setState('error');
-    } catch {
-      if (authWindow || usedLegacyToken) {
-        startGitHubOAuth(repository, authWindow);
-        return;
-      }
-
-      stopOAuthPopup(true);
-      setState('error');
-    }
-  }
-
   function handleStar(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
@@ -124,11 +84,15 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       return;
     }
 
-    const authWindow = repository ? openGitHubAuthWindow() : null;
+    if (!repository) {
+      return;
+    }
+
+    setState('loading');
+    const authWindow = openGitHubAuthWindow(repository);
     if (authWindow) {
       watchOAuthPopup(authWindow);
     }
-    void requestStar(authWindow);
   }
 
   useEffect(() => {
@@ -150,10 +114,12 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
 
     if (intent === 'success') {
       setState('starred');
-    } else if (intent === 'ready') {
-      void requestStar();
+    } else if (intent === 'configuration') {
+      setState('configuration');
+      notifyOAuthOpener('error');
     } else {
       setState('error');
+      notifyOAuthOpener('error');
     }
   }, [owner, repositoryName, repositoryUrl]);
 
@@ -213,50 +179,19 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
   }
 }
 
-async function sendStarRequest(target: string, accessToken = ''): Promise<Response> {
-  const headers = new Headers({ Accept: 'application/vnd.github+json' });
-  if (accessToken) {
-    headers.set('Authorization', `Bearer ${accessToken}`);
-  }
-
-  return fetchWithTimeout(`/api/github?path=${encodeURIComponent(target)}`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers
-  }, GITHUB_STAR_REQUEST_TIMEOUT_MS);
-}
-
-/** Bounds the browser-side proxy wait so an unauthenticated click can enter OAuth. */
-function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number): Promise<Response> {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
-  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
-    window.clearTimeout(timeout);
-  });
-}
-
-function openGitHubAuthWindow(): Window | null {
-  return window.open('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
-}
-
-function startGitHubOAuth(repository: GitHubRepository, authWindow: Window | null = null) {
+/** Opens OAuth directly from the click event so the browser cannot leave a blank shell while the request waits. */
+function openGitHubAuthWindow(repository: GitHubRepository): Window | null {
   const startUrl = createGitHubOAuthStartUrl(repository);
 
-  if (authWindow && !authWindow.closed) {
-    try {
-      authWindow.location.assign(startUrl.toString());
-      authWindow.focus();
-      return;
-    } catch {
-      try {
-        authWindow.close();
-      } catch {
-        // Continue to the same-tab fallback.
-      }
-    }
+  const authWindow = window.open(startUrl.toString(), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
+  if (authWindow) {
+    authWindow.focus();
+    return authWindow;
   }
 
+  startUrl.searchParams.delete('popup');
   window.location.assign(startUrl.toString());
+  return null;
 }
 
 function createGitHubOAuthStartUrl(repository: GitHubRepository) {
@@ -267,26 +202,23 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
   const startUrl = new URL('/api/github/oauth/start', window.location.origin);
   startUrl.searchParams.set('repo', repository.url);
   startUrl.searchParams.set('returnTo', returnTo);
+  startUrl.searchParams.set('popup', '1');
   return startUrl;
 }
 
-function readGitHubAccessToken(): string {
-  if (typeof window === 'undefined') {
-    return '';
+/** Reports a configuration or cancellation result to the opener without exposing OAuth data. */
+function notifyOAuthOpener(status: GitHubStarOAuthStatus): boolean {
+  if (!window.opener || window.opener === window || window.opener.closed) {
+    return false;
   }
 
   try {
-    for (const key of GITHUB_TOKEN_KEYS) {
-      const value = window.localStorage.getItem(key)?.trim() || '';
-      if (value && value.length <= 512 && !/[\u0000-\u001f\u007f]/.test(value)) {
-        return value;
-      }
-    }
+    window.opener.postMessage({ source: GITHUB_STAR_MESSAGE_SOURCE, status }, window.location.origin);
+    window.setTimeout(() => window.close(), 50);
+    return true;
   } catch {
-    return '';
+    return false;
   }
-
-  return '';
 }
 
 function GitHubGlyph() {
