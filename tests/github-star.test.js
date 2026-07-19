@@ -36,14 +36,11 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.match(starButton, /window\.open\('', GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
-    assert.match(starButton, /popup\.document\.open\(\)/);
-    assert.match(starButton, /popup\.document\.write/);
-    assert.match(starButton, /popup\.document\.close\(\)/);
-    assert.match(starButton, /正在连接 GitHub/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
-    assert.match(starButton, /fetchGitHubOAuthAuthorizationUrl/);
-    assert.match(starButton, /format', 'json'/);
-    assert.match(starButton, /authorizationUrl/);
+    assert.match(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
+    assert.match(starButton, /AbortController/);
+    assert.match(starButton, /authWindow\.location\.assign\(startUrl\.toString\(\)\)/);
+    assert.doesNotMatch(starButton, /popup\.document\.write/);
     assert.match(starButton, /watchOAuthPopup/);
     assert.match(starButton, /isGitHubStarOAuthMessage/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
@@ -76,8 +73,8 @@ describe('GitHub starring flow', () => {
 
     assert.match(starButton, /let usedLegacyToken = false/);
     assert.match(starButton, /usedLegacyToken = true/);
-    assert.match(starButton, /usedLegacyToken && response\.status >= 500/);
-    assert.match(starButton, /if \(usedLegacyToken\) \{\s*startGitHubOAuth\(repository, authWindow\)/);
+    assert.match(starButton, /response\.status >= 500/);
+    assert.match(starButton, /if \(authWindow \|\| usedLegacyToken\) \{\s*startGitHubOAuth\(repository, authWindow\)/);
     assert.match(githubApi, /const retryStarRequest = kind === 'star' && request\.method === 'PUT'/);
     assert.match(githubApi, /fetchGitHubRequest\(target, githubRequest, retryStarRequest\)/);
     assert.match(githubApi, /GitHub star proxy request failed after retry/);
