@@ -9,6 +9,8 @@ const TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 const GITHUB_API_ORIGIN = 'https://api.github.com';
 const MAX_BODY_LENGTH = 4096;
 const MAX_PROXY_BODY_LENGTH = 64 * 1024;
+const GITHUB_PROXY_REQUEST_TIMEOUT_MS = 15_000;
+const GITHUB_PROXY_RETRY_DELAY_MS = 150;
 const SUPPORTED_CONTENT_TYPES = ['application/json', 'application/x-www-form-urlencoded'];
 const OAUTH_TOKEN_FIELDS = ['client_id', 'code', 'redirect_uri', 'state', 'code_verifier'] as const;
 
@@ -233,7 +235,7 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       body,
       cache: 'no-store'
     };
-    const retryStarRequest = kind === 'star' && request.method === 'PUT';
+    const retryStarRequest = kind === 'star' && ['GET', 'PUT'].includes(request.method);
     let githubResponse = await fetchGitHubRequest(target, githubRequest, retryStarRequest);
 
     // A stale or revoked deployment token must never make public comments
@@ -283,22 +285,37 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
   }
 }
 
-/**
- * Sends a GitHub request and retries only idempotent Star PUTs after a network
- * rejection. A second failure is logged with route metadata but never includes
- * authorization material or the upstream response body.
- */
+/** 对 Star 查询和写入设置上游超时，并对可安全重试的瞬态错误重试一次。 */
 async function fetchGitHubRequest(target: URL, request: RequestInit, retryOnFailure: boolean): Promise<Response> {
+  const fetchOnce = () => fetch(target, {
+    ...request,
+    signal: AbortSignal.timeout(GITHUB_PROXY_REQUEST_TIMEOUT_MS)
+  });
+
   try {
-    return await fetch(target, request);
+    const response = await fetchOnce();
+    if (!retryOnFailure || !isRetryableGitHubStatus(response.status)) {
+      return response;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, GITHUB_PROXY_RETRY_DELAY_MS));
+    const retryResponse = await fetchOnce();
+    if (isRetryableGitHubStatus(retryResponse.status)) {
+      logGitHubRetryFailure(target, request, retryResponse.status);
+    }
+    return retryResponse;
   } catch (error) {
     if (!retryOnFailure) {
       throw error;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, GITHUB_PROXY_RETRY_DELAY_MS));
     try {
-      return await fetch(target, request);
+      const retryResponse = await fetchOnce();
+      if (isRetryableGitHubStatus(retryResponse.status)) {
+        logGitHubRetryFailure(target, request, retryResponse.status);
+      }
+      return retryResponse;
     } catch (retryError) {
       console.warn('GitHub star proxy request failed after retry.', {
         errorName: retryError instanceof Error ? retryError.name : 'unknown',
@@ -308,6 +325,18 @@ async function fetchGitHubRequest(target: URL, request: RequestInit, retryOnFail
       throw retryError;
     }
   }
+}
+
+function isRetryableGitHubStatus(status: number): boolean {
+  return [408, 500, 502, 503, 504].includes(status);
+}
+
+function logGitHubRetryFailure(target: URL, request: RequestInit, status: number): void {
+  console.warn('GitHub star proxy request remained unavailable after retry.', {
+    method: request.method || 'GET',
+    path: target.pathname,
+    status
+  });
 }
 
 function createPublicRepositoryFallback(target: URL): Record<string, unknown> | unknown[] | null {

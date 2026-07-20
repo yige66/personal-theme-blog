@@ -71,6 +71,10 @@ describe('GitHub starring flow', () => {
     assert.match(api, /GITHUB_STAR_OWNER/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
     assert.match(api, /Content-Length/);
+    assert.match(api, /GITHUB_PROXY_REQUEST_TIMEOUT_MS/);
+    assert.match(api, /AbortSignal\.timeout\(GITHUB_PROXY_REQUEST_TIMEOUT_MS\)/);
+    assert.match(api, /retryStarRequest = kind === 'star' && \['GET', 'PUT'\]/);
+    assert.match(api, /isRetryableGitHubStatus/);
   });
 
   it('does not mark a repository as starred before OAuth completes', async () => {
