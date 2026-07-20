@@ -15,8 +15,6 @@ type ProjectStarButtonProps = {
   repo: string;
 };
 
-const GITHUB_API_ORIGIN = 'https://api.github.com';
-
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
 }
@@ -45,27 +43,6 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
         : state === 'error'
           ? 'Star 失败，重试'
           : 'Star';
-
-  /** Confirms the authenticated user's real GitHub Star before changing the visual state. */
-  async function verifyStar() {
-    if (!repository) {
-      return;
-    }
-
-    setState('loading');
-    const target = `${GITHUB_API_ORIGIN}/user/starred/${owner}/${repositoryName}`;
-    try {
-      const response = await fetch(`/api/github?path=${encodeURIComponent(target)}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: { Accept: 'application/vnd.github+json' },
-        cache: 'no-store'
-      });
-      setState(response.status === 204 ? 'starred' : 'error');
-    } catch {
-      setState('error');
-    }
-  }
 
   function handleStar(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -101,7 +78,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 
     if (intent === 'success') {
-      void verifyStar();
+      setState('starred');
     } else if (intent === 'configuration') {
       setState('configuration');
     } else {

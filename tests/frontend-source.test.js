@@ -345,8 +345,10 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(starButton, /window\.open/);
     assert.match(starButton, /startGitHubOAuth\(repository\)/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
-    assert.match(starButton, /method: 'GET'/);
-    assert.match(starButton, /user\/starred/);
+    assert.doesNotMatch(starButton, /fetch\(/);
+    assert.doesNotMatch(starButton, /api\/github\?path=/);
+    assert.match(starButton, /intent === 'success'/);
+    assert.match(starButton, /setState\('starred'\)/);
     assert.match(starButton, /github_star/);
     assert.match(githubApi, /export async function PUT/);
     assert.match(githubApi, /isStarRequest/);
