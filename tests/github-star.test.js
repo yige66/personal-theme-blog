@@ -30,16 +30,14 @@ describe('GitHub starring flow', () => {
       readFile('components/SplashScreen.tsx', 'utf8')
     ]);
 
-    assert.doesNotMatch(starButton, /method: 'PUT'/);
-    assert.match(starButton, /method: 'GET'/);
-    assert.match(starButton, /credentials: 'include'/);
-    assert.match(starButton, /api\/github\?path=/);
+    assert.doesNotMatch(starButton, /fetch\(/);
+    assert.doesNotMatch(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.doesNotMatch(starButton, /window\.open/);
     assert.match(starButton, /startGitHubOAuth\(repository\)/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
-    assert.match(starButton, /function verifyStar/);
-    assert.match(starButton, /response\.status === 204/);
+    assert.match(starButton, /intent === 'success'/);
+    assert.match(starButton, /setState\('starred'\)/);
     assert.doesNotMatch(starButton, /searchParams\.set\('popup'/);
     assert.doesNotMatch(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
     assert.doesNotMatch(starButton, /AbortController/);
@@ -82,7 +80,11 @@ describe('GitHub starring flow', () => {
 
     assert.match(starButton, /setState\('loading'\)/);
     assert.match(starButton, /startGitHubOAuth\(repository\)/);
-    assert.match(starButton, /response\.status === 204 \? 'starred' : 'error'/);
+    assert.match(starButton, /intent === 'success'/);
+    assert.match(starButton, /setState\('starred'\)/);
+    assert.doesNotMatch(starButton, /response\.status === 204/);
+    assert.doesNotMatch(starButton, /api\/github\?path=/);
+    assert.doesNotMatch(starButton, /verifyStar/);
     assert.doesNotMatch(starButton, /notifyOAuthOpener/);
     assert.doesNotMatch(starButton, /readGitHubAccessToken/);
     assert.doesNotMatch(starButton, /sendStarRequest/);
