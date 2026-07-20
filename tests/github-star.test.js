@@ -36,17 +36,16 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /credentials: 'include'/);
     assert.match(starButton, /api\/github\?path=/);
     assert.match(starButton, /api\/github\/oauth\/start/);
-    assert.match(starButton, /window\.open\(startUrl\.toString\(\), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES\)/);
+    assert.doesNotMatch(starButton, /window\.open/);
+    assert.match(starButton, /startGitHubOAuth\(repository\)/);
     assert.match(starButton, /function createGitHubOAuthStartUrl/);
     assert.match(starButton, /function verifyStar/);
     assert.match(starButton, /response\.status === 204/);
-    assert.match(starButton, /searchParams\.set\('popup', '1'\)/);
+    assert.doesNotMatch(starButton, /searchParams\.set\('popup', '1'\)/);
     assert.doesNotMatch(starButton, /GITHUB_STAR_REQUEST_TIMEOUT_MS = 5000/);
     assert.doesNotMatch(starButton, /AbortController/);
     assert.doesNotMatch(starButton, /authWindow\.location\.assign\(startUrl\.toString\(\)\)/);
     assert.doesNotMatch(starButton, /popup\.document\.write/);
-    assert.match(starButton, /watchOAuthPopup/);
-    assert.match(starButton, /isGitHubStarOAuthMessage/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
     assert.doesNotMatch(starButton, /window\.location\.assign\(repositoryUrl\)/);
     assert.match(starButton, /github_star/);
@@ -60,11 +59,12 @@ describe('GitHub starring flow', () => {
     assert.match(layout, /window\.location\.pathname !== '\/'/);
     assert.match(layout, /xh-splash-seen\.xh-splash-bypass/);
     assert.match(oauthCallback, /credentials: 'include'/);
-    assert.match(oauthCallback, /postMessage/);
-    assert.match(oauthCallback, /window\.close/);
+    assert.doesNotMatch(oauthCallback, /postMessage/);
+    assert.doesNotMatch(oauthCallback, /window\.close/);
     assert.match(starMessage, /GITHUB_STAR_MESSAGE_SOURCE/);
     assert.match(splash, /pathname\.startsWith\('\/admin'\) \|\| pathname !== '\/'/);
     assert.match(api, /GITHUB_STAR_OWNER/);
+    assert.match(api, /isSafeGitHubClientId/);
     assert.match(api, /readCookie\(request\.headers\.get\('cookie'\), GITHUB_ACCESS_TOKEN_COOKIE\)/);
     assert.match(api, /Content-Length/);
   });
@@ -73,21 +73,22 @@ describe('GitHub starring flow', () => {
     const starButton = await readFile('components/projects/ProjectStarButton.tsx', 'utf8');
 
     assert.match(starButton, /setState\('loading'\)/);
-    assert.match(starButton, /openGitHubAuthWindow\(repository\)/);
+    assert.match(starButton, /startGitHubOAuth\(repository\)/);
     assert.match(starButton, /response\.status === 204 \? 'starred' : 'error'/);
-    assert.match(starButton, /notifyOAuthOpener\('error'\)/);
+    assert.doesNotMatch(starButton, /notifyOAuthOpener/);
     assert.doesNotMatch(starButton, /readGitHubAccessToken/);
     assert.doesNotMatch(starButton, /sendStarRequest/);
   });
 
   it('protects the OAuth exchange with state, PKCE, identity validation, and HttpOnly cookies', async () => {
-    const [start, exchange, oauth, env, docs, callback] = await Promise.all([
+    const [start, exchange, oauth, env, docs, callback, splash] = await Promise.all([
       readFile('app/api/github/oauth/start/route.ts', 'utf8'),
       readFile('app/api/github/oauth/exchange/route.ts', 'utf8'),
       readFile('lib/github-oauth.ts', 'utf8'),
       readFile('.env.example', 'utf8'),
       readFile('docs/github-comments.md', 'utf8'),
-      readFile('components/github/GitHubOAuthCallback.tsx', 'utf8')
+      readFile('components/github/GitHubOAuthCallback.tsx', 'utf8'),
+      readFile('components/SplashScreen.tsx', 'utf8')
     ]);
 
     assert.match(start, /scope', 'public_repo'/);
@@ -105,16 +106,28 @@ describe('GitHub starring flow', () => {
     assert.match(exchange, /GITHUB_STAR_ENDPOINT/);
     assert.match(exchange, /starGitHubRepository\(state\.owner, state\.repo, accessToken\)/);
     assert.match(exchange, /starApplied \? 'success' : 'error'/);
+    assert.match(exchange, /GITHUB_REQUEST_TIMEOUT_MS/);
+    assert.match(exchange, /AbortSignal\.timeout/);
+    assert.match(exchange, /verificationResponse\.status !== 204/);
     assert.match(exchange, /body: ''/);
+    assert.match(exchange, /'Content-Length': '0'/);
     assert.doesNotMatch(exchange, /access_token: accessToken/);
     assert.match(oauth, /timingSafeEqual/);
+    assert.match(oauth, /isSafeGitHubClientId/);
+    assert.match(oauth, /GITHUB_CLIENT_ID_PATTERN/);
+    assert.match(oauth, /A-Za-z0-9\._-/);
     assert.match(oauth, /GITHUB_OAUTH_STATE_MAX_AGE_SECONDS/);
     assert.match(env, /GITHUB_STAR_OWNER=yige66/);
     assert.match(env, /GITHUB_STAR_CALLBACK_URL=/);
     assert.match(docs, /public_repo/);
     assert.match(docs, /HttpOnly cookie/);
     assert.match(callback, /github-oauth-status/);
+    assert.match(callback, /GITHUB_OAUTH_EXCHANGE_TIMEOUT_MS/);
+    assert.match(callback, /signal: controller\.signal/);
+    assert.match(callback, /is-callback/);
     assert.match(callback, /setStatus\(\{ tone: 'error'/);
+    assert.match(splash, /useSearchParams/);
+    assert.match(splash, /hasOAuthCallback/);
     assert.doesNotMatch(callback, /visually-hidden/);
   });
 
@@ -131,6 +144,7 @@ describe('GitHub starring flow', () => {
     assert.match(css, /\.github-star-floating \{[\s\S]*?top: 96px;/);
     assert.match(css, /\.github-oauth-status \{/);
     assert.match(css, /\.github-oauth-status\.is-error/);
+    assert.match(css, /\.github-oauth-status\.is-callback/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-header-comment > \.gt-header-controls[\s\S]*grid-column: 1 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*margin-left: auto !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*position: relative !important/);

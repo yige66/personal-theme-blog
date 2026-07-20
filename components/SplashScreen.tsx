@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import type { BlogSite } from '@/lib/blog';
 import { startGlassCanvas, startRainCanvas, startRainRipple } from './splashEffects';
 
@@ -47,6 +47,7 @@ const glassScratches = Array.from({ length: 18 }, (_item, index) => ({
 
 export function SplashScreen({ site }: SplashScreenProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const rainRef = useRef<HTMLDivElement | null>(null);
   const waterSlotRef = useRef<HTMLDivElement | null>(null);
@@ -63,7 +64,11 @@ export function SplashScreen({ site }: SplashScreenProps) {
   const entryOriginal = entry.original;
   const entryBeyond = entry.beyond;
   // The entry experience belongs to the homepage; direct subpage visits must stay interactive.
-  const shouldSkipSplash = pathname.startsWith('/admin') || pathname !== '/';
+  const hasOAuthCallback = Boolean(
+    (searchParams.get('code') && searchParams.get('state'))
+      || searchParams.get('error')
+  );
+  const shouldSkipSplash = hasOAuthCallback || pathname.startsWith('/admin') || pathname !== '/';
   const entryStyle = {
     '--game-hero-image': `url("${site.heroImage}")`
   } as CSSProperties;

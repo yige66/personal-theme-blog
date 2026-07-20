@@ -3,7 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
-import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getPrivateBlobCredentialOptions, isBlobStorageConfigured, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
+import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getPrivateBlobCredentialOptions, isBlobStorageConfigured, isBlobStorageEnabled, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -11,6 +11,7 @@ const originalPublicBlobToken = process.env.BLOB_PUBLIC_READ_WRITE_TOKEN;
 const originalPublicStoreId = process.env.BLOB_PUBLIC_STORE_ID;
 const originalPrivateStoreId = process.env.BLOB_STORE_ID;
 const originalOidcToken = process.env.VERCEL_OIDC_TOKEN;
+const originalBlogStorageMode = process.env.BLOG_STORAGE_MODE;
 
 afterEach(() => {
   restoreEnv('NODE_ENV', originalNodeEnv);
@@ -19,6 +20,7 @@ afterEach(() => {
   restoreEnv('BLOB_PUBLIC_STORE_ID', originalPublicStoreId);
   restoreEnv('BLOB_STORE_ID', originalPrivateStoreId);
   restoreEnv('VERCEL_OIDC_TOKEN', originalOidcToken);
+  restoreEnv('BLOG_STORAGE_MODE', originalBlogStorageMode);
 });
 
 describe('production admin storage policy', () => {
@@ -145,6 +147,18 @@ describe('production admin storage policy', () => {
 
     assert.doesNotThrow(() => assertBlogStorageWritable());
     assert.doesNotThrow(() => assertMediaStorageWritable());
+  });
+
+  it('keeps local development on the filesystem when remote credentials are present', () => {
+    process.env.NODE_ENV = 'development';
+    process.env.BLOB_READ_WRITE_TOKEN = 'stale-local-token';
+    delete process.env.BLOG_STORAGE_MODE;
+
+    assert.equal(isBlobStorageConfigured(), true);
+    assert.equal(isBlobStorageEnabled(), false);
+
+    process.env.BLOG_STORAGE_MODE = 'blob';
+    assert.equal(isBlobStorageEnabled(), true);
   });
 });
 

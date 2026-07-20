@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GITHUB_ACCESS_TOKEN_COOKIE, readCookie } from '@/lib/github-oauth';
+import { GITHUB_ACCESS_TOKEN_COOKIE, isSafeGitHubClientId, readCookie } from '@/lib/github-oauth';
 import { BLOG_REPOSITORY_OWNER } from '@/lib/github-repository';
 
 export const dynamic = 'force-dynamic';
@@ -406,7 +406,7 @@ function readAllowedClientIds(): Set<string> {
     readRuntimeEnv('NEXT_PUBLIC_GITHUB_CLIENT_ID')
   ];
 
-  return new Set(values.filter((value) => /^[A-Za-z0-9_-]{8,128}$/.test(value)));
+  return new Set(values.filter(isSafeGitHubClientId));
 }
 
 function normalizeRedirectUri(value: string | undefined): URL | null {

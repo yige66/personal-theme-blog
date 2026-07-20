@@ -12,6 +12,7 @@ import { createSiteMetadata } from '@/lib/seo';
 import './globals.css';
 import './home-overrides.css';
 import './entry-overrides.css';
+import './project-world.css';
 
 export const dynamic = 'force-dynamic';
 

@@ -27,6 +27,19 @@ export function isBlobStorageConfigured(): boolean {
   return Boolean(getPrivateBlobCredentialOptions());
 }
 
+/**
+ * Selects the private runtime-data backend. Production uses Blob when credentials
+ * are present; local development stays on repository files unless explicitly
+ * opted into remote Blob storage with BLOG_STORAGE_MODE=blob.
+ */
+export function isBlobStorageEnabled(): boolean {
+  if (!isBlobStorageConfigured()) {
+    return false;
+  }
+
+  return process.env.NODE_ENV === 'production' || process.env.BLOG_STORAGE_MODE?.trim().toLowerCase() === 'blob';
+}
+
 export function assertBlogStorageWritable(): void {
   if (process.env.NODE_ENV === 'production' && !isBlobStorageConfigured()) {
     throw new Error('BLOB_READ_WRITE_TOKEN or VERCEL_OIDC_TOKEN with BLOB_STORE_ID is required for production blog writes.');
@@ -62,6 +75,10 @@ export async function readPrivateBlob(pathname: string): Promise<string | null> 
 }
 
 export async function readPrivateBlobSnapshot(pathname: string): Promise<{ content: string; etag: string } | null> {
+  if (!isBlobStorageEnabled()) {
+    return null;
+  }
+
   const credentialOptions = getPrivateBlobCredentialOptions();
   if (!credentialOptions) {
     return null;
@@ -162,6 +179,9 @@ export async function savePrivateBlob(pathname: string, content: string): Promis
   if (!credentialOptions) {
     throw new Error(privateBlobCredentialError);
   }
+  if (!isBlobStorageEnabled()) {
+    throw new Error('Private Blob storage is disabled during local development. Set BLOG_STORAGE_MODE=blob to enable it.');
+  }
 
   await put(pathname, content, {
     access: 'private',
@@ -177,6 +197,9 @@ export async function saveBlogDataBlob(json: string, expectedEtag: string | null
   const credentialOptions = getPrivateBlobCredentialOptions();
   if (!credentialOptions) {
     throw new Error(privateBlobCredentialError);
+  }
+  if (!isBlobStorageEnabled()) {
+    throw new Error('Private Blob storage is disabled during local development. Set BLOG_STORAGE_MODE=blob to enable it.');
   }
 
   const previous = await readBlogDataBlobSnapshot();

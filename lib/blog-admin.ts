@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { BlogData } from '@/lib/blog';
-import { assertBlogStorageWritable, isBlobStorageConfigured, saveBlogDataBlob } from './blog-storage.ts';
+import { normalizeBlogData, type BlogData } from './blog.ts';
+import { assertBlogStorageWritable, isBlobStorageEnabled, saveBlogDataBlob } from './blog-storage.ts';
 
 type ValidationSuccess = {
   ok: true;
@@ -19,6 +19,16 @@ export type BlogDataValidationResult = ValidationSuccess | ValidationFailure;
 
 const dataFile = path.join(process.cwd(), 'data', 'blog.json');
 const backupDirectory = path.join(process.cwd(), 'data', 'backups');
+
+/** Reads the file-backed blog data after a local save for exact persistence verification. */
+export async function readLocalBlogData(): Promise<BlogData> {
+  if (!existsSync(dataFile)) {
+    throw new Error('Local blog data file does not exist after saving.');
+  }
+
+  const raw = await readFile(dataFile, 'utf8');
+  return normalizeBlogData(JSON.parse(raw) as Partial<BlogData>);
+}
 
 export function createBlogDataRevision(data: unknown): string {
   return createHash('sha256').update(JSON.stringify(data)).digest('hex');
@@ -155,7 +165,7 @@ export async function saveBlogData(data: BlogData, expectedEtag: string | null =
 
   const json = `${JSON.stringify(validation.data, null, 2)}\n`;
 
-  if (isBlobStorageConfigured()) {
+  if (isBlobStorageEnabled()) {
     const remoteResult = await saveBlogDataBlob(json, expectedEtag);
     return {
       backupPath: remoteResult.backupPath,

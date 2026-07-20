@@ -103,6 +103,7 @@ describe('real music playback', () => {
       ['requested-song-for-you', 'song for you', '神田沙也加'],
       ['requested-one-last-kiss', 'One Last Kiss', '宇多田ヒカル'],
       ['requested-more-than-words', 'more than words', '羊文学'],
+      ['requested-taiyo', '太陽', 'ヨルシカ'],
       ['requested-amanojaku', '天ノ弱 (うぃんぐPiano Ver.)', 'Akie秋绘'],
       ['requested-tori-no-uta', '鳥の詩', 'Lia & VISUAL ARTS / Key'],
       ['requested-kotozute', '言伝', 'Bialystocks'],
@@ -130,6 +131,7 @@ describe('real music playback', () => {
       'requested-song-for-you',
       'requested-one-last-kiss',
       'requested-more-than-words',
+      'requested-taiyo',
       'requested-amanojaku',
       'requested-tori-no-uta',
       'requested-kotozute',
@@ -153,6 +155,7 @@ describe('real music playback', () => {
     const protectedDownloadTrackIds = new Set();
 
     assert.deepEqual(data.site.cloudMusicIds, [], 'cloud music ids should stay empty when the requested song is managed as a local admin track');
+    assert.equal(data.site.music[2]?.id, 'requested-taiyo', 'Taiyo should be the third track in the playlist');
     assert.ok(!trackNames.some((name) => /孤勇者|STAY|我记得|The Kid LAROI|Justin Bieber|陈奕迅|赵雷/.test(name)), 'old remote placeholder songs should not be part of the configured playlist');
 
     for (const [id, title, artist] of requestedTracks) {
@@ -168,6 +171,9 @@ describe('real music playback', () => {
       assert.equal(track.source, 'specified-pending');
       assert.equal(track.provider, 'manual');
       assert.match(track.cover, /^(https:\/\/|\/assets\/)/);
+      if (id === 'requested-taiyo') {
+        assert.notEqual(track.cover, '/assets/img/hero-mountain.svg', 'Taiyo should use its album artwork instead of the generic hero image');
+      }
       if (track.cover.startsWith('/assets/')) {
         await access(path.join('public', track.cover));
       }

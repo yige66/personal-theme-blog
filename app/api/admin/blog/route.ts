@@ -4,9 +4,9 @@ import { BlobPreconditionFailedError } from '@vercel/blob';
 import { isAdminAuthorized } from '@/lib/admin-auth';
 import { buildAdminManagementOverview } from '@/lib/admin-management';
 import { getBlogData, getBlogStats, getBlogStatsFromData, normalizeBlogData } from '@/lib/blog';
-import { createBlogDataRevision, saveBlogData, validateBlogDataDraft } from '@/lib/blog-admin';
+import { createBlogDataRevision, readLocalBlogData, saveBlogData, validateBlogDataDraft } from '@/lib/blog-admin';
 import { consumeAdminRateLimit } from '@/lib/admin-rate-limit';
-import { readBlogDataBlobSnapshot } from '@/lib/blog-storage';
+import { isBlobStorageEnabled, readBlogDataBlobSnapshot } from '@/lib/blog-storage';
 import { getSiteUrl } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -73,10 +73,15 @@ export async function POST(request: Request) {
     const normalizedData = normalizeBlogData(validation.data);
     const result = await saveBlogData(normalizedData, currentSnapshot?.etag ?? null);
     const persistedSnapshot = await readBlogDataBlobSnapshot();
-    if (!persistedSnapshot) {
-      throw new Error('Persisted blog data could not be read after saving.');
+    let persistedData;
+    if (isBlobStorageEnabled()) {
+      if (!persistedSnapshot) {
+        throw new Error('Persisted blog data could not be read from Blob after saving.');
+      }
+      persistedData = normalizeBlogData(JSON.parse(persistedSnapshot.content));
+    } else {
+      persistedData = await readLocalBlogData();
     }
-    const persistedData = normalizeBlogData(JSON.parse(persistedSnapshot.content));
     const revision = createBlogDataRevision(normalizedData);
     if (createBlogDataRevision(persistedData) !== revision) {
       throw new Error('Persisted blog data did not match the submitted revision.');

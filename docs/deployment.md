@@ -16,6 +16,11 @@ authenticated administrator can publish without committing JSON for every edit:
 `data/blog.json` remains the development fallback and the initial seed for a new Blob
 store. Production admin writes never fall back to Vercel's temporary filesystem.
 
+Local development uses `data/blog.json` by default, even when a stale or unavailable
+private Blob token is present in `.env.local`. Set `BLOG_STORAGE_MODE=blob` only when
+you intentionally want local `/admin` saves to target the configured private Blob
+store.
+
 ## Vercel settings
 
 - Framework Preset: `Next.js`

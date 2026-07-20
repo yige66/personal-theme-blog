@@ -4,7 +4,7 @@ import path from 'node:path';
 import {
   aiConfigBlobPath,
   assertBlogStorageWritable,
-  isBlobStorageConfigured,
+  isBlobStorageEnabled,
   readPrivateBlob,
   savePrivateBlob
 } from './blog-storage.ts';
@@ -120,7 +120,7 @@ export function normalizeAiConfigInput(input: unknown): SaveAiConfigInput | null
 }
 
 async function readStoredAiConfig(): Promise<StoredAiConfig> {
-  if (isBlobStorageConfigured()) {
+  if (isBlobStorageEnabled()) {
     try {
       return parseStoredAiConfig(await readPrivateBlob(aiConfigBlobPath));
     } catch {
@@ -146,7 +146,7 @@ async function writeStoredAiConfig(config: StoredAiConfig): Promise<void> {
   assertBlogStorageWritable();
   const json = `${JSON.stringify(config, null, 2)}\n`;
 
-  if (isBlobStorageConfigured()) {
+  if (isBlobStorageEnabled()) {
     await savePrivateBlob(aiConfigBlobPath, json);
     return;
   }
