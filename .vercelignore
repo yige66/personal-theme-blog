@@ -5,7 +5,11 @@ node_modules/
 .codegraph/
 .playwright-mcp/
 .codex*/
+.codex-staging/
+.codex-worktrees/
 .agents/
+output/
+public/assets/audio/yorushika-taiyo.mp4
 *.log
 /*.png
 /tsconfig.tsbuildinfo
