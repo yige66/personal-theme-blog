@@ -7,6 +7,8 @@ export const GITHUB_OAUTH_VERIFIER_COOKIE = 'personal-theme-blog-github-oauth-ve
 export const GITHUB_OAUTH_STATE_MAX_AGE_SECONDS = 10 * 60;
 export const GITHUB_ACCESS_TOKEN_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
+const GITHUB_CLIENT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{7,127}$/;
+
 export type GitHubOAuthStatePayload = {
   issuedAt: number;
   nonce: string;
@@ -17,7 +19,12 @@ export type GitHubOAuthStatePayload = {
 
 export function readGitHubOAuthClientId(): string {
   const value = readRuntimeEnv('NEXT_PUBLIC_GITALK_CLIENT_ID', 'GITALK_CLIENT_ID', 'GITHUB_CLIENT_ID', 'NEXT_PUBLIC_GITHUB_CLIENT_ID');
-  return /^[A-Za-z0-9_-]{8,128}$/.test(value) ? value : '';
+  return isSafeGitHubClientId(value) ? value : '';
+}
+
+/** Accepts GitHub OAuth App IDs, including the dotted `Iv1.` format. */
+export function isSafeGitHubClientId(value: string): boolean {
+  return GITHUB_CLIENT_ID_PATTERN.test(value);
 }
 
 export function readGitHubOAuthClientSecret(): string {

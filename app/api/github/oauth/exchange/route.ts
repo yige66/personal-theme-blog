@@ -4,6 +4,7 @@ import { appendGitHubStarIntent, getGitHubOAuthRedirectUri, GITHUB_ACCESS_TOKEN_
 const GITHUB_TOKEN_ENDPOINT = 'https://github.com/login/oauth/access_token';
 const GITHUB_USER_ENDPOINT = 'https://api.github.com/user';
 const GITHUB_STAR_ENDPOINT = 'https://api.github.com/user/starred';
+const GITHUB_REQUEST_TIMEOUT_MS = 15_000;
 const MAX_BODY_LENGTH = 4096;
 
 export const dynamic = 'force-dynamic';
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'GitHub OAuth callback is not configured.' }, { status: 503 });
     }
 
-    const tokenResponse = await fetch(GITHUB_TOKEN_ENDPOINT, {
+    const tokenResponse = await fetchGitHub(GITHUB_TOKEN_ENDPOINT, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'GitHub OAuth token exchange failed.' }, { status: 502 });
     }
 
-    const identityResponse = await fetch(GITHUB_USER_ENDPOINT, {
+    const identityResponse = await fetchGitHub(GITHUB_USER_ENDPOINT, {
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${accessToken}`,
@@ -119,11 +120,13 @@ export async function POST(request: Request) {
  */
 async function starGitHubRepository(owner: string, repo: string, accessToken: string): Promise<boolean> {
   try {
-    const response = await fetch(`${GITHUB_STAR_ENDPOINT}/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {
+    const target = `${GITHUB_STAR_ENDPOINT}/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+    const response = await fetchGitHub(target, {
       method: 'PUT',
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${accessToken}`,
+        'Content-Length': '0',
         'User-Agent': 'personal-theme-blog',
         'X-GitHub-Api-Version': '2022-11-28'
       },
@@ -131,10 +134,43 @@ async function starGitHubRepository(owner: string, repo: string, accessToken: st
       cache: 'no-store'
     });
 
-    return response.ok;
-  } catch {
+    if (!response.ok) {
+      console.warn('GitHub Star request was rejected.', { owner, repo, status: response.status });
+      return false;
+    }
+
+    const verificationResponse = await fetchGitHub(target, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${accessToken}`,
+        'User-Agent': 'personal-theme-blog',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      cache: 'no-store'
+    });
+    if (verificationResponse.status !== 204) {
+      console.warn('GitHub Star verification did not return 204.', { owner, repo, status: verificationResponse.status });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.warn('GitHub Star request failed.', {
+      owner,
+      repo,
+      errorName: error instanceof Error ? error.name : 'unknown'
+    });
     return false;
   }
+}
+
+/** Bounds GitHub calls so an upstream stall cannot leave the OAuth callback pending forever. */
+async function fetchGitHub(input: string, init: RequestInit): Promise<Response> {
+  return fetch(input, {
+    ...init,
+    signal: AbortSignal.timeout(GITHUB_REQUEST_TIMEOUT_MS)
+  });
 }
 
 function parseExchangePayload(rawBody: string): { code: string; state: string } | null {

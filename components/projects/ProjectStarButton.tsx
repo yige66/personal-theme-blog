@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { parseGitHubRepository, type GitHubRepository } from '@/lib/github-repository';
-import { GITHUB_STAR_MESSAGE_SOURCE, isGitHubStarOAuthMessage, type GitHubStarOAuthStatus } from '@/lib/github-star';
 
 type StarState = 'idle' | 'loading' | 'starred' | 'error' | 'configuration';
 
@@ -17,8 +16,6 @@ type ProjectStarButtonProps = {
 };
 
 const GITHUB_API_ORIGIN = 'https://api.github.com';
-const GITHUB_STAR_POPUP_NAME = 'github-star-auth';
-const GITHUB_STAR_POPUP_FEATURES = 'popup=yes,width=560,height=760,resizable=yes,scrollbars=yes';
 
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
@@ -48,38 +45,6 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
         : state === 'error'
           ? 'Star 失败，重试'
           : 'Star';
-  const oauthWindowRef = useRef<Window | null>(null);
-  const oauthPollRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!owner || !repositoryName) {
-      return undefined;
-    }
-
-    const handleOAuthMessage = (event: MessageEvent<unknown>) => {
-      const popup = oauthWindowRef.current;
-      if (event.origin !== window.location.origin || !popup || event.source !== popup) {
-        return;
-      }
-
-      if (!isGitHubStarOAuthMessage(event.data)) {
-        return;
-      }
-
-      stopOAuthPopup(false);
-      if (event.data.status === 'success') {
-        void verifyStar();
-      } else {
-        setState('error');
-      }
-    };
-
-    window.addEventListener('message', handleOAuthMessage);
-    return () => {
-      window.removeEventListener('message', handleOAuthMessage);
-      stopOAuthPopup(true);
-    };
-  }, [owner, repositoryName]);
 
   /** Confirms the authenticated user's real GitHub Star before changing the visual state. */
   async function verifyStar() {
@@ -93,7 +58,8 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       const response = await fetch(`/api/github?path=${encodeURIComponent(target)}`, {
         method: 'GET',
         credentials: 'include',
-        headers: { Accept: 'application/vnd.github+json' }
+        headers: { Accept: 'application/vnd.github+json' },
+        cache: 'no-store'
       });
       setState(response.status === 204 ? 'starred' : 'error');
     } catch {
@@ -114,10 +80,7 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     }
 
     setState('loading');
-    const authWindow = openGitHubAuthWindow(repository);
-    if (authWindow) {
-      watchOAuthPopup(authWindow);
-    }
+    startGitHubOAuth(repository);
   }
 
   useEffect(() => {
@@ -141,12 +104,10 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       void verifyStar();
     } else if (intent === 'configuration') {
       setState('configuration');
-      notifyOAuthOpener('error');
     } else {
       setState('error');
-      notifyOAuthOpener('error');
     }
-  }, [owner, repositoryName, repositoryUrl]);
+  }, [owner, repository, repositoryName, repositoryUrl]);
 
   if (!repository) {
     return null;
@@ -159,8 +120,8 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       onClick={handleStar}
       disabled={isLoading || isStarred}
       aria-busy={isLoading}
-      aria-label={isLoading ? `正在打开 GitHub 授权窗口：给 ${repositoryName} 点 Star` : isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
-      title={isLoading ? '正在打开 GitHub 授权窗口' : isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
+      aria-label={isLoading ? `正在打开 GitHub 授权页面：给 ${repositoryName} 点 Star` : isStarred ? `已给 ${repositoryName} 点 Star` : `给 ${repositoryName} 点 Star`}
+      title={isLoading ? '正在打开 GitHub 授权页面' : isStarred ? '已 Star' : '给 GitHub 项目点 Star'}
       data-github-star={repositoryUrl}
       data-github-star-state={state}
     >
@@ -169,54 +130,12 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       <span aria-live="polite">{label}</span>
     </button>
   );
-
-  function watchOAuthPopup(popup: Window) {
-    stopOAuthPopup(true);
-    oauthWindowRef.current = popup;
-    const poll = window.setInterval(() => {
-      if (!popup.closed) {
-        return;
-      }
-
-      window.clearInterval(poll);
-      if (oauthPollRef.current === poll) {
-        oauthPollRef.current = null;
-      }
-      if (oauthWindowRef.current === popup) {
-        oauthWindowRef.current = null;
-        setState('error');
-      }
-    }, 350);
-    oauthPollRef.current = poll;
-  }
-
-  function stopOAuthPopup(close: boolean) {
-    if (oauthPollRef.current !== null) {
-      window.clearInterval(oauthPollRef.current);
-      oauthPollRef.current = null;
-    }
-
-    const popup = oauthWindowRef.current;
-    oauthWindowRef.current = null;
-    if (close && popup && !popup.closed) {
-      popup.close();
-    }
-  }
 }
 
-/** Opens OAuth directly from the click event so the browser cannot leave a blank shell while the request waits. */
-function openGitHubAuthWindow(repository: GitHubRepository): Window | null {
+/** Navigates in the current tab so GitHub OAuth can complete without popup blockers or blank shells. */
+function startGitHubOAuth(repository: GitHubRepository) {
   const startUrl = createGitHubOAuthStartUrl(repository);
-
-  const authWindow = window.open(startUrl.toString(), GITHUB_STAR_POPUP_NAME, GITHUB_STAR_POPUP_FEATURES);
-  if (authWindow) {
-    authWindow.focus();
-    return authWindow;
-  }
-
-  startUrl.searchParams.delete('popup');
   window.location.assign(startUrl.toString());
-  return null;
 }
 
 function createGitHubOAuthStartUrl(repository: GitHubRepository) {
@@ -227,23 +146,7 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
   const startUrl = new URL('/api/github/oauth/start', window.location.origin);
   startUrl.searchParams.set('repo', repository.url);
   startUrl.searchParams.set('returnTo', returnTo);
-  startUrl.searchParams.set('popup', '1');
   return startUrl;
-}
-
-/** Reports a configuration or cancellation result to the opener without exposing OAuth data. */
-function notifyOAuthOpener(status: GitHubStarOAuthStatus): boolean {
-  if (!window.opener || window.opener === window || window.opener.closed) {
-    return false;
-  }
-
-  try {
-    window.opener.postMessage({ source: GITHUB_STAR_MESSAGE_SOURCE, status }, window.location.origin);
-    window.setTimeout(() => window.close(), 50);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function GitHubGlyph() {
