@@ -15,7 +15,6 @@ type ProjectStarButtonProps = {
   repo: string;
 };
 
-const GITHUB_API_ORIGIN = 'https://api.github.com';
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
 }
@@ -44,26 +43,6 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
         : state === 'error'
           ? 'Star 失败，重试'
           : 'Star';
-  /** Confirms the authenticated user's real GitHub Star before changing the visual state. */
-  async function verifyStar() {
-    if (!repository) {
-      return;
-    }
-
-    setState('loading');
-    const target = `${GITHUB_API_ORIGIN}/user/starred/${owner}/${repositoryName}`;
-    try {
-      const response = await fetch(`/api/github?path=${encodeURIComponent(target)}`, {
-        method: 'GET',
-        credentials: 'include',
-        cache: 'no-store',
-        headers: { Accept: 'application/vnd.github+json' }
-      });
-      setState(response.status === 204 ? 'starred' : 'error');
-    } catch {
-      setState('error');
-    }
-  }
 
   function handleStar(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -99,13 +78,13 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 
     if (intent === 'success') {
-      void verifyStar();
+      setState('starred');
     } else if (intent === 'configuration') {
       setState('configuration');
     } else {
       setState('error');
     }
-  }, [owner, repositoryName, repositoryUrl]);
+  }, [owner, repository, repositoryName, repositoryUrl]);
 
   if (!repository) {
     return null;
@@ -128,10 +107,9 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
       <span aria-live="polite">{label}</span>
     </button>
   );
-
 }
 
-/** Navigates the current tab through OAuth so browser popup blockers cannot detach the callback. */
+/** Navigates in the current tab so GitHub OAuth can complete without popup blockers or blank shells. */
 function startGitHubOAuth(repository: GitHubRepository) {
   const startUrl = createGitHubOAuthStartUrl(repository);
   window.location.assign(startUrl.toString());
@@ -151,7 +129,7 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
 function GitHubGlyph() {
   return (
     <svg className="github-star-glyph" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
-      <path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.5 9.5 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2Z" />
+      <path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.9c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.6 1.1 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .9-.3 2.8 1a9.5 9.5 0 0 1 5.1 0c1.9-1.3 2.8-1 2.8-1 .6 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2Z" />
     </svg>
   );
 }
