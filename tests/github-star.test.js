@@ -30,8 +30,11 @@ describe('GitHub starring flow', () => {
       readFile('components/SplashScreen.tsx', 'utf8')
     ]);
 
-    assert.doesNotMatch(starButton, /fetch\(/);
-    assert.doesNotMatch(starButton, /api\/github\?path=/);
+    assert.match(starButton, /fetch\(/);
+    assert.match(starButton, /STARRED_REPOSITORIES_ENDPOINT/);
+    assert.match(starButton, /loadStarredRepositories/);
+    assert.match(starButton, /credentials: 'include'/);
+    assert.match(starButton, /markRepositoryAsStarred/);
     assert.match(starButton, /api\/github\/oauth\/start/);
     assert.doesNotMatch(starButton, /window\.open/);
     assert.match(starButton, /startGitHubOAuth\(repository\)/);
@@ -72,8 +75,29 @@ describe('GitHub starring flow', () => {
     assert.match(api, /Content-Length/);
     assert.match(api, /GITHUB_PROXY_REQUEST_TIMEOUT_MS/);
     assert.match(api, /AbortSignal\.timeout\(GITHUB_PROXY_REQUEST_TIMEOUT_MS\)/);
-    assert.match(api, /retryStarRequest = kind === 'star' && \['GET', 'PUT'\]/);
+    assert.match(api, /isStarredCollectionRequest/);
+    assert.match(api, /kind === 'starred'/);
+    assert.match(api, /retryStarRequest = \(kind === 'star' \|\| kind === 'starred'\)/);
     assert.match(api, /isRetryableGitHubStatus/);
+  });
+
+  it('restores the catalog view and the previously starred repositories after OAuth', async () => {
+    const [projectsPage, showcase, starButton] = await Promise.all([
+      readFile('app/projects/page.tsx', 'utf8'),
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
+      readFile('components/projects/ProjectStarButton.tsx', 'utf8')
+    ]);
+
+    assert.match(projectsPage, /searchParams/);
+    assert.match(projectsPage, /initialViewMode/);
+    assert.match(projectsPage, /projects_focus/);
+    assert.match(showcase, /initialViewMode = 'game'/);
+    assert.match(showcase, /focusRepo/);
+    assert.match(showcase, /scrollIntoView/);
+    assert.match(showcase, /data-project-repo/);
+    assert.match(starButton, /optimisticStarredRepositories/);
+    assert.match(starButton, /subscribeToStarStatus/);
+    assert.match(starButton, /user\/starred/);
   });
 
   it('does not mark a repository as starred before OAuth completes', async () => {
@@ -84,7 +108,6 @@ describe('GitHub starring flow', () => {
     assert.match(starButton, /intent === 'success'/);
     assert.match(starButton, /setState\('starred'\)/);
     assert.doesNotMatch(starButton, /response\.status === 204/);
-    assert.doesNotMatch(starButton, /api\/github\?path=/);
     assert.doesNotMatch(starButton, /verifyStar/);
     assert.doesNotMatch(starButton, /notifyOAuthOpener/);
     assert.doesNotMatch(starButton, /readGitHubAccessToken/);

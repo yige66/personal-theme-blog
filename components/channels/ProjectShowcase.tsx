@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogProject, PageContent } from '@/lib/blog';
+import { parseGitHubRepository } from '@/lib/github-repository';
 
 /**
  * 保留原项目目录作为主结构，并在宝箱交互完成后切换到目录视图。
@@ -36,8 +37,7 @@ const projectVisualIcons: ProjectVisualIcon[] = ['sabres', 'lantern', 'flower', 
 const journeyStart: Point = { x: 12.5, y: 89 };
 const chestPoint: Point = { x: 74, y: 41.5 };
 const heroStopPoint: Point = { x: 67.6, y: 47.5 };
-const journeyDuration = 1400;
-const chestOpeningDuration = 400;
+const chestOpeningDuration = 1320;
 const journeyPathD = 'M12.5 89 C18 84.5 25 73.5 34 64.5 C40 60.2 47 56.6 54 54.5 C59 52.3 64 49.2 67.6 47.5';
 const journeySegments: Array<[Point, Point, Point, Point]> = [
   [journeyStart, { x: 18, y: 84.5 }, { x: 25, y: 73.5 }, { x: 34, y: 64.5 }],
@@ -169,6 +169,7 @@ function setProjectsViewInUrl(view: ViewMode) {
     url.searchParams.set('projects_view', 'catalog');
   } else {
     url.searchParams.delete('projects_view');
+    url.searchParams.delete('projects_focus');
   }
   window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 }
@@ -231,24 +232,23 @@ function sampleJourney(progress: number): Point {
 function AdventurerSprite({ phase }: { phase: WorldPhase }) {
   const frames = phase === 'walking'
       ? [
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-run-a-v2.png',
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-run-b-v2.png'
+        '/assets/projects/project-rpg-jiangnan-pixel-adventurer-walk-a-tight-v12.png',
+        '/assets/projects/project-rpg-jiangnan-pixel-adventurer-walk-b-tight-v12.png'
       ]
       : phase === 'opening'
         ? [
-          '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-open-a-v2.png',
-          '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-open-b-v2.png'
+          '/assets/projects/project-rpg-jiangnan-pixel-adventurer-interact-a-tight-v12.png',
+          '/assets/projects/project-rpg-jiangnan-pixel-adventurer-interact-b-tight-v12.png'
         ]
       : phase === 'opened'
-        ? ['/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-open-b-v2.png']
+        ? ['/assets/projects/project-rpg-jiangnan-pixel-adventurer-interact-b-tight-v12.png']
       : [
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-idle-a-v2.png',
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-idle-b-v2.png'
+        '/assets/projects/project-rpg-jiangnan-pixel-adventurer-idle-a-tight-v12.png',
+        '/assets/projects/project-rpg-jiangnan-pixel-adventurer-idle-b-tight-v12.png'
       ];
 
-  const animationClass = phase === 'walking' ? ' is-running' : '';
   return (
-    <span className={`project-game-adventurer is-${phase}${animationClass}`} aria-hidden="true">
+    <span className={`project-game-adventurer is-${phase}`} aria-hidden="true">
       {frames.map((src, index) => <img key={src} className={`project-game-adventurer-frame frame-${index}`} src={src} alt="" draggable={false} />)}
     </span>
   );
@@ -279,9 +279,10 @@ type ProjectShowcaseProps = {
   projects: BlogProject[];
   source?: ProjectSourceInfo;
   initialViewMode?: ViewMode;
+  focusRepo?: string;
 };
 
-export function ProjectShowcase({ page, projects, initialViewMode = 'game' }: ProjectShowcaseProps) {
+export function ProjectShowcase({ page, projects, initialViewMode = 'game', focusRepo }: ProjectShowcaseProps) {
   const [query, setQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const [worldPhase, setWorldPhase] = useState<WorldPhase>(initialViewMode === 'catalog' ? 'opened' : 'idle');
@@ -296,6 +297,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game' }: Pr
   const catalogViewRef = useRef<HTMLDivElement | null>(null);
   const catalogChestRef = useRef<HTMLButtonElement | null>(null);
   const projectCardRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const focusHandledRef = useRef(false);
   const normalizedQuery = query.trim().toLowerCase();
   const filteredProjects = useMemo(
     () => projects.filter((project) => projectMatchesQuery(project, normalizedQuery)),
@@ -313,12 +315,43 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game' }: Pr
   }, []);
 
   useEffect(() => {
+    if (viewMode !== 'catalog' || focusHandledRef.current || !focusRepo) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const normalizedFocusRepo = focusRepo?.toLowerCase();
+      const focusProject = normalizedFocusRepo
+        ? filteredProjects.find((project) => {
+          const repository = parseGitHubRepository(project.repo);
+          return repository && `${repository.owner}/${repository.repo}`.toLowerCase() === normalizedFocusRepo;
+        })
+        : undefined;
+
+      if (normalizedFocusRepo && !focusProject) {
+        return;
+      }
+
+      focusHandledRef.current = true;
+      if (focusProject) {
+        projectCardRefs.current.get(focusProject.id)?.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete('projects_focus');
+      window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [filteredProjects, focusRepo, viewMode]);
+
+  useEffect(() => {
     if (worldPhase !== 'walking') {
       return undefined;
     }
 
     const startTime = performance.now();
-    const duration = reducedMotion ? 24 : journeyDuration;
+    const duration = reducedMotion ? 24 : 5000;
     const animate = (now: number) => {
       const progress = Math.min(1, (now - startTime) / duration);
       setHeroPosition(sampleJourney(progress));
@@ -543,6 +576,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game' }: Pr
                   <article
                     className="project-matrix-card-shell"
                     key={project.id}
+                    data-project-repo={project.repo || undefined}
                     ref={(node) => {
                       if (node) {
                         projectCardRefs.current.set(project.id, node);

@@ -335,6 +335,21 @@ describe('target-inspired homepage portal', () => {
       readFile('components/channels/ProjectShowcase.tsx', 'utf8')
     ]);
 
+    assert.match(projectsPage, /projects_view/);
+    assert.match(projectsPage, /initialViewMode/);
+    assert.match(showcase, /initialViewMode = 'game'/);
+    assert.match(showcase, /setProjectsViewInUrl\('catalog'\)/);
+    assert.match(showcase, /setProjectsViewInUrl\('game'\)/);
+    assert.match(showcase, /url\.searchParams\.delete\('projects_focus'\)/);
+    assert.match(showcase, /history\.replaceState/);
+  });
+
+  it('keeps the project catalog view after a page refresh', async () => {
+    const [projectsPage, showcase] = await Promise.all([
+      readFile('app/projects/page.tsx', 'utf8'),
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8')
+    ]);
+
     assert.match(projectsPage, /searchParams/);
     assert.match(projectsPage, /projects_view/);
     assert.match(projectsPage, /initialViewMode/);
@@ -360,10 +375,13 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(starButton, /window\.open/);
     assert.match(starButton, /startGitHubOAuth\(repository\)/);
     assert.match(starButton, /window\.location\.assign\(startUrl\.toString\(\)\)/);
-    assert.doesNotMatch(starButton, /fetch\(/);
-    assert.doesNotMatch(starButton, /api\/github\?path=/);
+    assert.match(starButton, /fetch\(/);
+    assert.match(starButton, /user\/starred/);
+    assert.match(starButton, /loadStarredRepositories/);
     assert.match(starButton, /intent === 'success'/);
     assert.match(starButton, /setState\('starred'\)/);
+    assert.match(starButton, /projects_view/);
+    assert.match(starButton, /projects_focus/);
     assert.match(starButton, /github_star/);
     assert.match(githubApi, /export async function PUT/);
     assert.match(githubApi, /isStarRequest/);
