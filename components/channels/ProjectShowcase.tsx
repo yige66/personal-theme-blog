@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { ProjectStarButton } from '@/components/projects/ProjectStarButton';
 import type { BlogProject, PageContent } from '@/lib/blog';
+import { parseGitHubRepository } from '@/lib/github-repository';
 
 /**
  * 保留原项目目录作为主结构，并在宝箱交互完成后切换到目录视图。
@@ -261,10 +262,18 @@ function CatalogChestArtwork({ phase }: { phase: CatalogChestPhase }) {
   );
 }
 
-export function ProjectShowcase({ page, projects }: { page: PageContent; projects: BlogProject[]; source?: ProjectSourceInfo }) {
+type ProjectShowcaseProps = {
+  page: PageContent;
+  projects: BlogProject[];
+  source?: ProjectSourceInfo;
+  initialViewMode?: ViewMode;
+  focusRepo?: string;
+};
+
+export function ProjectShowcase({ page, projects, initialViewMode = 'game', focusRepo }: ProjectShowcaseProps) {
   const [query, setQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('game');
-  const [worldPhase, setWorldPhase] = useState<WorldPhase>('idle');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
+  const [worldPhase, setWorldPhase] = useState<WorldPhase>(initialViewMode === 'catalog' ? 'opened' : 'idle');
   const [heroPosition, setHeroPosition] = useState<Point>(journeyStart);
   const [catalogChestPhase, setCatalogChestPhase] = useState<CatalogChestPhase>('open');
   const [catalogLinks, setCatalogLinks] = useState<CatalogLink[]>([]);
@@ -276,6 +285,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
   const catalogViewRef = useRef<HTMLDivElement | null>(null);
   const catalogChestRef = useRef<HTMLButtonElement | null>(null);
   const projectCardRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const focusHandledRef = useRef(false);
   const normalizedQuery = query.trim().toLowerCase();
   const filteredProjects = useMemo(
     () => projects.filter((project) => projectMatchesQuery(project, normalizedQuery)),
@@ -291,6 +301,38 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
     mediaQuery.addEventListener('change', updateMotion);
     return () => mediaQuery.removeEventListener('change', updateMotion);
   }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'catalog' || focusHandledRef.current) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const normalizedFocusRepo = focusRepo?.toLowerCase();
+      const focusProject = normalizedFocusRepo
+        ? filteredProjects.find((project) => {
+          const repository = parseGitHubRepository(project.repo);
+          return repository && `${repository.owner}/${repository.repo}`.toLowerCase() === normalizedFocusRepo;
+        })
+        : undefined;
+
+      if (normalizedFocusRepo && !focusProject) {
+        return;
+      }
+
+      focusHandledRef.current = true;
+      if (focusProject) {
+        projectCardRefs.current.get(focusProject.id)?.scrollIntoView({ behavior: 'auto', block: 'center' });
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete('projects_view');
+      url.searchParams.delete('projects_focus');
+      window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [filteredProjects, focusRepo, viewMode]);
 
   useEffect(() => {
     if (worldPhase !== 'walking') {
@@ -521,6 +563,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
                   <article
                     className="project-matrix-card-shell"
                     key={project.id}
+                    data-project-repo={project.repo || undefined}
                     ref={(node) => {
                       if (node) {
                         projectCardRefs.current.set(project.id, node);

@@ -15,7 +15,7 @@ const SUPPORTED_CONTENT_TYPES = ['application/json', 'application/x-www-form-url
 const OAUTH_TOKEN_FIELDS = ['client_id', 'code', 'redirect_uri', 'state', 'code_verifier'] as const;
 
 type OAuthPayload = Partial<Record<(typeof OAUTH_TOKEN_FIELDS)[number] | 'client_secret', string>>;
-type ProxyTargetKind = 'repository' | 'user' | 'markdown' | 'star' | 'graphql';
+type ProxyTargetKind = 'repository' | 'user' | 'markdown' | 'star' | 'starred' | 'graphql';
 type ProxyTargetResult = { target?: URL; kind?: ProxyTargetKind; error?: NextResponse };
 
 export async function GET(request: Request) {
@@ -142,23 +142,26 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
   const path = target.pathname.replace(/\/$/, '') || '/';
   const isRepositoryRequest = Boolean(repositoryPath && (path === repositoryPath || path.startsWith(`${repositoryPath}/`)));
   const isUserRequest = path === '/user';
+  const isStarredCollectionRequest = path === '/user/starred';
   const isMarkdownRequest = path === '/markdown';
   const isGraphqlRequest = path === '/graphql';
   const projectOwner = readRuntimeEnv(
     'GITHUB_STAR_OWNER',
     'GITHUB_PROJECTS_OWNER',
     'GITHUB_USERNAME',
-    'NEXT_PUBLIC_GITHUB_USERNAME'
+    'NEXT_PUBLIC_GITHUB_USERNAME',
+    'NEXT_PUBLIC_GITALK_OWNER'
   ) || owner || BLOG_REPOSITORY_OWNER;
   const starMatch = path.match(/^\/user\/starred\/([^/]+)\/([^/]+)$/);
   const isStarRequest = Boolean(
-    projectOwner
-      && starMatch
-      && starMatch[1]
-      && starMatch[2]
-      && starMatch[1].toLowerCase() === projectOwner.toLowerCase()
-      && isSafeGitHubName(starMatch[1])
-      && isSafeGitHubName(starMatch[2])
+    isStarredCollectionRequest
+      || (projectOwner
+        && starMatch
+        && starMatch[1]
+        && starMatch[2]
+        && starMatch[1].toLowerCase() === projectOwner.toLowerCase()
+        && isSafeGitHubName(starMatch[1])
+        && isSafeGitHubName(starMatch[2]))
   );
 
   if (!isRepositoryRequest && !isUserRequest && !isMarkdownRequest && !isStarRequest && !isGraphqlRequest) {
@@ -177,6 +180,8 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
         ? ['POST']
         : isGraphqlRequest
           ? ['POST']
+          : isStarredCollectionRequest
+            ? ['GET']
           : ['GET', 'PUT'];
   if (!allowedMethods.includes(request.method)) {
     return { error: NextResponse.json({ error: 'GitHub API proxy method is not allowed.' }, { status: 405 }) };
@@ -184,7 +189,7 @@ function getGitHubProxyTarget(request: Request): ProxyTargetResult {
 
   return {
     target,
-    kind: isRepositoryRequest ? 'repository' : isUserRequest ? 'user' : isMarkdownRequest ? 'markdown' : isGraphqlRequest ? 'graphql' : 'star'
+    kind: isRepositoryRequest ? 'repository' : isUserRequest ? 'user' : isMarkdownRequest ? 'markdown' : isGraphqlRequest ? 'graphql' : isStarredCollectionRequest ? 'starred' : 'star'
   };
 }
 
@@ -209,7 +214,7 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       'X-GitHub-Api-Version': '2022-11-28'
     });
     const authorization = request.headers.get('authorization') || '';
-    const cookieToken = kind === 'star'
+    const cookieToken = kind === 'star' || kind === 'starred'
       ? readCookie(request.headers.get('cookie'), GITHUB_ACCESS_TOKEN_COOKIE) || ''
       : '';
     const isPublicRead = (kind === 'repository' && request.method === 'GET') || kind === 'markdown';
@@ -235,7 +240,7 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       body,
       cache: 'no-store'
     };
-    const retryStarRequest = kind === 'star' && ['GET', 'PUT'].includes(request.method);
+    const retryStarRequest = (kind === 'star' || kind === 'starred') && ['GET', 'PUT'].includes(request.method);
     let githubResponse = await fetchGitHubRequest(target, githubRequest, retryStarRequest);
 
     // A stale or revoked deployment token must never make public comments

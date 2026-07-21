@@ -15,6 +15,102 @@ type ProjectStarButtonProps = {
   repo: string;
 };
 
+type StarredRepositoryPayload = {
+  full_name?: unknown;
+  name?: unknown;
+  owner?: { login?: unknown };
+};
+
+const STARRED_REPOSITORIES_ENDPOINT = 'https://api.github.com/user/starred?per_page=100';
+let starredRepositoryCache: Set<string> | null = null;
+let hasLoadedStarredRepositories = false;
+let starredRepositoriesRequest: Promise<Set<string> | null> | null = null;
+const optimisticStarredRepositories = new Set<string>();
+const starStatusListeners = new Set<() => void>();
+
+/** 通过同一 HttpOnly 会话读取当前用户的 Star 列表，并在页面内的按钮之间共享结果。 */
+function loadStarredRepositories(): Promise<Set<string> | null> {
+  if (hasLoadedStarredRepositories) {
+    return Promise.resolve(starredRepositoryCache);
+  }
+
+  if (starredRepositoriesRequest) {
+    return starredRepositoriesRequest;
+  }
+
+  starredRepositoriesRequest = fetch(`/api/github?path=${encodeURIComponent(STARRED_REPOSITORIES_ENDPOINT)}`, {
+    credentials: 'include',
+    headers: { Accept: 'application/vnd.github+json' },
+    cache: 'no-store'
+  })
+    .then(async (response) => {
+      if (response.status === 401 || response.status === 403) {
+        hasLoadedStarredRepositories = true;
+        starredRepositoryCache = new Set();
+        return starredRepositoryCache;
+      }
+
+      if (!response.ok) {
+        throw new Error(`GitHub starred repositories request failed with ${response.status}`);
+      }
+
+      const payload: unknown = await response.json();
+      if (!Array.isArray(payload)) {
+        throw new Error('GitHub starred repositories response was not an array');
+      }
+
+      const next = new Set(
+        payload
+          .map((entry) => repositoryKeyFromGitHubPayload(entry as StarredRepositoryPayload))
+          .filter((key): key is string => Boolean(key))
+      );
+      optimisticStarredRepositories.forEach((key) => next.add(key));
+      starredRepositoryCache = next;
+      hasLoadedStarredRepositories = true;
+      return next;
+    })
+    .catch(() => null)
+    .finally(() => {
+      starredRepositoriesRequest = null;
+    });
+
+  return starredRepositoriesRequest;
+}
+
+function repositoryKeyFromGitHubPayload(payload: StarredRepositoryPayload): string {
+  const fullName = typeof payload.full_name === 'string'
+    ? payload.full_name
+    : typeof payload.owner?.login === 'string' && typeof payload.name === 'string'
+      ? `${payload.owner.login}/${payload.name}`
+      : '';
+  const repository = parseGitHubRepository(`https://github.com/${fullName}`);
+  return repository ? `${repository.owner}/${repository.repo}`.toLowerCase() : '';
+}
+
+function repositoryKey(repository: GitHubRepository): string {
+  return `${repository.owner}/${repository.repo}`.toLowerCase();
+}
+
+function getCachedStarredState(key: string): boolean | undefined {
+  if (optimisticStarredRepositories.has(key)) {
+    return true;
+  }
+
+  return hasLoadedStarredRepositories ? starredRepositoryCache?.has(key) ?? false : undefined;
+}
+
+function subscribeToStarStatus(listener: () => void): () => void {
+  starStatusListeners.add(listener);
+  return () => starStatusListeners.delete(listener);
+}
+
+function markRepositoryAsStarred(repository: GitHubRepository): void {
+  const key = repositoryKey(repository);
+  optimisticStarredRepositories.add(key);
+  starredRepositoryCache?.add(key);
+  starStatusListeners.forEach((listener) => listener());
+}
+
 export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
   return <GitHubStarButton repo={repo} variant="project" />;
 }
@@ -22,10 +118,13 @@ export function ProjectStarButton({ repo }: ProjectStarButtonProps) {
 export function GitHubStarButton({ className = '', repo, variant = 'project' }: GitHubStarButtonProps) {
   const repository = parseGitHubRepository(repo);
   const intentHandledRef = useRef(false);
+  const confirmedStarRef = useRef(false);
   const [state, setState] = useState<StarState>('idle');
+  const [remoteStarred, setRemoteStarred] = useState<boolean | undefined>(undefined);
   const owner = repository?.owner || '';
   const repositoryName = repository?.repo || '';
   const repositoryUrl = repository?.url || '';
+  const repositoryKeyValue = repository ? repositoryKey(repository) : '';
   const isLoading = state === 'loading';
   const isStarred = state === 'starred';
   const buttonClassName = [
@@ -61,6 +160,31 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
   }
 
   useEffect(() => {
+    if (!repositoryKeyValue) {
+      return undefined;
+    }
+
+    const updateRemoteState = () => {
+      const nextState = getCachedStarredState(repositoryKeyValue);
+      if (nextState !== undefined) {
+        setRemoteStarred(nextState);
+      }
+    };
+    const unsubscribe = subscribeToStarStatus(updateRemoteState);
+    updateRemoteState();
+    void loadStarredRepositories().then(updateRemoteState);
+    return unsubscribe;
+  }, [repositoryKeyValue]);
+
+  useEffect(() => {
+    if (remoteStarred === true) {
+      setState('starred');
+    } else if (remoteStarred === false && !confirmedStarRef.current) {
+      setState((current) => current === 'starred' ? 'idle' : current);
+    }
+  }, [remoteStarred]);
+
+  useEffect(() => {
     if (!repository || intentHandledRef.current || typeof window === 'undefined') {
       return;
     }
@@ -78,6 +202,8 @@ export function GitHubStarButton({ className = '', repo, variant = 'project' }: 
     window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
 
     if (intent === 'success') {
+      confirmedStarRef.current = true;
+      markRepositoryAsStarred(repository);
       setState('starred');
     } else if (intent === 'configuration') {
       setState('configuration');
@@ -119,6 +245,10 @@ function createGitHubOAuthStartUrl(repository: GitHubRepository) {
   const currentUrl = new URL(window.location.href);
   currentUrl.searchParams.delete('github_star');
   currentUrl.searchParams.delete('github_repo');
+  if (currentUrl.pathname === '/projects') {
+    currentUrl.searchParams.set('projects_view', 'catalog');
+    currentUrl.searchParams.set('projects_focus', repositoryKey(repository));
+  }
   const returnTo = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`;
   const startUrl = new URL('/api/github/oauth/start', window.location.origin);
   startUrl.searchParams.set('repo', repository.url);
