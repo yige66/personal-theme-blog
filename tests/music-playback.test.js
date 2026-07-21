@@ -173,6 +173,8 @@ describe('real music playback', () => {
       assert.match(track.cover, /^(https:\/\/|\/assets\/)/);
       if (id === 'requested-taiyo') {
         assert.notEqual(track.cover, '/assets/img/hero-mountain.svg', 'Taiyo should use its album artwork instead of the generic hero image');
+        assert.equal(track.url, '/assets/audio/yorushika-taiyo-aac.m4a', 'Taiyo should use the browser-compatible AAC asset');
+        await access(path.join('public', track.url));
       }
       if (track.cover.startsWith('/assets/')) {
         await access(path.join('public', track.cover));

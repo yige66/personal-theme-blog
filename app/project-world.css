@@ -4,6 +4,7 @@
   --project-game-width: min(1500px, calc(100vw - 56px));
   --project-game-contact-shift: clamp(4px, calc(4.5vw - 21.6px), 34px);
   --project-game-contact-drop: clamp(3px, 0.55vw, 7px);
+  --project-game-opening-duration: 400ms;
   position: relative;
   isolation: isolate;
   width: var(--project-game-width);
@@ -238,7 +239,7 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
 }
 
 .project-game-box-opening .project-game-adventurer {
-  animation: project-game-adventurer-contact 1320ms cubic-bezier(0.2, 0.82, 0.24, 1) both;
+  animation: project-game-adventurer-contact var(--project-game-opening-duration) cubic-bezier(0.2, 0.82, 0.24, 1) both;
   filter:
     saturate(0.9)
     contrast(1.05)
@@ -272,12 +273,12 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
   animation: project-game-frame-b 1.8s steps(1, end) infinite;
 }
 
-.project-game-adventurer.is-walking .frame-0 {
-  animation: project-game-frame-a 260ms steps(1, end) infinite;
+.project-game-adventurer.is-running .frame-0 {
+  animation: project-game-frame-a 200ms steps(1, end) infinite;
 }
 
-.project-game-adventurer.is-walking .frame-1 {
-  animation: project-game-frame-b 260ms steps(1, end) infinite;
+.project-game-adventurer.is-running .frame-1 {
+  animation: project-game-frame-b 200ms steps(1, end) infinite;
 }
 
 .project-game-adventurer.is-opening .frame-0 {
@@ -373,7 +374,7 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
 }
 
 .project-game-box-opening .project-game-chest-art {
-  animation: project-game-chest-open 1320ms cubic-bezier(0.2, 0.78, 0.2, 1) both;
+  animation: project-game-chest-open var(--project-game-opening-duration) cubic-bezier(0.2, 0.78, 0.2, 1) both;
 }
 
 .project-game-contact {
@@ -402,15 +403,15 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
 }
 
 .project-game-box-opening .project-game-contact {
-  animation: project-game-contact-flash 1320ms steps(3, end) both;
+  animation: project-game-contact-flash var(--project-game-opening-duration) steps(3, end) both;
 }
 
 .project-game-box-opening .project-game-chest-frame.chest-closed {
-  animation: project-game-chest-closed-fade 1320ms steps(3, end) both;
+  animation: project-game-chest-closed-fade var(--project-game-opening-duration) steps(3, end) both;
 }
 
 .project-game-box-opening .project-game-chest-frame.chest-open {
-  animation: project-game-chest-open-reveal 1320ms steps(3, end) both;
+  animation: project-game-chest-open-reveal var(--project-game-opening-duration) steps(3, end) both;
 }
 
 .project-game-chest:hover .project-game-chest-art {
