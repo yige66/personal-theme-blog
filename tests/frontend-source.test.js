@@ -329,6 +329,21 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeCss, /\.project-matrix-actions span/);
   });
 
+  it('keeps the project catalog view after a page refresh', async () => {
+    const [projectsPage, showcase] = await Promise.all([
+      readFile('app/projects/page.tsx', 'utf8'),
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8')
+    ]);
+
+    assert.match(projectsPage, /searchParams/);
+    assert.match(projectsPage, /projects_view/);
+    assert.match(projectsPage, /initialViewMode/);
+    assert.match(showcase, /initialViewMode = 'game'/);
+    assert.match(showcase, /setProjectsViewInUrl\('catalog'\)/);
+    assert.match(showcase, /setProjectsViewInUrl\('game'\)/);
+    assert.match(showcase, /history\.replaceState/);
+  });
+
   it('keeps GitHub project starring separate from the project card link', async () => {
     const [showcase, starButton, githubApi, homeCss, motion] = await Promise.all([
       readFile('components/channels/ProjectShowcase.tsx', 'utf8'),

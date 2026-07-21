@@ -161,6 +161,17 @@ function getPageActions(page: PageContent) {
   ].filter((action) => action.href && action.label);
 }
 
+/** 在地址栏保存项目目录视图，使浏览器刷新后仍能恢复当前页面层级。 */
+function setProjectsViewInUrl(view: ViewMode) {
+  const url = new URL(window.location.href);
+  if (view === 'catalog') {
+    url.searchParams.set('projects_view', 'catalog');
+  } else {
+    url.searchParams.delete('projects_view');
+  }
+  window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
+}
+
 /** 返回一段三次贝塞尔曲线上的归一化坐标。 */
 function cubicPoint(segment: [Point, Point, Point, Point], progress: number): Point {
   const inverse = 1 - progress;
@@ -261,10 +272,17 @@ function CatalogChestArtwork({ phase }: { phase: CatalogChestPhase }) {
   );
 }
 
-export function ProjectShowcase({ page, projects }: { page: PageContent; projects: BlogProject[]; source?: ProjectSourceInfo }) {
+type ProjectShowcaseProps = {
+  page: PageContent;
+  projects: BlogProject[];
+  source?: ProjectSourceInfo;
+  initialViewMode?: ViewMode;
+};
+
+export function ProjectShowcase({ page, projects, initialViewMode = 'game' }: ProjectShowcaseProps) {
   const [query, setQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('game');
-  const [worldPhase, setWorldPhase] = useState<WorldPhase>('idle');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
+  const [worldPhase, setWorldPhase] = useState<WorldPhase>(initialViewMode === 'catalog' ? 'opened' : 'idle');
   const [heroPosition, setHeroPosition] = useState<Point>(journeyStart);
   const [catalogChestPhase, setCatalogChestPhase] = useState<CatalogChestPhase>('open');
   const [catalogLinks, setCatalogLinks] = useState<CatalogLink[]>([]);
@@ -326,6 +344,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
 
     openTimer.current = window.setTimeout(() => {
       setCatalogChestPhase('open');
+      setProjectsViewInUrl('catalog');
       setViewMode('catalog');
       setWorldPhase('opened');
     }, reducedMotion ? 24 : chestOpeningDuration);
@@ -405,6 +424,7 @@ export function ProjectShowcase({ page, projects }: { page: PageContent; project
     }
 
     setCatalogChestPhase('closing');
+    setProjectsViewInUrl('game');
     closeTimer.current = window.setTimeout(() => {
       setViewMode('game');
       setWorldPhase('idle');
