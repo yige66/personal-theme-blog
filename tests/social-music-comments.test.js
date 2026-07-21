@@ -195,12 +195,13 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
     assert.match(githubApi, /anonymousHeaders/);
     assert.match(githubApi, /createPublicRepositoryFallback/);
-    assert.match(githubApi, /kind === 'user'/);
     assert.match(githubApi, /path === '\/graphql'/);
     assert.match(githubApi, /isGraphqlRequest/);
     assert.match(githubApi, /GraphQL proxy requires a bearer token/);
     assert.match(githubApi, /kind: .*'graphql'/);
-    assert.match(githubApi, /new NextResponse\('\{\}'/);
+    assert.doesNotMatch(githubApi, /kind === 'user' && request\.method === 'GET' && \[401, 403\]/);
+    assert.doesNotMatch(githubApi, /new NextResponse\('\{\}'/);
+    assert.match(githubApi, /status: githubResponse\.status/);
     assert.match(githubApi, /User-Agent/);
     assert.match(githubApi, /client_secret/);
     assert.doesNotMatch(githubApi, /console\.log|console\.error/);

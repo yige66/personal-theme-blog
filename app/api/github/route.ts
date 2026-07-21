@@ -266,15 +266,6 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       }
     }
 
-    if (kind === 'user' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
-      return new NextResponse('{}', {
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store',
-          'Content-Type': 'application/json'
-        }
-      });
-    }
     const responseBody = await githubResponse.text();
     const responseHeaders = new Headers({
       'Cache-Control': 'no-store',
