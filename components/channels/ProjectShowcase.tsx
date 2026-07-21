@@ -162,6 +162,18 @@ function getPageActions(page: PageContent) {
   ].filter((action) => action.href && action.label);
 }
 
+/** 在地址栏保存项目目录视图，使浏览器刷新后仍能恢复当前页面层级。 */
+function setProjectsViewInUrl(view: ViewMode) {
+  const url = new URL(window.location.href);
+  if (view === 'catalog') {
+    url.searchParams.set('projects_view', 'catalog');
+  } else {
+    url.searchParams.delete('projects_view');
+    url.searchParams.delete('projects_focus');
+  }
+  window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
+}
+
 /** 返回一段三次贝塞尔曲线上的归一化坐标。 */
 function cubicPoint(segment: [Point, Point, Point, Point], progress: number): Point {
   const inverse = 1 - progress;
@@ -303,7 +315,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
   }, []);
 
   useEffect(() => {
-    if (viewMode !== 'catalog' || focusHandledRef.current) {
+    if (viewMode !== 'catalog' || focusHandledRef.current || !focusRepo) {
       return undefined;
     }
 
@@ -326,7 +338,6 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
       }
 
       const url = new URL(window.location.href);
-      url.searchParams.delete('projects_view');
       url.searchParams.delete('projects_focus');
       window.history.replaceState(null, document.title, `${url.pathname}${url.search}${url.hash}`);
     });
@@ -368,6 +379,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
 
     openTimer.current = window.setTimeout(() => {
       setCatalogChestPhase('open');
+      setProjectsViewInUrl('catalog');
       setViewMode('catalog');
       setWorldPhase('opened');
     }, reducedMotion ? 24 : chestOpeningDuration);
@@ -447,6 +459,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
     }
 
     setCatalogChestPhase('closing');
+    setProjectsViewInUrl('game');
     closeTimer.current = window.setTimeout(() => {
       setViewMode('game');
       setWorldPhase('idle');
