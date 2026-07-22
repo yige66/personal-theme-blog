@@ -693,3 +693,13 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* 项目场景只负责游戏画布，保留跨页面助手和音乐播放器。 */
+body:has(.project-game-box) .xh-pixel-kurisu-pet {
+  display: block !important;
+}
+
+body:has(.projects-page) .xh-floating-player,
+html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.projects-page) .xh-floating-player {
+  display: grid !important;
+}

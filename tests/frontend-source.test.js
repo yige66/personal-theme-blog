@@ -934,4 +934,18 @@ describe('target-inspired homepage portal', () => {
     assert.doesNotMatch(component, /InternalBeyond|bg-internal\.jpg|bg-infernal\.jpg|game_module|room_day\.png|room_night\.png/);
     assert.doesNotMatch(entryCss, /InternalBeyond|bg-internal\.jpg|bg-infernal\.jpg|game_module|room_day\.png|room_night\.png/);
   });
+
+  it('keeps the project adventurer anchored while idle and running', async () => {
+    const [showcase, worldCss] = await Promise.all([
+      readFile('components/channels/ProjectShowcase.tsx', 'utf8'),
+      readFile('app/project-world.css', 'utf8')
+    ]);
+
+    assert.match(showcase, /const idleFrame = '.*qiuyuan-idle-a-v2\.png'/);
+    assert.match(showcase, /phase === 'idle'\s*\? \[idleFrame\]/);
+    assert.match(worldCss, /\.project-game-adventurer\.is-running \.project-game-adventurer-frame\.frame-0[\s\S]*animation: project-game-frame-a 240ms steps\(1, end\) infinite/);
+    assert.match(worldCss, /\.project-game-adventurer\.is-running \.project-game-adventurer-frame\.frame-1[\s\S]*animation: project-game-frame-b 240ms steps\(1, end\) infinite/);
+    assert.match(worldCss, /body:has\(\.project-game-box\) \.xh-pixel-kurisu-pet[\s\S]*display: block !important/);
+    assert.match(worldCss, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player[\s\S]*display: grid !important/);
+  });
 });
