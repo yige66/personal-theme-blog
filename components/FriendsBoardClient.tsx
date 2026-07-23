@@ -8,12 +8,11 @@ import styles from '@/app/friends/friends.module.css';
 export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: BlogSite }) {
   const application = site.friendLinkApply;
   const [copyStatus, setCopyStatus] = useState(application.copyLabel);
-  const siteName = [site.title, site.brandSuffix].filter(Boolean).join(' ');
   const applyFormat = [
-    `名称：${siteName}`,
-    `链接：${site.github}`,
-    `简介：${site.subtitle}`,
-    `头像：${site.avatar}`
+    `名称：${application.siteName}`,
+    `链接：${application.siteUrl}`,
+    `简介：${application.siteDescription}`,
+    `头像：${application.siteAvatar}`
   ].join('\n');
 
   const copySiteInfo = async () => {

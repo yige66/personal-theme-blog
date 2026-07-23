@@ -530,6 +530,10 @@
     "cloudMusicIds": [],
     "friendLinkApply": {
       "title": "友链申请",
+      "siteName": "Yuki's Blog",
+      "siteUrl": "https://yukino-blog.site",
+      "siteDescription": "个人开发者博客，记录 Java、Spring Boot、Next.js、TypeScript 项目实践与生活片段。",
+      "siteAvatar": "/assets/img/avatar-orbit.svg",
       "description": "欢迎各位朋友交换友链。复制下方格式，并在底部的评论区评论申请。",
       "copyLabel": "复制",
       "copiedLabel": "已复制",
@@ -1057,7 +1061,44 @@
       }
     ]
   },
-  "links": [],
+  "links": [
+    {
+      "title": "清羽飞扬",
+      "url": "https://blog.liushen.fun/",
+      "description": "技术笔记与生活记录；公开友链申请页：https://blog.liushen.fun/addlink/",
+      "themeColor": "#7aa2f7",
+      "category": "公开申请",
+      "owner": "LiuShen",
+      "note": "待双方确认，不表示已互换"
+    },
+    {
+      "title": "Peter267",
+      "url": "https://peter267.github.io/",
+      "description": "个人技术博客；公开友链申请页：https://peter267.github.io/addlink/",
+      "themeColor": "#5dfea1",
+      "category": "公开申请",
+      "owner": "Peter267",
+      "note": "待双方确认，不表示已互换"
+    },
+    {
+      "title": "Pandora小窝",
+      "url": "https://www.jay-r-j.top/",
+      "description": "技术、读书与生活记录；公开友链申请页：https://www.jay-r-j.top/flink/index.html",
+      "themeColor": "#f39ac7",
+      "category": "公开申请",
+      "owner": "Jay",
+      "note": "待双方确认，不表示已互换"
+    },
+    {
+      "title": "OmegaXYZ",
+      "url": "https://omegaxyz.com/",
+      "description": "独立站点与技术文章；公开友链申请页：https://omegaxyz.com/zh/makefriends/",
+      "themeColor": "#8bd5ca",
+      "category": "公开申请",
+      "owner": "OmegaXYZ",
+      "note": "待双方确认，不表示已互换"
+    }
+  ],
   "notes": [
     {
       "id": "note-blog-privacy",
