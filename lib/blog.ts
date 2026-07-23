@@ -217,6 +217,10 @@ export type PageContent = {
 
 export type FriendLinkApplicationConfig = {
   title: string;
+  siteName: string;
+  siteUrl: string;
+  siteDescription: string;
+  siteAvatar: string;
   description: string;
   copyLabel: string;
   copiedLabel: string;
@@ -606,6 +610,10 @@ const fallbackSite: BlogSite = {
   assistantPrompt: '根据文章、动态和作者资料，为访客推荐阅读路径。',
   cloudMusicIds: ['1901371647', '1859245776', '1974443814'],
   friendLinkApply: {
+    siteName: "Yuki's Blog",
+    siteUrl: 'https://yukino-blog.site',
+    siteDescription: 'Personal developer blog covering Java, Spring Boot, Next.js, TypeScript, project practice, and daily notes.',
+    siteAvatar: '/assets/img/avatar-orbit.svg',
     title: '友链申请',
     description: '复制本站信息，并在下方留言区提交你的站点资料。',
     copyLabel: '复制本站信息',
@@ -1521,6 +1529,10 @@ function normalizeFriendLinkApplication(value: unknown): FriendLinkApplicationCo
   const fallback = fallbackSite.friendLinkApply;
   return {
     title: textOrFallback(source.title, fallback.title),
+    siteName: textOrFallback(source.siteName, fallback.siteName),
+    siteUrl: normalizeExternalUrl(source.siteUrl) || fallback.siteUrl,
+    siteDescription: textOrFallback(source.siteDescription, fallback.siteDescription),
+    siteAvatar: normalizeOptionalAsset(source.siteAvatar) || fallback.siteAvatar,
     description: textOrFallback(source.description, fallback.description),
     copyLabel: textOrFallback(source.copyLabel, fallback.copyLabel),
     copiedLabel: textOrFallback(source.copiedLabel, fallback.copiedLabel),

@@ -15,6 +15,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.ok(data.site.music.some((track) => track.title === '千夜一夜' && track.url === '/assets/audio/hilcrhyme-senya-ichiya.m4a'));
     assert.equal(data.site.friendLinkApplyFormat, undefined);
     assert.equal(data.site.friendLinkApply.title, '友链申请');
+    assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
+    assert.equal(data.site.friendLinkApply.siteAvatar, '/assets/img/avatar-orbit.svg');
     assert.match(data.site.friendLinkApply.description, /评论区/);
     for (const field of ['title', 'github', 'subtitle', 'avatar']) {
       assert.equal(typeof data.site[field], 'string');
@@ -125,11 +127,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(aboutPage, /GitHubComments/);
     assert.match(aboutPage, /about-joined-panel/);
     assert.match(aboutPage, /term="\/about"/);
-    assert.match(friendsClient, /siteName = \[site\.title, site\.brandSuffix\]/);
-    assert.match(friendsClient, /名称：\$\{siteName\}/);
-    assert.match(friendsClient, /链接：\$\{site\.github\}/);
-    assert.match(friendsClient, /简介：\$\{site\.subtitle\}/);
-    assert.match(friendsClient, /头像：\$\{site\.avatar\}/);
+    assert.match(friendsClient, /名称：\$\{application\.siteName\}/);
+    assert.match(friendsClient, /链接：\$\{application\.siteUrl\}/);
+    assert.match(friendsClient, /简介：\$\{application\.siteDescription\}/);
+    assert.match(friendsClient, /头像：\$\{application\.siteAvatar\}/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /applyPanel/);
     assert.match(friendsClient, /#gitalk-container/);
