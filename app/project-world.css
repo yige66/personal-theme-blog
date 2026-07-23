@@ -3,8 +3,8 @@
 .project-game-box {
   --project-game-width: min(1500px, calc(100vw - 56px));
   --project-game-contact-shift: clamp(4px, calc(4.5vw - 21.6px), 34px);
-  --project-game-contact-drop: clamp(3px, 0.55vw, 7px);
-  --project-game-opening-duration: 400ms;
+  --project-game-contact-drop: clamp(18px, 1.6vw, 24px);
+  --project-game-opening-duration: 290ms;
   position: relative;
   isolation: isolate;
   width: var(--project-game-width);
@@ -263,22 +263,18 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
   opacity: 1;
 }
 
-.project-game-adventurer.is-idle .frame-0,
-.project-game-adventurer.is-opened .frame-0 {
-  animation: project-game-frame-a 1.8s steps(1, end) infinite;
+.project-game-adventurer.is-idle .project-game-adventurer-frame.frame-0,
+.project-game-adventurer.is-opened .project-game-adventurer-frame.frame-0 {
+  animation: none;
+  opacity: 1;
 }
 
-.project-game-adventurer.is-idle .frame-1,
-.project-game-adventurer.is-opened .frame-1 {
-  animation: project-game-frame-b 1.8s steps(1, end) infinite;
+.project-game-adventurer.is-running .project-game-adventurer-frame.frame-0 {
+  animation: project-game-frame-a 240ms steps(1, end) infinite;
 }
 
-.project-game-adventurer.is-running .frame-0 {
-  animation: project-game-frame-a 200ms steps(1, end) infinite;
-}
-
-.project-game-adventurer.is-running .frame-1 {
-  animation: project-game-frame-b 200ms steps(1, end) infinite;
+.project-game-adventurer.is-running .project-game-adventurer-frame.frame-1 {
+  animation: project-game-frame-b 240ms steps(1, end) infinite;
 }
 
 .project-game-adventurer.is-opening .frame-0 {
@@ -559,7 +555,7 @@ body:has(.project-game-box) .xh-pixel-kurisu-pet {
 }
 
 @keyframes project-game-adventurer-contact {
-  0%, 14% { transform: translate3d(0, 0, 0) scale(1); }
+  0%, 14% { transform: translate3d(var(--project-game-contact-shift), var(--project-game-contact-drop), 0) scale(1); }
   38%, 72% { transform: translate3d(var(--project-game-contact-shift), var(--project-game-contact-drop), 0) scale(0.98); }
   100% { transform: translate3d(var(--project-game-contact-shift), var(--project-game-contact-drop), 0) scale(1); }
 }

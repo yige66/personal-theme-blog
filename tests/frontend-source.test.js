@@ -941,8 +941,18 @@ describe('target-inspired homepage portal', () => {
       readFile('app/project-world.css', 'utf8')
     ]);
 
-    assert.match(showcase, /const idleFrame = '.*qiuyuan-idle-a-v2\.png'/);
-    assert.match(showcase, /phase === 'idle'\s*\? \[idleFrame\]/);
+    assert.match(showcase, /type WorldPhase = 'idle' \| 'turning' \| 'walking'/);
+    assert.match(showcase, /const idleFrame = '.*qiuyuan-idle-chest-sword-v1\.png'/);
+    assert.match(showcase, /const turningFrame = '.*qiuyuan-turn-v1\.png'/);
+    assert.match(showcase, /phase === 'turning'\s*\? \[turningFrame\]/);
+    assert.match(showcase, /const turningDuration = 180/);
+    assert.match(showcase, /const chestOpeningDuration = 290/);
+    assert.match(showcase, /journeyOpenTimer/);
+    assert.match(showcase, /setTimeout\(finishJourney, duration\)/);
+    assert.match(showcase, /setWorldPhase\('turning'\)/);
+    assert.match(worldCss, /--project-game-contact-drop: clamp\(18px, 1\.6vw, 24px\)/);
+    assert.match(worldCss, /--project-game-opening-duration: 290ms/);
+    assert.match(worldCss, /0%, 14% \{ transform: translate3d\(var\(--project-game-contact-shift\), var\(--project-game-contact-drop\), 0\) scale\(1\); \}/);
     assert.match(worldCss, /\.project-game-adventurer\.is-running \.project-game-adventurer-frame\.frame-0[\s\S]*animation: project-game-frame-a 240ms steps\(1, end\) infinite/);
     assert.match(worldCss, /\.project-game-adventurer\.is-running \.project-game-adventurer-frame\.frame-1[\s\S]*animation: project-game-frame-b 240ms steps\(1, end\) infinite/);
     assert.match(worldCss, /body:has\(\.project-game-box\) \.xh-pixel-kurisu-pet[\s\S]*display: block !important/);

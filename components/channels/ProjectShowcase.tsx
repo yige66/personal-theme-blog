@@ -26,7 +26,7 @@ type ProjectSourceInfo = {
 };
 
 type ProjectVisualIcon = 'sabres' | 'lantern' | 'flower' | 'moon' | 'compass';
-type WorldPhase = 'idle' | 'walking' | 'opening' | 'opened';
+type WorldPhase = 'idle' | 'turning' | 'walking' | 'opening' | 'opened';
 type ViewMode = 'game' | 'catalog';
 type CatalogChestPhase = 'open' | 'closing';
 type Point = { x: number; y: number };
@@ -38,7 +38,8 @@ const journeyStart: Point = { x: 12.5, y: 89 };
 const chestPoint: Point = { x: 74, y: 41.5 };
 const heroStopPoint: Point = { x: 67.6, y: 47.5 };
 const journeyDuration = 1400;
-const chestOpeningDuration = 400;
+const turningDuration = 180;
+const chestOpeningDuration = 290;
 const journeyPathD = 'M12.5 89 C18 84.5 25 73.5 34 64.5 C40 60.2 47 56.6 54 54.5 C59 52.3 64 49.2 67.6 47.5';
 const journeySegments: Array<[Point, Point, Point, Point]> = [
   [journeyStart, { x: 18, y: 84.5 }, { x: 25, y: 73.5 }, { x: 34, y: 64.5 }],
@@ -230,6 +231,9 @@ function sampleJourney(progress: number): Point {
   };
 }
 
+const idleFrame = '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-idle-chest-sword-v1.png';
+const turningFrame = '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-turn-v1.png';
+
 function AdventurerSprite({ phase }: { phase: WorldPhase }) {
   const frames = phase === 'walking'
       ? [
@@ -243,10 +247,9 @@ function AdventurerSprite({ phase }: { phase: WorldPhase }) {
         ]
       : phase === 'opened'
         ? ['/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-open-b-v2.png']
-      : [
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-idle-a-v2.png',
-        '/assets/projects/project-rpg-jiangnan-pixel-qiuyuan-idle-b-v2.png'
-      ];
+      : phase === 'turning'
+        ? [turningFrame]
+        : [idleFrame];
 
   const animationClass = phase === 'walking' ? ' is-running' : '';
   return (
@@ -293,6 +296,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
   const [catalogLinks, setCatalogLinks] = useState<CatalogLink[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const journeyFrame = useRef<number | null>(null);
+  const journeyOpenTimer = useRef<number | null>(null);
   const openTimer = useRef<number | null>(null);
   const closeTimer = useRef<number | null>(null);
   const gameViewRef = useRef<HTMLDivElement | null>(null);
@@ -354,6 +358,16 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
 
     const startTime = performance.now();
     const duration = reducedMotion ? 24 : journeyDuration;
+    let journeyFinished = false;
+    const finishJourney = () => {
+      if (journeyFinished) {
+        return;
+      }
+
+      journeyFinished = true;
+      setHeroPosition(heroStopPoint);
+      setWorldPhase('opening');
+    };
     const animate = (now: number) => {
       const progress = Math.min(1, (now - startTime) / duration);
       setHeroPosition(sampleJourney(progress));
@@ -362,16 +376,33 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
         return;
       }
 
-      setHeroPosition(heroStopPoint);
-      setWorldPhase('opening');
+      finishJourney();
     };
 
+    // 独立的超时收口避免 requestAnimationFrame 降频时把开箱阶段无限延后。
+    journeyOpenTimer.current = window.setTimeout(finishJourney, duration);
     journeyFrame.current = window.requestAnimationFrame(animate);
     return () => {
       if (journeyFrame.current !== null) {
         window.cancelAnimationFrame(journeyFrame.current);
       }
+      if (journeyOpenTimer.current !== null) {
+        window.clearTimeout(journeyOpenTimer.current);
+        journeyOpenTimer.current = null;
+      }
     };
+  }, [reducedMotion, worldPhase]);
+
+  useEffect(() => {
+    if (worldPhase !== 'turning') {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setWorldPhase('walking');
+    }, reducedMotion ? 24 : turningDuration);
+
+    return () => window.clearTimeout(timer);
   }, [reducedMotion, worldPhase]);
 
   useEffect(() => {
@@ -451,7 +482,7 @@ export function ProjectShowcase({ page, projects, initialViewMode = 'game', focu
 
   const handleGameChestClick = () => {
     if (viewMode === 'game' && worldPhase === 'idle') {
-      setWorldPhase('walking');
+      setWorldPhase('turning');
     }
   };
 
