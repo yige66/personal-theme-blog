@@ -6,7 +6,7 @@ import { buildAdminManagementOverview } from '@/lib/admin-management';
 import { getBlogData, getBlogStats, getBlogStatsFromData, normalizeBlogData } from '@/lib/blog';
 import { createBlogDataRevision, readLocalBlogData, saveBlogData, validateBlogDataDraft } from '@/lib/blog-admin';
 import { consumeAdminRateLimit } from '@/lib/admin-rate-limit';
-import { isBlobStorageEnabled, readBlogDataBlobSnapshot } from '@/lib/blog-storage';
+import { getBlogStorageMode, isBlobStorageEnabled, readBlogDataBlobSnapshot } from '@/lib/blog-storage';
 import { getSiteUrl } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -107,6 +107,12 @@ export async function POST(request: Request) {
       );
     }
     console.error('Failed to save blog data', error);
+    if (getBlogStorageMode() === 'blob') {
+      return NextResponse.json(
+        { error: '博客 Blob 存储不可用，请检查 BLOB_READ_WRITE_TOKEN，或 VERCEL_OIDC_TOKEN 与 BLOB_STORE_ID 是否对应同一个私有 Blob 存储。' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: '无法保存博客数据，请稍后重试。' }, { status: 500 });
   }
 }

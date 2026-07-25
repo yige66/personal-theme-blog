@@ -3,7 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
-import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getPrivateBlobCredentialOptions, isBlobStorageConfigured, isBlobStorageEnabled, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
+import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getBlogStorageMode, getPrivateBlobCredentialOptions, isBlobStorageConfigured, isBlobStorageEnabled, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -159,6 +159,16 @@ describe('production admin storage policy', () => {
 
     process.env.BLOG_STORAGE_MODE = 'blob';
     assert.equal(isBlobStorageEnabled(), true);
+  });
+
+  it('honors explicit local mode for a production-like local server', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.BLOG_STORAGE_MODE = 'local';
+    process.env.BLOB_READ_WRITE_TOKEN = 'stale-local-token';
+
+    assert.equal(getBlogStorageMode(), 'local');
+    assert.equal(isBlobStorageEnabled(), false);
+    assert.doesNotThrow(() => assertBlogStorageWritable());
   });
 });
 

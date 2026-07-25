@@ -27,21 +27,25 @@ export function isBlobStorageConfigured(): boolean {
   return Boolean(getPrivateBlobCredentialOptions());
 }
 
-/**
- * Selects the private runtime-data backend. Production uses Blob when credentials
- * are present; local development stays on repository files unless explicitly
- * opted into remote Blob storage with BLOG_STORAGE_MODE=blob.
- */
-export function isBlobStorageEnabled(): boolean {
-  if (!isBlobStorageConfigured()) {
-    return false;
+export type BlogStorageMode = 'local' | 'blob';
+
+/** 根据显式模式选择存储后端；local 可覆盖 production-like 本地服务的默认值。 */
+export function getBlogStorageMode(): BlogStorageMode {
+  const configuredMode = process.env.BLOG_STORAGE_MODE?.trim().toLowerCase();
+  if (configuredMode === 'local' || configuredMode === 'blob') {
+    return configuredMode;
   }
 
-  return process.env.NODE_ENV === 'production' || process.env.BLOG_STORAGE_MODE?.trim().toLowerCase() === 'blob';
+  return process.env.NODE_ENV === 'production' ? 'blob' : 'local';
+}
+
+/** 选择私有运行时数据后端；生产 Blob 模式必须同时具备可用凭据。 */
+export function isBlobStorageEnabled(): boolean {
+  return getBlogStorageMode() === 'blob' && isBlobStorageConfigured();
 }
 
 export function assertBlogStorageWritable(): void {
-  if (process.env.NODE_ENV === 'production' && !isBlobStorageConfigured()) {
+  if (getBlogStorageMode() === 'blob' && !isBlobStorageConfigured()) {
     throw new Error('BLOB_READ_WRITE_TOKEN or VERCEL_OIDC_TOKEN with BLOB_STORE_ID is required for production blog writes.');
   }
 }

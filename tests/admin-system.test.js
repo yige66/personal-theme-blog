@@ -217,6 +217,8 @@ describe('blog administration operating system', () => {
     assert.doesNotMatch(adminBlogApi, /const persistedData = await getBlogData\(\)/);
     assert.match(adminBlogApi, /createBlogDataRevision\(persistedData\)/);
     assert.match(adminBlogApi, /consumeAdminRateLimit/);
+    assert.match(adminBlogApi, /status: 503/);
+    assert.match(adminBlogApi, /BLOB_STORE_ID/);
     assert.doesNotMatch(adminBlogApi, /error instanceof Error \? error\.message/);
     assert.match(adminBlogApi, /console\.error\('Failed to save blog data'/);
 

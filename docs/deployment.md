@@ -21,6 +21,12 @@ private Blob token is present in `.env.local`. Set `BLOG_STORAGE_MODE=blob` only
 you intentionally want local `/admin` saves to target the configured private Blob
 store.
 
+If you run a production-like local server with `next start`, set
+`BLOG_STORAGE_MODE=local` explicitly to keep `/admin` writes on `data/blog.json`.
+The explicit mode takes precedence over `NODE_ENV`; production deployments should
+leave this unset or set it to `blob` so they never depend on Vercel's temporary
+filesystem.
+
 ## Vercel settings
 
 - Framework Preset: `Next.js`
@@ -35,6 +41,7 @@ Required production variables and platform credentials:
 ```text
 ADMIN_WRITE_TOKEN=<long random secret>
 BLOB_READ_WRITE_TOKEN=<provided by the linked private Blob store>
+BLOB_STORE_ID=<linked private Blob store id when using Vercel OIDC>
 BLOB_PUBLIC_STORE_ID=<linked public Blob store id>
 NEXT_PUBLIC_SITE_URL=https://yukino-blog.site
 DEEPSEEK_API_KEY=<server-side DeepSeek API key>
