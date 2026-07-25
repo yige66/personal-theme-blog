@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import path from 'node:path';
 import { cache } from 'react';
 import { isBlobStorageEnabled, readBlogDataBlob } from './blog-storage.ts';
 import { compareTextCodePoints } from './deterministic-text.ts';
+import { getLocalBlogDataFile } from './local-data-path.ts';
 
 export type BlogPost = {
   id: string;
@@ -760,7 +760,7 @@ const fallbackData: BlogData = {
   posts: []
 };
 
-const dataFile = path.join(process.cwd(), 'data', 'blog.json');
+const dataFile = getLocalBlogDataFile();
 
 export const getBlogData = cache(async (): Promise<BlogData> => {
   if (isBlobStorageEnabled()) {

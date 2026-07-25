@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
+import path from 'node:path';
 import blogData from '../data/blog.json' with { type: 'json' };
 import { createBlogDataRevision } from '../lib/blog-admin.ts';
 import { normalizeBlogData } from '../lib/blog.ts';
 import { assertBlogStorageWritable, assertMediaStorageWritable, blogBackupRetention, getBlogStorageMode, getPrivateBlobCredentialOptions, isBlobStorageConfigured, isBlobStorageEnabled, normalizeBlobEtag, selectBlogBackupPathnamesToDelete } from '../lib/blog-storage.ts';
+import { getLocalDataDirectory } from '../lib/local-data-path.ts';
 
 const originalNodeEnv = process.env.NODE_ENV;
 const originalBlobToken = process.env.BLOB_READ_WRITE_TOKEN;
@@ -12,6 +14,7 @@ const originalPublicStoreId = process.env.BLOB_PUBLIC_STORE_ID;
 const originalPrivateStoreId = process.env.BLOB_STORE_ID;
 const originalOidcToken = process.env.VERCEL_OIDC_TOKEN;
 const originalBlogStorageMode = process.env.BLOG_STORAGE_MODE;
+const originalBlogDataDirectory = process.env.BLOG_DATA_DIR;
 
 afterEach(() => {
   restoreEnv('NODE_ENV', originalNodeEnv);
@@ -21,6 +24,7 @@ afterEach(() => {
   restoreEnv('BLOB_STORE_ID', originalPrivateStoreId);
   restoreEnv('VERCEL_OIDC_TOKEN', originalOidcToken);
   restoreEnv('BLOG_STORAGE_MODE', originalBlogStorageMode);
+  restoreEnv('BLOG_DATA_DIR', originalBlogDataDirectory);
 });
 
 describe('production admin storage policy', () => {
@@ -169,6 +173,12 @@ describe('production admin storage policy', () => {
     assert.equal(getBlogStorageMode(), 'local');
     assert.equal(isBlobStorageEnabled(), false);
     assert.doesNotThrow(() => assertBlogStorageWritable());
+  });
+
+  it('resolves an explicit local data directory relative to the project root', () => {
+    process.env.BLOG_DATA_DIR = '.local-data';
+
+    assert.equal(getLocalDataDirectory(), path.join(process.cwd(), '.local-data'));
   });
 });
 

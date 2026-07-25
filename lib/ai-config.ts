@@ -8,6 +8,7 @@ import {
   readPrivateBlob,
   savePrivateBlob
 } from './blog-storage.ts';
+import { getLocalAiConfigFile } from './local-data-path.ts';
 
 export type AiConfigSource = 'backend' | 'env' | 'none';
 
@@ -42,7 +43,7 @@ type SaveAiConfigInput = {
   model?: string;
 };
 
-const AI_CONFIG_FILE = path.join(process.cwd(), 'data', 'ai-config.json');
+const AI_CONFIG_FILE = getLocalAiConfigFile();
 const DEFAULT_DEEPSEEK_MODEL = 'deepseek-v4-flash';
 
 export const AI_MODEL_OPTIONS: AiModelOption[] = [

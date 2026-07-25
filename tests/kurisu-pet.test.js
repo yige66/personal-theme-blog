@@ -97,7 +97,7 @@ describe('Makise Kurisu AI pet', () => {
     assert.match(adminAiApi, /saveAiConfig/);
     assert.match(adminAiApi, /normalizeAiConfigInput/);
     assert.match(adminAiApi, /NextResponse\.json\(\{ config \}\)/);
-    assert.match(aiConfig, /data', 'ai-config\.json'/);
+    assert.match(aiConfig, /getLocalAiConfigFile/);
     assert.match(aiConfig, /readPrivateBlob/);
     assert.match(aiConfig, /savePrivateBlob/);
     assert.match(aiConfig, /assertBlogStorageWritable/);

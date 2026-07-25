@@ -4,6 +4,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeBlogData, type BlogData } from './blog.ts';
 import { assertBlogStorageWritable, isBlobStorageEnabled, saveBlogDataBlob } from './blog-storage.ts';
+import { getLocalBlogBackupDirectory, getLocalBlogDataFile } from './local-data-path.ts';
 
 type ValidationSuccess = {
   ok: true;
@@ -17,8 +18,8 @@ type ValidationFailure = {
 
 export type BlogDataValidationResult = ValidationSuccess | ValidationFailure;
 
-const dataFile = path.join(process.cwd(), 'data', 'blog.json');
-const backupDirectory = path.join(process.cwd(), 'data', 'backups');
+const dataFile = getLocalBlogDataFile();
+const backupDirectory = getLocalBlogBackupDirectory();
 
 /** Reads the file-backed blog data after a local save for exact persistence verification. */
 export async function readLocalBlogData(): Promise<BlogData> {

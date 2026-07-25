@@ -234,7 +234,8 @@ describe('blog administration operating system', () => {
     assert.match(blogStorage, /ifMatch: expectedEtag/);
     assert.match(adminLib, /createBlogDataBackup/);
     assert.match(adminLib, /writeFile/);
-    assert.match(adminLib, /blog\.json/);
+    assert.match(adminLib, /getLocalBlogDataFile/);
+    assert.match(adminLib, /getLocalBlogBackupDirectory/);
 
     assert.match(adminConsole, /getWorkspaceTools/);
     assert.match(adminConsole, /createPageContentFields\('tag-detail'\)/);
