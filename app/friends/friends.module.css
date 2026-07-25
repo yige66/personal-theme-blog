@@ -197,7 +197,7 @@
   flex: 0 0 auto;
   overflow: hidden;
   border: 2px solid color-mix(in srgb, var(--friend-theme) 52%, white 48%);
-  border-radius: 50%;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--friend-theme) 18%, white 82%);
   color: var(--xh-ink);
   font-weight: 900;
@@ -243,7 +243,7 @@
 .online i {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--friend-theme);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--friend-theme) 16%, transparent);
 }
@@ -462,4 +462,481 @@
 }
 .applyPanel { padding: 22px 18px 18px; }
   .applyActions { flex-wrap: wrap; }
+}
+
+.board {
+  width: min(1080px, calc(100% - 32px));
+  display: grid;
+  gap: 24px;
+  margin-inline: auto;
+  padding-bottom: 64px;
+  overflow: visible;
+}
+
+/* 固定卡宽配合 auto-fit，让数量决定列数，单卡不会被拉伸成整行。 */
+.siteCard {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4b3e66 !important;
+  box-shadow: none;
+  isolation: isolate;
+  position: relative;
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+}
+
+.siteCard::before,
+.card::before {
+  position: absolute;
+  z-index: 0;
+  inset: -34px -36px;
+  background-image: url('/assets/friends/wind-cloud-frame-matched-blue-reference-v2.png');
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  -webkit-mask-image: none;
+  mask-image: none;
+  content: '';
+  filter: saturate(1.06) brightness(1.04) contrast(1.08) drop-shadow(0 0 10px rgba(188, 137, 47, 0.46));
+  opacity: 0.92;
+  pointer-events: none;
+  animation: friendCloudFlow 12s ease-in-out infinite;
+}
+
+.siteCard::after {
+  display: none;
+}
+
+.siteCardLink,
+.card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.siteCardLink {
+  display: grid;
+  grid-template-areas:
+    'avatar identity'
+    'avatar status'
+    'description description';
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+  padding: 18px;
+  min-height: 152px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff5ee !important;
+  box-shadow: none;
+  text-decoration: none;
+  text-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.siteCardLink::before,
+.card::after {
+  position: absolute;
+  z-index: 0;
+  inset: 6px 10px;
+  border-radius: 0;
+  background:
+    linear-gradient(135deg, rgba(18, 38, 100, 0.68) 0%, rgba(45, 61, 133, 0.58) 44%, rgba(79, 66, 143, 0.48) 76%, rgba(143, 113, 166, 0.34) 100%),
+    url('/assets/friends/wind-cloud-inner-matched-blue-cohesive-20260725.png') center / 100% 100% no-repeat;
+  background-blend-mode: multiply, normal;
+  content: '';
+  filter: saturate(1.06) brightness(0.94) contrast(1.05);
+  opacity: 0.9;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #fff 11%, #fff 89%, transparent 100%), linear-gradient(to bottom, transparent 0%, #fff 16%, #fff 84%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #fff 11%, #fff 89%, transparent 100%), linear-gradient(to bottom, transparent 0%, #fff 16%, #fff 84%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  transition: filter 180ms ease, opacity 180ms ease;
+}
+
+.siteCardLink > * {
+  position: relative;
+  z-index: 1;
+}
+
+.siteCardLink:hover,
+.siteCardLink:focus-visible {
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.siteCardLink:hover::before,
+.siteCardLink:focus-visible::before {
+  filter: saturate(1.18) brightness(0.92) contrast(1.1);
+  opacity: 0.92;
+}
+
+.siteCard:hover,
+.siteCard:focus-within,
+.card:hover,
+.card:focus-visible {
+  border-color: rgba(201, 148, 49, 0.52);
+  box-shadow: 0 20px 42px rgba(104, 82, 139, 0.2);
+  transform: translateY(-4px);
+}
+
+.siteCard:focus-within {
+  outline: 2px solid rgba(255, 224, 142, 0.8);
+  outline-offset: 7px;
+}
+
+.siteCard:active,
+.card:active {
+  transform: translateY(-1px) scale(0.992);
+}
+
+.siteCard:hover::before,
+.siteCard:focus-within::before,
+.card:hover::before,
+.card:focus-visible::before {
+  filter: saturate(1.08) brightness(1.14) contrast(1.1) drop-shadow(0 0 14px rgba(188, 137, 47, 0.54));
+  opacity: 1;
+}
+
+.siteAvatar {
+  grid-area: avatar;
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid rgba(214, 168, 83, 0.86);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 4px rgba(255, 224, 146, 0.2), 0 8px 20px rgba(104, 82, 139, 0.16);
+}
+
+.siteAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.siteIdentity {
+  grid-area: identity;
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.siteIdentity strong {
+  overflow: hidden;
+  color: #fff5ee !important;
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 900;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.78) !important;
+  white-space: nowrap;
+}
+
+.siteIdentity small {
+  overflow: hidden;
+  color: rgba(247, 240, 255, 0.82) !important;
+  font-size: 13px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(10, 19, 54, 0.72) !important;
+  white-space: nowrap;
+}
+
+.siteStatus {
+  grid-area: status;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f5d17f !important;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(10, 19, 54, 0.8) !important;
+  white-space: nowrap;
+}
+
+.siteStatus i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e8aeca;
+  box-shadow: 0 0 0 4px rgba(232, 174, 202, 0.2), 0 0 14px rgba(232, 174, 202, 0.38);
+}
+
+.siteDescription {
+  grid-area: description;
+  max-width: none;
+  min-width: 0;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  color: rgba(255, 248, 246, 0.92) !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.82) !important;
+}
+
+.grid {
+  /* 空轨道会折叠，卡片按数量居中并在空间不足时换行。 */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+  justify-content: center;
+  gap: 32px 42px;
+  overflow: visible;
+}
+
+.card {
+  display: grid;
+  min-height: 152px;
+  gap: 14px;
+  padding: 20px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff5ee;
+  box-shadow: none;
+  isolation: isolate;
+  position: relative;
+  overflow: visible;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 180ms ease, box-shadow 260ms ease, transform 260ms ease, border-color 260ms ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  box-shadow: 0 16px 32px rgba(104, 82, 139, 0.14), 0 0 18px rgba(219, 195, 255, 0.22);
+  outline: none;
+  transform: translateY(-4px);
+}
+
+.avatar {
+  width: 66px;
+  height: 66px;
+  border-width: 3px;
+  border-color: rgba(214, 168, 83, 0.86);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 4px rgba(255, 224, 146, 0.2), 0 8px 20px rgba(104, 82, 139, 0.16);
+}
+
+.identity strong {
+  font-size: 20px;
+  color: #fff5ee;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.78);
+}
+
+.card p {
+  align-self: start;
+  min-height: 52px;
+  color: rgba(255, 248, 246, 0.9);
+  font-size: 14px;
+  line-height: 1.7;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.8);
+}
+
+.category {
+  width: fit-content;
+  padding: 5px 9px;
+  border: 1px solid rgba(214, 168, 83, 0.52);
+  border-radius: 5px;
+  background: rgba(255, 231, 177, 0.14);
+  color: #f5d17f;
+  text-shadow: 0 1px 4px rgba(10, 19, 54, 0.72);
+}
+
+.emptyState {
+  display: grid;
+  gap: 7px;
+  width: min(100%, 640px);
+  margin-inline: auto;
+  padding: 16px 22px;
+  border: 1px solid color-mix(in srgb, #b895ff 34%, #ffafd2 66%);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 247, 252, 0.76), rgba(240, 251, 255, 0.74));
+  text-align: center;
+}
+
+.emptyKicker {
+  color: #a36ad6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.emptyState p {
+  margin: 0;
+  color: #6a5d74;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.applyPanel {
+  width: min(100%, 760px);
+  border-radius: 24px;
+  padding: 28px 28px 24px;
+}
+
+.applyFormat {
+  border-radius: 14px;
+  padding: 17px 18px;
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 320px)); }
+}
+
+@media (max-width: 620px) {
+  .board { width: min(100% - 24px, 520px); gap: 16px; }
+
+  .siteCard::before,
+  .card::before {
+    inset: -26px -8px;
+  }
+
+  .siteCardLink::before,
+  .card::after {
+    inset: 6px 8px;
+  }
+
+  .siteCardLink {
+    grid-template-areas:
+      'avatar identity'
+      'avatar status'
+      'description description';
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 7px 12px;
+    padding: 16px;
+    min-height: 142px;
+  }
+
+  .siteAvatar {
+    width: 64px;
+    height: 64px;
+    border-width: 3px;
+  }
+
+  .siteIdentity strong { font-size: 18px; }
+  .siteStatus { justify-self: start; }
+  .siteDescription { margin-top: 6px; font-size: 11px; line-height: 1.45; }
+  .grid { grid-template-columns: 1fr; gap: 26px; }
+  .siteCardLink { padding: 16px; }
+  .card { min-height: 0; padding: 18px; }
+  .online { display: inline-flex; }
+  .applyPanel { padding: 22px 18px 18px; }
+}
+
+@keyframes friendCloudFlow {
+  0%,
+  100% {
+    background-position: 45% 50%;
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    background-position: 55% 50%;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siteCard,
+  .card,
+  .siteCard::before,
+  .card::before {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* 全局主题锁定器覆盖了文本填充色，这里只恢复友链卡片的浅色面板对比度。 */
+:global(#xh-app-root) .siteCard .siteCardLink {
+  color: #fff5ee !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.78) !important;
+}
+
+:global(#xh-app-root) .siteCard .siteIdentity strong {
+  color: #fff5ee !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.78) !important;
+}
+
+:global(#xh-app-root) .siteCard .siteIdentity small {
+  color: rgba(247, 240, 255, 0.82) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 4px rgba(10, 19, 54, 0.72) !important;
+}
+
+:global(#xh-app-root) .siteCard .siteStatus {
+  color: #f5d17f !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 4px rgba(10, 19, 54, 0.8) !important;
+}
+
+:global(#xh-app-root) .siteCard .siteDescription {
+  color: rgba(255, 248, 246, 0.92) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.82) !important;
+}
+
+:global(#xh-app-root) .card .identity strong {
+  color: #fff5ee !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.78) !important;
+}
+
+:global(#xh-app-root) .card .identity small,
+:global(#xh-app-root) .card .online,
+:global(#xh-app-root) .card p {
+  color: rgba(255, 248, 246, 0.9) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 0 1px 5px rgba(10, 19, 54, 0.8) !important;
+}
+
+:global(#xh-app-root) .card .online {
+  color: #f5d17f !important;
+}
+
+:global(#xh-app-root) .emptyState,
+:global(#xh-app-root) .emptyState .emptyKicker,
+:global(#xh-app-root) .emptyState p {
+  color: #6a5d74 !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+:global(#xh-app-root) .emptyState .emptyKicker {
+  color: #a36ad6 !important;
+}
+
+@media (max-width: 620px) {
+  /* 移动端浮动播放器会覆盖申请面板，音乐栏目仍可通过主导航访问。 */
+  :global(body:has(.subpage.friends-page) .xh-floating-player),
+  :global(html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage.friends-page) .xh-floating-player) {
+    display: none !important;
+  }
+
+  :global(body:has(.subpage.friends-page) .xh-pixel-kurisu-pet),
+  :global(html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.subpage.friends-page) .xh-pixel-kurisu-pet) {
+    display: none !important;
+  }
 }

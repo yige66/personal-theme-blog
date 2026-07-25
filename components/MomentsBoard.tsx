@@ -5,13 +5,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PlanetaryOrbitMap, type PlanetaryOrbitItem } from '@/components/channels/PlanetaryOrbitMap';
 import { MomentComments } from '@/components/comments/MomentComments';
+import { useImagePanZoom } from '@/components/useImagePanZoom';
 import type { BlogNote, CommentConfig } from '@/lib/blog';
 import { formatChinaDateTime } from '@/lib/china-date-format';
 
 const allMood = '全部';
-const minZoomScale = 0.5;
-const maxZoomScale = 3;
-const zoomStep = 0.25;
 
 function noteImages(note: BlogNote): string[] {
   if (note.images?.length) {
@@ -41,15 +39,26 @@ export function MomentsBoard({ authorName, avatar, comments, notes }: MomentsBoa
   const displayName = authorName.trim() || '博客作者';
   const displayAvatar = avatar || '/assets/img/avatar-orbit.svg';
   const [lightbox, setLightbox] = useState<MomentLightboxState | null>(null);
-  const [zoomScale, setZoomScale] = useState(1);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const lightboxRef = useRef<HTMLDivElement | null>(null);
   const lightboxOpen = lightbox !== null;
   const lightboxImageCount = lightbox?.images.length ?? 0;
-
-const resetZoom = useCallback(() => setZoomScale(1), []);
-  const zoomIn = useCallback(() => setZoomScale((current) => Math.min(maxZoomScale, current + zoomStep)), []);
-  const zoomOut = useCallback(() => setZoomScale((current) => Math.max(minZoomScale, current - zoomStep)), []);
+  const {
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    imageRef,
+    imageStyle,
+    isPanning,
+    maxScale: maxZoomScale,
+    minScale: minZoomScale,
+    resetTransform: resetZoom,
+    stageRef,
+    zoomIn,
+    zoomOut,
+    zoomScale
+  } = useImagePanZoom();
   const closeLightbox = useCallback(() => {
     setLightbox(null);
     resetZoom();
@@ -226,6 +235,7 @@ const resetZoom = useCallback(() => setZoomScale(1), []);
                       id={`moment-image-${note.id}-${imageIndex}`}
                       aria-label={`放大查看 ${note.title || '动态'} 的第 ${imageIndex + 1} 张配图`}
                       onClick={() => {
+                        resetZoom();
                         setLightbox({ images, index: imageIndex, title: note.title || `动态 ${index + 1}` });
                       }}
                       key={`${src}-${imageIndex}`}
@@ -272,14 +282,20 @@ const resetZoom = useCallback(() => setZoomScale(1), []);
               ↺
             </button>
           </div>
-          <div className="moment-lightbox__stage">
+          <div className="moment-lightbox__stage" ref={stageRef}>
             <Image
-              className="moment-lightbox__image"
+              className={`moment-lightbox__image${isPanning ? ' is-panning' : ''}`}
               src={lightbox.images[lightbox.index]}
               alt={`${lightbox.title} 配图 ${lightbox.index + 1}`}
               width={1600}
               height={1200}
-              style={{ '--moment-zoom-scale': zoomScale } as React.CSSProperties}
+              ref={imageRef}
+              style={imageStyle}
+              draggable={false}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
               priority
             />
           </div>

@@ -46,12 +46,10 @@ describe('published content quality', () => {
     const data = await readBlogData();
 
     assert.equal(data.site.github, 'https://github.com/yige66');
+    assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
-    assert.equal(data.site.friendLinkApply.siteAvatar, '/assets/img/avatar-orbit.svg');
-    assert.equal(data.links.length, 4);
-    assert.ok(data.links.every((link) => link.category === '\u516c\u5f00\u7533\u8bf7'));
-    assert.ok(data.links.every((link) => link.url.startsWith('http')));
-    assert.ok(data.links.every((link) => link.description.includes('https://')));
+    assert.equal(data.site.friendLinkApply.siteAvatar, undefined);
+    assert.deepEqual(data.links, []);
   });
 
   it('removes old test copy and keeps public profile content privacy-safe', async () => {

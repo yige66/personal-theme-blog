@@ -29,7 +29,7 @@ describe('production interaction performance guards', () => {
     assert.match(navigation, /prefetch=\{false\}/);
     assert.match(home, /href="\/about" prefetch=\{false\}/);
     assert.match(latestPosts, /href="\/archive" prefetch=\{false\}/);
-    assert.match(player, /currentTrack\?\.cover\?\.startsWith\('\/'\)/);
+    assert.match(player, /const cover = currentTrack\?\.cover \|\| fallbackImage/);
     assert.match(player, /href="\/music" prefetch=\{false\}/);
     assert.match(toolbox, /prefetch=\{false\}/);
     assert.match(latestPosts, /xh-latest-main-link.*prefetch=\{false\}/);

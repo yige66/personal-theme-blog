@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react';
 import type { MusicTrack } from '@/lib/blog';
 import { mergeTimedLyricLines, parseTimedLyrics, type TimedLyricLine } from '@/lib/music-lyrics';
 
@@ -87,6 +87,10 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   const isLyricPrelude = lyricLines.length > 0 && currentTime < lyricLines[0].time;
   const handleAudioPlaybackFailure = useCallback((error?: unknown) => {
     const errorName = error instanceof Error ? error.name : '';
+    if (errorName === 'AbortError') {
+      return;
+    }
+
     if (errorName === 'NotAllowedError') {
       setIsPlaying(false);
       setLoadError('浏览器需要你点击播放按钮后才能出声。');
@@ -97,6 +101,17 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     setIsPlaying(false);
     setLoadError('当前音频无法播放，可能是文件损坏、格式不受浏览器支持，或上传未完成。请重新导入标准 MP3/M4A/WAV/FLAC 文件。');
   }, []);
+  /**
+   * 只允许当前歌曲对应的媒体资源报告错误，避免切歌后的旧事件污染播放状态。
+   */
+  const handleAudioError = useCallback((event: SyntheticEvent<HTMLAudioElement>) => {
+    const audio = event.currentTarget;
+    if (audio !== audioRef.current || !currentTrack?.url || !isCurrentAudioSource(audio, currentTrack.url)) {
+      return;
+    }
+
+    handleAudioPlaybackFailure();
+  }, [currentTrack?.url, handleAudioPlaybackFailure]);
   const currentLyric = useMemo(() => {
     if (!currentTrack) {
       return '歌单等待配置。';
@@ -157,7 +172,13 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
     }
 
     if (canUseAudio) {
-      audioRef.current?.play().catch(handleAudioPlaybackFailure);
+      const playbackToken = playAttemptRef.current + 1;
+      playAttemptRef.current = playbackToken;
+      audioRef.current?.play().catch((error) => {
+        if (playAttemptRef.current === playbackToken) {
+          handleAudioPlaybackFailure(error);
+        }
+      });
     }
   }, [canUseAudio, handleAudioPlaybackFailure, playlist.length]);
 
@@ -405,8 +426,11 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
   }, [isMuted, volume]);
 
   useEffect(() => {
+    const playbackToken = playAttemptRef.current + 1;
+    playAttemptRef.current = playbackToken;
     const audio = audioRef.current;
     if (!audio || !canUseAudio) {
+      audio?.pause();
       return undefined;
     }
 
@@ -415,7 +439,11 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
       return undefined;
     }
 
-    audio.play().catch(handleAudioPlaybackFailure);
+    audio.play().catch((error) => {
+      if (playAttemptRef.current === playbackToken) {
+        handleAudioPlaybackFailure(error);
+      }
+    });
     return undefined;
   }, [canUseAudio, currentTrackKey, handleAudioPlaybackFailure, isPlaying]);
 
@@ -479,7 +507,7 @@ export function MusicProvider({ children, tracks, cloudMusicIds = [] }: { childr
           onLoadedMetadata={updateFromAudio}
           onTimeUpdate={updateFromAudio}
           onEnded={handleTrackEnded}
-          onError={() => handleAudioPlaybackFailure()}
+          onError={handleAudioError}
         />
       ) : null}
     </MusicContext.Provider>
@@ -549,4 +577,12 @@ function getDraftDuration(track: MusicTrack | null, index: number): number {
   }
 
   return 192 + (index % 4) * 18;
+}
+
+/**
+ * 比较媒体元素当前声明的地址与歌曲地址，兼容相对路径、绝对 URL 和本地对象 URL。
+ */
+function isCurrentAudioSource(audio: HTMLAudioElement, expectedSource: string): boolean {
+  const candidates = [audio.currentSrc, audio.src, audio.getAttribute('src')];
+  return candidates.some((candidate) => Boolean(candidate && (candidate === expectedSource || candidate.endsWith(expectedSource))));
 }

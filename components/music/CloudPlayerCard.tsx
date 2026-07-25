@@ -23,7 +23,8 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
   const title = currentTrack?.title || '歌单待补全';
   const artist = currentTrack?.artist || 'Local Playlist';
   const lyricSubtitle = currentLyric || currentTrack?.note || '等待歌词';
-  const cover = currentTrack?.cover?.startsWith('/') ? currentTrack.cover : fallbackImage;
+  const cover = currentTrack?.cover || fallbackImage;
+  const isRemoteCover = /^https?:\/\//i.test(cover);
 
   return (
     <article
@@ -35,7 +36,8 @@ export function CloudPlayerCard({ fallbackImage }: { fallbackImage: string }) {
     >
       <Link className="xh-cloud-player-open" href="/music" prefetch={false} aria-label={`打开音乐电台：${title}`} />
       <div className="xh-disc-cover" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
-        <Image src={cover} alt="" width={220} height={220} priority />
+        {/* 远程音乐封面由浏览器直取，避免服务端图片优化器无法访问音乐 CDN。 */}
+        <Image src={cover} alt="" width={220} height={220} priority unoptimized={isRemoteCover} />
       </div>
       <div className="xh-cloud-copy">
         <p className="eyebrow">夜航电台</p>

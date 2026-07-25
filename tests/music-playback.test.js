@@ -242,7 +242,7 @@ describe('real music playback', () => {
 
   it('restarts real audio playback when the playing playlist advances to another track', async () => {
     const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
-    const playbackEffectMatch = provider.match(/useEffect\(\(\) => \{[\s\S]*?audio\.play\(\)\.catch\(handleAudioPlaybackFailure\);[\s\S]*?\}, \[([^\]]+)\]\);/);
+    const playbackEffectMatch = provider.match(/useEffect\(\(\) => \{\s*const playbackToken = playAttemptRef\.current \+ 1;[\s\S]*?audio\.play\(\)\.catch\(\(error\) =>[\s\S]*?\}, \[([^\]]+)\]\);/);
 
     assert.ok(playbackEffectMatch, 'expected the real audio playback effect to be present');
     assert.match(
@@ -263,6 +263,31 @@ describe('real music playback', () => {
     assert.match(toggleMatch[1], /setIsPlaying\(true\);\s*audio\.play\(\)/);
     assert.match(toggleMatch[1], /playAttemptRef\.current === playAttempt/);
     assert.doesNotMatch(toggleMatch[1], /\.then\(/);
+  });
+
+  it('uses the configured track cover before the homepage fallback', async () => {
+    const [cloudCard, homeOverrides] = await Promise.all([
+      readFile('components/music/CloudPlayerCard.tsx', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
+    ]);
+
+    assert.match(cloudCard, /const cover = currentTrack\?\.cover \|\| fallbackImage/);
+    assert.match(cloudCard, /const isRemoteCover = .*test\(cover\)/);
+    assert.match(cloudCard, /unoptimized=\{isRemoteCover\}/);
+    assert.doesNotMatch(cloudCard, /currentTrack\?\.cover\?\.startsWith\('\/'\)/);
+    assert.match(homeOverrides, /body:has\(\.music-page\) :is\(\.music-stage, \.music-panel\)[\s\S]*height: var\(--music-card-height\) !important[\s\S]*min-height: var\(--music-card-height\) !important/);
+  });
+
+  it('does not classify canceled or stale audio requests as broken media', async () => {
+    const provider = await readFile('components/music/MusicProvider.tsx', 'utf8');
+
+    assert.match(provider, /errorName === 'AbortError'/);
+    assert.match(provider, /const playbackToken = playAttemptRef\.current \+ 1/);
+    assert.match(provider, /playAttemptRef\.current === playbackToken/);
+    assert.match(provider, /const handleAudioError = useCallback/);
+    assert.match(provider, /audio !== audioRef\.current/);
+    assert.match(provider, /isCurrentAudioSource\(audio, currentTrack\.url\)/);
+    assert.match(provider, /onError=\{handleAudioError\}/);
   });
 
   it('loops list playback from the last track back to the first track', async () => {

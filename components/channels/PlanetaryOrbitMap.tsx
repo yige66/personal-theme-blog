@@ -49,9 +49,10 @@ const planetSprites = [
   '/assets/space/kenney-planets/planet09.png'
 ];
 
+/** 动态与标签星图的核心行星贴图，保持页面变体的色彩叙事一致。 */
 const corePlanetSprites = {
-  moments: '/assets/space/kenney-planets/planet08.png',
-  tags: '/assets/space/kenney-planets/planet09.png'
+  moments: '/assets/space/generated/moments-core-planet.png',
+  tags: '/assets/space/generated/tags-core-planet.png'
 } as const;
 
 function clamp(value: number, min: number, max: number) {

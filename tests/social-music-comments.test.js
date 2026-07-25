@@ -16,7 +16,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.equal(data.site.friendLinkApplyFormat, undefined);
     assert.equal(data.site.friendLinkApply.title, '友链申请');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
-    assert.equal(data.site.friendLinkApply.siteAvatar, '/assets/img/avatar-orbit.svg');
+    assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.match(data.site.friendLinkApply.description, /评论区/);
     for (const field of ['title', 'github', 'subtitle', 'avatar']) {
       assert.equal(typeof data.site[field], 'string');
@@ -127,10 +127,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(aboutPage, /GitHubComments/);
     assert.match(aboutPage, /about-joined-panel/);
     assert.match(aboutPage, /term="\/about"/);
-    assert.match(friendsClient, /名称：\$\{application\.siteName\}/);
+    assert.match(friendsClient, /const siteName = \[site\.title, site\.brandSuffix\]/);
     assert.match(friendsClient, /链接：\$\{application\.siteUrl\}/);
     assert.match(friendsClient, /简介：\$\{application\.siteDescription\}/);
-    assert.match(friendsClient, /头像：\$\{application\.siteAvatar\}/);
+    assert.match(friendsClient, /头像：\$\{siteAvatarUrl\}/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /applyPanel/);
     assert.match(friendsClient, /#gitalk-container/);
@@ -138,7 +138,8 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(friendsClient, /application\.description/);
     assert.match(friendsClient, /application\.copyLabel/);
     assert.match(friendsClient, /application\.commentLabel/);
-    assert.match(friendsClient, /styles\.empty/);
+    assert.match(friendsClient, /styles\.siteCard/);
+    assert.match(friendsClient, /styles\.emptyState/);
     assert.doesNotMatch(friendsClient, /friendLinkApplyFormat|friend-apply-form/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);

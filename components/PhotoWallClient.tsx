@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useImagePanZoom } from '@/components/useImagePanZoom';
 import type { GalleryItem } from '@/lib/blog';
 
 type PhotoWallPhoto = {
@@ -50,6 +52,22 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const lightboxRef = useRef<HTMLDivElement | null>(null);
   const currentAlbum = albums.find((album) => album.title === currentAlbumTitle) ?? null;
+  const {
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    imageRef,
+    imageStyle,
+    isPanning,
+    maxScale,
+    minScale,
+    resetTransform,
+    stageRef,
+    zoomIn,
+    zoomOut,
+    zoomScale
+  } = useImagePanZoom();
 
   useEffect(() => {
     const timer = window.setTimeout(() => setActiveQuery(searchQuery.trim().toLowerCase()), 220);
@@ -72,7 +90,10 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
     return allPhotos.filter((photo) => `${photo.title} ${photo.description} ${photo.album} ${photo.location || ''}`.toLowerCase().includes(activeQuery));
   }, [activeQuery, allPhotos]);
 
-  const closeLightbox = useCallback(() => setSelectedPhoto(null), []);
+  const closeLightbox = useCallback(() => {
+    setSelectedPhoto(null);
+    resetTransform();
+  }, [resetTransform]);
 
   useEffect(() => {
     if (!selectedPhoto) {
@@ -87,6 +108,22 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
       if (event.key === 'Escape') {
         event.preventDefault();
         closeLightbox();
+      }
+
+      if ((event.key === '+' || event.key === '=') && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        zoomIn();
+        return;
+      }
+      if ((event.key === '-' || event.key === '_') && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        zoomOut();
+        return;
+      }
+      if (event.key === '0' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        resetTransform();
+        return;
       }
 
       if (event.key !== 'Tab') {
@@ -116,7 +153,7 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [closeLightbox, selectedPhoto]);
+  }, [closeLightbox, resetTransform, selectedPhoto, zoomIn, zoomOut]);
 
   if (albums.length === 0) {
     return null;
@@ -146,7 +183,7 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
               </header>
               <div>
                 {matchedPhotos.map((photo, index) => (
-                  <button type="button" onClick={() => setSelectedPhoto(photo)} key={`${photo.album}-${photo.title}-${index}`}>
+                  <button type="button" onClick={() => { resetTransform(); setSelectedPhoto(photo); }} key={`${photo.album}-${photo.title}-${index}`}>
                     <img src={photo.image} alt={photo.alt} loading="lazy" />
                     <small>{photo.album}</small>
                     <strong>{photo.title}</strong>
@@ -193,7 +230,7 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
           </div>
           <div className="photowall-masonry" aria-label={`${currentAlbum.title} 照片`}>
             {currentAlbum.photos.map((photo, index) => (
-              <button type="button" onClick={() => setSelectedPhoto(photo)} key={`${photo.image}-${index}`}>
+              <button type="button" onClick={() => { resetTransform(); setSelectedPhoto(photo); }} key={`${photo.image}-${index}`}>
                 <img src={photo.image} alt={photo.alt} loading="lazy" />
                 <span>{photo.title}</span>
               </button>
@@ -204,13 +241,44 @@ export function PhotoWallClient({ items }: { items: GalleryItem[] }) {
 
       {activeQuery && matchedAlbums.length === 0 && matchedPhotos.length === 0 ? <p className="photowall-empty">没有找到相关的记忆。</p> : null}
 
-      {selectedPhoto ? (
-        <div ref={lightboxRef} className="photowall-lightbox" role="dialog" aria-modal="true" aria-label={selectedPhoto.title} onClick={closeLightbox}>
+      {selectedPhoto ? createPortal((
+        <div
+          ref={lightboxRef}
+          className="photowall-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedPhoto.title}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              closeLightbox();
+            }
+          }}
+        >
           <button ref={closeButtonRef} type="button" aria-label="关闭照片预览" onClick={closeLightbox}>关闭</button>
-          <img src={selectedPhoto.image} alt={selectedPhoto.alt} onClick={(event) => event.stopPropagation()} />
+          <div className="photowall-lightbox__zoom" aria-label="图片缩放控制">
+            <button type="button" onClick={zoomOut} disabled={zoomScale <= minScale} aria-label="缩小图片" title="缩小图片">-</button>
+            <output aria-live="polite">{Math.round(zoomScale * 100)}%</output>
+            <button type="button" onClick={zoomIn} disabled={zoomScale >= maxScale} aria-label="放大图片" title="放大图片">+</button>
+            <button type="button" onClick={resetTransform} disabled={zoomScale === 1} aria-label="重置图片比例" title="重置图片比例">↺</button>
+          </div>
+          <div className="photowall-lightbox__stage" ref={stageRef}>
+            <img
+              ref={imageRef}
+              className={`photowall-lightbox__image${isPanning ? ' is-panning' : ''}`}
+              src={selectedPhoto.image}
+              alt={selectedPhoto.alt}
+              style={imageStyle}
+              draggable={false}
+              onClick={(event) => event.stopPropagation()}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
+            />
+          </div>
           <p>{selectedPhoto.title} / {selectedPhoto.album}</p>
         </div>
-      ) : null}
+      ), document.body) : null}
     </section>
   );
 }
