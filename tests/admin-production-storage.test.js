@@ -108,6 +108,18 @@ describe('production admin storage policy', () => {
     assert.doesNotThrow(() => assertBlogStorageWritable());
   });
 
+  it('prefers an explicit private Blob token when both credential sets are configured', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.BLOB_READ_WRITE_TOKEN = ['test', 'private', 'blob', 'token'].join('-');
+    process.env.VERCEL_OIDC_TOKEN = ['test', 'private', 'oidc', 'token'].join('-');
+    process.env.BLOB_STORE_ID = 'store_other';
+
+    assert.deepEqual(getPrivateBlobCredentialOptions(), {
+      token: process.env.BLOB_READ_WRITE_TOKEN
+    });
+    assert.doesNotThrow(() => assertBlogStorageWritable());
+  });
+
   it('does not treat an unscoped private OIDC token as configured', () => {
     process.env.NODE_ENV = 'production';
     delete process.env.BLOB_READ_WRITE_TOKEN;
