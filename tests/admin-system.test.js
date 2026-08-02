@@ -485,13 +485,13 @@ describe('blog administration operating system', () => {
     assert.match(friendsCss, /grid-template-rows:\s*38px 22px minmax\(0, 1fr\);/);
     assert.match(friendsCss, /@media \(max-width: 620px\)[\s\S]*grid-template-rows:\s*35px 22px minmax\(0, 1fr\);/);
     assert.match(friendsCss, /\.siteDescription\s*\{[\s\S]*align-self:\s*start;/);
-    assert.match(friendsCss, /gap:\s*64px 96px;/);
+    assert.match(friendsCss, /gap:\s*64px 32px;/);
     assert.match(friendsCss, /gap:\s*72px;/);
     assert.match(friendsCss, /gap:\s*64px;/);
     assert.match(friendsCss, /gap:\s*56px;/);
     assert.match(friendsCss, /@keyframes friendCardFadeIn/);
     assert.match(friendsCss, /animation:\s*friendCardFadeIn 700ms/);
-    assert.match(friendsCss, /\.siteCard:nth-child\(2\)[\s\S]*animation-delay:\s*160ms;/);
+    assert.match(friendsCss, /animation-delay:\s*var\(--friend-delay, 0ms\);/);
 
     const validFriendLinkData = JSON.parse(JSON.stringify(blogData));
     validFriendLinkData.links.push({

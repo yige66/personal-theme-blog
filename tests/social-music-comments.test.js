@@ -87,6 +87,7 @@ describe('target-style music, friends, and GitHub comments', () => {
       friendsPage,
       aboutPage,
       friendsClient,
+      friendsCss,
       comments,
       momentComments,
       githubApi,
@@ -104,6 +105,7 @@ describe('target-style music, friends, and GitHub comments', () => {
       readFile('app/friends/page.tsx', 'utf8'),
       readFile('app/about/page.tsx', 'utf8'),
       readFile('components/FriendsBoardClient.tsx', 'utf8'),
+      readFile('app/friends/friends.module.css', 'utf8'),
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
       readFile('components/comments/MomentComments.tsx', 'utf8'),
       readFile('app/api/github/route.ts', 'utf8'),
@@ -140,7 +142,11 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(friendsClient, /application\.commentLabel/);
     assert.match(friendsClient, /styles\.siteCard/);
     assert.match(friendsClient, /styles\.emptyState/);
+    assert.match(friendsClient, /--friend-delay/);
     assert.doesNotMatch(friendsClient, /friendLinkApplyFormat|friend-apply-form/);
+    assert.match(friendsCss, /animation-delay: var\(--friend-delay, 0ms\)/);
+    assert.match(friendsCss, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+    assert.match(friendsCss, /@media \(max-width: 900px\) \{[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);
     assert.match(comments, /GITALK_STYLE_HREF/);
@@ -197,6 +203,11 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
     assert.match(githubApi, /anonymousHeaders/);
     assert.match(githubApi, /createPublicRepositoryFallback/);
+    assert.match(githubApi, /createLocalMarkdownResponse/);
+    assert.match(githubApi, /extractMarkdownText/);
+    assert.match(githubApi, /X-GitHub-Markdown-Fallback/);
+    assert.match(githubApi, /isGitHubCommentListRequest/);
+    assert.match(githubApi, /application\/vnd\.github\.html\+json/);
     assert.match(githubApi, /path === '\/graphql'/);
     assert.match(githubApi, /isGraphqlRequest/);
     assert.match(githubApi, /GraphQL proxy requires a bearer token/);

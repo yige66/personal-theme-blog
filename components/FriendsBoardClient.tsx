@@ -38,7 +38,10 @@ export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: B
             <article
               className={styles.siteCard}
               key={`${link.title}-${index}-card`}
-              style={{ '--friend-theme': link.themeColor || '#6366f1' } as CSSProperties}
+              style={{
+                '--friend-theme': link.themeColor || '#6366f1',
+                '--friend-delay': `${Math.min(index, 12) * 70}ms`
+              } as CSSProperties}
             >
               <a
                 className={styles.siteCardLink}

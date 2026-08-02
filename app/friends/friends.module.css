@@ -382,12 +382,9 @@
   position: relative;
   transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
   animation: friendCardFadeIn 700ms cubic-bezier(0.22, 0.72, 0.28, 1) both;
+  animation-delay: var(--friend-delay, 0ms);
   will-change: opacity, transform, filter;
 }
-
-.siteCard:nth-child(2) { animation-delay: 160ms; }
-.siteCard:nth-child(3) { animation-delay: 320ms; }
-.siteCard:nth-child(4) { animation-delay: 480ms; }
 
 .siteCard::before {
   position: absolute;
@@ -591,9 +588,9 @@
 .grid {
   /* 空轨道会折叠，卡片按数量居中并在空间不足时换行。 */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
-  justify-content: center;
-  gap: 64px 96px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-content: stretch;
+  gap: 64px 32px;
   overflow: visible;
 }
 
@@ -636,7 +633,10 @@
 }
 
 @media (max-width: 900px) {
-  .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 320px)); }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 52px 24px;
+  }
 }
 
 @media (max-width: 620px) {

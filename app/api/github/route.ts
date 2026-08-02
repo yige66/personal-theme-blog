@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GITHUB_ACCESS_TOKEN_COOKIE, isSafeGitHubClientId, readCookie } from '@/lib/github-oauth';
 import { BLOG_REPOSITORY_OWNER } from '@/lib/github-repository';
+import { renderMarkdown } from '@/lib/blog';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -209,7 +210,7 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
     }
 
     const headers = new Headers({
-      Accept: 'application/vnd.github+json',
+      Accept: isGitHubCommentListRequest(target) ? 'application/vnd.github.html+json' : 'application/vnd.github+json',
       'User-Agent': 'yuki-blog-comments',
       'X-GitHub-Api-Version': '2022-11-28'
     });
@@ -261,6 +262,10 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
         body,
         cache: 'no-store'
       }, false);
+    }
+
+    if (kind === 'markdown' && !githubResponse.ok) {
+      return createLocalMarkdownResponse(body);
     }
 
     if (kind === 'repository' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
@@ -328,6 +333,39 @@ async function fetchGitHubRequest(target: URL, request: RequestInit, retryOnFail
       throw retryError;
     }
   }
+}
+
+function createLocalMarkdownResponse(body: string | undefined): NextResponse {
+  const markdown = extractMarkdownText(body).slice(0, MAX_PROXY_BODY_LENGTH);
+  return new NextResponse(renderMarkdown(markdown), {
+    status: 200,
+    headers: {
+      'Cache-Control': 'no-store',
+      'Content-Type': 'text/html; charset=utf-8',
+      'X-GitHub-Markdown-Fallback': 'local'
+    }
+  });
+}
+
+function isGitHubCommentListRequest(target: URL): boolean {
+  return /\/issues\/\d+\/comments$/.test(target.pathname);
+}
+
+function extractMarkdownText(body: string | undefined): string {
+  if (!body) {
+    return '';
+  }
+
+  try {
+    const payload = JSON.parse(body) as { text?: unknown };
+    if (typeof payload.text === 'string') {
+      return payload.text;
+    }
+  } catch {
+    // Gitalk normally sends JSON; accept form data for compatible clients.
+  }
+
+  return new URLSearchParams(body).get('text') || '';
 }
 
 function isRetryableGitHubStatus(status: number): boolean {
