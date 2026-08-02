@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { describe, it } from 'node:test';
+import { mergeRepositoryFriendLinks } from '../lib/blog.ts';
 
 async function readBlogData() {
   return JSON.parse(await readFile('data/blog.json', 'utf8'));
@@ -53,6 +54,20 @@ describe('published content quality', () => {
     assert.equal(data.links.filter((link) => link.url === 'https://yukino-blog.site').length, 0);
     assert.equal(new Set(data.links.map((link) => link.url)).size, data.links.length);
     assert.ok(data.links.every((link) => link.title && link.description && link.avatar));
+  });
+
+  it('only uses repository friend links when the remote directory is empty', () => {
+    const remoteData = { links: [], source: 'blob' };
+    const repositoryData = { links: [{ url: 'https://example.com' }] };
+
+    assert.deepEqual(mergeRepositoryFriendLinks(remoteData, repositoryData), {
+      links: repositoryData.links,
+      source: 'blob'
+    });
+    assert.equal(
+      mergeRepositoryFriendLinks({ links: [{ url: 'https://remote.example' }] }, repositoryData).links[0].url,
+      'https://remote.example'
+    );
   });
 
   it('removes old test copy and keeps public profile content privacy-safe', async () => {

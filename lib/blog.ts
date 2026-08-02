@@ -762,19 +762,16 @@ const fallbackData: BlogData = {
 
 const dataFile = getLocalBlogDataFile();
 
-export const getBlogData = cache(async (): Promise<BlogData> => {
-  if (isBlobStorageEnabled()) {
-    try {
-      const remoteRaw = await readBlogDataBlob();
-      if (remoteRaw) {
-        const parsed = JSON.parse(remoteRaw) as Partial<BlogData>;
-        return normalizeBlogData(parsed);
-      }
-    } catch {
-      console.warn('Blog data Blob read failed; falling back to repository data');
-    }
+export function mergeRepositoryFriendLinks(remoteData: BlogData, repositoryData: BlogData): BlogData {
+  if (remoteData.links.length > 0 || repositoryData.links.length === 0) {
+    return remoteData;
   }
 
+  // Keep versioned friend links visible while an empty or suspended Blob is repaired.
+  return { ...remoteData, links: repositoryData.links };
+}
+
+async function readRepositoryBlogData(): Promise<BlogData> {
   if (!existsSync(dataFile)) {
     return fallbackData;
   }
@@ -782,6 +779,24 @@ export const getBlogData = cache(async (): Promise<BlogData> => {
   const raw = await readFile(dataFile, 'utf8');
   const parsed = JSON.parse(raw) as Partial<BlogData>;
   return normalizeBlogData(parsed);
+}
+
+export const getBlogData = cache(async (): Promise<BlogData> => {
+  const repositoryData = await readRepositoryBlogData();
+
+  if (isBlobStorageEnabled()) {
+    try {
+      const remoteRaw = await readBlogDataBlob();
+      if (remoteRaw) {
+        const parsed = JSON.parse(remoteRaw) as Partial<BlogData>;
+        return mergeRepositoryFriendLinks(normalizeBlogData(parsed), repositoryData);
+      }
+    } catch {
+      console.warn('Blog data Blob read failed; falling back to repository data');
+    }
+  }
+
+  return repositoryData;
 });
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
