@@ -16,6 +16,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.equal(data.site.friendLinkApplyFormat, undefined);
     assert.equal(data.site.friendLinkApply.title, '友链申请');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
+    assert.equal(data.site.pages.friends.primaryActionHref, '#friend-apply');
     assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.match(data.site.friendLinkApply.description, /评论区/);
     for (const field of ['title', 'github', 'subtitle', 'avatar']) {
@@ -135,7 +136,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(friendsClient, /头像：\$\{siteAvatarUrl\}/);
     assert.match(friendsClient, /navigator\.clipboard\.writeText/);
     assert.match(friendsClient, /applyPanel/);
+    assert.match(friendsClient, /id="friend-apply"/);
     assert.match(friendsClient, /#gitalk-container/);
+    assert.match(blogLib, /id === 'friends'[\s\S]*#gitalk-container[\s\S]*#friend-apply/);
     assert.match(friendsClient, /application\.title/);
     assert.match(friendsClient, /application\.description/);
     assert.match(friendsClient, /application\.copyLabel/);

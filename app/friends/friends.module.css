@@ -193,6 +193,7 @@
   isolation: isolate;
   display: grid;
   width: min(100%, 680px);
+  scroll-margin-top: 96px;
   gap: 14px;
   margin: 2px auto 0;
   padding: 26px 26px 22px;

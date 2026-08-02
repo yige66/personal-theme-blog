@@ -369,7 +369,7 @@ describe('blog administration operating system', () => {
         secondaryActionHref: '/archive?tag=Next.js#results'
       },
       friends: {
-        primaryActionHref: '#gitalk-container',
+        primaryActionHref: '#friend-apply',
         secondaryActionHref: '/friends#gitalk-container'
       },
       about: {

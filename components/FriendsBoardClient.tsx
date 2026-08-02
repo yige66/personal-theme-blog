@@ -117,7 +117,7 @@ export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: B
         </div>
       ) : null}
 
-      <aside className={styles.applyPanel} aria-label={application.title}>
+      <aside id="friend-apply" className={styles.applyPanel} aria-label={application.title}>
         <div className={styles.applyCopy}>
           <div className={styles.applyHeading}>
             <span className={styles.applyEmblem} aria-hidden="true">

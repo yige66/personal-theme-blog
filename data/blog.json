@@ -274,7 +274,7 @@
         "emptyTitle": "暂无友链",
         "emptyDescription": "在后台新增友链后，这里会自动生成朋友站点卡片。",
         "primaryActionLabel": "申请友链",
-        "primaryActionHref": "#gitalk-container",
+        "primaryActionHref": "#friend-apply",
         "secondaryActionLabel": "返回首页",
         "secondaryActionHref": "/",
         "searchPlaceholder": "搜索友链",

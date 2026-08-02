@@ -479,7 +479,7 @@ const fallbackPages: Record<string, PageContent> = {
     emptyTitle: '暂无友链',
     emptyDescription: '在后台新增友链后，这里会自动生成朋友站点卡片。',
     primaryActionLabel: '申请格式',
-    primaryActionHref: '#gitalk-container',
+    primaryActionHref: '#friend-apply',
     secondaryActionLabel: '返回首页',
     secondaryActionHref: '/',
     searchPlaceholder: '搜索友链',
@@ -887,7 +887,14 @@ export function getBlogStatsFromData(data: BlogData): BlogStats {
 }
 
 export function getPageContent(site: BlogSite, id: string): PageContent {
-  return site.pages[id] ?? fallbackPages[id] ?? createFallbackPageContent(id);
+  const page = site.pages[id] ?? fallbackPages[id] ?? createFallbackPageContent(id);
+
+  // Keep older admin data from sending the friends-page hero straight to comments.
+  if (id === 'friends' && page.primaryActionHref === '#gitalk-container') {
+    return { ...page, primaryActionHref: '#friend-apply' };
+  }
+
+  return page;
 }
 
 export function getPageActions(page: PageContent): Array<{ href: string; label: string }> {
