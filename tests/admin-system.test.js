@@ -464,11 +464,12 @@ describe('blog administration operating system', () => {
   });
 
   it('supports richer friend-link records for adding other sites from the admin console', async () => {
-    const [blogLib, adminConfig, adminUtils, friendsClient] = await Promise.all([
+    const [blogLib, adminConfig, adminUtils, friendsClient, friendsCss] = await Promise.all([
       readFile('lib/blog.ts', 'utf8'),
       readFile('components/admin/adminConfig.ts', 'utf8'),
       readFile('components/admin/adminUtils.ts', 'utf8'),
-      readFile('components/FriendsBoardClient.tsx', 'utf8')
+      readFile('components/FriendsBoardClient.tsx', 'utf8'),
+      readFile('app/friends/friends.module.css', 'utf8')
     ]);
 
     for (const field of ['category', 'owner', 'addedAt', 'note']) {
@@ -478,8 +479,19 @@ describe('blog administration operating system', () => {
     assert.match(adminUtils, /case 'link'/);
     assert.match(adminUtils, /category: '个人站'/);
     assert.match(adminUtils, /description: '待确认的友链申请。'/);
-    assert.match(friendsClient, /link\.category/);
+    assert.match(friendsClient, /links\.map[\s\S]*styles\.siteCard[\s\S]*styles\.siteCardLink/);
+    assert.doesNotMatch(friendsClient, /link\.category|styles\.category/);
     assert.doesNotMatch(friendsClient, /link\\.(status|reciprocal)/);
+    assert.match(friendsCss, /grid-template-rows:\s*38px 22px minmax\(0, 1fr\);/);
+    assert.match(friendsCss, /@media \(max-width: 620px\)[\s\S]*grid-template-rows:\s*35px 22px minmax\(0, 1fr\);/);
+    assert.match(friendsCss, /\.siteDescription\s*\{[\s\S]*align-self:\s*start;/);
+    assert.match(friendsCss, /gap:\s*64px 96px;/);
+    assert.match(friendsCss, /gap:\s*72px;/);
+    assert.match(friendsCss, /gap:\s*64px;/);
+    assert.match(friendsCss, /gap:\s*56px;/);
+    assert.match(friendsCss, /@keyframes friendCardFadeIn/);
+    assert.match(friendsCss, /animation:\s*friendCardFadeIn 700ms/);
+    assert.match(friendsCss, /\.siteCard:nth-child\(2\)[\s\S]*animation-delay:\s*160ms;/);
 
     const validFriendLinkData = JSON.parse(JSON.stringify(blogData));
     validFriendLinkData.links.push({

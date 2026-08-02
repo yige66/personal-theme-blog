@@ -29831,3 +29831,86 @@ body:has(.tags-page) .planetary-orbit-map[data-variant="tags"] {
     opacity: 0.14 !important;
   }
 }
+
+/* 星球表面最终收口：保留真实贴图，移除所有 DOM 覆盖层。 */
+html body .planetary-orbit-map .planetary-core-texture {
+  background: var(--planet-core-sprite) center / 116% 116% no-repeat !important;
+  filter: saturate(1.05) contrast(1.02) !important;
+  mix-blend-mode: screen !important;
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+html body .planetary-orbit-map .planetary-core-texture::before,
+html body .planetary-orbit-map .planetary-core-texture::after,
+html body .planetary-orbit-map .planetary-core::before,
+html body .planetary-orbit-map .planetary-core::after,
+html body .planetary-orbit-map .planetary-node[data-active] .planetary-mini-planet::before,
+html body .planetary-orbit-map .planetary-node[data-active] .planetary-mini-planet::after,
+html body .planetary-orbit-map .planetary-node[data-active] .planetary-mini-planet > b,
+html body .planetary-orbit-map .planetary-node[data-active] .planetary-mini-planet > i,
+html body .planetary-orbit-map .planetary-node[data-active] .planetary-mini-ring {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+html body .planetary-orbit-map .planetary-mini-planet {
+  background: var(--planet-sprite) center / 132% 132% no-repeat !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 0 17px color-mix(in srgb, var(--planet-glow) 30%, transparent) !important;
+  filter: saturate(1.03) contrast(1.02) !important;
+  transform-style: flat !important;
+}
+
+/* 窄屏详细模式收口：星球固定左列，信息卡填满剩余宽度并正常换行。 */
+@media (max-width: 900px) {
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node,
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="left"],
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="right"],
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="above"],
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="below"] {
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-items: stretch !important;
+  }
+
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="left"] .planetary-node-info,
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="right"] .planetary-node-info,
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="above"] .planetary-node-info,
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node[data-side="below"] .planetary-node-info {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    justify-self: stretch !important;
+    padding: 0 !important;
+    text-align: left !important;
+    transform: none !important;
+  }
+
+  html body .planetary-orbit-map[data-mode="detail"] .planetary-node-info :is(small, strong, em, span) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+  }
+}
+
+/* 星图移动端避让：固定播放器不覆盖详细信息卡。 */
+@media (max-width: 900px) {
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.moments-page) .xh-floating-player,
+  html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.tags-page) .xh-floating-player,
+  html body:has(.moments-page) .xh-floating-player,
+  html body:has(.tags-page) .xh-floating-player {
+    display: none !important;
+  }
+}

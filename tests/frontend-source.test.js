@@ -694,7 +694,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(component, /Math\.min\(window\.devicePixelRatio \|\| 1, 1\.35\)/);
     assert.match(component, /const frameIntervalMs = 1000 \/ 24/);
     assert.match(component, /Math\.round\(intensity \/ 4\.8\)/);
-    assert.match(component, /Math\.round\(intensity \/ 7\.2\)/);
+    assert.match(component, /Math\.round\(intensity \/ 6\)/);
     assert.match(component, /if \(intensity <= 0\) \{\s*return 0;\s*\}/);
     assert.match(component, /return Math\.round\(intensity \/ 2\.2\)/);
     assert.doesNotMatch(component, /Math\.max\(32, Math\.round\(intensity \/ 2\.2\)\)/);

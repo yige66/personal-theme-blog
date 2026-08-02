@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import type { BlogData } from '@/lib/blog';
+import { parseFriendLinkApplication } from '@/lib/friend-link-format';
 import { FieldEditor, FieldGrid, PathField } from '@/components/admin/AdminFieldEditors';
 import {
   backgroundFields,
@@ -1794,6 +1795,33 @@ function RecordListEditor({ data, description, fields, path, recordKind, title, 
   const advancedFields = fields.filter((field) => field.advanced);
   const copy = recordKindCopy(recordKind);
   const replaceRecords = (nextRecords: JsonRecord[]) => onChange(path, nextRecords);
+  const [friendLinkImportText, setFriendLinkImportText] = useState('');
+  const [friendLinkImportError, setFriendLinkImportError] = useState('');
+  const [friendLinkImportStatus, setFriendLinkImportStatus] = useState('');
+
+  const importFriendLink = () => {
+    const result = parseFriendLinkApplication(friendLinkImportText);
+    if (!result.ok) {
+      setFriendLinkImportError(result.message);
+      setFriendLinkImportStatus('');
+      return;
+    }
+
+    const importedRecord: JsonRecord = {
+      ...createEmptyItem('link'),
+      title: result.data.title,
+      description: result.data.description,
+      url: result.data.url,
+      avatar: result.data.avatar
+    };
+    const targetIndex = records.length;
+    const nextRecords = [...records, importedRecord];
+
+    replaceRecords(nextRecords);
+    setSelectedIndex(targetIndex);
+    setFriendLinkImportError('');
+    setFriendLinkImportStatus('已导入名称、简介、链接和头像。');
+  };
 
   const addRecord = () => {
     const nextRecords = [...records, createEmptyItem(recordKind)];
@@ -1833,6 +1861,19 @@ function RecordListEditor({ data, description, fields, path, recordKind, title, 
 
   return (
     <PanelFrame title={title} description={description}>
+      {recordKind === 'link' ? (
+        <FriendLinkImportPanel
+          error={friendLinkImportError}
+          status={friendLinkImportStatus}
+          value={friendLinkImportText}
+          onChange={(value) => {
+            setFriendLinkImportText(value);
+            setFriendLinkImportError('');
+            setFriendLinkImportStatus('');
+          }}
+          onImport={importFriendLink}
+        />
+      ) : null}
       <div className="admin-publish-guide">
         <strong>{copy.guideTitle}</strong>
         <span>{copy.guideText}</span>
@@ -1899,6 +1940,38 @@ function RecordListEditor({ data, description, fields, path, recordKind, title, 
         </div>
       </div>
     </PanelFrame>
+  );
+}
+
+/** 提供前台复制文本到后台友链记录的单步导入入口。 */
+function FriendLinkImportPanel({ error, status, value, onChange, onImport }: {
+  error: string;
+  status: string;
+  value: string;
+  onChange: (value: string) => void;
+  onImport: () => void;
+}) {
+  return (
+    <section className="admin-friend-link-import" aria-labelledby="friend-link-import-title">
+      <div>
+        <strong id="friend-link-import-title">一键导入友链申请</strong>
+        <p>粘贴前台申请框复制的四行内容，导入后再补充分类和维护备注。</p>
+      </div>
+      <label className="admin-field admin-field-wide">
+        <span>友链申请格式</span>
+        <textarea
+          rows={5}
+          value={value}
+          placeholder={'名称：\n简介：\n链接：https://example.com\n头像：https://example.com/avatar.png'}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+      <div className="admin-row-actions">
+        <button className="button primary" type="button" disabled={!value.trim()} onClick={onImport}>一键导入</button>
+      </div>
+      {error ? <p className="admin-field-error" role="alert">{error}</p> : null}
+      {status ? <p className="admin-field-success" role="status">{status}</p> : null}
+    </section>
   );
 }
 

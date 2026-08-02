@@ -899,7 +899,7 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
         return Math.round(intensity / 4.8);
       }
       if (targetSeason === 'autumn') {
-        return Math.round(intensity / 7.2);
+        return Math.round(intensity / 6);
       }
       return Math.round(intensity / 6);
     };
@@ -2314,6 +2314,7 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
   const floatingVolume = isMuted ? 0 : volume;
   const floatingVolumePercent = Math.round(floatingVolume * 100);
   const floatingCover = floatingTrack?.cover || site.heroImage;
+  const isRemoteFloatingCover = /^https?:\/\//i.test(floatingCover);
   const floatingSubtitle = currentLyric || (isLoading
     ? '音乐电台同步中'
     : floatingTrack
@@ -2459,7 +2460,7 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
         >
           <Link className="xh-floating-player-open" href="/music" aria-label="打开音乐栏目" />
           <span className="xh-floating-player-cover" aria-hidden="true" data-playing={isPlaying ? 'true' : 'false'}>
-            <Image src={floatingCover} alt="" width={56} height={56} sizes="56px" />
+            <Image src={floatingCover} alt="" width={56} height={56} sizes="56px" unoptimized={isRemoteFloatingCover} />
           </span>
           <div className="xh-floating-player-copy">
             <span>夜航电台</span>

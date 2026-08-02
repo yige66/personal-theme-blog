@@ -219,6 +219,13 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       : '';
     const isPublicRead = (kind === 'repository' && request.method === 'GET') || kind === 'markdown';
     const serverToken = isPublicRead ? readRuntimeEnv('GITHUB_PROJECTS_TOKEN', 'GITHUB_TOKEN') : '';
+    // 未登录时把星标列表视为空集合，避免无凭证请求制造浏览器级 401。
+    if (kind === 'starred' && !cookieToken) {
+      return NextResponse.json([], {
+        status: 200,
+        headers: { 'Cache-Control': 'no-store' }
+      });
+    }
     if (serverToken) {
       headers.set('Authorization', `Bearer ${serverToken}`);
     } else if (/^(Bearer|token)\s+/i.test(authorization)) {

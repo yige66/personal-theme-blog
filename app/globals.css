@@ -9392,6 +9392,62 @@ html[data-xh-theme="night"] .admin-mini-editor {
   grid-column: 1 / -1;
 }
 
+.admin-friend-link-import {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  border-radius: 16px;
+  background: rgba(250, 245, 255, 0.72);
+}
+
+.admin-friend-link-import > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-friend-link-import strong {
+  color: #5b21b6;
+  font-size: 15px;
+}
+
+.admin-friend-link-import p {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-friend-link-import textarea {
+  min-height: 132px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  line-height: 1.7;
+}
+
+.admin-friend-link-import .admin-row-actions {
+  justify-content: flex-start;
+}
+
+.admin-field-success {
+  color: #047857;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+html[data-xh-theme="night"] .admin-friend-link-import {
+  border-color: rgba(196, 181, 253, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-xh-theme="night"] .admin-friend-link-import strong {
+  color: #ddd6fe;
+}
+
+html[data-xh-theme="night"] .admin-field-success {
+  color: #6ee7b7;
+}
+
 .admin-field-toggle {
   min-height: 76px;
   grid-template-columns: minmax(0, 1fr) auto;

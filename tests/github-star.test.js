@@ -77,6 +77,8 @@ describe('GitHub starring flow', () => {
     assert.match(api, /AbortSignal\.timeout\(GITHUB_PROXY_REQUEST_TIMEOUT_MS\)/);
     assert.match(api, /isStarredCollectionRequest/);
     assert.match(api, /kind === 'starred'/);
+    assert.match(api, /kind === 'starred' && !cookieToken/);
+    assert.match(api, /NextResponse\.json\(\[\],/);
     assert.match(api, /retryStarRequest = \(kind === 'star' \|\| kind === 'starred'\)/);
     assert.match(api, /isRetryableGitHubStatus/);
   });

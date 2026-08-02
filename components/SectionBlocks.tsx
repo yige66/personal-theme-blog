@@ -90,10 +90,13 @@ export function ProjectCard({ project }: { project: BlogProject }) {
 }
 
 export function MusicTrackCard({ track, index }: { track: MusicTrack; index: number }) {
+  const cover = track.cover || '/assets/img/desk-notes.svg';
+  const isRemoteCover = /^https?:\/\//i.test(cover);
+
   return (
     <article className="track-card">
       <span>{String(index + 1).padStart(2, '0')}</span>
-      <Image className="track-cover" src={track.cover || '/assets/img/desk-notes.svg'} alt={`${track.title} 封面`} width={160} height={160} />
+      <Image className="track-cover" src={cover} alt={`${track.title} 封面`} width={160} height={160} unoptimized={isRemoteCover} />
       <div>
         <h3>{track.title}</h3>
         <p>{track.artist} / {track.mood || '阅读背景'}</p>
@@ -109,10 +112,13 @@ export function RadioHeroCard({ track, total }: { track?: MusicTrack; total: num
     return null;
   }
 
+  const cover = track.cover || '/assets/img/hero-mountain.svg';
+  const isRemoteCover = /^https?:\/\//i.test(cover);
+
   return (
     <section className="main-shell radio-hero-card" aria-label="当前推荐音乐">
       <div className="radio-disc">
-        <Image src={track.cover || '/assets/img/hero-mountain.svg'} alt={`${track.title} 封面`} width={520} height={520} priority={false} />
+        <Image src={cover} alt={`${track.title} 封面`} width={520} height={520} priority={false} unoptimized={isRemoteCover} />
       </div>
       <div>
         <p className="eyebrow">Now playing</p>

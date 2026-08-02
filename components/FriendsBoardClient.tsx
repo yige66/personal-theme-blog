@@ -31,49 +31,33 @@ export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: B
   return (
     <section className={`${styles.board}`} aria-label="友链名录">
       <div className={styles.grid} aria-label="友链卡片">
-        <article className={styles.siteCard} style={{ '--friend-theme': site.themeColor } as CSSProperties}>
-          <a
-            className={styles.siteCardLink}
-            href={application.siteUrl}
-            rel="noreferrer noopener"
-            target="_blank"
-            aria-label={`${siteName}本站资料`}
-          >
-            <span className={styles.siteAvatar}>
-              <Image src={site.avatar} alt={`${siteName}头像`} width={96} height={96} />
-            </span>
-            <span className={styles.siteIdentity}>
-              <strong>{siteName}</strong>
-            </span>
-            <span className={styles.siteStatus}><i aria-hidden="true" />ONLINE</span>
-            <p className={styles.siteDescription}>{application.siteDescription}</p>
-          </a>
-        </article>
-
         {links.map((link, index) => {
           const external = link.url.startsWith('http');
+          const isRemoteAvatar = /^https?:\/\//i.test(link.avatar || '');
           return (
-            <a
-              className={styles.card}
-              href={link.url}
+            <article
+              className={styles.siteCard}
               key={`${link.title}-${index}-card`}
-              rel={external ? 'noreferrer noopener' : undefined}
               style={{ '--friend-theme': link.themeColor || '#6366f1' } as CSSProperties}
-              target={external ? '_blank' : undefined}
             >
-              <span className={styles.cardTop}>
-                <span className={styles.avatar}>
-                  {link.avatar ? <Image src={link.avatar} alt={`${link.title}头像`} width={96} height={96} /> : link.title.slice(0, 1).toUpperCase()}
+              <a
+                className={styles.siteCardLink}
+                href={link.url}
+                rel={external ? 'noreferrer noopener' : undefined}
+                target={external ? '_blank' : undefined}
+                aria-label={`${link.title}友链资料`}
+              >
+                <span className={styles.siteAvatar}>
+                  {link.avatar ? <Image src={link.avatar} alt={`${link.title}头像`} width={96} height={96} unoptimized={isRemoteAvatar} /> : link.title.slice(0, 1).toUpperCase()}
                 </span>
-                <span className={styles.identity}>
+                <span className={styles.siteIdentity}>
                   <strong>{link.title}</strong>
                   {link.owner ? <small>{link.owner}</small> : null}
                 </span>
-                <span className={styles.online}><i aria-hidden="true" />ONLINE</span>
-              </span>
-              <p>{link.description}</p>
-              {link.category ? <span className={styles.category}>{link.category}</span> : null}
-            </a>
+                <span className={styles.siteStatus}><i aria-hidden="true" />ONLINE</span>
+                <p className={styles.siteDescription}>{link.description}</p>
+              </a>
+            </article>
           );
         })}
       </div>

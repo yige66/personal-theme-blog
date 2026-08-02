@@ -247,8 +247,8 @@ export const siteProfileFields: PathFieldConfig[] = [
 export const friendLinkApplicationFields: PathFieldConfig[] = [
   { path: ['site', 'title'], key: 'title', label: '本站名称', help: '申请区的「名称」字段会自动同步这里。' },
   { path: ['site', 'brandSuffix'], key: 'brandSuffix', label: '名称后缀', help: '会拼接在本站名称后，留空即可不显示。' },
-  { path: ['site', 'github'], key: 'github', label: '本站链接', help: '申请区的「链接」字段会自动同步这里。' },
-  { path: ['site', 'subtitle'], key: 'subtitle', label: '本站简介', kind: 'textarea', rows: 2, help: '申请区的「简介」字段会自动同步这里。' },
+  { path: ['site', 'friendLinkApply', 'siteUrl'], key: 'application-site-url', label: '本站链接', help: '这里就是前台申请框中的「链接」字段。' },
+  { path: ['site', 'friendLinkApply', 'siteDescription'], key: 'application-site-description', label: '本站简介', kind: 'textarea', rows: 2, help: '这里就是前台申请框中的「简介」字段。' },
   { path: ['site', 'avatar'], key: 'avatar', label: '本站头像', kind: 'image', cropAspect: 1, help: '申请区的「头像」字段会自动同步这里。' },
   { path: ['site', 'friendLinkApply', 'title'], key: 'application-title', label: '申请区标题' },
   { path: ['site', 'friendLinkApply', 'description'], key: 'application-description', label: '申请区说明', kind: 'textarea', rows: 2 },

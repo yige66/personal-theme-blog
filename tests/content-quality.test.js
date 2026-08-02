@@ -49,7 +49,10 @@ describe('published content quality', () => {
     assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
     assert.equal(data.site.friendLinkApply.siteAvatar, undefined);
-    assert.deepEqual(data.links, []);
+    assert.equal(data.links.length, 51);
+    assert.equal(data.links.filter((link) => link.url === 'https://yukino-blog.site').length, 0);
+    assert.equal(new Set(data.links.map((link) => link.url)).size, data.links.length);
+    assert.ok(data.links.every((link) => link.title && link.description && link.avatar));
   });
 
   it('removes old test copy and keeps public profile content privacy-safe', async () => {

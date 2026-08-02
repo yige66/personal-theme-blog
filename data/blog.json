@@ -1059,7 +1059,369 @@
       }
     ]
   },
-  "links": [],
+  "links": [
+    {
+      "title": "XingHuiSamaの宝藏之地",
+      "url": "https://www.xinghuisama.top",
+      "description": "今天我也要学习吗",
+      "avatar": "https://bu.dusays.com/2026/03/24/69c1e38ac1846.jpg",
+      "themeColor": "rgba(124, 217, 255, 0.55)",
+      "category": "个人站",
+      "addedAt": "2026-07-27"
+    },
+    {
+      "title": "光昭",
+      "url": "https://www.pyrzo.com/",
+      "description": "Where all the miracles begin!",
+      "avatar": "https://s3.pyrzo.com/public/avatar-tuya.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "kopiano主页",
+      "url": "https://alpha.coulsonzero.shop/",
+      "description": "docs 、chat、analytic",
+      "avatar": "https://avatars.githubusercontent.com/u/298550333?v=4&size=64",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "E猫的猫窝",
+      "url": "https://emaostudio.online/",
+      "description": "深入探索 AIGC 叙事生成与 AI 协作创作，记录世界观构建、Vibe Coding 实践及原创内容创作。",
+      "avatar": "https://emaostudio.online/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Zorro's Blog",
+      "url": "https://blog.zuodev.top/",
+      "description": "ZuoDev：这是我的个人网站，我的生活倒影，有诗意地记录自己的生活。它是一个 SpringBoot + Vue2 + Vue3 的产物。",
+      "avatar": "https://blog.zuodev.top/file/picture/User.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Monoの小窝",
+      "url": "https://monoblog.cc.cd/",
+      "description": "Monoの小窝，专注 ESP32P4 智能手表、LVGL 开发、Meshtastic Mesh 网络、开源硬件与技术分享。",
+      "avatar": "https://monoblog.cc.cd/img/pblot_logo.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Halfcity's Blog",
+      "url": "https://blog.halfcity.top/",
+      "description": "网安学习小窝，分享个人的网安逆向、开发、渗透、对抗等知识。",
+      "avatar": "https://blog.halfcity.top/assets/images/avatar.avif",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "青禾札记",
+      "url": "https://xiaodaidai.site/",
+      "description": "分享技术，记录生活，顺手做点小工具。",
+      "avatar": "https://xiaodaidai.site/img/avatar.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "gc的小站",
+      "url": "https://gcweb.cc/",
+      "description": "提供文章分享、聊天大厅、实用网页小工具等多项功能，希望你能喜欢收藏本站。",
+      "avatar": "https://www.gcweb.cc/static/img/pig.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "阿的宝藏之地",
+      "url": "https://nothing-new.icu/",
+      "description": "把数学学习、研究笔记、数据建模项目和智能体工程实践放进同一个长期演化的个人站点里。",
+      "avatar": "https://bu.dusays.com/2026/06/20/6a361fc5c68ff.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "夜白的小屋",
+      "url": "https://yibi2333.fun/",
+      "description": "YIBI 的个人网站，分享项目、文章、摄影与日常动态。",
+      "avatar": "https://yibi2333.fun/favicon.ico",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Lingkaの宝藏之地",
+      "url": "https://www.lingkalab.top/",
+      "description": "一个在硬件、MCU、FPGA 和 ARM Linux SoC 之间来回折腾的开发者，目标是让每一块板子都乖乖跑起来。",
+      "avatar": "https://bu.dusays.com/2026/06/12/6a2c1cb4f2089.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Eliauk's Blog",
+      "url": "https://eliauk312.top/",
+      "description": "一方天地，记录代码、生活和偶尔的奇思妙想。",
+      "avatar": "https://img.eliauk312.top/avatar/default-avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "HGL",
+      "url": "https://hgl123.icu/",
+      "description": "二次元毛玻璃风格个人博客，记录全栈开发与二次元兴趣。",
+      "avatar": "https://img.hgl123.icu/i/1780730938101-EUvDVVgB.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "桃之夭夭",
+      "url": "https://taozhiyy.top/",
+      "description": "桃之夭夭的小屋",
+      "avatar": "https://tzyy-1330068502.cos.ap-beijing.myqcloud.com/1.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Galois37の完美算术教室",
+      "url": "https://galois37.top/",
+      "description": "Galois37 的个人主页，记录笔记、项目、文章杂谈和提问箱。",
+      "avatar": "https://galois37.top/assets/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "雾水",
+      "url": "https://a.minifog.org.cn/",
+      "description": "记录技术、AI 与生活，兼具科技感与文艺水墨气质。",
+      "avatar": "https://github.com/JinRudy.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "橘子の博客",
+      "url": "https://www.originblog.xyz/",
+      "description": "与世界漫长交手，最终成为自己",
+      "avatar": "https://bu.dusays.com/2026/05/31/6a1b386c94497.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "onlysheep",
+      "url": "https://onlysheep.top/",
+      "description": "我们都是阴沟里的虫子，但总还是得有人仰望星空。",
+      "avatar": "https://onlysheep.top/upload/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "雾醉醉言",
+      "url": "https://www.wuzuizuiyan.cn/",
+      "description": "雾里醉语，且行切记。",
+      "avatar": "https://i.ibb.co/vvXLPFCh/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "奥利给@小站",
+      "url": "https://www.546066.xyz/",
+      "description": "今天也淹没在了 bug 中",
+      "avatar": "https://546066.xyz/api666.php",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Dream Blog",
+      "url": "https://pc-blog.github.io/next",
+      "description": "A personal space for code, science, and thoughts.",
+      "avatar": "https://pc-blog.github.io/next/bg/1.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Xuwei.dev",
+      "url": "https://apodfg.com/",
+      "description": "向着未知，永远启程",
+      "avatar": "https://apodfg.com/image2.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "AloySama",
+      "url": "https://www.aloysama.cloud/",
+      "description": "这里还很简单，简单到只有喜欢。",
+      "avatar": "https://bu.dusays.com/2026/05/24/6a129c1673b22.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Silas的个人主页",
+      "url": "https://jockersilas.qzz.io/",
+      "description": "统计了很多有用的网站",
+      "avatar": "https://s41.ax1x.com/2026/05/20/pezwyXF.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Lynn7777",
+      "url": "https://www.lynn7777.xyz/",
+      "description": "我和一群小猫的故事。",
+      "avatar": "https://lynn7777.xyz/assets/images/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "yuulog",
+      "url": "https://yuulog.org/",
+      "description": "德国留学、日本旅行与技术折腾记录",
+      "avatar": "https://yuulog.org/_astro/avatar.Djw_wQKk_Z1Q0puo.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "米白 の 宝藏之地",
+      "url": "https://www.mibai.xyz/",
+      "description": "在代码、二次元与摄影间穿梭的普通人，近期正埋头于修图与全栈开发。",
+      "avatar": "https://bu.dusays.com/2026/05/10/69fff19d7b60d.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Starhiro の 小站",
+      "url": "https://boke.hiromu.top/",
+      "description": "很高兴与你相遇~",
+      "avatar": "https://hiromu520.oss-cn-beijing.aliyuncs.com/Boke/15.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "冷月笙寒的小窝",
+      "url": "https://lygalaxy.cn/",
+      "description": "发现巷子里的那颗星星（技术与生活分享）",
+      "avatar": "https://lygalaxy.cn/uploads/20260128_200240_6979fae094c7b.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "FishCat233",
+      "url": "https://aaafishcat.top/",
+      "description": "互联网技术杂食系阿宅",
+      "avatar": "https://aaafishcat.top/favicon.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "萑澈的寒舍",
+      "url": "https://hxcn.cnies.org/",
+      "description": "就是为了这点醋才包的这顿饺子",
+      "avatar": "https://gastigado.cnies.org/d/elements/hxcn_transparent_240.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "楠枝小笺",
+      "url": "https://www.nannax.top/",
+      "description": "安安静静地存在，就已经很好了。",
+      "avatar": "https://nannax.top/upload/IMG_20260412_164454.ico",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "MSYDJT'Blog",
+      "url": "https://msydjt.com/",
+      "description": "MSYDJT-门上一点就通的博客",
+      "avatar": "https://cnb.cool/MSYDJT/fuwari/-/git/raw/main/public/files/img/IMG_2651-768x769-1.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Yubendan",
+      "url": "https://yubendan.com/",
+      "description": "内心充盈者，独行也如众",
+      "avatar": "https://yubendan.com/_astro/avatar.DVGZ46-Q_1TAarN.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "圆焰之庭",
+      "url": "http://madohomu.madokami.cn/",
+      "description": "圆焰圆留言站",
+      "avatar": "https://bu.dusays.com/2026/04/29/69f1d232eac6c.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "胡杨怕火",
+      "url": "https://funingna-wakawaka.github.io/",
+      "description": "传递笑容魔法的 Ciallo～(∠・ω< )⌒☆",
+      "avatar": "https://funingna-wakawaka.github.io/images/0.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "流欺の博客",
+      "url": "https://blog.lqay.cn/",
+      "description": "嗯对就是个博客",
+      "avatar": "https://tc.lqay.cn/LightPicture/2026/03/5f64e0f0f361e19c.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Moca",
+      "url": "https://blog.gonelove.de/",
+      "description": "Gone_Love 的个人博客",
+      "avatar": "https://blog.gonelove.de/avatar.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "QgxsのBlog",
+      "url": "https://www.20210701.xyz/",
+      "description": "放松心情，漫游四处，处处美景。",
+      "avatar": "https://www.20210701.xyz/icon.jpeg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "他说",
+      "url": "https://090909.top/",
+      "description": "梁栋烨的博客网站。",
+      "avatar": "https://090909.top/assets/images/avatar.webp",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "阿叶Ayeez的小站",
+      "url": "https://blog.ayeez.cn/",
+      "description": "记录学习历程，记录美好生活",
+      "avatar": "https://qiniu.ayeez.cn/avatar.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Leyili 花园",
+      "url": "https://930309.xyz/",
+      "description": "小小后花园~~~",
+      "avatar": "https://photo.930309.xyz/lcj.svg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "安泽の温馨小窝",
+      "url": "https://anze.love/",
+      "description": "愿得一人心.",
+      "avatar": "https://anze.love/wp-content/uploads/2026/03/cropped-anze.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "瓶中虾",
+      "url": "https://weiyu14.top/",
+      "description": "简简单单",
+      "avatar": "https://weiyu14.top/assets/ava-e842524e.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "LsAng",
+      "url": "https://llds.cloud/",
+      "description": "学习、探索中",
+      "avatar": "https://llds.cloud/lsang.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "汐湫的小屋",
+      "url": "https://www.ixiqiu.cn/",
+      "description": "在心灵深处遇见自己",
+      "avatar": "https://i0.wp.com/www.xiqiuhome.top/wp-content/uploads/2022/08/cropped-logo.jpg",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "夏雨日记",
+      "url": "https://xyrj.hltx.tk/",
+      "description": "欢迎光临夏雨日记个人博客！这是一个基于 Cloudflare 构建的完全免费博客，用于记录个人日常、分享免费资源、教程、免费虚拟主机，谷歌注册，Google Voice 申请，美国电话号。",
+      "avatar": "https://xyrj.hltx.tk/xyrj/files/logo.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "Fengc's Photography Blog",
+      "url": "https://fengcblog.880200.xyz/",
+      "description": "欢迎来到我的摄影世界，让我们一起在镜头下发现生活之美",
+      "avatar": "https://fengc-img.880200.xyz/api/rfile/fengc_logo.png",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "罗德岛 PRTS",
+      "url": "https://prts.wiki/",
+      "description": "记录泰拉大陆的各项数据与前文明遗迹，愿源石的阴霾早日散去。",
+      "avatar": "https://bu.dusays.com/2026/03/24/69c1e38b4c370.jpg",
+      "category": "资料站",
+      "addedAt": "2026-08-02"
+    },
+    {
+      "title": "虚空终端",
+      "url": "https://genshin.hoyoverse.com/",
+      "description": "致力于提瓦特大陆的生态计算与地脉异常分析。",
+      "avatar": "https://bu.dusays.com/2026/03/24/69c24230a5ff8.jpg",
+      "category": "资料站",
+      "addedAt": "2026-08-02"
+    }
+  ],
   "notes": [
     {
       "id": "note-blog-privacy",
