@@ -143,9 +143,15 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(friendsClient, /styles\.siteCard/);
     assert.match(friendsClient, /styles\.emptyState/);
     assert.match(friendsClient, /--friend-delay/);
+    assert.match(friendsClient, /useEffect/);
+    assert.match(friendsClient, /IntersectionObserver/);
+    assert.match(friendsClient, /data-reveal-state=\{revealedCards/);
     assert.doesNotMatch(friendsClient, /friendLinkApplyFormat|friend-apply-form/);
     assert.match(friendsCss, /animation-delay: var\(--friend-delay, 0ms\)/);
     assert.match(friendsCss, /grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+    assert.match(friendsCss, /gap: 88px 56px;/);
+    assert.match(friendsCss, /\.siteCard\[data-reveal-state="pending"\]/);
+    assert.match(friendsCss, /\.siteCard\[data-reveal-state="visible"\]/);
     assert.match(friendsCss, /@media \(max-width: 900px\) \{[\s\S]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
     assert.match(comments, /gitalk@1\.8\.0/);
     assert.match(comments, /GITALK_SCRIPT_SRC/);
@@ -244,6 +250,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /\.moment-comment-dock[\s\S]*width: 100% !important/);
     assert.match(css, /\.moment-gitalk \.gt-container \.gt-popup/);
     assert.match(css, /background: rgba\(28, 23, 55, 0\.96\) !important/);
+    assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment[\s\S]*display: flex !important/);
+    assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);
+    assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-body[\s\S]*margin: 0 !important/);
+    assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-body[\s\S]*padding: 0 !important/);
     assert.match(envExample, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(envExample, /GITHUB_CLIENT_SECRET/);
   });

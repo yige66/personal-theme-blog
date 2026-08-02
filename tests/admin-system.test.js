@@ -485,7 +485,7 @@ describe('blog administration operating system', () => {
     assert.match(friendsCss, /grid-template-rows:\s*38px 22px minmax\(0, 1fr\);/);
     assert.match(friendsCss, /@media \(max-width: 620px\)[\s\S]*grid-template-rows:\s*35px 22px minmax\(0, 1fr\);/);
     assert.match(friendsCss, /\.siteDescription\s*\{[\s\S]*align-self:\s*start;/);
-    assert.match(friendsCss, /gap:\s*64px 32px;/);
+    assert.match(friendsCss, /gap:\s*88px 56px;/);
     assert.match(friendsCss, /gap:\s*72px;/);
     assert.match(friendsCss, /gap:\s*64px;/);
     assert.match(friendsCss, /gap:\s*56px;/);

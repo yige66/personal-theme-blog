@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { BlogLink, BlogSite } from '@/lib/blog';
 import styles from '@/app/friends/friends.module.css';
 
@@ -11,6 +11,8 @@ export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: B
   // 复制给外部站点的头像必须使用生产域名下的绝对 URL。
   const siteAvatarUrl = new URL(site.avatar, application.siteUrl).toString();
   const [copyStatus, setCopyStatus] = useState(application.copyLabel);
+  const [revealedCards, setRevealedCards] = useState<Record<string, boolean>>({});
+  const boardRef = useRef<HTMLElement | null>(null);
   const applyFormat = [
     `名称：${siteName}`,
     `简介：${application.siteDescription}`,
@@ -28,19 +30,62 @@ export function FriendsBoardClient({ links, site }: { links: BlogLink[]; site: B
     }
   };
 
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board) {
+      return undefined;
+    }
+
+    const cards = Array.from(board.querySelectorAll<HTMLElement>('[data-friend-card]'));
+    const revealAll = () => {
+      setRevealedCards(Object.fromEntries(cards.map((card) => [card.dataset.friendCard || '', true])));
+    };
+
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+      revealAll();
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const enteringKeys = entries
+        .filter((entry) => entry.isIntersecting)
+        .map((entry) => (entry.target as HTMLElement).dataset.friendCard)
+        .filter((key): key is string => Boolean(key));
+
+      if (enteringKeys.length === 0) {
+        return;
+      }
+
+      setRevealedCards((current) => {
+        const next = { ...current };
+        enteringKeys.forEach((key) => {
+          next[key] = true;
+        });
+        return next;
+      });
+      entries.filter((entry) => entry.isIntersecting).forEach((entry) => observer.unobserve(entry.target));
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
+  }, [links.length]);
+
   return (
-    <section className={`${styles.board}`} aria-label="友链名录">
+    <section ref={boardRef} className={`${styles.board}`} aria-label="友链名录">
       <div className={styles.grid} aria-label="友链卡片">
         {links.map((link, index) => {
+          const cardKey = `${link.title}-${index}`;
           const external = link.url.startsWith('http');
           const isRemoteAvatar = /^https?:\/\//i.test(link.avatar || '');
           return (
             <article
               className={styles.siteCard}
-              key={`${link.title}-${index}-card`}
+              key={`${cardKey}-card`}
+              data-friend-card={cardKey}
+              data-reveal-state={revealedCards[cardKey] ? 'visible' : 'pending'}
               style={{
                 '--friend-theme': link.themeColor || '#6366f1',
-                '--friend-delay': `${Math.min(index, 12) * 70}ms`
+                '--friend-delay': `${(index % 3) * 90}ms`
               } as CSSProperties}
             >
               <a

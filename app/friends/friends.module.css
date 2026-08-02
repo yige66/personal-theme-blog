@@ -381,15 +381,25 @@
   isolation: isolate;
   position: relative;
   transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+  will-change: opacity, transform, filter;
+}
+
+.siteCard[data-reveal-state="pending"] {
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(10px);
+  transform: translateY(22px) scale(0.96);
+}
+
+.siteCard[data-reveal-state="visible"] {
   animation: friendCardFadeIn 700ms cubic-bezier(0.22, 0.72, 0.28, 1) both;
   animation-delay: var(--friend-delay, 0ms);
-  will-change: opacity, transform, filter;
 }
 
 .siteCard::before {
   position: absolute;
   z-index: 0;
-  inset: -34px -36px;
+  inset: -24px -24px;
   background-image: url('/assets/friends/wind-cloud-frame-matched-blue-reference-v2.png');
   background-position: 50% 50%;
   background-repeat: no-repeat;
@@ -586,11 +596,10 @@
 }
 
 .grid {
-  /* 空轨道会折叠，卡片按数量居中并在空间不足时换行。 */
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-content: stretch;
-  gap: 64px 32px;
+  gap: 88px 56px;
   overflow: visible;
 }
 
@@ -635,7 +644,7 @@
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 52px 24px;
+    gap: 72px 40px;
   }
 }
 
@@ -704,6 +713,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .siteCard[data-reveal-state="pending"] {
+    opacity: 1;
+    pointer-events: auto;
+    filter: none;
+    transform: none;
+  }
+
   .siteCard,
   .siteCard::before {
     animation: none;
