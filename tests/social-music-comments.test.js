@@ -210,8 +210,11 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(githubApi, /ProxyTargetKind/);
     assert.match(githubApi, /isPublicRead/);
     assert.match(githubApi, /GITHUB_PROJECTS_TOKEN/);
-    assert.match(githubApi, /anonymousHeaders/);
-    assert.match(githubApi, /createPublicRepositoryFallback/);
+    assert.match(githubApi, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
+    assert.match(githubApi, /oauthAppAuthorization/);
+    assert.match(githubApi, /publicAuthorizationCandidates/);
+    assert.match(githubApi, /fallbackHeaders/);
+    assert.doesNotMatch(githubApi, /createPublicRepositoryFallback/);
     assert.match(githubApi, /createLocalMarkdownResponse/);
     assert.match(githubApi, /extractMarkdownText/);
     assert.match(githubApi, /X-GitHub-Markdown-Fallback/);

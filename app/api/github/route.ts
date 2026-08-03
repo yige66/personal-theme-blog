@@ -220,6 +220,25 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
       : '';
     const isPublicRead = (kind === 'repository' && request.method === 'GET') || kind === 'markdown';
     const serverToken = isPublicRead ? readRuntimeEnv('GITHUB_PROJECTS_TOKEN', 'GITHUB_TOKEN') : '';
+    const oauthAppClientId = isPublicRead
+      ? readRuntimeEnv('NEXT_PUBLIC_GITALK_CLIENT_ID', 'GITALK_CLIENT_ID', 'GITHUB_CLIENT_ID')
+      : '';
+    const oauthAppClientSecret = isPublicRead
+      ? readRuntimeEnv('GITHUB_CLIENT_SECRET', 'GITALK_CLIENT_SECRET')
+      : '';
+    const oauthAppAuthorization = oauthAppClientId && oauthAppClientSecret
+      ? `Basic ${Buffer.from(`${oauthAppClientId}:${oauthAppClientSecret}`, 'utf8').toString('base64')}`
+      : '';
+    const clientAuthorization = /^(Bearer|token)\s+/i.test(authorization) ? authorization : '';
+    const publicAuthorizationCandidates = isPublicRead
+      ? [...new Set([
+          serverToken ? `Bearer ${serverToken}` : '',
+          oauthAppAuthorization,
+          clientAuthorization,
+          ''
+        ])]
+      : [];
+    const publicAuthorization = publicAuthorizationCandidates[0] || '';
     // 未登录时把星标列表视为空集合，避免无凭证请求制造浏览器级 401。
     if (kind === 'starred' && !cookieToken) {
       return NextResponse.json([], {
@@ -227,9 +246,11 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
         headers: { 'Cache-Control': 'no-store' }
       });
     }
-    if (serverToken) {
-      headers.set('Authorization', `Bearer ${serverToken}`);
-    } else if (/^(Bearer|token)\s+/i.test(authorization)) {
+    if (isPublicRead) {
+      if (publicAuthorization) {
+        headers.set('Authorization', publicAuthorization);
+      }
+    } else if (clientAuthorization) {
       headers.set('Authorization', authorization);
     } else if (cookieToken) {
       headers.set('Authorization', `Bearer ${cookieToken}`);
@@ -251,31 +272,32 @@ async function proxyGitHubApi(request: Request, target: URL, kind?: ProxyTargetK
     const retryStarRequest = (kind === 'star' || kind === 'starred') && ['GET', 'PUT'].includes(request.method);
     let githubResponse = await fetchGitHubRequest(target, githubRequest, retryStarRequest);
 
-    // A stale or revoked deployment token must never make public comments
-    // unreadable. Retry the same public request without that token first.
-    if (isPublicRead && serverToken && [401, 403].includes(githubResponse.status)) {
-      const anonymousHeaders = new Headers(headers);
-      anonymousHeaders.delete('Authorization');
-      githubResponse = await fetchGitHubRequest(target, {
-        method: request.method,
-        headers: anonymousHeaders,
-        body,
-        cache: 'no-store'
-      }, false);
+    // Try the next safe public credential before surfacing the upstream failure.
+    // In particular, OAuth App Basic auth avoids GitHub's 60/hour anonymous limit.
+    if (isPublicRead && [401, 403].includes(githubResponse.status)) {
+      for (const fallbackAuthorization of publicAuthorizationCandidates.slice(1)) {
+        const fallbackHeaders = new Headers(headers);
+        if (fallbackAuthorization) {
+          fallbackHeaders.set('Authorization', fallbackAuthorization);
+        } else {
+          fallbackHeaders.delete('Authorization');
+        }
+
+        githubResponse = await fetchGitHubRequest(target, {
+          method: request.method,
+          headers: fallbackHeaders,
+          body,
+          cache: 'no-store'
+        }, false);
+
+        if (![401, 403].includes(githubResponse.status)) {
+          break;
+        }
+      }
     }
 
     if (kind === 'markdown' && !githubResponse.ok) {
       return createLocalMarkdownResponse(body);
-    }
-
-    if (kind === 'repository' && request.method === 'GET' && [401, 403].includes(githubResponse.status)) {
-      const fallback = createPublicRepositoryFallback(target);
-      if (fallback !== null) {
-        return NextResponse.json(fallback, {
-          status: 200,
-          headers: { 'Cache-Control': 'no-store' }
-        });
-      }
     }
 
     const responseBody = await githubResponse.text();
@@ -378,28 +400,6 @@ function logGitHubRetryFailure(target: URL, request: RequestInit, status: number
     path: target.pathname,
     status
   });
-}
-
-function createPublicRepositoryFallback(target: URL): Record<string, unknown> | unknown[] | null {
-  const path = target.pathname.replace(/\/$/, '');
-  if (/\/issues\/[^/]+\/comments$/.test(path)) {
-    return [];
-  }
-
-  if (/\/issues\/[^/]+$/.test(path)) {
-    const issueNumber = Number(path.split('/').at(-1));
-    return {
-      number: Number.isInteger(issueNumber) && issueNumber > 0 ? issueNumber : 0,
-      comments: 0,
-      comments_url: `${target.origin}${path}/comments`
-    };
-  }
-
-  if (/\/issues$/.test(path)) {
-    return [];
-  }
-
-  return null;
 }
 
 function normalizeContentType(value: string): string {
