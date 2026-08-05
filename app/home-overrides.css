@@ -30003,3 +30003,63 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
     padding: 10px 12px !important;
   }
 }
+
+/* Keep Gitalk actions visible and usable in every comment variant. */
+.custom-gitalk-glass .gt-comment-like,
+.custom-gitalk-glass .gt-comment-reply,
+.moment-gitalk .gt-comment-like,
+.moment-gitalk .gt-comment-reply {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  margin-left: 6px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease !important;
+}
+
+.custom-gitalk-glass .gt-comment-like:hover,
+.custom-gitalk-glass .gt-comment-like:focus-visible,
+.custom-gitalk-glass .gt-comment-reply:hover,
+.custom-gitalk-glass .gt-comment-reply:focus-visible,
+.moment-gitalk .gt-comment-like:hover,
+.moment-gitalk .gt-comment-like:focus-visible,
+.moment-gitalk .gt-comment-reply:hover,
+.moment-gitalk .gt-comment-reply:focus-visible {
+  background: rgba(124, 217, 255, 0.16) !important;
+  color: var(--accent) !important;
+  outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent) !important;
+  outline-offset: 2px !important;
+  transform: translateY(-1px) !important;
+}
+
+.custom-gitalk-glass .gt-comment-like:active,
+.custom-gitalk-glass .gt-comment-reply:active,
+.moment-gitalk .gt-comment-like:active,
+.moment-gitalk .gt-comment-reply:active {
+  transform: translateY(0) !important;
+}
+
+.custom-gitalk-glass .gt-comment-like .gt-ico,
+.custom-gitalk-glass .gt-comment-reply .gt-ico,
+.moment-gitalk .gt-comment-like .gt-ico,
+.moment-gitalk .gt-comment-reply .gt-ico {
+  display: inline-flex !important;
+  width: 18px !important;
+  height: 18px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 480px) {
+  .custom-gitalk-glass .gt-comment-like,
+  .custom-gitalk-glass .gt-comment-reply,
+  .moment-gitalk .gt-comment-like,
+  .moment-gitalk .gt-comment-reply {
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+}

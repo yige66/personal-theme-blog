@@ -49,6 +49,7 @@ const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
 const gitalkAccountPopupHosts = new WeakSet<HTMLElement>();
+const GITALK_COMMENT_CONTROL_HOSTS = new WeakSet<HTMLElement>();
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -80,6 +81,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
 
     const observer = new MutationObserver(() => {
       removeGitalkPreviewControls(container);
+      installGitalkCommentControls(container);
       if (!canceled && sanitizeGitalkError(container)) {
         setLoadState('error');
       }
@@ -229,6 +231,7 @@ async function renderGitalk({
 
   gitalk.render(container);
   removeGitalkPreviewControls(container);
+  installGitalkCommentControls(container);
   syncGitalkTheme(container);
   installGitalkAccountPopup(container);
   cleanOAuthCodeFromUrl();
@@ -239,6 +242,105 @@ async function renderGitalk({
  */
 function removeGitalkPreviewControls(container: HTMLElement) {
   container.querySelectorAll('.gt-btn-preview, .gt-header-preview').forEach((node) => node.remove());
+}
+
+/**
+ * Gitalk renders action links without hrefs. Keep their native callbacks while
+ * making the controls discoverable and reliable across the site's comment variants.
+ */
+function installGitalkCommentControls(container: HTMLElement) {
+  decorateGitalkCommentControls(container);
+  if (GITALK_COMMENT_CONTROL_HOSTS.has(container)) {
+    return;
+  }
+
+  container.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const control = target.closest<HTMLElement>('[data-gitalk-control]');
+    if (!control || !container.contains(control)) {
+      return;
+    }
+
+    if (control.dataset.gitalkControl === 'reply') {
+      event.preventDefault();
+      event.stopPropagation();
+      insertGitalkReply(container, control);
+      return;
+    }
+
+    if (control.dataset.gitalkControl === 'like') {
+      const loginButton = container.querySelector<HTMLButtonElement>('.gt-btn-login');
+      if (loginButton && !loginButton.disabled) {
+        event.preventDefault();
+        event.stopPropagation();
+        loginButton.click();
+      }
+    }
+  }, { capture: true });
+
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const control = target.closest<HTMLElement>('[data-gitalk-control]');
+    if (!control || !container.contains(control)) {
+      return;
+    }
+
+    event.preventDefault();
+    control.click();
+  });
+
+  GITALK_COMMENT_CONTROL_HOSTS.add(container);
+}
+
+function decorateGitalkCommentControls(container: HTMLElement) {
+  const controls: Array<[string, 'like' | 'reply', string]> = [
+    ['.gt-comment-like', 'like', '点赞评论'],
+    ['.gt-comment-reply', 'reply', '回复评论']
+  ];
+
+  controls.forEach(([selector, action, label]) => {
+    container.querySelectorAll<HTMLElement>(selector).forEach((control) => {
+      control.setAttribute('data-gitalk-control', action);
+      control.setAttribute('role', 'button');
+      control.setAttribute('tabindex', '0');
+      control.setAttribute('aria-label', label);
+      control.setAttribute('title', label);
+    });
+  });
+}
+
+function insertGitalkReply(container: HTMLElement, control: HTMLElement) {
+  const comment = control.closest<HTMLElement>('.gt-comment');
+  const textarea = container.querySelector<HTMLTextAreaElement>('.gt-header-textarea');
+  const username = comment?.querySelector('.gt-comment-username')?.textContent?.trim() || '';
+  const body = comment?.querySelector('.gt-comment-body')?.textContent?.trim() || '';
+  if (!textarea || !username) {
+    return;
+  }
+
+  const replyLines = [`@${username}`, ...(body ? body.split(/\r?\n/) : [])]
+    .map((line) => `> ${line}`);
+  const reply = `${replyLines.join('\n')}\n\n`;
+  const existing = textarea.value.trim() ? `${textarea.value.replace(/\s+$/, '')}\n\n` : '';
+  const nextValue = `${existing}${reply}`;
+  const valueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+  valueSetter?.call(textarea, nextValue);
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  textarea.dispatchEvent(new Event('change', { bubbles: true }));
+  textarea.focus();
+  textarea.setSelectionRange(nextValue.length, nextValue.length);
 }
 
 /**

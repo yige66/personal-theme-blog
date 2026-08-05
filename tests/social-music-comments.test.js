@@ -187,6 +187,15 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /removeGitalkPreviewControls/);
     assert.match(comments, /querySelectorAll\('\.gt-btn-preview, \.gt-header-preview'\)/);
     assert.doesNotMatch(comments, /<button className="gt-btn gt-btn-preview"/);
+    assert.match(comments, /GITALK_COMMENT_CONTROL_HOSTS/);
+    assert.match(comments, /installGitalkCommentControls/);
+    assert.match(comments, /insertGitalkReply/);
+    assert.match(comments, /const replyLines = \[`@\$\{username\}`/);
+    assert.match(comments, /\.map\(\(line\) => `> \$\{line\}`\)/);
+    assert.match(comments, /data-gitalk-control/);
+    assert.match(comments, /setAttribute\('role', 'button'\)/);
+    assert.match(comments, /setAttribute\('tabindex', '0'\)/);
+    assert.match(comments, /addEventListener\('keydown'/);
     assert.match(momentComments, /moment-comments-shell/);
     assert.match(momentComments, /GitHubComments/);
     assert.match(comments, /cleanOAuthCodeFromUrl/);
@@ -255,6 +264,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /html\[data-xh-theme="night"\] \.custom-gitalk-glass/);
     assert.match(css, /\.moment-comment-dock[\s\S]*width: 100% !important/);
     assert.match(css, /\.moment-gitalk \.gt-container \.gt-popup/);
+    assert.match(css, /\.custom-gitalk-glass \.gt-comment-like[\s\S]*cursor: pointer/);
+    assert.match(css, /\.moment-gitalk \.gt-comment-reply[\s\S]*cursor: pointer/);
+    assert.doesNotMatch(css, /\.moment-gitalk \.gt-comment-like[\s\S]*display: none !important/);
     assert.match(css, /background: rgba\(28, 23, 55, 0\.96\) !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment[\s\S]*display: flex !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);

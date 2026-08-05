@@ -11151,10 +11151,7 @@ html[data-xh-theme="night"] .nav-links a:focus-visible {
 }
 
 .moment-gitalk .gt-header-controls-tip,
-.moment-gitalk .gt-svg-svg,
-.moment-gitalk .gt-comment-like,
-.moment-gitalk .gt-comment-edit,
-.moment-gitalk .gt-comment-reply {
+.moment-gitalk .gt-svg-svg {
   display: none !important;
 }
 
