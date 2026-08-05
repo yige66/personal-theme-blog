@@ -30063,3 +30063,98 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
     min-height: 32px !important;
   }
 }
+
+/* Friends reference comment card contract: keep every Gitalk surface on one rhythm. */
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comments {
+  margin-top: 24px !important;
+  padding-top: 4px !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment {
+  display: flex !important;
+  align-items: flex-start !important;
+  grid-template-columns: none !important;
+  column-gap: 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 10px 0 !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+  flex: 0 0 50px !important;
+  width: 50px !important;
+  height: 50px !important;
+  margin: 0 !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 0 0 20px !important;
+  padding: 12px 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-header {
+  display: block !important;
+  margin: 0 0 7px !important;
+  line-height: 21px !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 24px !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body p {
+  margin: 0 !important;
+  line-height: 1.75 !important;
+}
+
+:is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body :is(pre, table, img, video) {
+  max-width: 100% !important;
+}
+
+@media (max-width: 720px) {
+  :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+    flex-basis: 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+    margin-left: 14px !important;
+    padding: 11px 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+    margin-left: 12px !important;
+    padding: 10px 12px !important;
+  }
+}

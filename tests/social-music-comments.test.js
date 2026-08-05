@@ -272,6 +272,12 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-body[\s\S]*margin: 0 !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-body[\s\S]*padding: 0 !important/);
+    assert.match(homeCss, /Friends reference comment card contract/);
+    assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment[\s\S]*display: flex !important/);
+    assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-avatar[\s\S]*flex: 0 0 50px !important/);
+    assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);
+    assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-content[\s\S]*border-radius: 16px !important/);
+    assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-header[\s\S]*display: block !important/);
     assert.match(envExample, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(envExample, /GITHUB_CLIENT_SECRET/);
   });
