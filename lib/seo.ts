@@ -3,6 +3,10 @@ import type { BlogData, BlogPost, BlogSite } from '@/lib/blog';
 
 type ChangeFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 
+const RSS_ALTERNATE_TYPES = {
+  'application/rss+xml': '/feed.xml'
+};
+
 export type PublicRoute = {
   path: string;
   title: string;
@@ -112,7 +116,8 @@ export function createSiteMetadata(site: BlogSite): Metadata {
     publisher: site.owner,
     keywords: [site.title, site.owner, '个人博客', '技术博客', '项目作品', '生活记录'],
     alternates: {
-      canonical: '/'
+      canonical: '/',
+      types: RSS_ALTERNATE_TYPES
     },
     manifest: '/manifest.webmanifest',
     openGraph: {
@@ -150,7 +155,8 @@ export function createPostMetadata(site: BlogSite, post: BlogPost): Metadata {
     title: post.title,
     description: post.summary,
     alternates: {
-      canonical: path
+      canonical: path,
+      types: RSS_ALTERNATE_TYPES
     },
     openGraph: {
       title: post.title,
@@ -182,7 +188,8 @@ export function createTagMetadata(tag: string, postCount: number): Metadata {
     title,
     description,
     alternates: {
-      canonical: path
+      canonical: path,
+      types: RSS_ALTERNATE_TYPES
     },
     openGraph: {
       title,
@@ -278,7 +285,8 @@ function createStaticMetadata(route: PublicRoute): Metadata {
     title: route.title,
     description: route.description,
     alternates: {
-      canonical: route.path
+      canonical: route.path,
+      types: RSS_ALTERNATE_TYPES
     },
     openGraph: {
       title: route.title,
