@@ -30160,11 +30160,11 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
 }
 
 /* Final friends reference comment alignment: one frame, one card rhythm, one action row. */
-html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card.is-compact, .moment-comments-shell) {
-  width: 100% !important;
-  max-width: none !important;
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card.is-compact, .friends-comments, .moment-comments-shell) {
+  width: min(1240px, calc(100% - 42px)) !important;
+  max-width: 1240px !important;
   min-height: 0 !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -30181,9 +30181,9 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
 }
 
 html body:has(.friends-page) #gitalk-container.friends-comments {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
+  width: min(1240px, calc(100% - 42px)) !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
   padding-inline: 0 !important;
 }
 
