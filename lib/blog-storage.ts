@@ -12,19 +12,16 @@ type PrivateBlobCredentialOptions =
   | { oidcToken: string; storeId: string };
 
 export function getPrivateBlobCredentialOptions(): PrivateBlobCredentialOptions | null {
-  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
-  if (token) {
-    return { token };
-  }
-
   const oidcToken = process.env.VERCEL_OIDC_TOKEN?.trim();
   const storeId = process.env.BLOB_STORE_ID?.trim();
 
+  // Prefer Vercel's project-scoped credentials whenever the pair is complete.
   if (oidcToken && storeId) {
     return { oidcToken, storeId };
   }
 
-  return null;
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  return token ? { token } : null;
 }
 
 export function isBlobStorageConfigured(): boolean {

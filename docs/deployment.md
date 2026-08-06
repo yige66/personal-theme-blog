@@ -40,8 +40,8 @@ Required production variables and platform credentials:
 
 ```text
 ADMIN_WRITE_TOKEN=<long random secret>
-BLOB_READ_WRITE_TOKEN=<provided by the linked private Blob store>
 BLOB_STORE_ID=<linked private Blob store id when using Vercel OIDC>
+BLOB_READ_WRITE_TOKEN=<private Blob token for non-Vercel runtimes; optional on Vercel when OIDC is connected>
 BLOB_PUBLIC_STORE_ID=<linked public Blob store id>
 NEXT_PUBLIC_SITE_URL=https://yukino-blog.site
 DEEPSEEK_API_KEY=<server-side DeepSeek API key>
@@ -60,9 +60,10 @@ returns a local reply so the public page remains usable. The server logs record 
 the configuration source, model, failure category, and HTTP status; they never record
 the API key or visitor message.
 
-Vercel supplies `VERCEL_OIDC_TOKEN` to deployments. The media uploader uses it with the
-store selected by `BLOB_PUBLIC_STORE_ID` when a dedicated public Blob token is not configured. Never
-commit any token to the repository.
+Vercel supplies the short-lived `VERCEL_OIDC_TOKEN` when a Blob store is connected to the
+project. The private and media uploaders use the matching `BLOB_STORE_ID`/`BLOB_PUBLIC_STORE_ID`
+with OIDC before falling back to a static Blob token. Keep `BLOB_READ_WRITE_TOKEN` only when
+you need static-token access outside Vercel, and never commit any token to the repository.
 
 Application-level request throttling is a best-effort guard on each serverless instance.
 For sustained abuse protection, also enable Vercel Firewall rate limiting for `/api/admin/*`.
