@@ -188,7 +188,7 @@ describe('GitHub starring flow', () => {
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*margin-left: auto !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*position: relative !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*pointer-events: auto !important/);
-    assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*z-index: 31 !important/);
+    assert.match(homeOverrides, /\.moment-gitalk \.gt-user[\s\S]*z-index: 110 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user-inner[\s\S]*pointer-events: auto !important/);
     assert.match(homeOverrides, /\.moment-comment-dock[\s\S]*display: block !important/);
     assert.match(homeOverrides, /\.moment-comment-dock\[open\] > \.moment-comments-shell[\s\S]*z-index: 21 !important/);
@@ -201,5 +201,15 @@ describe('GitHub starring flow', () => {
     assert.match(momentsBoard, /<details className="moment-comment-dock" open>/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);
+  });
+
+  it('keeps Gitalk account popups above the composer and uses the glass-night theme', async () => {
+    const homeOverrides = await readFile('app/home-overrides.css', 'utf8');
+
+    assert.match(homeOverrides, /\.custom-gitalk-glass \.gt-container \.gt-popup,[\s\S]*?\.moment-gitalk \.gt-container \.gt-popup[\s\S]*?position: absolute !important;[\s\S]*?z-index: 120 !important;/);
+    assert.match(homeOverrides, /\.custom-gitalk-glass \.gt-user,[\s\S]*?isolation: isolate !important;/);
+    assert.match(homeOverrides, /\.custom-gitalk-glass \.gt-container \.gt-btn-login,[\s\S]*?\.moment-gitalk \.gt-container \.gt-btn-login/);
+    assert.match(homeOverrides, /\.custom-gitalk-glass \.gt-container \.gt-popup \.gt-action,[\s\S]*?\.moment-gitalk \.gt-container \.gt-popup \.gt-action/);
+    assert.match(homeOverrides, /background: color-mix\(in srgb, var\(--accent\) 30%, var\(--theme\) 70%\) !important;/);
   });
 });
