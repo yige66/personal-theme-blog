@@ -30206,6 +30206,9 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
   grid-template-columns: none !important;
   column-gap: 0 !important;
   min-width: 0 !important;
+  transform: none !important;
+  transform-origin: center top !important;
+  opacity: 1 !important;
   margin: 0 !important;
   padding: 10px 0 !important;
   border-top: 0 !important;
