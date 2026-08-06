@@ -190,6 +190,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /GITALK_COMMENT_CONTROL_HOSTS/);
     assert.match(comments, /installGitalkCommentControls/);
     assert.match(comments, /insertGitalkReply/);
+    assert.match(comments, /target\.closest<HTMLElement>\('\.gt-comment-like, \.gt-comment-reply'\)/);
+    assert.match(comments, /function openGitalkLogin/);
+    assert.match(comments, /\.gt-user-inner/);
+    assert.match(comments, /loginButton\.disabled/);
     assert.match(comments, /const replyLines = \[`@\$\{username\}`/);
     assert.match(comments, /\.map\(\(line\) => `> \$\{line\}`\)/);
     assert.match(comments, /data-gitalk-control/);
@@ -278,6 +282,12 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);
     assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-content[\s\S]*border-radius: 16px !important/);
     assert.match(homeCss, /:is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-header[\s\S]*display: block !important/);
+    assert.match(homeCss, /Final friends reference comment alignment/);
+    assert.match(homeCss, /html body:has\(:is\(\.subpage, \.article-page, \.friends-page\)\) :is\(\.github-comments-shell, \.github-comments-card\.is-compact, \.moment-comments-shell\)[\s\S]*background: transparent !important/);
+    assert.match(homeCss, /html body:has\(:is\(\.subpage, \.article-page, \.friends-page\)\) :is\(\.github-comments-shell, \.github-comments-card, \.friends-comments, \.moment-comments-shell\) :is\(\.custom-gitalk-glass, \.moment-gitalk\)/);
+    assert.match(homeCss, /html body:has\(:is\(\.subpage, \.article-page, \.friends-page\)\) :is\(\.github-comments-shell, \.github-comments-card, \.friends-comments, \.moment-comments-shell\) :is\(\.custom-gitalk-glass, \.moment-gitalk\)[\s\S]*padding: 18px clamp\(32px, 4vw, 64px\) 0 !important/);
+    assert.match(homeCss, /html body:has\(:is\(\.subpage, \.article-page, \.friends-page\)\) :is\(\.github-comments-shell, \.github-comments-card, \.friends-comments, \.moment-comments-shell\) :is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-avatar[\s\S]*flex: 0 0 64px !important/);
+    assert.match(homeCss, /html body:has\(:is\(\.subpage, \.article-page, \.friends-page\)\) :is\(\.github-comments-shell, \.github-comments-card, \.friends-comments, \.moment-comments-shell\) :is\(\.custom-gitalk-glass, \.moment-gitalk\) \.gt-comment-content[\s\S]*margin: 0 0 0 24px !important/);
     assert.match(envExample, /NEXT_PUBLIC_GITALK_CLIENT_ID/);
     assert.match(envExample, /GITHUB_CLIENT_SECRET/);
   });

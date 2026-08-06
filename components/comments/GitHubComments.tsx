@@ -260,25 +260,23 @@ function installGitalkCommentControls(container: HTMLElement) {
       return;
     }
 
-    const control = target.closest<HTMLElement>('[data-gitalk-control]');
+    const control = target.closest<HTMLElement>('.gt-comment-like, .gt-comment-reply');
     if (!control || !container.contains(control)) {
       return;
     }
 
-    if (control.dataset.gitalkControl === 'reply') {
+    const action = control.classList.contains('gt-comment-reply') ? 'reply' : 'like';
+
+    if (action === 'reply') {
       event.preventDefault();
       event.stopPropagation();
       insertGitalkReply(container, control);
       return;
     }
 
-    if (control.dataset.gitalkControl === 'like') {
-      const loginButton = container.querySelector<HTMLButtonElement>('.gt-btn-login');
-      if (loginButton && !loginButton.disabled) {
-        event.preventDefault();
-        event.stopPropagation();
-        loginButton.click();
-      }
+    if (openGitalkLogin(container)) {
+      event.preventDefault();
+      event.stopPropagation();
     }
   }, { capture: true });
 
@@ -292,7 +290,7 @@ function installGitalkCommentControls(container: HTMLElement) {
       return;
     }
 
-    const control = target.closest<HTMLElement>('[data-gitalk-control]');
+    const control = target.closest<HTMLElement>('.gt-comment-like, .gt-comment-reply');
     if (!control || !container.contains(control)) {
       return;
     }
@@ -302,6 +300,23 @@ function installGitalkCommentControls(container: HTMLElement) {
   });
 
   GITALK_COMMENT_CONTROL_HOSTS.add(container);
+}
+
+function openGitalkLogin(container: HTMLElement) {
+  const loginButton = container.querySelector<HTMLButtonElement>('.gt-btn-login');
+  if (loginButton && !loginButton.disabled) {
+    loginButton.click();
+    return true;
+  }
+
+  const userTrigger = container.querySelector<HTMLElement>('.gt-user-inner');
+  const userText = userTrigger?.textContent?.trim() || '';
+  if (userTrigger && /login|登录|未登录/i.test(userText)) {
+    userTrigger.click();
+    return true;
+  }
+
+  return false;
 }
 
 function decorateGitalkCommentControls(container: HTMLElement) {
@@ -326,7 +341,8 @@ function insertGitalkReply(container: HTMLElement, control: HTMLElement) {
   const textarea = container.querySelector<HTMLTextAreaElement>('.gt-header-textarea');
   const username = comment?.querySelector('.gt-comment-username')?.textContent?.trim() || '';
   const body = comment?.querySelector('.gt-comment-body')?.textContent?.trim() || '';
-  if (!textarea || !username) {
+  if (!textarea || textarea.disabled || !username) {
+    openGitalkLogin(container);
     return;
   }
 

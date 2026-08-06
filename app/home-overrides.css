@@ -30158,3 +30158,168 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
     padding: 10px 12px !important;
   }
 }
+
+/* Final friends reference comment alignment: one frame, one card rhythm, one action row. */
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card.is-compact, .moment-comments-shell) {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 18px clamp(32px, 4vw, 64px) 0 !important;
+  box-sizing: border-box !important;
+}
+
+html body:has(.friends-page) #gitalk-container.friends-comments {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-inline: 0 !important;
+}
+
+html body:has(.friends-page) #gitalk-container.friends-comments > .github-comments-shell {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comments {
+  min-width: 0 !important;
+  margin-top: 24px !important;
+  padding: 4px 0 0 !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment {
+  display: flex !important;
+  align-items: flex-start !important;
+  grid-template-columns: none !important;
+  column-gap: 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 10px 0 !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+  flex: 0 0 64px !important;
+  width: 64px !important;
+  height: 64px !important;
+  margin: 0 !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  margin: 0 0 0 24px !important;
+  padding: 14px 92px 14px 18px !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-header {
+  display: block !important;
+  margin: 0 0 7px !important;
+  line-height: 21px !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 24px !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body p {
+  margin: 0 !important;
+  line-height: 1.75 !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-body :is(pre, table, img, video) {
+  max-width: 100% !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-like,
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
+  position: absolute !important;
+  top: 14px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  margin: 0 !important;
+  border-radius: 8px !important;
+  pointer-events: auto !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-like {
+  right: 48px !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
+  right: 12px !important;
+}
+
+@media (max-width: 720px) {
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) {
+    padding: 16px 24px 0 !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+    flex-basis: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+    margin-left: 18px !important;
+    padding: 12px 82px 12px 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) {
+    padding: 14px 12px 0 !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-avatar {
+    flex-basis: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-content {
+    margin-left: 14px !important;
+    padding: 11px 76px 11px 12px !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-like {
+    right: 44px !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
+    right: 10px !important;
+  }
+}
