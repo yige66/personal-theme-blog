@@ -30113,8 +30113,10 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
 
 /* Keep Gitalk actions visible and usable in every comment variant. */
 .custom-gitalk-glass .gt-comment-like,
+.custom-gitalk-glass .gt-comment-edit,
 .custom-gitalk-glass .gt-comment-reply,
 .moment-gitalk .gt-comment-like,
+.moment-gitalk .gt-comment-edit,
 .moment-gitalk .gt-comment-reply {
   display: inline-flex !important;
   align-items: center !important;
@@ -30130,10 +30132,14 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
 
 .custom-gitalk-glass .gt-comment-like:hover,
 .custom-gitalk-glass .gt-comment-like:focus-visible,
+.custom-gitalk-glass .gt-comment-edit:hover,
+.custom-gitalk-glass .gt-comment-edit:focus-visible,
 .custom-gitalk-glass .gt-comment-reply:hover,
 .custom-gitalk-glass .gt-comment-reply:focus-visible,
 .moment-gitalk .gt-comment-like:hover,
 .moment-gitalk .gt-comment-like:focus-visible,
+.moment-gitalk .gt-comment-edit:hover,
+.moment-gitalk .gt-comment-edit:focus-visible,
 .moment-gitalk .gt-comment-reply:hover,
 .moment-gitalk .gt-comment-reply:focus-visible {
   background: rgba(124, 217, 255, 0.16) !important;
@@ -30144,27 +30150,54 @@ body:has(.friends-page) .friends-comments .custom-gitalk-glass .gt-comment-body 
 }
 
 .custom-gitalk-glass .gt-comment-like:active,
+.custom-gitalk-glass .gt-comment-edit:active,
 .custom-gitalk-glass .gt-comment-reply:active,
 .moment-gitalk .gt-comment-like:active,
+.moment-gitalk .gt-comment-edit:active,
 .moment-gitalk .gt-comment-reply:active {
   transform: translateY(0) !important;
 }
 
 .custom-gitalk-glass .gt-comment-like .gt-ico,
+.custom-gitalk-glass .gt-comment-edit .gt-ico,
 .custom-gitalk-glass .gt-comment-reply .gt-ico,
 .moment-gitalk .gt-comment-like .gt-ico,
+.moment-gitalk .gt-comment-edit .gt-ico,
 .moment-gitalk .gt-comment-reply .gt-ico {
   display: inline-flex !important;
-  width: 18px !important;
+  width: auto !important;
+  min-width: 18px !important;
   height: 18px !important;
   align-items: center !important;
+  gap: 4px !important;
   justify-content: center !important;
+}
+
+.custom-gitalk-glass .gt-comment-like .gt-svg,
+.custom-gitalk-glass .gt-comment-edit .gt-svg,
+.custom-gitalk-glass .gt-comment-reply .gt-svg,
+.moment-gitalk .gt-comment-like .gt-svg,
+.moment-gitalk .gt-comment-edit .gt-svg,
+.moment-gitalk .gt-comment-reply .gt-svg {
+  display: inline-flex !important;
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.custom-gitalk-glass .gt-comment-like .gt-ico-text,
+.moment-gitalk .gt-comment-like .gt-ico-text {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  line-height: 18px !important;
 }
 
 @media (max-width: 480px) {
   .custom-gitalk-glass .gt-comment-like,
+  .custom-gitalk-glass .gt-comment-edit,
   .custom-gitalk-glass .gt-comment-reply,
   .moment-gitalk .gt-comment-like,
+  .moment-gitalk .gt-comment-edit,
   .moment-gitalk .gt-comment-reply {
     min-width: 32px !important;
     min-height: 32px !important;
@@ -30374,20 +30407,38 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
 }
 
 html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-like,
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-edit,
 html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
   position: absolute !important;
-  top: 14px !important;
+  top: 0 !important;
   min-width: 30px !important;
   min-height: 30px !important;
+  width: auto !important;
   margin: 0 !important;
   border-radius: 8px !important;
   pointer-events: auto !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-header {
+  position: relative !important;
+  min-height: 30px !important;
+  box-sizing: border-box !important;
+  padding-right: 0 !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-header .gt-comment-block-1 {
+  width: 76px !important;
+}
+
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-header .gt-comment-block-2 {
+  width: 76px !important;
 }
 
 html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-like {
   right: 48px !important;
 }
 
+html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-edit,
 html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
   right: 12px !important;
 }
@@ -30429,7 +30480,17 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
     right: 44px !important;
   }
 
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-edit,
   html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-reply {
     right: 10px !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) .gt-comment-date {
+    display: block !important;
+    margin-left: 0 !important;
+  }
+
+  html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-shell, .github-comments-card, .friends-comments, .moment-comments-shell) :is(.custom-gitalk-glass, .moment-gitalk) :is(.gt-comment-username, .gt-comment-text, .gt-comment-date) {
+    white-space: nowrap !important;
   }
 }
