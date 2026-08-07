@@ -194,10 +194,11 @@ describe('GitHub starring flow', () => {
     assert.match(homeOverrides, /\.moment-comment-dock\[open\] > \.moment-comments-shell[\s\S]*z-index: 21 !important/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-meta \.gt-popup/);
     assert.match(homeOverrides, /\.moment-gitalk \.gt-user > \.gt-popup/);
-    assert.match(comments, /installGitalkAccountPopup\(container\)/);
-    assert.match(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
+    assert.doesNotMatch(comments, /installGitalkAccountPopup/);
+    assert.doesNotMatch(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
+    assert.match(comments, /function isGitalkAuthenticated/);
     assert.match(comments, /\{ capture: true \}/);
-    assert.match(comments, /loginButton\?\.click\(\)/);
+    assert.match(comments, /loginButton\.click\(\)/);
     assert.match(momentsBoard, /<details className="moment-comment-dock" open>/);
     assert.match(homeOverrides, /body:has\(\.projects-page\) \.xh-floating-player/);
     assert.match(homeOverrides, /html\[data-xh-theme\]\[data-xh-theme-phase\]\[data-xh-theme-transition\] body:has\(\.projects-page\) \.xh-floating-player \{\s*display: none !important;/);

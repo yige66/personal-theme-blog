@@ -345,4 +345,23 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(docs, /\/api\/github/);
     assert.match(docs, /npm run check/);
   });
+
+  it('keeps native Gitalk account state and aligns every comment action', async () => {
+    const [comments, homeCss] = await Promise.all([
+      readFile('components/comments/GitHubComments.tsx', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
+    ]);
+
+    assert.doesNotMatch(comments, /GITALK_ACCOUNT_POPUP_MANAGED_ATTR/);
+    assert.doesNotMatch(comments, /installGitalkAccountPopup/);
+    assert.match(comments, /function isGitalkAuthenticated/);
+    assert.match(comments, /if \(!isGitalkAuthenticated\(container\) && openGitalkLogin\(container\)\)/);
+    assert.match(comments, /\['\.gt-comment-edit', 'edit'/);
+    assert.match(homeCss, /\.custom-gitalk-glass \.gt-comment-like,[\s\S]{0,120}\.custom-gitalk-glass \.gt-comment-edit,[\s\S]{0,120}\.custom-gitalk-glass \.gt-comment-reply/);
+    assert.match(homeCss, /\.gt-comment-like \.gt-svg,[\s\S]*?flex: 0 0 18px !important/);
+    assert.match(homeCss, /\.gt-comment-header \.gt-comment-block-1[\s\S]*?width: 76px !important/);
+    assert.match(homeCss, /\.gt-comment-header \.gt-comment-block-2[\s\S]*?width: 76px !important/);
+    assert.match(homeCss, /\.gt-comment-username, \.gt-comment-text, \.gt-comment-date[\s\S]*?white-space: nowrap !important/);
+    assert.match(homeCss, /\.gt-comment-edit,[\s\S]*?right: 12px !important/);
+  });
 });
