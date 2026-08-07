@@ -30494,3 +30494,104 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
     white-space: nowrap !important;
   }
 }
+
+/* Keep sorting in the comment meta row; the account popup is only for account actions. */
+.custom-gitalk-glass .xh-gitalk-sort-controls,
+.moment-gitalk .xh-gitalk-sort-controls {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  margin-left: auto !important;
+  min-width: 0 !important;
+  pointer-events: auto !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-controls[hidden],
+.moment-gitalk .xh-gitalk-sort-controls[hidden] {
+  display: none !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-controls:not([hidden]) + .gt-user,
+.moment-gitalk .xh-gitalk-sort-controls:not([hidden]) + .gt-user {
+  margin-left: 8px !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-select,
+.moment-gitalk .xh-gitalk-sort-select {
+  min-width: 112px !important;
+  min-height: 32px !important;
+  padding: 5px 28px 5px 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 8px !important;
+  background: rgba(28, 23, 55, 0.72) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  cursor: pointer !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-select:focus-visible,
+.moment-gitalk .xh-gitalk-sort-select:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent) !important;
+  outline-offset: 2px !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-select:disabled,
+.moment-gitalk .xh-gitalk-sort-select:disabled {
+  cursor: default !important;
+  opacity: 0.66 !important;
+}
+
+.custom-gitalk-glass .gt-popup .gt-action-sortasc,
+.custom-gitalk-glass .gt-popup .gt-action-sortdesc,
+.moment-gitalk .gt-popup .gt-action-sortasc,
+.moment-gitalk .gt-popup .gt-action-sortdesc {
+  display: none !important;
+}
+
+.custom-gitalk-glass .gt-popup .gt-action.gt-action-login,
+.custom-gitalk-glass .gt-popup .gt-action.gt-action-logout,
+.moment-gitalk .gt-popup .gt-action.gt-action-login,
+.moment-gitalk .gt-popup .gt-action.gt-action-logout {
+  display: inline-flex !important;
+  width: 100% !important;
+  min-height: 32px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  box-shadow: none !important;
+}
+
+.custom-gitalk-glass .gt-popup .gt-copyright,
+.moment-gitalk .gt-popup .gt-copyright {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-top: 6px !important;
+  padding: 6px 10px 2px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+}
+
+@media (max-width: 480px) {
+  .custom-gitalk-glass .xh-gitalk-sort-controls,
+  .moment-gitalk .xh-gitalk-sort-controls {
+    margin-left: auto !important;
+  }
+
+  .custom-gitalk-glass .xh-gitalk-sort-controls:not([hidden]) + .gt-user,
+  .moment-gitalk .xh-gitalk-sort-controls:not([hidden]) + .gt-user {
+    margin-left: 0 !important;
+  }
+
+  .custom-gitalk-glass .xh-gitalk-sort-select,
+  .moment-gitalk .xh-gitalk-sort-select {
+    min-width: 108px !important;
+    max-width: 150px !important;
+  }
+}

@@ -44,6 +44,15 @@ const GITHUB_API_ORIGIN = 'https://api.github.com';
 const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
 const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
+const GITALK_SORT_CONTROL_CLASS = 'xh-gitalk-sort-controls';
+const GITALK_SORT_SELECT_CLASS = 'xh-gitalk-sort-select';
+
+type GitalkSortDirection = 'first' | 'last';
+
+const GITALK_SORT_OPTIONS: Array<{ value: GitalkSortDirection; label: string }> = [
+  { value: 'last', label: '从新到旧' },
+  { value: 'first', label: '从旧到新' }
+];
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
@@ -80,6 +89,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
     const observer = new MutationObserver(() => {
       removeGitalkPreviewControls(container);
       installGitalkCommentControls(container);
+      syncGitalkSortControls(container);
       if (!canceled && sanitizeGitalkError(container)) {
         setLoadState('error');
       }
@@ -230,6 +240,7 @@ async function renderGitalk({
   gitalk.render(container);
   removeGitalkPreviewControls(container);
   installGitalkCommentControls(container);
+  syncGitalkSortControls(container);
   syncGitalkTheme(container);
   cleanOAuthCodeFromUrl();
 }
@@ -301,6 +312,107 @@ function installGitalkCommentControls(container: HTMLElement) {
 
 function isGitalkAuthenticated(container: HTMLElement) {
   return Boolean(container.querySelector('.gt-user-name')) && !container.querySelector('.gt-btn-login');
+}
+
+function syncGitalkSortControls(container: HTMLElement) {
+  const meta = container.querySelector<HTMLElement>('.gt-meta');
+  if (!meta) {
+    return;
+  }
+
+  let controls = meta.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
+  if (!controls) {
+    controls = document.createElement('div');
+    controls.className = GITALK_SORT_CONTROL_CLASS;
+    controls.setAttribute('role', 'group');
+    controls.setAttribute('aria-label', '评论排序');
+
+    const select = document.createElement('select');
+    select.className = GITALK_SORT_SELECT_CLASS;
+    select.setAttribute('aria-label', '评论排序');
+    GITALK_SORT_OPTIONS.forEach(({ value, label }) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      select.appendChild(option);
+    });
+    select.value = 'last';
+    select.addEventListener('change', () => {
+      activateGitalkSort(container, select.value as GitalkSortDirection);
+    });
+    controls.appendChild(select);
+  }
+
+  const user = meta.querySelector<HTMLElement>('.gt-user');
+  if (user && controls.nextElementSibling !== user) {
+    meta.insertBefore(controls, user);
+  } else if (!user && controls.parentElement !== meta) {
+    meta.appendChild(controls);
+  }
+
+  const select = controls.querySelector<HTMLSelectElement>(`.${GITALK_SORT_SELECT_CLASS}`);
+  if (!select) {
+    return;
+  }
+
+  const sortActions = Array.from(
+    container.querySelectorAll<HTMLElement>('.gt-popup .gt-action-sortasc, .gt-popup .gt-action-sortdesc')
+  );
+  sortActions.forEach((action) => {
+    action.setAttribute('data-xh-gitalk-sort-source', 'true');
+    action.setAttribute('aria-hidden', 'true');
+    action.setAttribute('tabindex', '-1');
+    action.style.setProperty('display', 'none', 'important');
+  });
+
+  const authenticated = isGitalkAuthenticated(container);
+  controls.hidden = !authenticated;
+  select.disabled = !authenticated;
+
+  const activeAction = sortActions.find((action) => action.classList.contains('is--active'));
+  if (activeAction) {
+    select.value = getGitalkSortDirection(activeAction);
+  }
+}
+
+function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirection) {
+  const action = findGitalkSortAction(container, direction);
+  if (action) {
+    action.click();
+    return;
+  }
+
+  const userTrigger = container.querySelector<HTMLElement>('.gt-user-inner');
+  if (!userTrigger) {
+    return;
+  }
+
+  const popupWasOpen = Boolean(container.querySelector('.gt-popup'));
+  userTrigger.click();
+  window.setTimeout(() => {
+    const nextAction = findGitalkSortAction(container, direction);
+    if (!nextAction) {
+      return;
+    }
+
+    nextAction.click();
+    if (!popupWasOpen) {
+      window.setTimeout(() => {
+        if (container.querySelector('.gt-popup')) {
+          userTrigger.click();
+        }
+      }, 0);
+    }
+  }, 0);
+}
+
+function findGitalkSortAction(container: HTMLElement, direction: GitalkSortDirection) {
+  const className = direction === 'first' ? 'gt-action-sortasc' : 'gt-action-sortdesc';
+  return container.querySelector<HTMLElement>(`.gt-popup .${className}`);
+}
+
+function getGitalkSortDirection(action: HTMLElement): GitalkSortDirection {
+  return action.classList.contains('gt-action-sortasc') ? 'first' : 'last';
 }
 
 function openGitalkLogin(container: HTMLElement) {
