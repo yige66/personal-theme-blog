@@ -10,6 +10,7 @@ node_modules/
 .agents/
 output/
 public/assets/audio/yorushika-taiyo.mp4
+public/assets/audio/*.flac
 *.log
 /*.png
 /tsconfig.tsbuildinfo
