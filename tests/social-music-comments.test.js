@@ -270,7 +270,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(css, /\.moment-gitalk \.gt-container \.gt-popup/);
     assert.match(css, /\.custom-gitalk-glass \.gt-comment-like[\s\S]*cursor: pointer/);
     assert.match(css, /\.moment-gitalk \.gt-comment-reply[\s\S]*cursor: pointer/);
-    assert.doesNotMatch(css, /\.moment-gitalk \.gt-comment-like[\s\S]*display: none !important/);
+    assert.doesNotMatch(css, /\.moment-gitalk \.gt-comment-like,\s*\.moment-gitalk \.gt-comment-reply\s*\{\s*display: none !important/);
     assert.match(css, /background: rgba\(28, 23, 55, 0\.96\) !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment[\s\S]*display: flex !important/);
     assert.match(homeCss, /body:has\(\.friends-page\) \.friends-comments \.custom-gitalk-glass \.gt-comment-content[\s\S]*margin: 0 0 0 20px !important/);
@@ -363,5 +363,11 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /\.gt-comment-header \.gt-comment-block-2[\s\S]*?width: 76px !important/);
     assert.match(homeCss, /\.gt-comment-username, \.gt-comment-text, \.gt-comment-date[\s\S]*?white-space: nowrap !important/);
     assert.match(homeCss, /\.gt-comment-edit,[\s\S]*?right: 12px !important/);
+    assert.match(comments, /function syncGitalkSortControls/);
+    assert.match(comments, /gt-action-sortasc/);
+    assert.match(comments, /xh-gitalk-sort-select/);
+    assert.match(homeCss, /\.xh-gitalk-sort-controls/);
+    assert.match(homeCss, /gt-action-sortasc[\s\S]*?display: none !important/);
+    assert.match(homeCss, /gt-action-logout[\s\S]*?display: inline-flex !important/);
   });
 });
