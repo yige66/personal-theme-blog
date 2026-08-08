@@ -46,6 +46,8 @@ const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
 const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
 const GITALK_SORT_CONTROL_CLASS = 'xh-gitalk-sort-controls';
 const GITALK_SORT_SELECT_CLASS = 'xh-gitalk-sort-select';
+const GITALK_SORT_DIRECTION_ATTR = 'data-xh-gitalk-sort-direction';
+const GITALK_COMMENT_ORDER_ATTR = 'data-xh-gitalk-order';
 
 type GitalkSortDirection = 'first' | 'last';
 
@@ -365,45 +367,92 @@ function syncGitalkSortControls(container: HTMLElement) {
     action.style.setProperty('display', 'none', 'important');
   });
 
-  const authenticated = isGitalkAuthenticated(container);
-  controls.hidden = !authenticated;
-  select.disabled = !authenticated;
-
   const activeAction = sortActions.find((action) => action.classList.contains('is--active'));
-  if (activeAction) {
-    select.value = getGitalkSortDirection(activeAction);
+  const storedDirection = controls.getAttribute(GITALK_SORT_DIRECTION_ATTR);
+  const direction: GitalkSortDirection = storedDirection === 'first' || storedDirection === 'last'
+    ? storedDirection
+    : activeAction
+      ? getGitalkSortDirection(activeAction)
+      : 'last';
+  controls.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+  controls.hidden = false;
+  select.disabled = false;
+  select.value = direction;
+  if (!isGitalkAuthenticated(container) && sortActions.length === 0) {
+    applyGitalkDomSort(container, direction);
   }
 }
 
 function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirection) {
+  const controls = container.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
+  controls?.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+
   const action = findGitalkSortAction(container, direction);
   if (action) {
     action.click();
     return;
   }
 
-  const userTrigger = container.querySelector<HTMLElement>('.gt-user-inner');
-  if (!userTrigger) {
+  if (isGitalkAuthenticated(container)) {
+    const userButton = container.querySelector<HTMLElement>('.gt-user-inner');
+    if (userButton) {
+      userButton.click();
+      window.requestAnimationFrame(() => clickGitalkSortAction(container, direction));
+    }
     return;
   }
 
-  const popupWasOpen = Boolean(container.querySelector('.gt-popup'));
-  userTrigger.click();
-  window.setTimeout(() => {
-    const nextAction = findGitalkSortAction(container, direction);
-    if (!nextAction) {
-      return;
-    }
+  applyGitalkDomSort(container, direction);
+  window.requestAnimationFrame(() => applyGitalkDomSort(container, direction));
+}
 
-    nextAction.click();
-    if (!popupWasOpen) {
-      window.setTimeout(() => {
-        if (container.querySelector('.gt-popup')) {
-          userTrigger.click();
-        }
-      }, 0);
-    }
+function clickGitalkSortAction(container: HTMLElement, direction: GitalkSortDirection, attempt = 0) {
+  const action = findGitalkSortAction(container, direction);
+  if (action) {
+    action.click();
+    return;
+  }
+
+  if (attempt < 2) {
+    window.requestAnimationFrame(() => clickGitalkSortAction(container, direction, attempt + 1));
+  }
+}
+
+function applyGitalkDomSort(container: HTMLElement, direction: GitalkSortDirection) {
+  const comments = container.querySelector<HTMLElement>('.gt-comments');
+  const firstChild = comments?.firstElementChild;
+  const list = firstChild?.classList.contains('gt-comment') ? comments : firstChild;
+  if (!list) {
+    return;
+  }
+
+  const commentNodes = Array.from(list.children).filter((child) => child.classList.contains('gt-comment'));
+  if (commentNodes.length < 2) {
+    return;
+  }
+
+  let nextOrder = commentNodes.reduce((max, comment) => {
+    const order = Number(comment.getAttribute(GITALK_COMMENT_ORDER_ATTR));
+    return Number.isFinite(order) ? Math.max(max, order + 1) : max;
   }, 0);
+  commentNodes.forEach((comment) => {
+    if (!comment.hasAttribute(GITALK_COMMENT_ORDER_ATTR)) {
+      comment.setAttribute(GITALK_COMMENT_ORDER_ATTR, String(nextOrder));
+      nextOrder += 1;
+    }
+  });
+
+  const ordered = [...commentNodes].sort((left, right) => {
+    const leftOrder = Number(left.getAttribute(GITALK_COMMENT_ORDER_ATTR));
+    const rightOrder = Number(right.getAttribute(GITALK_COMMENT_ORDER_ATTR));
+    return direction === 'last' ? rightOrder - leftOrder : leftOrder - rightOrder;
+  });
+  const current = Array.from(list.children).filter((child) => child.classList.contains('gt-comment'));
+  if (ordered.every((comment, index) => current[index] === comment)) {
+    return;
+  }
+
+  ordered.forEach((comment) => list.appendChild(comment));
 }
 
 function findGitalkSortAction(container: HTMLElement, direction: GitalkSortDirection) {
