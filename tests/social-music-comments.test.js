@@ -369,5 +369,9 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /\.xh-gitalk-sort-controls/);
     assert.match(homeCss, /gt-action-sortasc[\s\S]*?display: none !important/);
     assert.match(homeCss, /gt-action-logout[\s\S]*?display: inline-flex !important/);
+    assert.match(comments, /function applyGitalkDomSort/);
+    assert.match(comments, /appendChild\(comment\)/);
+    assert.doesNotMatch(comments, /controls\.hidden = !authenticated/);
+    assert.doesNotMatch(comments, /select\.disabled = !authenticated/);
   });
 });
