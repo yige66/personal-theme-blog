@@ -272,7 +272,30 @@ function isSeason(value: string | null): value is Season {
 }
 
 function getThemeModeForDate(date = new Date()): ThemeMode {
-  return date.getHours() >= 18 || date.getHours() < 6 ? 'night' : 'day';
+  return date.getHours() >= 19 || date.getHours() < 7 ? 'night' : 'day';
+}
+
+function getNextThemeBoundary(date = new Date()): Date {
+  const nextBoundary = new Date(date);
+  const hour = date.getHours();
+
+  if (hour < 7) {
+    nextBoundary.setHours(7, 0, 0, 0);
+    return nextBoundary;
+  }
+
+  if (hour < 19) {
+    nextBoundary.setHours(19, 0, 0, 0);
+    return nextBoundary;
+  }
+
+  nextBoundary.setDate(nextBoundary.getDate() + 1);
+  nextBoundary.setHours(7, 0, 0, 0);
+  return nextBoundary;
+}
+
+function shouldAutoSwitchTheme(currentMode: ThemeMode, date = new Date()): boolean {
+  return currentMode !== getThemeModeForDate(date);
 }
 
 function getSeasonForDate(date = new Date()): Season {
@@ -381,6 +404,7 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
   const transitionTimerRef = useRef<number | null>(null);
   const seasonTransitionTimerRef = useRef<number | null>(null);
   const seasonSettleTimerRef = useRef<number | null>(null);
+  const themeBoundaryTimerRef = useRef<number | null>(null);
   const isTransitioningRef = useRef(false);
   const isSeasonTransitioningRef = useRef(false);
   const seasonTransitionStartedAtRef = useRef(0);
@@ -568,6 +592,10 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
     if (seasonSettleTimerRef.current) {
       window.clearTimeout(seasonSettleTimerRef.current);
       seasonSettleTimerRef.current = null;
+    }
+    if (themeBoundaryTimerRef.current !== null) {
+      window.clearTimeout(themeBoundaryTimerRef.current);
+      themeBoundaryTimerRef.current = null;
     }
   }, []);
 
@@ -2132,7 +2160,7 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
     };
   }, [effects.enabled, intensity, reducedMotion]);
 
-  const startThemeTransition = useCallback(() => {
+  const startThemeTransition = useCallback((requestedMode?: ThemeMode) => {
     if (isTransitioningRef.current) {
       return;
     }
@@ -2142,8 +2170,11 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
       transitionTimerRef.current = null;
     }
 
-    const currentMode: ThemeMode = nightMode ? 'night' : 'day';
-    const targetMode: ThemeMode = nightMode ? 'day' : 'night';
+    const currentMode: ThemeMode = nightModeRef.current ? 'night' : 'day';
+    const targetMode: ThemeMode = requestedMode ?? (currentMode === 'night' ? 'day' : 'night');
+    if (targetMode === currentMode) {
+      return;
+    }
     isTransitioningRef.current = true;
     const activePhase = getThemePhase(currentMode, targetMode, 'active');
     setThemeAttributes(currentMode, targetMode, 'active', activePhase);
@@ -2177,13 +2208,49 @@ function ActiveHomeEffects({ site, posts, notes }: HomeEffectsProps) {
       isTransitioningRef.current = false;
       transitionTimerRef.current = null;
     }, commitDelay);
-  }, [nightMode]);
+  }, []);
 
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
     startThemeTransition();
   };
+
+  useEffect(() => {
+    if (isAdmin) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const scheduleNextBoundary = () => {
+      const now = new Date();
+      const nextBoundary = getNextThemeBoundary(now);
+      const delay = Math.max(0, nextBoundary.getTime() - now.getTime());
+
+      themeBoundaryTimerRef.current = window.setTimeout(() => {
+        if (cancelled) {
+          return;
+        }
+
+        const currentMode: ThemeMode = nightModeRef.current ? 'night' : 'day';
+        if (shouldAutoSwitchTheme(currentMode)) {
+          startThemeTransition(getThemeModeForDate(new Date()));
+        }
+        scheduleNextBoundary();
+      }, delay);
+    };
+
+    scheduleNextBoundary();
+
+    return () => {
+      cancelled = true;
+      if (themeBoundaryTimerRef.current !== null) {
+        window.clearTimeout(themeBoundaryTimerRef.current);
+        themeBoundaryTimerRef.current = null;
+      }
+    };
+  }, [isAdmin, startThemeTransition]);
 
   const startSeasonTransition = useCallback((targetSeason?: Season) => {
     if (isSeasonTransitioningRef.current) {

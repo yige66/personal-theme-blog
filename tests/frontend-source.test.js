@@ -525,7 +525,7 @@ describe('target-inspired homepage portal', () => {
     assert.match(layout, /<BackgroundSlider site=\{data\.site\} \/>/);
     assert.match(layout, /<HomeEffects site=\{data\.site\} posts=\{posts\} notes=\{data\.notes\} \/>/);
     assert.match(layout, /var now = new Date\(\);/);
-    assert.match(layout, /var initialMode = now\.getHours\(\) >= 18 \|\| now\.getHours\(\) < 6 \? 'night' : 'day';/);
+    assert.match(layout, /var initialMode = now\.getHours\(\) >= 19 \|\| now\.getHours\(\) < 7 \? 'night' : 'day';/);
     assert.match(layout, /var initialSeason = month >= 2 && month <= 4 \? 'spring' : month >= 5 && month <= 7 \? 'summer' : month >= 8 && month <= 10 \? 'autumn' : 'winter';/);
     assert.doesNotMatch(layout, /localStorage\.getItem\('xh-(?:theme|season)-mode'\)/);
     assert.match(background, /xh-background-slider/);

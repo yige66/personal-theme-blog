@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           dangerouslySetInnerHTML={{
             __html: `
               var now = new Date();
-              var initialMode = now.getHours() >= 18 || now.getHours() < 6 ? 'night' : 'day';
+              var initialMode = now.getHours() >= 19 || now.getHours() < 7 ? 'night' : 'day';
               var month = now.getMonth();
               var initialSeason = month >= 2 && month <= 4 ? 'spring' : month >= 5 && month <= 7 ? 'summer' : month >= 8 && month <= 10 ? 'autumn' : 'winter';
               try {
