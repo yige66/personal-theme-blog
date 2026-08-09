@@ -45,7 +45,7 @@ const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
 const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
 const GITALK_SORT_CONTROL_CLASS = 'xh-gitalk-sort-controls';
-const GITALK_SORT_SELECT_CLASS = 'xh-gitalk-sort-select';
+const GITALK_SORT_TOGGLE_CLASS = 'xh-gitalk-sort-toggle';
 const GITALK_SORT_DIRECTION_ATTR = 'data-xh-gitalk-sort-direction';
 const GITALK_COMMENT_ORDER_ATTR = 'data-xh-gitalk-order';
 
@@ -329,20 +329,16 @@ function syncGitalkSortControls(container: HTMLElement) {
     controls.setAttribute('role', 'group');
     controls.setAttribute('aria-label', '评论排序');
 
-    const select = document.createElement('select');
-    select.className = GITALK_SORT_SELECT_CLASS;
-    select.setAttribute('aria-label', '评论排序');
-    GITALK_SORT_OPTIONS.forEach(({ value, label }) => {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = label;
-      select.appendChild(option);
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = GITALK_SORT_TOGGLE_CLASS;
+    toggle.setAttribute('aria-label', '评论排序');
+    toggle.addEventListener('click', () => {
+      const currentDirection = controls?.getAttribute(GITALK_SORT_DIRECTION_ATTR) === 'first' ? 'first' : 'last';
+      const nextDirection: GitalkSortDirection = currentDirection === 'first' ? 'last' : 'first';
+      activateGitalkSort(container, nextDirection);
     });
-    select.value = 'last';
-    select.addEventListener('change', () => {
-      activateGitalkSort(container, select.value as GitalkSortDirection);
-    });
-    controls.appendChild(select);
+    controls.appendChild(toggle);
   }
 
   const user = meta.querySelector<HTMLElement>('.gt-user');
@@ -352,8 +348,8 @@ function syncGitalkSortControls(container: HTMLElement) {
     meta.appendChild(controls);
   }
 
-  const select = controls.querySelector<HTMLSelectElement>(`.${GITALK_SORT_SELECT_CLASS}`);
-  if (!select) {
+  const toggle = controls.querySelector<HTMLButtonElement>(`.${GITALK_SORT_TOGGLE_CLASS}`);
+  if (!toggle) {
     return;
   }
 
@@ -376,8 +372,8 @@ function syncGitalkSortControls(container: HTMLElement) {
       : 'last';
   controls.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls.hidden = false;
-  select.disabled = false;
-  select.value = direction;
+  toggle.disabled = false;
+  updateGitalkSortToggle(toggle, direction);
   if (!isGitalkAuthenticated(container) && sortActions.length === 0) {
     applyGitalkDomSort(container, direction);
   }
@@ -386,6 +382,10 @@ function syncGitalkSortControls(container: HTMLElement) {
 function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirection) {
   const controls = container.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
   controls?.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+  const toggle = controls?.querySelector<HTMLButtonElement>(`.${GITALK_SORT_TOGGLE_CLASS}`);
+  if (toggle) {
+    updateGitalkSortToggle(toggle, direction);
+  }
 
   const action = findGitalkSortAction(container, direction);
   if (action) {
@@ -462,6 +462,21 @@ function findGitalkSortAction(container: HTMLElement, direction: GitalkSortDirec
 
 function getGitalkSortDirection(action: HTMLElement): GitalkSortDirection {
   return action.classList.contains('gt-action-sortasc') ? 'first' : 'last';
+}
+
+function getGitalkSortLabel(direction: GitalkSortDirection) {
+  return GITALK_SORT_OPTIONS.find((option) => option.value === direction)?.label ?? GITALK_SORT_OPTIONS[0].label;
+}
+
+function updateGitalkSortToggle(toggle: HTMLButtonElement, direction: GitalkSortDirection) {
+  const label = getGitalkSortLabel(direction);
+  const ariaLabel = `评论排序：${label}，点击切换`;
+  if (toggle.textContent !== label) {
+    toggle.textContent = label;
+  }
+  if (toggle.getAttribute('aria-label') !== ariaLabel) {
+    toggle.setAttribute('aria-label', ariaLabel);
+  }
 }
 
 function openGitalkLogin(container: HTMLElement) {

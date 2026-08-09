@@ -30531,12 +30531,13 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
   margin-left: 8px !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select,
-.moment-gitalk .xh-gitalk-sort-select {
+.custom-gitalk-glass .xh-gitalk-sort-toggle,
+.moment-gitalk .xh-gitalk-sort-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
   min-width: 92px !important;
   min-height: 28px !important;
   padding: 0 18px 0 0 !important;
-  appearance: none !important;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -30547,29 +30548,24 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
   font-weight: 600 !important;
   line-height: 24px !important;
   cursor: pointer !important;
+  text-align: left !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select:hover,
-.moment-gitalk .xh-gitalk-sort-select:hover {
+.custom-gitalk-glass .xh-gitalk-sort-toggle:hover,
+.moment-gitalk .xh-gitalk-sort-toggle:hover {
   border-color: transparent !important;
   background: transparent !important;
   color: rgba(255, 255, 255, 1) !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select option,
-.moment-gitalk .xh-gitalk-sort-select option {
-  background: #211b3a !important;
-  color: rgba(255, 255, 255, 0.94) !important;
-}
-
-.custom-gitalk-glass .xh-gitalk-sort-select:focus-visible,
-.moment-gitalk .xh-gitalk-sort-select:focus-visible {
+.custom-gitalk-glass .xh-gitalk-sort-toggle:focus-visible,
+.moment-gitalk .xh-gitalk-sort-toggle:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent) !important;
   outline-offset: 2px !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select:disabled,
-.moment-gitalk .xh-gitalk-sort-select:disabled {
+.custom-gitalk-glass .xh-gitalk-sort-toggle:disabled,
+.moment-gitalk .xh-gitalk-sort-toggle:disabled {
   cursor: default !important;
   opacity: 0.66 !important;
 }
@@ -30620,8 +30616,8 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
     margin-left: 0 !important;
   }
 
-  .custom-gitalk-glass .xh-gitalk-sort-select,
-  .moment-gitalk .xh-gitalk-sort-select {
+  .custom-gitalk-glass .xh-gitalk-sort-toggle,
+  .moment-gitalk .xh-gitalk-sort-toggle {
     min-width: 92px !important;
     max-width: none !important;
   }

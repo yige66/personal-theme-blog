@@ -365,7 +365,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /\.gt-comment-edit,[\s\S]*?right: 12px !important/);
     assert.match(comments, /function syncGitalkSortControls/);
     assert.match(comments, /gt-action-sortasc/);
-    assert.match(comments, /xh-gitalk-sort-select/);
+    assert.match(comments, /xh-gitalk-sort-toggle/);
     assert.match(homeCss, /\.xh-gitalk-sort-controls/);
     assert.match(homeCss, /gt-action-sortasc[\s\S]*?display: none !important/);
     assert.match(homeCss, /gt-action-logout[\s\S]*?display: inline-flex !important/);
@@ -373,5 +373,20 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /appendChild\(comment\)/);
     assert.doesNotMatch(comments, /controls\.hidden = !authenticated/);
     assert.doesNotMatch(comments, /select\.disabled = !authenticated/);
+  });
+
+  it('makes the comment sort control toggle direction on click', async () => {
+    const [comments, homeCss] = await Promise.all([
+      readFile('components/comments/GitHubComments.tsx', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
+    ]);
+
+    assert.match(comments, /GITALK_SORT_TOGGLE_CLASS/);
+    assert.match(comments, /document\.createElement\('button'\)/);
+    assert.match(comments, /toggle\.addEventListener\('click'/);
+    assert.match(comments, /currentDirection === 'first' \? 'last' : 'first'/);
+    assert.match(comments, /toggle\.textContent/);
+    assert.match(homeCss, /\.xh-gitalk-sort-toggle/);
+    assert.doesNotMatch(comments, /document\.createElement\('select'\)/);
   });
 });
