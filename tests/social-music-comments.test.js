@@ -365,7 +365,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /\.gt-comment-edit,[\s\S]*?right: 12px !important/);
     assert.match(comments, /function syncGitalkSortControls/);
     assert.match(comments, /gt-action-sortasc/);
-    assert.match(comments, /xh-gitalk-sort-toggle/);
+    assert.match(comments, /xh-gitalk-sort-select/);
     assert.match(homeCss, /\.xh-gitalk-sort-controls/);
     assert.match(homeCss, /gt-action-sortasc[\s\S]*?display: none !important/);
     assert.match(homeCss, /gt-action-logout[\s\S]*?display: inline-flex !important/);
@@ -375,18 +375,24 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.doesNotMatch(comments, /select\.disabled = !authenticated/);
   });
 
-  it('makes the comment sort control toggle direction on click', async () => {
+  it('keeps native selection and applies the selected comment sort direction', async () => {
     const [comments, homeCss] = await Promise.all([
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
       readFile('app/home-overrides.css', 'utf8')
     ]);
 
-    assert.match(comments, /GITALK_SORT_TOGGLE_CLASS/);
-    assert.match(comments, /document\.createElement\('button'\)/);
-    assert.match(comments, /toggle\.addEventListener\('click'/);
-    assert.match(comments, /currentDirection === 'first' \? 'last' : 'first'/);
-    assert.match(comments, /toggle\.textContent/);
-    assert.match(homeCss, /\.xh-gitalk-sort-toggle/);
-    assert.doesNotMatch(comments, /document\.createElement\('select'\)/);
+    assert.match(comments, /GITALK_SORT_SELECT_CLASS/);
+    assert.match(comments, /document\.createElement\('select'\)/);
+    assert.match(comments, /select\.addEventListener\('change'/);
+    assert.match(comments, /activateGitalkSort\(container, select\.value as GitalkSortDirection\)/);
+    assert.match(homeCss, /\.xh-gitalk-sort-select/);
+    assert.doesNotMatch(comments, /GITALK_SORT_TOGGLE_CLASS/);
+    assert.doesNotMatch(comments, /document\.createElement\('button'\)/);
+
+    const activateBlock = comments.match(/function activateGitalkSort\([\s\S]*?\r?\n}\r?\n\r?\nfunction clickGitalkSortAction/);
+    assert.ok(activateBlock, 'sort activation function should remain source-visible');
+    assert.match(activateBlock[0], /action\.click\(\)/);
+    assert.match(activateBlock[0], /applyGitalkDomSort\(container, direction\)/);
+    assert.doesNotMatch(activateBlock[0], /if \(action\) \{\s*action\.click\(\);\s*return;/);
   });
 });
