@@ -24407,7 +24407,7 @@ body .xh-season-ground::after {
   animation: none !important;
 }
 
-/* Floating control collision guard: assistant panels must own the lower-right focus area. */
+/* Floating control collision guard: keep the assistant panel above the seasonal control. */
 body:has(.xh-pixel-kurisu-pet[data-open="true"]) .xh-pixel-kurisu-pet,
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-pixel-kurisu-pet[data-open="true"]) .xh-pixel-kurisu-pet {
   z-index: 172 !important;
@@ -24421,11 +24421,11 @@ html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-
 
 body:has(.xh-pixel-kurisu-pet[data-open="true"]) .xh-season-switch,
 html[data-xh-theme][data-xh-theme-phase][data-xh-theme-transition] body:has(.xh-pixel-kurisu-pet[data-open="true"]) .xh-season-switch {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
-  transform: translate3d(0, 18px, 0) scale(0.82) !important;
-  z-index: 118 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  transform: none !important;
+  z-index: 176 !important;
 }
 
 /* Clear floating season/day-night controls. */

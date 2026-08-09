@@ -834,7 +834,11 @@ describe('target-inspired homepage portal', () => {
     assert.match(homeCss, /html body \.xh-seasonal-aura[\s\S]*display: none !important/);
     assert.match(homeCss, /body \.xh-season-transition\[data-season-from\]\[data-season-to\]\.is-active::after[\s\S]*display: none !important/);
     assert.match(homeCss, /html\[data-xh-season\] body \.xh-season-ground[\s\S]*display: none !important/);
-    assert.match(homeCss, /body:has\(\.xh-pixel-kurisu-pet\[data-open="true"\]\) \.xh-season-switch[\s\S]*pointer-events: none !important/);
+    const openAssistantSeasonRule = homeCss.match(/body:has\(\.xh-pixel-kurisu-pet\[data-open="true"\]\) \.xh-season-switch,[^}]+\}/)?.[0] ?? '';
+    assert.match(openAssistantSeasonRule, /opacity: 1 !important/);
+    assert.match(openAssistantSeasonRule, /pointer-events: auto !important/);
+    assert.match(openAssistantSeasonRule, /visibility: visible !important/);
+    assert.match(openAssistantSeasonRule, /z-index: 176 !important/);
     assert.match(homeCss, /body:has\(\.xh-pixel-kurisu-pet\[data-open="true"\]\) \.xh-kurisu-panel[\s\S]*z-index: 174 !important/);
     assert.match(homeCss, /backdrop-filter: none !important/);
     assert.match(homeCss, /\.xh-season-transition,\s*[\s\S]*\.xh-season-transition\.is-active\s*\{[\s\S]*display: none !important/);
