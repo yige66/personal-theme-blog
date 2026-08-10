@@ -391,6 +391,12 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /option\.setAttribute\('role', 'option'\)/);
     assert.match(comments, /option\.addEventListener\('click'/);
     assert.match(comments, /activateGitalkSort\(container, option\.dataset\.value as GitalkSortDirection\)/);
+    const sortOptions = comments.match(/const GITALK_SORT_OPTIONS[\s\S]*?\];/);
+    assert.ok(sortOptions, 'sort options should remain source-visible');
+    assert.match(
+      sortOptions[0],
+      /\{ value: 'first', label: '\u4ece\u65e7\u5230\u65b0' \}[\s\S]*\{ value: 'last', label: '\u4ece\u65b0\u5230\u65e7' \}/
+    );
     assert.match(homeCss, /\.xh-gitalk-sort-trigger/);
     assert.match(homeCss, /\.xh-gitalk-sort-menu/);
     assert.doesNotMatch(comments, /GITALK_SORT_SELECT_CLASS/);

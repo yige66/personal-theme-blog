@@ -56,8 +56,8 @@ const GITALK_COMMENT_ORDER_ATTR = 'data-xh-gitalk-order';
 type GitalkSortDirection = 'first' | 'last';
 
 const GITALK_SORT_OPTIONS: Array<{ value: GitalkSortDirection; label: string }> = [
-  { value: 'last', label: '从新到旧' },
-  { value: 'first', label: '从旧到新' }
+  { value: 'first', label: '从旧到新' },
+  { value: 'last', label: '从新到旧' }
 ];
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
