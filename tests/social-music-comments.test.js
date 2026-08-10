@@ -399,12 +399,16 @@ describe('target-style music, friends, and GitHub comments', () => {
     const activateBlock = comments.match(/function activateGitalkSort\([\s\S]*?\r?\n}\r?\n\r?\nfunction clickGitalkSortAction/);
     assert.ok(activateBlock, 'sort activation function should remain source-visible');
     assert.match(activateBlock[0], /controls\?\.setAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR, 'true'\)/);
+    assert.match(activateBlock[0], /container\.setAttribute\(GITALK_SORT_DIRECTION_ATTR, direction\)/);
+    assert.match(activateBlock[0], /container\.setAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR, 'true'\)/);
     assert.match(activateBlock[0], /action\.click\(\)/);
     assert.match(activateBlock[0], /applyGitalkDomSort\(container, direction\)/);
     assert.doesNotMatch(activateBlock[0], /if \(action\) \{\s*action\.click\(\);\s*return;/);
 
     const syncBlock = comments.match(/function syncGitalkSortControls\([\s\S]*?\r?\n}\r?\n\r?\nfunction activateGitalkSort/);
     assert.ok(syncBlock, 'sort sync function should remain source-visible');
+    assert.match(syncBlock[0], /container\.getAttribute\(GITALK_SORT_DIRECTION_ATTR\)/);
+    assert.match(syncBlock[0], /container\.getAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR\) === 'true'/);
     assert.match(syncBlock[0], /controls\.getAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR\) === 'true'/);
     assert.match(syncBlock[0], /setGitalkSortMenuState\(controls, direction/);
     assert.match(syncBlock[0], /applyGitalkDomSort\(container, direction\)/);

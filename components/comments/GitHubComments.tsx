@@ -130,6 +130,8 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
       canceled = true;
       observer.disconnect();
       container.innerHTML = '';
+      container.removeAttribute(GITALK_SORT_DIRECTION_ATTR);
+      container.removeAttribute(GITALK_DOM_SORT_FALLBACK_ATTR);
     };
   }, [admin, canLoadGitalk, commentId, compact, config, owner, repo, retryKey, term, title]);
 
@@ -444,15 +446,20 @@ function syncGitalkSortControls(container: HTMLElement) {
 
   const activeAction = sortActions.find((action) => action.classList.contains('is--active'));
   const storedDirection = controls.getAttribute(GITALK_SORT_DIRECTION_ATTR);
+  const persistedDirection = container.getAttribute(GITALK_SORT_DIRECTION_ATTR);
   const direction: GitalkSortDirection = storedDirection === 'first' || storedDirection === 'last'
     ? storedDirection
+    : persistedDirection === 'first' || persistedDirection === 'last'
+      ? persistedDirection
     : activeAction
       ? getGitalkSortDirection(activeAction)
       : 'last';
   controls.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+  container.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls.hidden = false;
   setGitalkSortMenuState(controls, direction, controls.getAttribute(GITALK_SORT_OPEN_ATTR) === 'true');
   const shouldApplyDomSort = controls.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
+    || container.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
     || (!isGitalkAuthenticated(container) && sortActions.length === 0);
   if (shouldApplyDomSort) {
     applyGitalkDomSort(container, direction);
@@ -527,6 +534,8 @@ function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirecti
   const controls = container.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
   controls?.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls?.setAttribute(GITALK_DOM_SORT_FALLBACK_ATTR, 'true');
+  container.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+  container.setAttribute(GITALK_DOM_SORT_FALLBACK_ATTR, 'true');
   if (controls) {
     setGitalkSortMenuState(controls, direction, false);
   }
