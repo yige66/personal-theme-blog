@@ -30531,12 +30531,13 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
   margin-left: 8px !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select,
-.moment-gitalk .xh-gitalk-sort-select {
+.custom-gitalk-glass .xh-gitalk-sort-trigger,
+.moment-gitalk .xh-gitalk-sort-trigger {
+  position: relative !important;
+  z-index: 1 !important;
   min-width: 92px !important;
   min-height: 28px !important;
   padding: 0 18px 0 0 !important;
-  appearance: none !important;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
@@ -30547,31 +30548,81 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
   font-weight: 600 !important;
   line-height: 24px !important;
   cursor: pointer !important;
+  text-align: left !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select:hover,
-.moment-gitalk .xh-gitalk-sort-select:hover {
+.custom-gitalk-glass .xh-gitalk-sort-trigger:hover,
+.moment-gitalk .xh-gitalk-sort-trigger:hover {
   border-color: transparent !important;
   background: transparent !important;
   color: rgba(255, 255, 255, 1) !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select option,
-.moment-gitalk .xh-gitalk-sort-select option {
-  background: #211b3a !important;
-  color: rgba(255, 255, 255, 0.94) !important;
-}
-
-.custom-gitalk-glass .xh-gitalk-sort-select:focus-visible,
-.moment-gitalk .xh-gitalk-sort-select:focus-visible {
+.custom-gitalk-glass .xh-gitalk-sort-trigger:focus-visible,
+.moment-gitalk .xh-gitalk-sort-trigger:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent) !important;
   outline-offset: 2px !important;
 }
 
-.custom-gitalk-glass .xh-gitalk-sort-select:disabled,
-.moment-gitalk .xh-gitalk-sort-select:disabled {
-  cursor: default !important;
-  opacity: 0.66 !important;
+.custom-gitalk-glass .xh-gitalk-sort-menu,
+.moment-gitalk .xh-gitalk-sort-menu {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  right: 0 !important;
+  z-index: 20 !important;
+  display: grid !important;
+  min-width: 136px !important;
+  max-width: calc(100vw - 24px) !important;
+  gap: 2px !important;
+  margin: 0 !important;
+  padding: 6px !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 10px !important;
+  background: rgba(33, 27, 58, 0.96) !important;
+  box-shadow: 0 14px 30px rgba(13, 10, 28, 0.38) !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-menu[hidden],
+.moment-gitalk .xh-gitalk-sort-menu[hidden] {
+  display: none !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-option,
+.moment-gitalk .xh-gitalk-sort-option {
+  display: block !important;
+  width: 100% !important;
+  min-height: 32px !important;
+  padding: 6px 10px !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 20px !important;
+  text-align: left !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-option:hover,
+.custom-gitalk-glass .xh-gitalk-sort-option:focus-visible,
+.custom-gitalk-glass .xh-gitalk-sort-option.is-selected,
+.moment-gitalk .xh-gitalk-sort-option:hover,
+.moment-gitalk .xh-gitalk-sort-option:focus-visible,
+.moment-gitalk .xh-gitalk-sort-option.is-selected {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #fff !important;
+}
+
+.custom-gitalk-glass .xh-gitalk-sort-option:focus-visible,
+.moment-gitalk .xh-gitalk-sort-option:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 72%, transparent) !important;
+  outline-offset: -2px !important;
 }
 
 .custom-gitalk-glass .gt-popup .gt-action-sortasc,
@@ -30620,8 +30671,8 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
     margin-left: 0 !important;
   }
 
-  .custom-gitalk-glass .xh-gitalk-sort-select,
-  .moment-gitalk .xh-gitalk-sort-select {
+  .custom-gitalk-glass .xh-gitalk-sort-trigger,
+  .moment-gitalk .xh-gitalk-sort-trigger {
     min-width: 92px !important;
     max-width: none !important;
   }

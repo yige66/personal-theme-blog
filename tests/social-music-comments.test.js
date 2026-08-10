@@ -365,7 +365,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(homeCss, /\.gt-comment-edit,[\s\S]*?right: 12px !important/);
     assert.match(comments, /function syncGitalkSortControls/);
     assert.match(comments, /gt-action-sortasc/);
-    assert.match(comments, /xh-gitalk-sort-select/);
+    assert.match(comments, /xh-gitalk-sort-trigger/);
     assert.match(homeCss, /\.xh-gitalk-sort-controls/);
     assert.match(homeCss, /gt-action-sortasc[\s\S]*?display: none !important/);
     assert.match(homeCss, /gt-action-logout[\s\S]*?display: inline-flex !important/);
@@ -375,20 +375,26 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.doesNotMatch(comments, /select\.disabled = !authenticated/);
   });
 
-  it('keeps native selection and applies the selected comment sort direction', async () => {
+  it('keeps an in-page sort menu and applies the selected comment sort direction', async () => {
     const [comments, homeCss] = await Promise.all([
       readFile('components/comments/GitHubComments.tsx', 'utf8'),
       readFile('app/home-overrides.css', 'utf8')
     ]);
 
-    assert.match(comments, /GITALK_SORT_SELECT_CLASS/);
+    assert.match(comments, /GITALK_SORT_TRIGGER_CLASS/);
+    assert.match(comments, /GITALK_SORT_MENU_CLASS/);
+    assert.match(comments, /GITALK_SORT_OPTION_CLASS/);
     assert.match(comments, /GITALK_DOM_SORT_FALLBACK_ATTR/);
-    assert.match(comments, /document\.createElement\('select'\)/);
-    assert.match(comments, /select\.addEventListener\('change'/);
-    assert.match(comments, /activateGitalkSort\(container, select\.value as GitalkSortDirection\)/);
-    assert.match(homeCss, /\.xh-gitalk-sort-select/);
-    assert.doesNotMatch(comments, /GITALK_SORT_TOGGLE_CLASS/);
-    assert.doesNotMatch(comments, /document\.createElement\('button'\)/);
+    assert.match(comments, /document\.createElement\('button'\)/);
+    assert.match(comments, /trigger\.setAttribute\('aria-haspopup', 'listbox'\)/);
+    assert.match(comments, /menu\.setAttribute\('role', 'listbox'\)/);
+    assert.match(comments, /option\.setAttribute\('role', 'option'\)/);
+    assert.match(comments, /option\.addEventListener\('click'/);
+    assert.match(comments, /activateGitalkSort\(container, option\.dataset\.value as GitalkSortDirection\)/);
+    assert.match(homeCss, /\.xh-gitalk-sort-trigger/);
+    assert.match(homeCss, /\.xh-gitalk-sort-menu/);
+    assert.doesNotMatch(comments, /GITALK_SORT_SELECT_CLASS/);
+    assert.doesNotMatch(comments, /document\.createElement\('select'\)/);
 
     const activateBlock = comments.match(/function activateGitalkSort\([\s\S]*?\r?\n}\r?\n\r?\nfunction clickGitalkSortAction/);
     assert.ok(activateBlock, 'sort activation function should remain source-visible');
@@ -400,6 +406,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     const syncBlock = comments.match(/function syncGitalkSortControls\([\s\S]*?\r?\n}\r?\n\r?\nfunction activateGitalkSort/);
     assert.ok(syncBlock, 'sort sync function should remain source-visible');
     assert.match(syncBlock[0], /controls\.getAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR\) === 'true'/);
+    assert.match(syncBlock[0], /setGitalkSortMenuState\(controls, direction/);
     assert.match(syncBlock[0], /applyGitalkDomSort\(container, direction\)/);
   });
 });

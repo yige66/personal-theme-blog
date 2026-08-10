@@ -45,8 +45,11 @@ const GITHUB_API_PROXY_PATH = '/api/github';
 const GITALK_SECRET_OPTION = ['client', 'Secret'].join('');
 const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5\d{2})|network error|failed to fetch)/i;
 const GITALK_SORT_CONTROL_CLASS = 'xh-gitalk-sort-controls';
-const GITALK_SORT_SELECT_CLASS = 'xh-gitalk-sort-select';
+const GITALK_SORT_TRIGGER_CLASS = 'xh-gitalk-sort-trigger';
+const GITALK_SORT_MENU_CLASS = 'xh-gitalk-sort-menu';
+const GITALK_SORT_OPTION_CLASS = 'xh-gitalk-sort-option';
 const GITALK_SORT_DIRECTION_ATTR = 'data-xh-gitalk-sort-direction';
+const GITALK_SORT_OPEN_ATTR = 'data-xh-gitalk-sort-open';
 const GITALK_DOM_SORT_FALLBACK_ATTR = 'data-xh-gitalk-dom-sort-fallback';
 const GITALK_COMMENT_ORDER_ATTR = 'data-xh-gitalk-order';
 
@@ -59,6 +62,7 @@ const GITALK_SORT_OPTIONS: Array<{ value: GitalkSortDirection; label: string }> 
 
 let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
+let gitalkSortDocumentHandlersInstalled = false;
 const GITALK_COMMENT_CONTROL_HOSTS = new WeakSet<HTMLElement>();
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
@@ -323,27 +327,96 @@ function syncGitalkSortControls(container: HTMLElement) {
     return;
   }
 
+  installGitalkSortDocumentHandlers();
+
   let controls = meta.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
   if (!controls) {
     controls = document.createElement('div');
+    const sortControls = controls;
     controls.className = GITALK_SORT_CONTROL_CLASS;
     controls.setAttribute('role', 'group');
     controls.setAttribute('aria-label', '评论排序');
 
-    const select = document.createElement('select');
-    select.className = GITALK_SORT_SELECT_CLASS;
-    select.setAttribute('aria-label', '评论排序');
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = GITALK_SORT_TRIGGER_CLASS;
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-label', '评论排序');
+    trigger.addEventListener('click', () => {
+      const direction = getGitalkSortDirectionFromControls(sortControls);
+      setGitalkSortMenuState(sortControls, direction, sortControls.getAttribute(GITALK_SORT_OPEN_ATTR) !== 'true');
+    });
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setGitalkSortMenuState(sortControls, getGitalkSortDirectionFromControls(sortControls), false);
+        return;
+      }
+
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      const direction = getGitalkSortDirectionFromControls(sortControls);
+      setGitalkSortMenuState(sortControls, direction, true);
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        focusGitalkSortOption(sortControls, direction);
+      }
+    });
+
+    const menu = document.createElement('div');
+    menu.className = GITALK_SORT_MENU_CLASS;
+    menu.setAttribute('role', 'listbox');
+    menu.setAttribute('aria-label', '评论排序选项');
+    menu.hidden = true;
+
     GITALK_SORT_OPTIONS.forEach(({ value, label }) => {
-      const option = document.createElement('option');
-      option.value = value;
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = GITALK_SORT_OPTION_CLASS;
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', 'false');
+      option.dataset.value = value;
+      option.tabIndex = -1;
       option.textContent = label;
-      select.appendChild(option);
+      option.addEventListener('click', () => {
+        if (option.dataset.value !== 'first' && option.dataset.value !== 'last') {
+          return;
+        }
+
+        activateGitalkSort(container, option.dataset.value as GitalkSortDirection);
+        setGitalkSortMenuState(sortControls, option.dataset.value as GitalkSortDirection, false);
+        trigger.focus();
+      });
+      option.addEventListener('keydown', (event) => {
+        const options = Array.from(sortControls.querySelectorAll<HTMLButtonElement>(`.${GITALK_SORT_OPTION_CLASS}`));
+        const currentIndex = options.indexOf(option);
+
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const offset = event.key === 'ArrowDown' ? 1 : -1;
+          const nextIndex = (currentIndex + offset + options.length) % options.length;
+          options[nextIndex]?.focus();
+          return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          option.click();
+          return;
+        }
+
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setGitalkSortMenuState(sortControls, getGitalkSortDirectionFromControls(sortControls), false);
+          trigger.focus();
+        }
+      });
+      menu.appendChild(option);
     });
-    select.value = 'last';
-    select.addEventListener('change', () => {
-      activateGitalkSort(container, select.value as GitalkSortDirection);
-    });
-    controls.appendChild(select);
+    controls.append(trigger, menu);
   }
 
   const user = meta.querySelector<HTMLElement>('.gt-user');
@@ -353,8 +426,9 @@ function syncGitalkSortControls(container: HTMLElement) {
     meta.appendChild(controls);
   }
 
-  const select = controls.querySelector<HTMLSelectElement>(`.${GITALK_SORT_SELECT_CLASS}`);
-  if (!select) {
+  const trigger = controls.querySelector<HTMLButtonElement>(`.${GITALK_SORT_TRIGGER_CLASS}`);
+  const menu = controls.querySelector<HTMLElement>(`.${GITALK_SORT_MENU_CLASS}`);
+  if (!trigger || !menu) {
     return;
   }
 
@@ -377,8 +451,7 @@ function syncGitalkSortControls(container: HTMLElement) {
       : 'last';
   controls.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls.hidden = false;
-  select.disabled = false;
-  select.value = direction;
+  setGitalkSortMenuState(controls, direction, controls.getAttribute(GITALK_SORT_OPEN_ATTR) === 'true');
   const shouldApplyDomSort = controls.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
     || (!isGitalkAuthenticated(container) && sortActions.length === 0);
   if (shouldApplyDomSort) {
@@ -386,13 +459,76 @@ function syncGitalkSortControls(container: HTMLElement) {
   }
 }
 
+function installGitalkSortDocumentHandlers() {
+  if (gitalkSortDocumentHandlersInstalled) {
+    return;
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element) || target.closest(`.${GITALK_SORT_CONTROL_CLASS}`)) {
+      return;
+    }
+
+    document.querySelectorAll<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}[${GITALK_SORT_OPEN_ATTR}="true"]`).forEach((controls) => {
+      const direction = getGitalkSortDirectionFromControls(controls);
+      setGitalkSortMenuState(controls, direction, false);
+    });
+  }, { capture: true });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    document.querySelectorAll<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}[${GITALK_SORT_OPEN_ATTR}="true"]`).forEach((controls) => {
+      const direction = getGitalkSortDirectionFromControls(controls);
+      setGitalkSortMenuState(controls, direction, false);
+    });
+  }, { capture: true });
+
+  gitalkSortDocumentHandlersInstalled = true;
+}
+
+function getGitalkSortDirectionFromControls(controls: HTMLElement): GitalkSortDirection {
+  const direction = controls.getAttribute(GITALK_SORT_DIRECTION_ATTR);
+  return direction === 'first' || direction === 'last' ? direction : 'last';
+}
+
+function setGitalkSortMenuState(controls: HTMLElement, direction: GitalkSortDirection, open: boolean) {
+  const trigger = controls.querySelector<HTMLButtonElement>(`.${GITALK_SORT_TRIGGER_CLASS}`);
+  const menu = controls.querySelector<HTMLElement>(`.${GITALK_SORT_MENU_CLASS}`);
+  if (!trigger || !menu) {
+    return;
+  }
+
+  const selected = GITALK_SORT_OPTIONS.find((option) => option.value === direction) || GITALK_SORT_OPTIONS[0];
+  if (trigger.textContent !== selected.label) {
+    trigger.textContent = selected.label;
+  }
+  trigger.setAttribute('aria-expanded', String(open));
+  controls.setAttribute(GITALK_SORT_OPEN_ATTR, String(open));
+  menu.hidden = !open;
+  menu.querySelectorAll<HTMLButtonElement>(`.${GITALK_SORT_OPTION_CLASS}`).forEach((option) => {
+    const isSelected = option.dataset.value === direction;
+    option.setAttribute('aria-selected', String(isSelected));
+    option.classList.toggle('is-selected', isSelected);
+  });
+}
+
+function focusGitalkSortOption(controls: HTMLElement, direction: GitalkSortDirection) {
+  const option = controls.querySelector<HTMLButtonElement>(
+    `.${GITALK_SORT_OPTION_CLASS}[data-value="${direction}"]`
+  );
+  option?.focus();
+}
+
 function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirection) {
   const controls = container.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
   controls?.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls?.setAttribute(GITALK_DOM_SORT_FALLBACK_ATTR, 'true');
-  const select = controls?.querySelector<HTMLSelectElement>(`.${GITALK_SORT_SELECT_CLASS}`);
-  if (select && select.value !== direction) {
-    select.value = direction;
+  if (controls) {
+    setGitalkSortMenuState(controls, direction, false);
   }
 
   const action = findGitalkSortAction(container, direction);
