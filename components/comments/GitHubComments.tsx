@@ -453,7 +453,7 @@ function syncGitalkSortControls(container: HTMLElement) {
       ? persistedDirection
     : activeAction
       ? getGitalkSortDirection(activeAction)
-      : 'last';
+      : 'first';
   controls.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   container.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
   controls.hidden = false;
@@ -499,7 +499,7 @@ function installGitalkSortDocumentHandlers() {
 
 function getGitalkSortDirectionFromControls(controls: HTMLElement): GitalkSortDirection {
   const direction = controls.getAttribute(GITALK_SORT_DIRECTION_ATTR);
-  return direction === 'first' || direction === 'last' ? direction : 'last';
+  return direction === 'first' || direction === 'last' ? direction : 'first';
 }
 
 function setGitalkSortMenuState(controls: HTMLElement, direction: GitalkSortDirection, open: boolean) {

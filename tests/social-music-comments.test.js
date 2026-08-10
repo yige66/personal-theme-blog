@@ -418,5 +418,6 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(syncBlock[0], /controls\.getAttribute\(GITALK_DOM_SORT_FALLBACK_ATTR\) === 'true'/);
     assert.match(syncBlock[0], /setGitalkSortMenuState\(controls, direction/);
     assert.match(syncBlock[0], /applyGitalkDomSort\(container, direction\)/);
+    assert.match(syncBlock[0], /: 'first';/);
   });
 });
