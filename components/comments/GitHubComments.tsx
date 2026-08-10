@@ -64,6 +64,7 @@ let gitalkLoader: Promise<GitalkConstructor> | null = null;
 let githubApiProxyInstalled = false;
 let gitalkSortDocumentHandlersInstalled = false;
 const GITALK_COMMENT_CONTROL_HOSTS = new WeakSet<HTMLElement>();
+const gitalkCommentBaseOrder = new WeakMap<HTMLElement, string[]>();
 
 export function GitHubComments({ compact = false, config, term, title }: GitHubCommentsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -132,6 +133,7 @@ export function GitHubComments({ compact = false, config, term, title }: GitHubC
       container.innerHTML = '';
       container.removeAttribute(GITALK_SORT_DIRECTION_ATTR);
       container.removeAttribute(GITALK_DOM_SORT_FALLBACK_ATTR);
+      gitalkCommentBaseOrder.delete(container);
     };
   }, [admin, canLoadGitalk, commentId, compact, config, owner, repo, retryKey, term, title]);
 
@@ -576,6 +578,12 @@ function clickGitalkSortAction(container: HTMLElement, direction: GitalkSortDire
   }
 }
 
+function getGitalkCommentKey(comment: Element): string {
+  const author = comment.querySelector<HTMLElement>('.gt-comment-username');
+  const content = comment.querySelector<HTMLElement>('.gt-comment-content')?.textContent || comment.textContent || '';
+  return `${author?.getAttribute('href') || author?.textContent?.trim() || ''}|${content.replace(/\s+/g, ' ').trim()}`;
+}
+
 function applyGitalkDomSort(container: HTMLElement, direction: GitalkSortDirection) {
   const comments = container.querySelector<HTMLElement>('.gt-comments');
   const firstChild = comments?.firstElementChild;
@@ -589,20 +597,32 @@ function applyGitalkDomSort(container: HTMLElement, direction: GitalkSortDirecti
     return;
   }
 
-  let nextOrder = commentNodes.reduce((max, comment) => {
-    const order = Number(comment.getAttribute(GITALK_COMMENT_ORDER_ATTR));
-    return Number.isFinite(order) ? Math.max(max, order + 1) : max;
-  }, 0);
+  const commentKeys = commentNodes.map(getGitalkCommentKey);
+  let baseOrder = gitalkCommentBaseOrder.get(container);
+  if (!baseOrder) {
+    baseOrder = [...commentKeys];
+    gitalkCommentBaseOrder.set(container, baseOrder);
+  } else {
+    const knownKeys = new Set(baseOrder);
+    const newKeys = commentKeys.filter((key, index) => !knownKeys.has(key) && commentKeys.indexOf(key) === index);
+    if (newKeys.length > 0) {
+      const firstKnownKey = commentKeys.find((key) => knownKeys.has(key));
+      const firstKnownIndex = firstKnownKey ? baseOrder.indexOf(firstKnownKey) : baseOrder.length;
+      baseOrder.splice(firstKnownIndex >= 0 ? firstKnownIndex : baseOrder.length, 0, ...newKeys);
+    }
+  }
+
+  const orderByKey = new Map(baseOrder.map((key, index) => [key, index]));
   commentNodes.forEach((comment) => {
-    if (!comment.hasAttribute(GITALK_COMMENT_ORDER_ATTR)) {
-      comment.setAttribute(GITALK_COMMENT_ORDER_ATTR, String(nextOrder));
-      nextOrder += 1;
+    const order = orderByKey.get(getGitalkCommentKey(comment));
+    if (order !== undefined) {
+      comment.setAttribute(GITALK_COMMENT_ORDER_ATTR, String(order + 1));
     }
   });
 
   const ordered = [...commentNodes].sort((left, right) => {
-    const leftOrder = Number(left.getAttribute(GITALK_COMMENT_ORDER_ATTR));
-    const rightOrder = Number(right.getAttribute(GITALK_COMMENT_ORDER_ATTR));
+    const leftOrder = orderByKey.get(getGitalkCommentKey(left)) ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = orderByKey.get(getGitalkCommentKey(right)) ?? Number.MAX_SAFE_INTEGER;
     return direction === 'last' ? rightOrder - leftOrder : leftOrder - rightOrder;
   });
   const current = Array.from(list.children).filter((child) => child.classList.contains('gt-comment'));
