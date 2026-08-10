@@ -395,7 +395,7 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.ok(sortOptions, 'sort options should remain source-visible');
     assert.match(
       sortOptions[0],
-      /\{ value: 'first', label: '\u4ece\u65e7\u5230\u65b0' \}[\s\S]*\{ value: 'last', label: '\u4ece\u65b0\u5230\u65e7' \}/
+      /\{ value: 'first', label: '\u4ece\u65b0\u5230\u65e7' \}[\s\S]*\{ value: 'last', label: '\u4ece\u65e7\u5230\u65b0' \}/
     );
     assert.match(homeCss, /\.xh-gitalk-sort-trigger/);
     assert.match(homeCss, /\.xh-gitalk-sort-menu/);
