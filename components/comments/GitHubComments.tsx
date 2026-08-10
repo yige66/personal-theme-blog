@@ -47,6 +47,7 @@ const GITALK_REMOTE_ERROR_PATTERN = /(?:request failed|status code\s+(?:4\d{2}|5
 const GITALK_SORT_CONTROL_CLASS = 'xh-gitalk-sort-controls';
 const GITALK_SORT_SELECT_CLASS = 'xh-gitalk-sort-select';
 const GITALK_SORT_DIRECTION_ATTR = 'data-xh-gitalk-sort-direction';
+const GITALK_DOM_SORT_FALLBACK_ATTR = 'data-xh-gitalk-dom-sort-fallback';
 const GITALK_COMMENT_ORDER_ATTR = 'data-xh-gitalk-order';
 
 type GitalkSortDirection = 'first' | 'last';
@@ -378,7 +379,9 @@ function syncGitalkSortControls(container: HTMLElement) {
   controls.hidden = false;
   select.disabled = false;
   select.value = direction;
-  if (!isGitalkAuthenticated(container) && sortActions.length === 0) {
+  const shouldApplyDomSort = controls.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
+    || (!isGitalkAuthenticated(container) && sortActions.length === 0);
+  if (shouldApplyDomSort) {
     applyGitalkDomSort(container, direction);
   }
 }
@@ -386,6 +389,7 @@ function syncGitalkSortControls(container: HTMLElement) {
 function activateGitalkSort(container: HTMLElement, direction: GitalkSortDirection) {
   const controls = container.querySelector<HTMLElement>(`.${GITALK_SORT_CONTROL_CLASS}`);
   controls?.setAttribute(GITALK_SORT_DIRECTION_ATTR, direction);
+  controls?.setAttribute(GITALK_DOM_SORT_FALLBACK_ATTR, 'true');
   const select = controls?.querySelector<HTMLSelectElement>(`.${GITALK_SORT_SELECT_CLASS}`);
   if (select && select.value !== direction) {
     select.value = direction;
