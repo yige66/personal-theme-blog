@@ -462,7 +462,7 @@ function syncGitalkSortControls(container: HTMLElement) {
   setGitalkSortMenuState(controls, direction, controls.getAttribute(GITALK_SORT_OPEN_ATTR) === 'true');
   const shouldApplyDomSort = controls.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
     || container.getAttribute(GITALK_DOM_SORT_FALLBACK_ATTR) === 'true'
-    || (!isGitalkAuthenticated(container) && sortActions.length === 0);
+    || sortActions.length === 0;
   if (shouldApplyDomSort) {
     applyGitalkDomSort(container, direction);
   }
@@ -584,6 +584,71 @@ function getGitalkCommentKey(comment: Element): string {
   return `${author?.getAttribute('href') || author?.textContent?.trim() || ''}|${content.replace(/\s+/g, ' ').trim()}`;
 }
 
+function getGitalkCommentTimestamp(comment: Element, now: number): number | null {
+  const text = comment.querySelector<HTMLElement>('.gt-comment-date')?.textContent?.trim() || '';
+  if (!text || /刚刚|just now/i.test(text)) {
+    return text ? now : null;
+  }
+
+  const chineseRelative = text.replace(/\s+/g, '').match(/(\d+(?:\.\d+)?)(秒|分钟|小时|天|周|个月|月|年)前/);
+  const englishRelative = text.match(/(\d+(?:\.\d+)?)\s*(seconds?|minutes?|hours?|days?|weeks?|months?|years?)\s*ago/i);
+  const relative = chineseRelative || englishRelative;
+  if (relative) {
+    const value = Number(relative[1]);
+    const unit = relative[2].toLowerCase();
+    let unitMilliseconds: number;
+    switch (unit) {
+      case '秒':
+      case 'second':
+      case 'seconds':
+        unitMilliseconds = 1000;
+        break;
+      case '分钟':
+      case 'minute':
+      case 'minutes':
+        unitMilliseconds = 60 * 1000;
+        break;
+      case '小时':
+      case 'hour':
+      case 'hours':
+        unitMilliseconds = 60 * 60 * 1000;
+        break;
+      case '天':
+      case 'day':
+      case 'days':
+        unitMilliseconds = 24 * 60 * 60 * 1000;
+        break;
+      case '周':
+      case 'week':
+      case 'weeks':
+        unitMilliseconds = 7 * 24 * 60 * 60 * 1000;
+        break;
+      case '个月':
+      case '月':
+      case 'month':
+      case 'months':
+        unitMilliseconds = 30 * 24 * 60 * 60 * 1000;
+        break;
+      case '年':
+      case 'year':
+      case 'years':
+        unitMilliseconds = 365 * 24 * 60 * 60 * 1000;
+        break;
+      default:
+        return null;
+    }
+    return Number.isFinite(value) ? now - value * unitMilliseconds : null;
+  }
+
+  const absolute = text.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
+  if (absolute) {
+    return new Date(Number(absolute[1]), Number(absolute[2]) - 1, Number(absolute[3])).getTime();
+  }
+
+  const parsed = Date.parse(text);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function applyGitalkDomSort(container: HTMLElement, direction: GitalkSortDirection) {
   const comments = container.querySelector<HTMLElement>('.gt-comments');
   const firstChild = comments?.firstElementChild;
@@ -613,14 +678,22 @@ function applyGitalkDomSort(container: HTMLElement, direction: GitalkSortDirecti
   }
 
   const orderByKey = new Map(baseOrder.map((key, index) => [key, index]));
+  const now = Date.now();
+  const timestampByComment = new Map<Element, number | null>();
   commentNodes.forEach((comment) => {
     const order = orderByKey.get(getGitalkCommentKey(comment));
     if (order !== undefined) {
       comment.setAttribute(GITALK_COMMENT_ORDER_ATTR, String(order + 1));
     }
+    timestampByComment.set(comment, getGitalkCommentTimestamp(comment, now));
   });
 
   const ordered = [...commentNodes].sort((left, right) => {
+    const leftTimestamp = timestampByComment.get(left) ?? null;
+    const rightTimestamp = timestampByComment.get(right) ?? null;
+    if (leftTimestamp !== null && rightTimestamp !== null && leftTimestamp !== rightTimestamp) {
+      return direction === 'first' ? rightTimestamp - leftTimestamp : leftTimestamp - rightTimestamp;
+    }
     const leftOrder = orderByKey.get(getGitalkCommentKey(left)) ?? Number.MAX_SAFE_INTEGER;
     const rightOrder = orderByKey.get(getGitalkCommentKey(right)) ?? Number.MAX_SAFE_INTEGER;
     return direction === 'last' ? rightOrder - leftOrder : leftOrder - rightOrder;

@@ -372,7 +372,10 @@ describe('target-style music, friends, and GitHub comments', () => {
     assert.match(comments, /function applyGitalkDomSort/);
     assert.match(comments, /const gitalkCommentBaseOrder = new WeakMap/);
     assert.match(comments, /function getGitalkCommentKey/);
+    assert.match(comments, /function getGitalkCommentTimestamp/);
     assert.match(comments, /gitalkCommentBaseOrder\.get\(container\)/);
+    assert.match(comments, /direction === 'first' \? rightTimestamp - leftTimestamp : leftTimestamp - rightTimestamp/);
+    assert.match(comments, /\|\| sortActions\.length === 0/);
     assert.match(comments, /appendChild\(comment\)/);
     assert.doesNotMatch(comments, /controls\.hidden = !authenticated/);
     assert.doesNotMatch(comments, /select\.disabled = !authenticated/);
