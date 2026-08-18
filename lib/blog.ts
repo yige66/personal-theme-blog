@@ -767,8 +767,19 @@ export function mergeRepositoryFriendLinks(remoteData: BlogData, repositoryData:
     return remoteData;
   }
 
-  // Keep versioned friend links visible while an empty or suspended Blob is repaired.
-  return { ...remoteData, links: repositoryData.links };
+  // Keep versioned links and their public application copy visible while an empty or suspended Blob is repaired.
+  const repositorySiteDescription = repositoryData.site?.friendLinkApply?.siteDescription;
+  const site = remoteData.site && repositorySiteDescription?.trim()
+    ? {
+        ...remoteData.site,
+        friendLinkApply: {
+          ...remoteData.site.friendLinkApply,
+          siteDescription: repositorySiteDescription
+        }
+      }
+    : remoteData.site;
+
+  return { ...remoteData, ...(site ? { site } : {}), links: repositoryData.links };
 }
 
 async function readRepositoryBlogData(): Promise<BlogData> {

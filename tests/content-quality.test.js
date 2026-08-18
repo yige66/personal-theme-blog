@@ -83,6 +83,21 @@ describe('published content quality', () => {
     );
   });
 
+  it('uses the repository application copy while repairing an empty remote directory', () => {
+    const merged = mergeRepositoryFriendLinks(
+      {
+        links: [],
+        site: { friendLinkApply: { siteDescription: '旧的申请简介' } }
+      },
+      {
+        links: [{ url: 'https://example.com' }],
+        site: { friendLinkApply: { siteDescription: '当你无法回头的时候，才是真正的旅途。' } }
+      }
+    );
+
+    assert.equal(merged.site.friendLinkApply.siteDescription, '当你无法回头的时候，才是真正的旅途。');
+  });
+
   it('removes old test copy and keeps public profile content privacy-safe', async () => {
     const data = await readBlogData();
     const raw = await readFile('data/blog.json', 'utf8');
