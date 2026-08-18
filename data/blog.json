@@ -531,7 +531,7 @@
     "friendLinkApply": {
       "title": "友链申请",
       "siteUrl": "https://yukino-blog.site",
-      "siteDescription": "记录代码、灵感和生活碎片的小小次元，欢迎来交换友链～",
+      "siteDescription": "当你无法回头的时候，才是真正的旅途。",
       "description": "欢迎各位朋友交换友链。复制下方格式，并在底部的评论区评论申请。",
       "copyLabel": "复制",
       "copiedLabel": "已复制",
@@ -1422,6 +1422,12 @@
       "themeColor": "rgba(124, 217, 255, 0.55)",
       "category": "个人站",
       "addedAt": "2026-08-06"
+    },
+    {
+      "title": "miuarc's blog",
+      "url": "https://miuarc.com/",
+      "description": "记录文章、笔记、实验和暂时不想丢掉的内容。",
+      "avatar": "https://miuarc.com/avatar.avif"
     }
   ],
   "notes": [

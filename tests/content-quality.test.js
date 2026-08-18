@@ -50,10 +50,23 @@ describe('published content quality', () => {
     assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
     assert.equal(data.site.friendLinkApply.siteAvatar, undefined);
-    assert.equal(data.links.length, 51);
+    assert.equal(data.links.length, 52);
     assert.equal(data.links.filter((link) => link.url === 'https://yukino-blog.site').length, 0);
     assert.equal(new Set(data.links.map((link) => link.url)).size, data.links.length);
     assert.ok(data.links.every((link) => link.title && link.description && link.avatar));
+  });
+
+  it('publishes the next verified reciprocal link with the current application copy', async () => {
+    const data = await readBlogData();
+    const miuarc = data.links.find((link) => link.url === 'https://miuarc.com/');
+
+    assert.deepEqual(miuarc, {
+      title: "miuarc's blog",
+      description: '记录文章、笔记、实验和暂时不想丢掉的内容。',
+      url: 'https://miuarc.com/',
+      avatar: 'https://miuarc.com/avatar.avif'
+    });
+    assert.equal(data.site.friendLinkApply.siteDescription, '当你无法回头的时候，才是真正的旅途。');
   });
 
   it('only uses repository friend links when the remote directory is empty', () => {
