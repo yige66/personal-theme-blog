@@ -330,6 +330,30 @@ describe('blog administration operating system', () => {
     assert.match(aboutRoom, /href=\{activityHref\}/);
   });
 
+  it('exposes the personal Bilibili display name in the About contact card', async () => {
+    const aboutRoom = await readFile('components/channels/AboutRoom.tsx', 'utf8');
+
+    assert.match(
+      aboutRoom,
+      /<dt>Bilibili<\/dt>\s*<dd><a href="https:\/\/space\.bilibili\.com\/474138460" target="_blank" rel="noreferrer">Just丨Because<\/a><\/dd>/
+    );
+  });
+
+  it('labels the GitHub contact with Yuki and distinguishes contact links visually', async () => {
+    const [aboutRoom, homeCss] = await Promise.all([
+      readFile('components/channels/AboutRoom.tsx', 'utf8'),
+      readFile('app/home-overrides.css', 'utf8')
+    ]);
+
+    assert.match(
+      aboutRoom,
+      /<dt>GitHub<\/dt>\s*<dd><a href=\{site\.github\} target="_blank" rel="noreferrer">Yuki<\/a><\/dd>/
+    );
+    assert.match(homeCss, /#xh-app-root \.about-page \.about-contact-card a \{[\s\S]*color: #a5b4fc !important;[\s\S]*text-decoration-line: underline !important;/);
+    assert.match(homeCss, /#xh-app-root \.about-page \.about-contact-card a:hover/);
+    assert.match(homeCss, /#xh-app-root \.about-page \.about-contact-card a:focus-visible/);
+  });
+
   it('keeps admin-managed entry copy as the source of truth for the splash screen', async () => {
     const [splashScreen, adminConfig, blog] = await Promise.all([
       readFile('components/SplashScreen.tsx', 'utf8'),

@@ -30677,3 +30677,26 @@ html body:has(:is(.subpage, .article-page, .friends-page)) :is(.github-comments-
     max-width: none !important;
   }
 }
+
+/* Keep About contact links distinct from surrounding copy and keyboard-visible. */
+#xh-app-root .about-page .about-contact-card a {
+  color: #a5b4fc !important;
+  font-weight: 900 !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 0.1em !important;
+  text-underline-offset: 0.18em !important;
+  text-decoration-color: currentColor !important;
+  transition: color 160ms ease, text-decoration-thickness 160ms ease !important;
+}
+
+#xh-app-root .about-page .about-contact-card a:hover {
+  color: #c4b5fd !important;
+  text-decoration-thickness: 0.14em !important;
+}
+
+#xh-app-root .about-page .about-contact-card a:focus-visible {
+  color: #c4b5fd !important;
+  outline: 2px solid #a5b4fc !important;
+  outline-offset: 3px !important;
+  border-radius: 0.2rem !important;
+}

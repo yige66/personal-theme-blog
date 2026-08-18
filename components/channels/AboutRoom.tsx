@@ -156,7 +156,11 @@ export function AboutRoom({ activeTab, activities, page, site, stats }: AboutRoo
               </div>
               <div>
                 <dt>GitHub</dt>
-                <dd><a href={site.github} target="_blank" rel="noreferrer">yige66</a></dd>
+                <dd><a href={site.github} target="_blank" rel="noreferrer">Yuki</a></dd>
+              </div>
+              <div>
+                <dt>Bilibili</dt>
+                <dd><a href="https://space.bilibili.com/474138460" target="_blank" rel="noreferrer">Just丨Because</a></dd>
               </div>
             </dl>
           </aside>
