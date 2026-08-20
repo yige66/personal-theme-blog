@@ -1428,6 +1428,13 @@
       "url": "https://miuarc.com/",
       "description": "记录文章、笔记、实验和暂时不想丢掉的内容。",
       "avatar": "https://miuarc.com/avatar.avif"
+    },
+    {
+      "title": "Bbzv的个人博客",
+      "url": "https://bbzv-xinghuisama-blogs.vercel.app/about",
+      "description": "使生如夏花之绚烂，死如秋叶之静美",
+      "avatar": "https://bu.dusays.com/2026/08/20/6a867e915d145.jpg",
+      "addedAt": "2026-08-20"
     }
   ],
   "notes": [

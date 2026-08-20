@@ -50,7 +50,7 @@ describe('published content quality', () => {
     assert.equal(data.site.avatar, '/assets/uploads/2026-07-01-illust-133225934-20260306-115848-cropped-4e8597f2.jpg');
     assert.equal(data.site.friendLinkApply.siteUrl, 'https://yukino-blog.site');
     assert.equal(data.site.friendLinkApply.siteAvatar, undefined);
-    assert.equal(data.links.length, 52);
+    assert.equal(data.links.length, 53);
     assert.equal(data.links.filter((link) => link.url === 'https://yukino-blog.site').length, 0);
     assert.equal(new Set(data.links.map((link) => link.url)).size, data.links.length);
     assert.ok(data.links.every((link) => link.title && link.description && link.avatar));
@@ -67,6 +67,19 @@ describe('published content quality', () => {
       avatar: 'https://miuarc.com/avatar.avif'
     });
     assert.equal(data.site.friendLinkApply.siteDescription, '当你无法回头的时候，才是真正的旅途。');
+  });
+
+  it('publishes the supplied Bbzv friend link details', async () => {
+    const data = await readBlogData();
+    const bbzv = data.links.find((link) => link.url === 'https://bbzv-xinghuisama-blogs.vercel.app/about');
+
+    assert.deepEqual(bbzv, {
+      title: 'Bbzv的个人博客',
+      url: 'https://bbzv-xinghuisama-blogs.vercel.app/about',
+      description: '使生如夏花之绚烂，死如秋叶之静美',
+      avatar: 'https://bu.dusays.com/2026/08/20/6a867e915d145.jpg',
+      addedAt: '2026-08-20'
+    });
   });
 
   it('only uses repository friend links when the remote directory is empty', () => {
